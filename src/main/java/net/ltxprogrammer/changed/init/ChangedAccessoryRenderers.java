@@ -28,6 +28,10 @@ public class ChangedAccessoryRenderers {
                     new SimpleClothingRenderer.ModelComponent(ArmorModel.CLOTHING_OUTER, EquipmentSlot.CHEST),
                     new SimpleClothingRenderer.ModelComponent(ArmorModel.CLOTHING_MIDDLE, EquipmentSlot.LEGS)
             )));
+            AccessoryLayer.registerRenderer(ChangedItems.WETSUIT.get(), SimpleClothingRenderer.of(ArmorModel.CLOTHING_INNER, Set.of(
+                    new SimpleClothingRenderer.ModelComponent(ArmorModel.CLOTHING_INNER, EquipmentSlot.CHEST),
+                    new SimpleClothingRenderer.ModelComponent(ArmorModel.CLOTHING_INNER, EquipmentSlot.LEGS)
+            )));
 
             AccessoryLayer.registerRenderer(ChangedItems.EXOSKELETON.get(), () ->
                     new WornExoskeletonRenderer(modelSet, ExoskeletonModel.LAYER_LOCATION_SUIT, ExoskeletonModel.LAYER_LOCATION_VISOR, ExoskeletonModel.LAYER_LOCATION_HUMAN));
