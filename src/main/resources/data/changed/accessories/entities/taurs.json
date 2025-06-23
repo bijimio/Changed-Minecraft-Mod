@@ -5,6 +5,7 @@
   ],
   "slots": [
     "changed:body",
+    "changed:hands",
     "changed:lower_body",
     "changed:lower_body_side"
   ]

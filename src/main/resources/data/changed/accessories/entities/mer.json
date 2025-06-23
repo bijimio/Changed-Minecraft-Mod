@@ -5,6 +5,7 @@
     "changed:latex_siren"
   ],
   "slots": [
-    "changed:body"
+    "changed:body",
+    "changed:hands"
   ]
 }

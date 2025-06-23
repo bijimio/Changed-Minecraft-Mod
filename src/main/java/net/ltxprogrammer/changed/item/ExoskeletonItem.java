@@ -9,6 +9,7 @@ import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.entity.robot.AbstractRobot;
 import net.ltxprogrammer.changed.entity.robot.ChargerType;
+import net.ltxprogrammer.changed.init.ChangedAccessorySlots;
 import net.ltxprogrammer.changed.init.ChangedDamageSources;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.init.ChangedTags;
@@ -76,6 +77,11 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
                 .map(progress -> progress < 1f).orElse(false);
 
         return !isTransfurring && EntityUtil.maybeGetOverlaying(wearer).getType().is(ChangedTags.EntityTypes.CAN_WEAR_EXOSKELETON);
+    }
+
+    @Override
+    public boolean shouldDisableSlot(AccessorySlotContext<?> slotContext, AccessorySlotType otherSlot) {
+        return AccessoryItem.super.shouldDisableSlot(slotContext, otherSlot) || otherSlot == ChangedAccessorySlots.HANDS.get();
     }
 
     // TODO: extend functionality to allow custom values

@@ -83,7 +83,6 @@
 
   "item.changed.benign_shorts": "Latex Shorts",
   "item.changed.black_tshirt": "Black T-Shirt",
-  "item.changed.wetsuit": "Wetsuit",
   "item.changed.blood_syringe": "Blood Syringe",
   "item.changed.dark_latex_crystal_fragment": "Dark Latex Crystal Shard",
   "item.changed.dark_dragon_crystal_fragment": "Dark Dragon Crystal Shard",
@@ -101,11 +100,13 @@
   "item.changed.latex_syringe": "Latex Syringe",
   "item.changed.wolf_crystal_fragment": "Wolf Crystal Shard",
   "item.changed.latex_tipped_arrow": "Latex Tipped Arrow",
+  "item.changed.nitrile_gloves": "Nitrile Gloves",
   "item.changed.orange": "Orange",
   "item.changed.pink_shorts": "Pink Shorts",
   "item.changed.roomba": "Roomba",
   "item.changed.sports_bra": "Sports Bra",
   "item.changed.syringe": "Syringe",
+  "item.changed.wetsuit": "Wetsuit",
   "item.changed.white_latex_goo": "White Latex Goo",
   "item.changed.white_latex_bucket": "White Latex Bucket",
 

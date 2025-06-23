@@ -6,6 +6,7 @@ import net.minecraft.client.model.geom.builders.CubeDeformation;
 public enum ArmorModel {
     ARMOR_OUTER(
             "armor_outer",
+            ArmorModelType.ARMOR,
             LayerDefinitions.OUTER_ARMOR_DEFORMATION,
             LayerDefinitions.INNER_ARMOR_DEFORMATION,
             new CubeDeformation(0.95F),
@@ -14,6 +15,7 @@ public enum ArmorModel {
             LayerDefinitions.OUTER_ARMOR_DEFORMATION),
     ARMOR_INNER(
             "armor_inner",
+            ArmorModelType.ARMOR,
             new CubeDeformation(-0.25F),
             LayerDefinitions.OUTER_ARMOR_DEFORMATION,
             new CubeDeformation(-0.25F),
@@ -23,6 +25,7 @@ public enum ArmorModel {
 
     CLOTHING_OUTER(
             "clothing_outer",
+            ArmorModelType.CLOTHING,
             ARMOR_OUTER.deformation.extend(-0.75f),
             ARMOR_OUTER.inverseDeformation.extend(-0.66f),
             ARMOR_OUTER.slightDeformation.extend(-0.66f),
@@ -31,6 +34,7 @@ public enum ArmorModel {
             ARMOR_OUTER.dualDeformation.extend(-0.66f)),
     CLOTHING_MIDDLE(
             "clothing_middle",
+            ArmorModelType.CLOTHING,
             ARMOR_INNER.deformation.extend(-0.2f),
             ARMOR_INNER.inverseDeformation.extend(-0.15f),
             ARMOR_INNER.slightDeformation.extend(-0.15f),
@@ -39,6 +43,7 @@ public enum ArmorModel {
             ARMOR_INNER.dualDeformation.extend(-0.15f)),
     CLOTHING_INNER(
             "clothing_inner",
+            ArmorModelType.CLOTHING,
             ARMOR_INNER.deformation.extend(-0.25f),
             ARMOR_INNER.inverseDeformation.extend(-0.2f),
             ARMOR_INNER.slightDeformation.extend(-0.2f),
@@ -46,15 +51,21 @@ public enum ArmorModel {
             ARMOR_INNER.slightAltDeformation.extend(-0.2f),
             ARMOR_INNER.dualDeformation.extend(-0.2f));
 
+    public enum ArmorModelType {
+        ARMOR, CLOTHING;
+    };
+
     public final String identifier;
+    public final ArmorModelType modelType;
     public final CubeDeformation deformation;
     public final CubeDeformation inverseDeformation;
     public final CubeDeformation slightDeformation;
     public final CubeDeformation altDeformation;
     public final CubeDeformation slightAltDeformation;
     public final CubeDeformation dualDeformation;
-    ArmorModel(String identifier, CubeDeformation deformation, CubeDeformation inverseDeformation, CubeDeformation slightDeformation, CubeDeformation altDeformation, CubeDeformation slightAltDeformation, CubeDeformation dualDeformation) {
+    ArmorModel(String identifier, ArmorModelType modelType, CubeDeformation deformation, CubeDeformation inverseDeformation, CubeDeformation slightDeformation, CubeDeformation altDeformation, CubeDeformation slightAltDeformation, CubeDeformation dualDeformation) {
         this.identifier = identifier;
+        this.modelType = modelType;
         this.deformation = deformation;
         this.inverseDeformation = inverseDeformation;
         this.slightDeformation = slightDeformation;

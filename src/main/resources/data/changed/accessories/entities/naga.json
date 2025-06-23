@@ -3,6 +3,7 @@
     "changed:latex_snake"
   ],
   "slots": [
-    "changed:body"
+    "changed:body",
+    "changed:hands"
   ]
 }
