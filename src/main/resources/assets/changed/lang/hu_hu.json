@@ -83,7 +83,6 @@
 
   "item.changed.benign_shorts": "Latex rövidnadrág",
   "item.changed.black_tshirt": "Fekete póló",
-  "item.changed.wetsuit": "Búvárruha",
   "item.changed.blood_syringe": "Vérrel teli fecskendő",
   "item.changed.dark_latex_crystal_fragment": "Sötét latex kristályszilánk",
   "item.changed.dark_dragon_crystal_fragment": "Sötét latex sárkány kristályszilánk",
@@ -101,11 +100,13 @@
   "item.changed.latex_syringe": "Latexszel teli fecskendő",
   "item.changed.wolf_crystal_fragment": "Latex farkas kristályszilánk",
   "item.changed.latex_tipped_arrow": "Latexes nyílvessző",
+  "item.changed.nitrile_gloves": "Nitril kesztyű",
   "item.changed.orange": "Narancs",
   "item.changed.pink_shorts": "Rózsaszín rövidnadrág",
   "item.changed.roomba": "Robotporszívó",
   "item.changed.sports_bra": "Sportmelltartó",
   "item.changed.syringe": "Fecskendő",
+  "item.changed.wetsuit": "Búvárruha",
   "item.changed.white_latex_goo": "Fehér latex ragacs",
   "item.changed.white_latex_bucket": "Fehér latexes vödör",
 
