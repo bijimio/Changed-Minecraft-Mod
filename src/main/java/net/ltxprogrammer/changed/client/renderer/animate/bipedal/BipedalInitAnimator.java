@@ -37,5 +37,8 @@ public class BipedalInitAnimator<T extends ChangedEntity, M extends AdvancedHuma
         leftLeg.yRot = 0.0F;
         rightLeg.zRot = 0.0F;
         leftLeg.zRot = 0.0F;
+
+        rightLeg.x = -(2.5F + core.legSpacing);
+        leftLeg.x = (2.5F + core.legSpacing);
     }
 }

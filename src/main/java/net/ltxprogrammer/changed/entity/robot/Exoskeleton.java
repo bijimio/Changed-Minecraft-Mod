@@ -8,7 +8,7 @@ import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
-import net.ltxprogrammer.changed.item.BenignPants;
+import net.ltxprogrammer.changed.item.BenignShorts;
 import net.ltxprogrammer.changed.item.ExoskeletonItem;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
@@ -95,7 +95,7 @@ public class Exoskeleton extends AbstractRobot {
 
     protected boolean targetHasBenignPants(LivingEntity entity) {
         return EntityUtil.maybeGetOverlaying(entity).getType().is(ChangedTags.EntityTypes.HUMANOIDS) &&
-                AccessorySlots.isWearing(entity, stack -> stack.is(ChangedItems.BENIGN_PANTS.get()));
+                AccessorySlots.isWearing(entity, stack -> stack.is(ChangedItems.BENIGN_SHORTS.get()));
     }
 
     @Override
@@ -430,8 +430,8 @@ public class Exoskeleton extends AbstractRobot {
                     } else if (this.attackTime >= this.exoskeleton.getAttackDuration()) {
                         float amount = ProcessTransfur.difficultyAdjustTransfurAmount(exoskeleton.level.getDifficulty(), 11.0f);
 
-                        ItemUtil.isWearingItem(target, ChangedItems.BENIGN_PANTS.get()).ifPresent(slottedItem -> {
-                            if (ProcessTransfur.progressTransfur(target, amount, BenignPants.getBenignTransfurVariant(target), TransfurContext.hazard(TransfurCause.WAIST_HAZARD)))
+                        ItemUtil.isWearingItem(target, ChangedItems.BENIGN_SHORTS.get()).ifPresent(slottedItem -> {
+                            if (ProcessTransfur.progressTransfur(target, amount, BenignShorts.getBenignTransfurVariant(target), TransfurContext.hazard(TransfurCause.BENIGN_SHORTS)))
                                 slottedItem.itemStack().shrink(1);
                             else
                                 ChangedSounds.broadcastSound(target, ChangedSounds.BLOW1, 1, 1);

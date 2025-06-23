@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "rewards": {
     "recipes": [
-      "changed:benign_pants"
+      "changed:pink_shorts"
     ]
   },
   "criteria": {
@@ -21,7 +21,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "changed:benign_pants"
+        "recipe": "changed:pink_shorts"
       }
     }
   },

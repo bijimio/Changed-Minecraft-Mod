@@ -1,5 +1,6 @@
 package net.ltxprogrammer.changed.client.renderer.model.armor;
 
+import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.item.AbdomenArmor;
 import net.ltxprogrammer.changed.item.QuadrupedalArmor;
@@ -11,6 +12,8 @@ import java.util.Map;
 public abstract class ArmorModelPicker<T extends ChangedEntity> {
     public abstract LatexHumanoidArmorModel<T, ?> getModelForSlot(T entity, EquipmentSlot slot);
     public abstract Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(T entity, EquipmentSlot slot);
+
+    public abstract void applyAnimatorProperties(T entity, HumanoidAnimator<?,?> other);
 
     public abstract void prepareAndSetupModels(T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch);
 
@@ -26,6 +29,12 @@ public abstract class ArmorModelPicker<T extends ChangedEntity> {
             @Override
             public Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(T entity, EquipmentSlot slot) {
                 return Map.copyOf(baked);
+            }
+
+            @Override
+            public void applyAnimatorProperties(T entity, HumanoidAnimator<?, ?> other) {
+                baked.get(ArmorModel.ARMOR_INNER).getAnimator(entity).copyProperties(other);
+                baked.get(ArmorModel.ARMOR_OUTER).getAnimator(entity).copyProperties(other);
             }
 
             @Override
@@ -56,6 +65,14 @@ public abstract class ArmorModelPicker<T extends ChangedEntity> {
             @Override
             public Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(T entity, EquipmentSlot slot) {
                 return Map.copyOf(slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET ? bakedLower : bakedUpper);
+            }
+
+            @Override
+            public void applyAnimatorProperties(T entity, HumanoidAnimator<?, ?> other) {
+                bakedUpper.get(ArmorModel.ARMOR_INNER).getAnimator(entity).copyProperties(other);
+                bakedUpper.get(ArmorModel.ARMOR_OUTER).getAnimator(entity).copyProperties(other);
+                bakedLower.get(ArmorModel.ARMOR_INNER).getAnimator(entity).copyProperties(other);
+                bakedLower.get(ArmorModel.ARMOR_OUTER).getAnimator(entity).copyProperties(other);
             }
 
             @Override
@@ -94,6 +111,14 @@ public abstract class ArmorModelPicker<T extends ChangedEntity> {
             @Override
             public Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(T entity, EquipmentSlot slot) {
                 return Map.copyOf(slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET ? bakedLower : bakedUpper);
+            }
+
+            @Override
+            public void applyAnimatorProperties(T entity, HumanoidAnimator<?, ?> other) {
+                bakedUpper.get(ArmorModel.ARMOR_INNER).getAnimator(entity).copyProperties(other);
+                bakedUpper.get(ArmorModel.ARMOR_OUTER).getAnimator(entity).copyProperties(other);
+                bakedLower.get(ArmorModel.ARMOR_INNER).getAnimator(entity).copyProperties(other);
+                bakedLower.get(ArmorModel.ARMOR_OUTER).getAnimator(entity).copyProperties(other);
             }
 
             @Override

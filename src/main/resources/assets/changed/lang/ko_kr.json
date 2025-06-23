@@ -62,7 +62,7 @@
   "subtitles.changed.blow1": "플레이어가 감염됨",
   "subtitles.changed.vacuum": "청소기가 작동함",
 
-  "item.changed.benign_pants": "라텍스 숏팬츠",
+  "item.changed.benign_shorts": "라텍스 숏팬츠",
   "item.changed.blood_syringe": "혈액 주사기",
   "item.changed.dark_latex_crystal_fragment": "검은 라텍스 수정 조각",
   "item.changed.dark_dragon_crystal_fragment": "검은 용 수정 조각",
@@ -80,7 +80,7 @@
   "item.changed.wolf_crystal_fragment": "늑대 수정 조각",
   "item.changed.latex_tipped_arrow": "라텍스 화살",
   "item.changed.orange": "오렌지",
-  "item.changed.pink_pants": "분홍색 숏팬츠",
+  "item.changed.pink_shorts": "분홍색 숏팬츠",
   "item.changed.roomba": "로봇 청소기",
   "item.changed.syringe": "주사기",
   "item.changed.white_latex_goo": "하얀 라텍스 점액",

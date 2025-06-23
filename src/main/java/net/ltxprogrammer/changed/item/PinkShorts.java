@@ -5,11 +5,8 @@ import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedEntities;
-import net.ltxprogrammer.changed.init.ChangedSounds;
-import net.ltxprogrammer.changed.init.ChangedTabs;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -17,11 +14,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import org.jetbrains.annotations.Nullable;
 
-public class PinkPants extends ClothingItem implements LatexFusingItem {
+public class PinkShorts extends ClothingItem implements LatexFusingItem {
     @Nullable
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
-        return Changed.modResourceStr("textures/models/pink_pants_" + Mth.clamp(stack.getDamageValue() - 1, 0, 4) + ".png");
+        return Changed.modResourceStr("textures/models/pink_shorts_" + Mth.clamp(stack.getDamageValue() - 1, 0, 4) + ".png");
     }
 
     @Override
@@ -55,7 +52,7 @@ public class PinkPants extends ClothingItem implements LatexFusingItem {
         tag.putInt("age", age);
         if (age < 12000) // Half a minecraft day
             return;
-        if (ProcessTransfur.progressTransfur(wearer, 3.0f, ChangedTransfurVariants.LATEX_PINK_WYVERN.get(), TransfurContext.hazard(TransfurCause.PINK_PANTS)))
+        if (ProcessTransfur.progressTransfur(wearer, 3.0f, ChangedTransfurVariants.LATEX_PINK_WYVERN.get(), TransfurContext.hazard(TransfurCause.PINK_SHORTS)))
             itemStack.shrink(1);
     }
 }

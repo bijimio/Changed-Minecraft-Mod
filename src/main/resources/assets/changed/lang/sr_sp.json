@@ -62,7 +62,7 @@
  "subtitles.changed.blow1": "Играч заражен",
  "subtitles.changed.vacuum": "Вакум се ротира",
 
- "item.changed.benign_pants": "Латек кратке хлаче",
+ "item.changed.benign_shorts": "Латек кратке хлаче",
  "item.changed.blood_syringe": "Шприц за крв",
  "item.changed.dark_latex_crystal_fragment": "Тамни латекс кристални комадић",
  "item.changed.dark_dragon_crystal_fragment": "Крхотина кристала тамног змаја",
@@ -80,7 +80,7 @@
  "item.changed.wolf_crystal_fragment": "Фрагмент црвеног кристала",
  "item.changed.latex_tipped_arrow": "Стрелица са врхом од латекса",
  "item.changed.orange": "Оранге",
- "item.changed.pink_pants": "Розе кратке хлаче",
+ "item.changed.pink_shorts": "Розе кратке хлаче",
  "item.changed.roomba": "Робот усисивач",
  "item.changed.syringe": "Шприц",
  "item.changed.white_latex_goo": "Бели латекс",

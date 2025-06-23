@@ -3,7 +3,6 @@ package net.ltxprogrammer.changed.entity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
-import net.ltxprogrammer.changed.client.animations.AnimationChannel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 
@@ -107,7 +106,8 @@ public enum TransfurCause implements StringRepresentable {
     SQUID_DOG_INKBALL("squid_dog_inkball", GRAB_REPLICATE),
     SYRINGE("syringe", ATTACK_REPLICATE_LEFT),
     SYRINGE_LEFT_HAND("syringe_left_hand", ATTACK_REPLICATE_RIGHT),
-    PINK_PANTS("pink_pants", WAIST_HAZARD),
+    PINK_SHORTS("pink_shorts", WAIST_HAZARD),
+    BENIGN_SHORTS("benign_shorts", WAIST_HAZARD),
     WHITE_LATEX("white_latex", GRAB_REPLICATE),
     STASIS_CHAMBER("stasis_chamber", GRAB_REPLICATE, 30.0f);
 

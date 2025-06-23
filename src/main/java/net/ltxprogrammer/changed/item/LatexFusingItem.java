@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.item;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.util.ItemUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,17 +22,22 @@ public interface LatexFusingItem extends ExtendedItemProperties {
             if (event.variant == null)
                 return;
 
-            event.livingEntity.getArmorSlots().forEach(itemStack -> {
-                if (itemStack.getItem() instanceof LatexFusingItem fusingItem) {
-                    var newVariant = fusingItem.getFusionVariant(event.variant, event.livingEntity, itemStack);
+            final var oldVariant = event.variant;
+
+            ItemUtil.getWearingItems(event.livingEntity).forEach(slottedItem -> {
+                if (slottedItem.itemStack().getItem() instanceof LatexFusingItem fusingItem) {
+                    var newVariant = fusingItem.getFusionVariant(event.variant, event.livingEntity, slottedItem.itemStack());
                     if (newVariant == null) {
                         return;
                     }
-                    itemStack.shrink(1);
-                    ChangedSounds.broadcastSound(event.livingEntity, newVariant.sound, 1, 1);
+                    slottedItem.itemStack().shrink(1);
                     event.variant = newVariant;
                 }
             });
+
+            if (event.variant != oldVariant) {
+                ChangedSounds.broadcastSound(event.livingEntity, event.variant.sound, 1, 1);
+            }
         }
     }
 }

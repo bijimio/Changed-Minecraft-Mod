@@ -77,7 +77,7 @@
   "subtitles.changed.blow1": "Кого-то ударил латекс",
   "subtitles.changed.vacuum": "Пылесос пылесосит",
   
-  "item.changed.benign_pants": "Латексные шорты",
+  "item.changed.benign_shorts": "Латексные шорты",
   "item.changed.black_tshirt": "Чёрная футболка",
   "item.changed.blood_syringe": "Шприц с образцом крови",
   "item.changed.dark_latex_crystal_fragment": "Осколок тёмного латексного кристалла",
@@ -96,7 +96,7 @@
   "item.changed.wolf_crystal_fragment": "Фрагмент красного кристалла",
   "item.changed.latex_tipped_arrow": "Стрела с латексным наконечником",
   "item.changed.orange": "Апельсин",
-  "item.changed.pink_pants": "Розовые шорты",
+  "item.changed.pink_shorts": "Розовые шорты",
   "item.changed.roomba": "Робот-пылесос",
   "item.changed.sports_bra": "Спортивный лифчик",
   "item.changed.syringe": "Шприц",

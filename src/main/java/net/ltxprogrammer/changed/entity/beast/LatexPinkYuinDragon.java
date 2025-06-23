@@ -29,7 +29,7 @@ public class LatexPinkYuinDragon extends LatexPinkWyvern implements PowderSnowWa
 
     @Override
     public Color3 getTransfurColor(TransfurCause cause) {
-        if (cause == TransfurCause.PINK_PANTS)
+        if (cause == TransfurCause.PINK_SHORTS)
             return Color3.WHITE;
         else
             return Color3.fromInt(0xf7aebe);

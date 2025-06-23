@@ -81,7 +81,7 @@
   "subtitles.changed.exoskeleton_chime": "Digitális csengőhang",
   "subtitles.changed.exoskeleton_lock": "Exoskeleton felvétele",
 
-  "item.changed.benign_pants": "Latex rövidnadrág",
+  "item.changed.benign_shorts": "Latex rövidnadrág",
   "item.changed.black_tshirt": "Fekete póló",
   "item.changed.wetsuit": "Búvárruha",
   "item.changed.blood_syringe": "Vérrel teli fecskendő",
@@ -102,7 +102,7 @@
   "item.changed.wolf_crystal_fragment": "Latex farkas kristályszilánk",
   "item.changed.latex_tipped_arrow": "Latexes nyílvessző",
   "item.changed.orange": "Narancs",
-  "item.changed.pink_pants": "Rózsaszín rövidnadrág",
+  "item.changed.pink_shorts": "Rózsaszín rövidnadrág",
   "item.changed.roomba": "Robotporszívó",
   "item.changed.sports_bra": "Sportmelltartó",
   "item.changed.syringe": "Fecskendő",
@@ -752,6 +752,8 @@
   "changed.stasis.modify.arms.tooltip": "Beállítás: Módosítja a latex lény karjait",
   "changed.stasis.modify.scale": "Méret: %s",
   "changed.stasis.modify.scale.tooltip": "Beállítás: Módosítja a latex lény méretét",
+
+  "changed.accessory.slot_disabled_by": "Rekeszt letiltja:",
 
   "changed.exoskeleton.prompt": "[%s]> %s",
   "changed.exoskeleton.battery_low": "Akkumulátorszint alacsony",

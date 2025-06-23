@@ -20,6 +20,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -33,7 +34,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -70,6 +77,10 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
         return this.abilityModelShaper;
     }
 
+    public static RenderType getRenderType(AbstractAbilityInstance abilityInstance, boolean fabulous) {
+        return fabulous ? Sheets.translucentCullBlockSheet() : Sheets.translucentItemSheet();
+    }
+
     public void renderModelLists(BakedModel model, AbstractAbilityInstance abilityInstance, int packedLight, int packedOverlay, PoseStack poseStack, VertexConsumer buffer) {
         Random random = new Random();
         long seed = 42L;
@@ -83,17 +94,41 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
         this.renderQuadList(poseStack, buffer, model.getQuads(null, null, random), abilityInstance, packedLight, packedOverlay);
     }
 
+    public void drawItemLayered(BakedModel modelIn, AbstractAbilityInstance abilityInstanceIn, PoseStack poseStack,
+                                       MultiBufferSource bufferSource, int packedLight, int packedOverlay, boolean fabulous) {
+        /*for (com.mojang.datafixers.util.Pair<BakedModel,RenderType> layerModel : modelIn.getLayerModels(abilityInstanceIn, fabulous)) {
+            BakedModel layer = layerModel.getFirst();
+            RenderType rendertype = layerModel.getSecond();
+            net.minecraftforge.client.ForgeHooksClient.setRenderType(rendertype); // needed for compatibility with MultiLayerModels
+            VertexConsumer ivertexbuilder;
+            if (fabulous) {
+                ivertexbuilder = ItemRenderer.getFoilBufferDirect(bufferSource, rendertype, true, abilityInstanceIn.hasFoil());
+            } else {
+                ivertexbuilder = ItemRenderer.getFoilBuffer(bufferSource, rendertype, true, abilityInstanceIn.hasFoil());
+            }
+            renderModelLists(layer, abilityInstanceIn, packedLight, packedOverlay, poseStack, ivertexbuilder);
+        }
+        net.minecraftforge.client.ForgeHooksClient.setRenderType(null);*/
+    }
+
     public void render(AbstractAbilityInstance abilityInstance, ItemTransforms.TransformType transformType, boolean leftHand, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, BakedModel model) {
         poseStack.pushPose();
 
         model = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(poseStack, model, transformType, leftHand);
         poseStack.translate(-0.5D, -0.5D, -0.5D);
         if (!model.isCustomRenderer()) {
+            boolean fabulous = true;
+
             if (model.isLayered()) {
-                //net.minecraftforge.client.ForgeHooksClient.drawItemLayered(this, model, abilityInstance, poseStack, bufferSource, packedLight, packedOverlay, flag1);
+                drawItemLayered(model, abilityInstance, poseStack, bufferSource, packedLight, packedOverlay, fabulous);
             } else {
-                RenderType rendertype = Sheets.translucentItemSheet();//ItemBlockRenderTypes.getRenderType(abilityInstance, flag1);
-                VertexConsumer buffer = getFoilBufferDirect(bufferSource, rendertype, true, abilityInstance.hasFoil());
+                RenderType rendertype = getRenderType(abilityInstance, fabulous);
+                VertexConsumer buffer;
+                if (fabulous)
+                    buffer = ItemRenderer.getFoilBufferDirect(bufferSource, rendertype, true, abilityInstance.hasFoil());
+                else {
+                    buffer = ItemRenderer.getFoilBuffer(bufferSource, rendertype, true, abilityInstance.hasFoil());
+                }
 
                 this.renderModelLists(model, abilityInstance, packedLight, packedOverlay, poseStack, buffer);
             }
@@ -114,18 +149,6 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
 
     public static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource bufferSource, RenderType renderType, PoseStack.Pose pose) {
         return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(RenderType.glintDirect()), pose.pose(), pose.normal()), bufferSource.getBuffer(renderType));
-    }
-
-    public static VertexConsumer getFoilBuffer(MultiBufferSource bufferSource, RenderType renderType, boolean p_115214_, boolean p_115215_) {
-        if (p_115215_) {
-            return Minecraft.useShaderTransparency() && renderType == Sheets.translucentItemSheet() ? VertexMultiConsumer.create(bufferSource.getBuffer(RenderType.glintTranslucent()), bufferSource.getBuffer(renderType)) : VertexMultiConsumer.create(bufferSource.getBuffer(p_115214_ ? RenderType.glint() : RenderType.entityGlint()), bufferSource.getBuffer(renderType));
-        } else {
-            return bufferSource.getBuffer(renderType);
-        }
-    }
-
-    public static VertexConsumer getFoilBufferDirect(MultiBufferSource bufferSource, RenderType renderType, boolean p_115225_, boolean p_115226_) {
-        return p_115226_ ? VertexMultiConsumer.create(bufferSource.getBuffer(p_115225_ ? RenderType.glintDirect() : RenderType.entityGlintDirect()), bufferSource.getBuffer(renderType)) : bufferSource.getBuffer(renderType);
     }
 
     public void renderQuadList(PoseStack poseStack, VertexConsumer buffer, List<BakedQuad> quads, AbstractAbilityInstance abilityInstance, int packedLight, int packedOverlay) {

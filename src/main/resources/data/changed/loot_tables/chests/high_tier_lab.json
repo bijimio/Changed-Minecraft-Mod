@@ -31,12 +31,12 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "changed:pink_pants"
+          "name": "changed:pink_shorts"
         },
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "changed:benign_pants"
+          "name": "changed:benign_shorts"
         },
         {
           "type": "minecraft:item",

@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.client.renderer;
 
 import net.ltxprogrammer.changed.Changed;
+import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
 import net.ltxprogrammer.changed.client.renderer.layers.*;
 import net.ltxprogrammer.changed.client.renderer.model.CustomLatexModel;
 import net.ltxprogrammer.changed.client.renderer.model.armor.*;
@@ -140,10 +141,19 @@ public class CustomLatexRenderer extends AdvancedHumanoidRenderer<CustomLatexEnt
 		}
 
 		@Override
+		public void applyAnimatorProperties(CustomLatexEntity entity, HumanoidAnimator<?, ?> other) {
+			Stream.of(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.ARMOR)
+					.map(slot -> this.getModelSetForSlot(entity, slot))
+					.forEach(set -> {
+						set.get(ArmorModel.ARMOR_INNER).getAnimator(entity).copyProperties(other);
+						set.get(ArmorModel.ARMOR_OUTER).getAnimator(entity).copyProperties(other);
+					});
+		}
+
+		@Override
 		public void prepareAndSetupModels(CustomLatexEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 			Stream.of(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.ARMOR)
 					.map(slot -> this.getModelSetForSlot(entity, slot))
-					.collect(Collectors.toSet())
 					.forEach(set -> {
 						final var inner = set.get(ArmorModel.ARMOR_INNER);
 						inner.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);

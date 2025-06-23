@@ -22,8 +22,8 @@ import java.util.function.Supplier;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChangedItems {
     public static final DeferredRegister<Item> REGISTRY = DeferredRegister.create(ForgeRegistries.ITEMS, Changed.MODID);
-    public static final RegistryObject<BenignPants> BENIGN_PANTS = register("benign_pants", BenignPants::new);
-    public static final RegistryObject<PinkPants> PINK_PANTS = register("pink_pants", PinkPants::new);
+    public static final RegistryObject<BenignShorts> BENIGN_SHORTS = register("benign_shorts", BenignShorts::new);
+    public static final RegistryObject<PinkShorts> PINK_SHORTS = register("pink_shorts", PinkShorts::new);
     public static final RegistryObject<ClothingItem> SPORTS_BRA = register("sports_bra", ClothingItem::new);
     public static final RegistryObject<ClothingItem> BLACK_TSHIRT = register("black_tshirt", ClothingItem::new);
     public static final RegistryObject<LabCoatItem> LAB_COAT = register("lab_coat", LabCoatItem::new);

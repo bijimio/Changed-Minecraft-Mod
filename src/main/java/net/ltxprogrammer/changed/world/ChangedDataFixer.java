@@ -65,6 +65,9 @@ public class ChangedDataFixer {
 
         map.put(Changed.modResource("latex_beifeng_crystal_fragment"), ChangedItems.BEIFENG_CRYSTAL_FRAGMENT.getId());
         map.put(Changed.modResource("dark_latex_dragon_crystal_fragment"), ChangedItems.DARK_DRAGON_CRYSTAL_FRAGMENT.getId());
+
+        map.put(Changed.modResource("benign_pants"), ChangedItems.BENIGN_SHORTS.getId());
+        map.put(Changed.modResource("pink_pants"), ChangedItems.PINK_SHORTS.getId());
     });
 
     private final HashMap<ResourceLocation, ResourceLocation> BLOCK_ID_REMAP = Util.make(new HashMap<>(), map -> {

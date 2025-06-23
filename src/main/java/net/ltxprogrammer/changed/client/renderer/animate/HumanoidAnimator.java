@@ -7,7 +7,6 @@ import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.item.SpecializedAnimations;
 import net.minecraft.client.Minecraft;
-import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -30,6 +29,7 @@ public class HumanoidAnimator<T extends ChangedEntity, M extends AdvancedHumanoi
     public float torsoLength = 12.0f;
     public float armLength = 12.0f;
     public float legLength = 12.0f;
+    public float legSpacing = 0.0f;
 
     public float calculateTorsoPositionY() {
         return hipOffset + (12.0f - legLength) + (12.0f - torsoLength);
@@ -272,6 +272,11 @@ public class HumanoidAnimator<T extends ChangedEntity, M extends AdvancedHumanoi
         return this;
     }
 
+    public HumanoidAnimator<T, M> legSpacing(float v) {
+        this.legSpacing = v;
+        return this;
+    }
+
     public HumanoidAnimator<T, M> hipOffset(float v) {
         this.hipOffset = v;
         return this;
@@ -290,6 +295,15 @@ public class HumanoidAnimator<T extends ChangedEntity, M extends AdvancedHumanoi
     public HumanoidAnimator<T, M> torsoWidth(float v) {
         this.torsoWidth = v;
         return this;
+    }
+
+    public void copyProperties(HumanoidAnimator<?, ?> other) {
+        torsoWidth = other.torsoWidth;
+        forwardOffset = other.forwardOffset;
+        torsoLength = other.torsoLength;
+        armLength = other.armLength;
+        legLength = other.legLength;
+        legSpacing = other.legSpacing;
     }
 
     public static enum AnimateStage implements BiPredicate<HumanoidAnimator<?,?>, ChangedEntity> {

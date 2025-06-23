@@ -46,8 +46,8 @@ public class DragonBipedalInitAnimator<T extends ChangedEntity, M extends Advanc
         rightLeg.yRot = 0.0F;
         leftLeg.yRot = 0.0F;
 
-        rightLeg.x = -2.2f;
-        leftLeg.x = 2.2f;
+        rightLeg.x = -(2.2f + core.legSpacing);
+        leftLeg.x = (2.2f + core.legSpacing);
         rightLeg.zRot = Mth.PI * 0.015f;
         leftLeg.zRot = Mth.PI * -0.015f;
 

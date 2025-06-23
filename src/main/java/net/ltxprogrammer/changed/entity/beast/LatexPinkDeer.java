@@ -34,7 +34,7 @@ public class LatexPinkDeer extends LatexPinkWyvern {
 
     @Override
     public Color3 getTransfurColor(TransfurCause cause) {
-        if (cause == TransfurCause.PINK_PANTS)
+        if (cause == TransfurCause.PINK_SHORTS)
             return Color3.fromInt(0xd8bc99);
         else
             return Color3.fromInt(0xf7aebe);

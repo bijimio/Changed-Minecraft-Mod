@@ -20,8 +20,8 @@ public class ChangedAccessoryRenderers {
         event.enqueueWork(() -> {
             var modelSet = Minecraft.getInstance().getEntityModels();
 
-            AccessoryLayer.registerRenderer(ChangedItems.BENIGN_PANTS.get(), SimpleClothingRenderer.of(ArmorModel.CLOTHING_INNER, EquipmentSlot.LEGS));
-            AccessoryLayer.registerRenderer(ChangedItems.PINK_PANTS.get(), SimpleClothingRenderer.of(ArmorModel.CLOTHING_INNER, EquipmentSlot.LEGS));
+            AccessoryLayer.registerRenderer(ChangedItems.BENIGN_SHORTS.get(), SimpleClothingRenderer.of(ArmorModel.CLOTHING_INNER, EquipmentSlot.LEGS));
+            AccessoryLayer.registerRenderer(ChangedItems.PINK_SHORTS.get(), SimpleClothingRenderer.of(ArmorModel.CLOTHING_INNER, EquipmentSlot.LEGS));
             AccessoryLayer.registerRenderer(ChangedItems.SPORTS_BRA.get(), SimpleClothingRenderer.of(ArmorModel.CLOTHING_INNER, EquipmentSlot.CHEST));
             AccessoryLayer.registerRenderer(ChangedItems.BLACK_TSHIRT.get(), SimpleClothingRenderer.of(ArmorModel.CLOTHING_INNER, EquipmentSlot.CHEST));
             AccessoryLayer.registerRenderer(ChangedItems.LAB_COAT.get(), SimpleClothingRenderer.of(ArmorModel.CLOTHING_OUTER, Set.of(

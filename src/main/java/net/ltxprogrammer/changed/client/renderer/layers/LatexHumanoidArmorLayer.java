@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.ltxprogrammer.changed.client.renderer.AdvancedHumanoidRenderer;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
+import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModelInterface;
 import net.ltxprogrammer.changed.client.renderer.model.armor.ArmorModelPicker;
 import net.ltxprogrammer.changed.client.renderer.model.armor.LatexHumanoidArmorModel;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
@@ -42,6 +43,8 @@ public class LatexHumanoidArmorLayer<T extends ChangedEntity, M extends Advanced
     public void render(PoseStack pose, MultiBufferSource buffers, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (!parent.shouldRenderArmor(entity)) return;
 
+        if (parent.getModel(entity) instanceof AdvancedHumanoidModelInterface advancedModel)
+            this.modelPicker.applyAnimatorProperties(entity, advancedModel.getAnimator(entity));
         this.modelPicker.prepareAndSetupModels(entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         boolean firstPerson = ChangedCompatibility.isFirstPersonRendering();
 

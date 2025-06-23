@@ -65,7 +65,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "changed:benign_pants"
+          "name": "changed:benign_shorts"
         }
       ],
       "conditions": [
