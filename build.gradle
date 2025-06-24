@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '[6.0,6.2)', changing: true
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
@@ -198,7 +198,7 @@ dependencies {
         jarJar.ranged(it, "[0.4.1,)")
     }
 
-    implementation fg.deobf("curse.maven:presence-footsteps-forge-433068:4328018") // Forge 1.18.2 v1.5.1
+    /*implementation fg.deobf("curse.maven:presence-footsteps-forge-433068:4328018") // Forge 1.18.2 v1.5.1
     implementation fg.deobf("curse.maven:spark-361579:4505375") // Forge 1.18.2 v1.10.38
     implementation fg.deobf("curse.maven:modernfix-790626:5399365") // Forge 1.18.2 v5.18.0
     implementation fg.deobf("curse.maven:rubidium-574856:4494903") // Forge 1.18.2 v0.5.6
@@ -254,7 +254,7 @@ dependencies {
 
     compileOnly fg.deobf("curse.maven:timeless-and-classics-zero-1028108:6069322") // Forge 1.18.2 v1.1.4-Hotfix
 
-    compileOnly fg.deobf("curse.maven:parcool-482378:6035542") // Forge 1.18.2 v3.3.1.0
+    compileOnly fg.deobf("curse.maven:parcool-482378:6035542") // Forge 1.18.2 v3.3.1.0*/
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
