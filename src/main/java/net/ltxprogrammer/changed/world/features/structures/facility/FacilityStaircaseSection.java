@@ -27,7 +27,8 @@ public class FacilityStaircaseSection extends FacilitySinglePiece {
         if (min < stack.getContext().heightAccessor().getMinBuildHeight() + 20)
             return VALID_NEIGHBORS_MAXIMUM; // Force labs to stay above the void
 
-        int sections = stack.sequentialMatch(FacilityPieces.STAIRCASE_SECTIONS::contains);
+        final var staircaseSections = FacilityPieces.getPiecesOfType(PieceType.STAIRCASE_SECTION);
+        int sections = stack.sequentialMatch(staircaseSections::contains);
 
         if (sections < 3)
             return VALID_NEIGHBORS_MINIMUM;

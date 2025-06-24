@@ -14,6 +14,7 @@ import net.ltxprogrammer.changed.network.ChangedPackets;
 import net.ltxprogrammer.changed.network.packet.ChangedPacket;
 import net.ltxprogrammer.changed.util.PatreonBenefits;
 import net.ltxprogrammer.changed.world.ChangedDataFixer;
+import net.ltxprogrammer.changed.world.features.structures.FacilityPieces;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.ComposterBlock;
@@ -130,6 +131,7 @@ public class Changed {
             ComposterBlock.COMPOSTABLES.put(ChangedBlocks.ORANGE_TREE_SAPLING.get().asItem(), 0.3F);
             ComposterBlock.COMPOSTABLES.put(ChangedItems.ORANGE.get(), 0.65F);
         });
+        event.enqueueWork(FacilityPieces::gatherFacilityPieces);
     }
 
     private void registerClientEventListeners() {

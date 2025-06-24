@@ -1,99 +1,60 @@
 package net.ltxprogrammer.changed.world.features.structures.facility;
 
+import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.Util;
+import net.minecraft.util.random.Weight;
+import net.minecraft.util.random.WeightedEntry;
+import net.minecraft.util.random.WeightedRandom;
+import net.minecraft.util.random.WeightedRandomList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
-public class FacilityPieceCollection implements Collection<FacilityPiece> {
-    private final List<FacilityPiece> pieces;
+public class FacilityPieceCollection {
+    private final ImmutableList<WeightedEntry.Wrapper<FacilityPiece>> pieces;
+    private final int totalWeight;
 
-    public FacilityPieceCollection() {
-        this.pieces = new ArrayList<>();
+    FacilityPieceCollection(ImmutableList.Builder<WeightedEntry.Wrapper<FacilityPiece>> pieces) {
+        this.pieces = pieces.build();
+        this.totalWeight = WeightedRandom.getTotalWeight(this.pieces);
     }
 
-    protected FacilityPieceCollection(List<FacilityPiece> pieces) {
-        this.pieces = pieces;
+    boolean contains(FacilityPiece facilityPiece) {
+        return pieces.stream().map(WeightedEntry.Wrapper::getData).anyMatch(facilityPiece::equals);
     }
 
-    public FacilityPieceCollection register(FacilityPiece piece) {
-        this.pieces.add(piece);
-        return this;
+    public Stream<FacilityPiece> stream() {
+        return pieces.stream().map(WeightedEntry.Wrapper::getData);
+    }
+
+    public Stream<FacilityPiece> shuffledStream(Random random) {
+        if (this.totalWeight == 0) {
+            return Stream.empty();
+        } else {
+            final var first = WeightedRandom.getWeightedItem(this.pieces, random.nextInt(this.totalWeight));
+            if (first.isEmpty())
+                return Stream.empty();
+
+            return Stream.<Pair<Optional<WeightedEntry.Wrapper<FacilityPiece>>, List<WeightedEntry.Wrapper<FacilityPiece>>>>iterate(Pair.of(first, this.pieces),
+                    pair -> !pair.getSecond().isEmpty() && pair.getFirst().isPresent(),
+                    pair -> {
+                        var remaining = new ArrayList<>(pair.getSecond());
+                        remaining.remove(pair.getFirst().orElseThrow());
+
+                        return Pair.of(WeightedRandom.getWeightedItem(this.pieces, random.nextInt(this.totalWeight)), remaining);
+                    }).map(Pair::getFirst).filter(Optional::isPresent).map(Optional::get).map(WeightedEntry.Wrapper::getData);
+        }
     }
 
     public Optional<FacilityPiece> findNextPiece(Random random) {
-        return Util.getRandomSafe(pieces, random);
-    }
-
-    public static FacilityPieceCollection of(FacilityPiece... pieces) {
-        return new FacilityPieceCollection(List.of(pieces));
-    }
-
-    @Override
-    public int size() {
-        return pieces.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return pieces.isEmpty();
-    }
-
-    @Override
-    public boolean contains(Object o) {
-        return pieces.contains(o);
-    }
-
-    @NotNull
-    @Override
-    public Iterator<FacilityPiece> iterator() {
-        return pieces.iterator();
-    }
-
-    @NotNull
-    @Override
-    public Object[] toArray() {
-        return pieces.toArray();
-    }
-
-    @NotNull
-    @Override
-    public <T> T[] toArray(@NotNull T[] a) {
-        return pieces.toArray(a);
-    }
-
-    @Override
-    public boolean add(FacilityPiece facilityPiece) {
-        return pieces.add(facilityPiece);
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        return pieces.remove(o);
-    }
-
-    @Override
-    public boolean containsAll(@NotNull Collection<?> c) {
-        return pieces.containsAll(c);
-    }
-
-    @Override
-    public boolean addAll(@NotNull Collection<? extends FacilityPiece> c) {
-        return pieces.addAll(c);
-    }
-
-    @Override
-    public boolean removeAll(@NotNull Collection<?> c) {
-        return pieces.removeAll(c);
-    }
-
-    @Override
-    public boolean retainAll(@NotNull Collection<?> c) {
-        return pieces.retainAll(c);
-    }
-
-    @Override
-    public void clear() {
-        pieces.clear();
+        if (this.totalWeight == 0) {
+            return Optional.empty();
+        } else {
+            int i = random.nextInt(this.totalWeight);
+            return WeightedRandom.getWeightedItem(this.pieces, i).map(WeightedEntry.Wrapper::getData);
+        }
     }
 }

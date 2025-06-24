@@ -156,16 +156,6 @@ public class ChangedConfig {
     public final Client client;
     public final Server server;
 
-    private static void earlyLoad(ModConfig.Type type, Pair<?, ForgeConfigSpec> specPair) {
-        for (var config : ConfigTracker.INSTANCE.configSets().get(type)) {
-            if (config.getSpec() == specPair.getRight()) {
-                LOGGER.debug(CONFIG, "Early loading config file type {} at {} for {}", config.getType(), config.getFileName(), config.getModId());
-                final CommentedFileConfig configData = config.getHandler().reader(FMLPaths.CONFIGDIR.get()).apply(config);
-                specPair.getRight().acceptConfig(configData);
-            }
-        }
-    }
-
     public void saveAdditionalData() {
         additionalDataList.forEach(data -> {
             var path = FMLPaths.CONFIGDIR.get().resolve(Changed.MODID).resolve(data.getName() + ".nbt");
@@ -219,9 +209,6 @@ public class ChangedConfig {
         common = commonPair.getLeft();
         client = clientPair.getLeft();
         server = serverPair.getLeft();
-
-        // Early load client config
-        earlyLoad(ModConfig.Type.CLIENT, clientPair);
 
         updateAdditionalData();
     }

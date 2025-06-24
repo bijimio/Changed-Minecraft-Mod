@@ -1,5 +1,6 @@
 package net.ltxprogrammer.changed.client;
 
+import com.mojang.blaze3d.platform.GlUtil;
 import com.mojang.datafixers.util.Pair;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
@@ -185,9 +186,16 @@ public class EventHandlerClient {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void onSetScreen(ScreenOpenEvent event) {
-        if (event.getScreen() instanceof TitleScreen && Changed.config.client.showContentWarning.get()) {
-            // Comment this line out to disable the content warning screen
-            event.setScreen(new ContentWarningScreen());
+        if (event.getScreen() instanceof TitleScreen) {
+            if (GlUtil.getOpenGLVersion().contains("Mesa")) {
+                Changed.LOGGER.warn("Mesa graphics driver detected, certain visual features will be disabled");
+                Changed.config.client.renderDripParticlesWithNormal.set(false);
+            }
+
+            if (Changed.config.client.showContentWarning.get()) {
+                // Comment this line out to disable the content warning screen
+                event.setScreen(new ContentWarningScreen());
+            }
         }
     }
 

@@ -120,9 +120,34 @@ public class AccessorySlots implements Container {
         return getForEntity(livingEntity)
                 .filter(slots -> slots.hasSlot(slot))
                 .map(slots -> {
+                    final var invalidHandler = defaultInvalidHandler(livingEntity);
+
                     var oldStack = slots.getItem(slot);
-                    oldStack.ifPresent(stack -> defaultInvalidHandler(livingEntity).accept(stack));
+                    oldStack.ifPresent(invalidHandler);
                     slots.setItem(slot, itemStack);
+
+                    if (itemStack.isEmpty())
+                        return true;
+
+                    slots.getSlotTypes().filter(otherSlot -> otherSlot != slot).forEach(otherSlot -> {
+                        final var otherStack = slots.getItem(otherSlot).orElse(ItemStack.EMPTY);
+                        if (otherStack.isEmpty())
+                            return;
+
+                        if (itemStack.getItem() instanceof AccessoryItem accessoryItem &&
+                                (!accessoryItem.allowedWith(itemStack, otherStack, livingEntity, slot, otherSlot) ||
+                                        accessoryItem.shouldDisableSlot(new AccessorySlotContext<>(livingEntity, slot, itemStack), otherSlot))) {
+                            invalidHandler.accept(otherStack);
+                            slots.setItem(otherSlot, ItemStack.EMPTY);
+                        }
+                        if (otherStack.getItem() instanceof AccessoryItem accessoryItem &&
+                                (!accessoryItem.allowedWith(otherStack, itemStack, livingEntity, otherSlot, slot) ||
+                                        accessoryItem.shouldDisableSlot(new AccessorySlotContext<>(livingEntity, otherSlot, otherStack), slot))) {
+                            invalidHandler.accept(otherStack);
+                            slots.setItem(otherSlot, ItemStack.EMPTY);
+                        }
+                    });
+
                     return true;
                 }).orElse(false);
     }
