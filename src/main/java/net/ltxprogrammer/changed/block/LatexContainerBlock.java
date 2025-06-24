@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,15 +28,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -49,7 +46,7 @@ public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock impl
     public static final VoxelShape SHAPE_WHOLE = Block.box(4.0D, 0.0D, 4.0D, 12.0D, 24, 12.0D);
 
     public LatexContainerBlock() {
-        super(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).strength(3.0F, 5.0F).requiresCorrectToolForDrops());
+        super(BlockBehaviour.Properties.of().requiresCorrectToolForDrops().sound(SoundType.GLASS).strength(3.0F, 5.0F).requiresCorrectToolForDrops());
     }
 
     @Override
@@ -220,8 +217,8 @@ public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock impl
     }
 
     @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
-        if (isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinBuildHeight()) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (FallingBlock.isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinBuildHeight()) {
             var blockEntity = level.getBlockEntity(pos, ChangedBlockEntities.LATEX_CONTAINER.get());
             CompoundTag blockData = blockEntity.map(BlockEntity::saveWithFullMetadata).orElse(null);
 
@@ -242,11 +239,6 @@ public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock impl
 
     protected int getDelayAfterPlace() {
         return 2;
-    }
-
-    public static boolean isFree(BlockState state) {
-        Material material = state.getMaterial();
-        return state.isAir() || state.is(BlockTags.FIRE) || material.isLiquid() || material.isReplaceable();
     }
 
     @Override

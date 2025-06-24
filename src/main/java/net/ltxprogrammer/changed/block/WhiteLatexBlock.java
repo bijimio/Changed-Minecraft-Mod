@@ -9,8 +9,11 @@ import net.ltxprogrammer.changed.process.LatexCoveredBlocks;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -105,35 +108,37 @@ public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTra
         AtomicBoolean isTargetNearby = new AtomicBoolean(false);
         level.getEntities().get(EntityTypeTest.forClass(LivingEntity.class), new AABB(blockPos).inflate(6), livingEntity -> {
             if (isTargetNearby.get())
-                return; // Early out
+                return AbortableIterationConsumer.Continuation.ABORT;
 
             var latexType = LatexType.getEntityLatexType(livingEntity);
             if (latexType != null && latexType.isHostileTo(LatexType.WHITE_LATEX)) {
                 isTargetNearby.set(true);
-                return;
+                return AbortableIterationConsumer.Continuation.ABORT;
             }
 
             if (ChangedFusions.INSTANCE.getFusionsFor(ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), livingEntity.getClass()).findAny().isPresent()) {
                 isTargetNearby.set(true);
-                return;
+                return AbortableIterationConsumer.Continuation.ABORT;
             }
 
             var latexVariant = TransfurVariant.getEntityVariant(livingEntity);
             if (latexVariant != null && ChangedFusions.INSTANCE.getFusionsFor(ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), latexVariant).findAny().isPresent()) {
                 isTargetNearby.set(true);
-                return;
+                return AbortableIterationConsumer.Continuation.ABORT;
             }
 
             if (livingEntity instanceof Player player && !player.isSpectator() && !ProcessTransfur.isPlayerTransfurred(player)) {
                 isTargetNearby.set(true);
-                return;
+                return AbortableIterationConsumer.Continuation.ABORT;
             }
+
+            return AbortableIterationConsumer.Continuation.CONTINUE;
         });
         return isTargetNearby.getAcquire();
     }
 
     @Override
-    public void latexTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull Random random) {
+    public void latexTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull RandomSource random) {
         if (level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE) == 0 ||
                 random.nextInt(1000) > level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE))
             return;
@@ -143,7 +148,7 @@ public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTra
         BlockPos above = position.above();
         if (level.getBlockState(above).is(Blocks.AIR) && level.getBlockState(above.above()).is(Blocks.AIR)) {
             if (level.getEntitiesOfClass(WhiteLatexEntity.class, new AABB(above).inflate(8)).size() < 8) {
-                ChangedEntities.PURE_WHITE_LATEX_WOLF.get().spawn(level, null, null, null, above, MobSpawnType.NATURAL, true, true);
+                ChangedEntities.PURE_WHITE_LATEX_WOLF.get().spawn(level, (CompoundTag) null, null, above, MobSpawnType.NATURAL, true, true);
             }
         }
     }

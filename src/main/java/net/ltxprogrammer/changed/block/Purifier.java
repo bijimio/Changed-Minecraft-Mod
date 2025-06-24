@@ -6,7 +6,6 @@ import net.ltxprogrammer.changed.block.entity.PurifierBlockEntity;
 import net.ltxprogrammer.changed.init.ChangedBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -24,7 +23,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +39,7 @@ public class Purifier extends BaseEntityBlock {
         this.registerDefaultState(this.stateDefinition.any());
     }
 
-    private static final Component CONTAINER_TITLE = new TranslatableComponent("container.changed.purifier");
+    private static final Component CONTAINER_TITLE = Component.translatable("container.changed.purifier");
 
     @Override
     public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
@@ -64,7 +63,7 @@ public class Purifier extends BaseEntityBlock {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState p_60537_, LootContext.Builder p_60538_) {
+    public List<ItemStack> getDrops(BlockState p_60537_, LootParams.Builder p_60538_) {
         return new ArrayList<>(Collections.singleton(this.asItem().getDefaultInstance()));
     }
 

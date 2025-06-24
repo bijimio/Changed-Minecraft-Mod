@@ -29,12 +29,10 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -70,7 +68,7 @@ public class AbstractLabDoor extends HorizontalDirectionalBlock implements NonLa
     private final VoxelShape shapeCollisionClosed;
 
     public AbstractLabDoor(SoundEvent open, SoundEvent close, boolean slim) {
-        super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F));
+        super(Properties.of().sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F));
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(POWERED, Boolean.FALSE)
@@ -85,7 +83,7 @@ public class AbstractLabDoor extends HorizontalDirectionalBlock implements NonLa
 
     @Nullable
     @Override
-    public BlockPathTypes getAiPathNodeType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob entity) {
+    public BlockPathTypes getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob entity) {
         if (state.getValue(OPEN))
             return BlockPathTypes.DOOR_OPEN;
         else if (state.getValue(POWERED) && LabDoorOpenerEntity.canOpenDoor(entity))
@@ -179,7 +177,7 @@ public class AbstractLabDoor extends HorizontalDirectionalBlock implements NonLa
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return state.getValue(SECTION) == QuarterSection.BOTTOM_LEFT ?
                 new ArrayList<>(Collections.singleton(this.asItem().getDefaultInstance())) :
                 List.of();
@@ -210,7 +208,7 @@ public class AbstractLabDoor extends HorizontalDirectionalBlock implements NonLa
                 level.setBlockAndUpdate(pos, state.setValue(POWERED, Boolean.FALSE).setValue(OPEN, Boolean.FALSE));
                 if (state.getValue(SECTION) == QuarterSection.BOTTOM_LEFT)
                     level.playSound(null, pos, close, SoundSource.BLOCKS, 1, 1);
-                level.gameEvent(GameEvent.BLOCK_CLOSE, pos);
+                level.gameEvent(GameEvent.BLOCK_CLOSE, pos, GameEvent.Context.of(state));
             } else
                 level.setBlockAndUpdate(pos, state.setValue(POWERED, wantOn));
         }
@@ -363,7 +361,7 @@ public class AbstractLabDoor extends HorizontalDirectionalBlock implements NonLa
             if (nBlock.getBlock() != this)
                 continue;
             level.setBlockAndUpdate(nPos, nBlock.setValue(OPEN, wantState));
-            level.gameEvent(GameEvent.BLOCK_OPEN, pos);
+            level.gameEvent(GameEvent.BLOCK_OPEN, pos, GameEvent.Context.of(state));
         }
         level.playSound(null, pos, open, SoundSource.BLOCKS, 1, 1);
         return true;
@@ -382,7 +380,7 @@ public class AbstractLabDoor extends HorizontalDirectionalBlock implements NonLa
             if (nBlock.getBlock() != this)
                 continue;
             level.setBlockAndUpdate(nPos, nBlock.setValue(OPEN, wantState));
-            level.gameEvent(GameEvent.BLOCK_CLOSE, pos);
+            level.gameEvent(GameEvent.BLOCK_CLOSE, pos, GameEvent.Context.of(state));
         }
         level.playSound(null, pos, close, SoundSource.BLOCKS, 1, 1);
         return true;

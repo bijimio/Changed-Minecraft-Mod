@@ -109,7 +109,7 @@ public class RetinalScanner extends AbstractCustomShapeBlock {
         } else {
             if (!canSetSpawn(level)) {
                 level.removeBlock(blockPos, false);
-                level.explode((Entity)null, DamageSource.badRespawnPointExplosion(), (ExplosionDamageCalculator)null, (double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.5D, (double)blockPos.getZ() + 0.5D, 5.0F, true, Explosion.BlockInteraction.DESTROY);
+                level.explode((Entity)null, level.damageSources().badRespawnPointExplosion(blockPos.getCenter()), (ExplosionDamageCalculator)null, (double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.5D, (double)blockPos.getZ() + 0.5D, 5.0F, true, Level.ExplosionInteraction.BLOCK);
                 return InteractionResult.SUCCESS;
             } else if (player instanceof ServerPlayer serverPlayer) {
                 serverPlayer.setRespawnPosition(level.dimension(), blockPos, player.getYRot(), false, true);

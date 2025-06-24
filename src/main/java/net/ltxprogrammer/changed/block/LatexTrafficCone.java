@@ -18,7 +18,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -27,7 +26,7 @@ public class LatexTrafficCone extends AbstractCustomShapeBlock implements Wearab
     public static final VoxelShape SHAPE_WHOLE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 15.0D, 14.0D);
 
     public LatexTrafficCone() {
-        super(Properties.of(Material.WOOD).sound(SoundType.WOOD).strength(0.2F));
+        super(Properties.of().sound(SoundType.WOOD).strength(0.2F));
     }
 
     public PushReaction getPistonPushReaction(BlockState p_52814_) {

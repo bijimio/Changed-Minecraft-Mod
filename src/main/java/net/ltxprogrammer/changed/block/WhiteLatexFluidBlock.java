@@ -16,12 +16,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class WhiteLatexFluidBlock extends AbstractLatexFluidBlock implements WhiteLatexTransportInterface {
     public WhiteLatexFluidBlock() {
-        super(() -> (FlowingFluid)ChangedFluids.WHITE_LATEX.get(), BlockBehaviour.Properties.of(Material.WATER).strength(100f));
+        super(() -> (FlowingFluid)ChangedFluids.WHITE_LATEX.get(), BlockBehaviour.Properties.of().strength(100f));
     }
 
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {

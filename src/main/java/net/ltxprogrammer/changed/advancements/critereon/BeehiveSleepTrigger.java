@@ -11,7 +11,7 @@ public class BeehiveSleepTrigger extends SimpleCriterionTrigger<BeehiveSleepTrig
 
     public ResourceLocation getId() { return ID; }
 
-    public TriggerInstance createInstance(JsonObject jsonObject, EntityPredicate.Composite predicate, DeserializationContext context) {
+    public TriggerInstance createInstance(JsonObject jsonObject, ContextAwarePredicate predicate, DeserializationContext context) {
         return new TriggerInstance(predicate);
     }
 
@@ -20,7 +20,7 @@ public class BeehiveSleepTrigger extends SimpleCriterionTrigger<BeehiveSleepTrig
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        public TriggerInstance(EntityPredicate.Composite entityPredicate) {
+        public TriggerInstance(ContextAwarePredicate entityPredicate) {
             super(ID, entityPredicate);
         }
 

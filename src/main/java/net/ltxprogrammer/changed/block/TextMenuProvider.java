@@ -22,8 +22,8 @@ public interface TextMenuProvider {
     }
 
     default void openMenu(ServerPlayer player, MenuProvider provider, BlockPos blockPos) {
-        NetworkHooks.openGui(player, provider, extra -> {
-            player.level.getBlockEntity(blockPos, ChangedBlockEntities.TEXT_BLOCK_ENTITY.get()).ifPresent(blockEntity -> {
+        NetworkHooks.openScreen(player, provider, extra -> {
+            player.level().getBlockEntity(blockPos, ChangedBlockEntities.TEXT_BLOCK_ENTITY.get()).ifPresent(blockEntity -> {
                 extra.writeUtf(blockEntity.text);
             });
         });

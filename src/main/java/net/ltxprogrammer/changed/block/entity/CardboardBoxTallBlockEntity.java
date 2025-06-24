@@ -33,7 +33,7 @@ public class CardboardBoxTallBlockEntity extends BlockEntity implements Seatable
 
     public boolean hideEntity(LivingEntity entity) {
         if (entityHolder == null || entityHolder.isRemoved()) {
-            entityHolder = SeatEntity.createFor(entity.level, this.getBlockState(), this.getBlockPos(), true);
+            entityHolder = SeatEntity.createFor(entity.level(), this.getBlockState(), this.getBlockPos(), true);
         }
 
         if (this.getSeatedEntity() != null)

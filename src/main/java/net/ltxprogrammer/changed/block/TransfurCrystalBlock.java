@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -98,7 +98,7 @@ public abstract class TransfurCrystalBlock extends BushBlock implements NonLatex
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState blockState, LootContext.Builder lootBuilder) {
+    public List<ItemStack> getDrops(BlockState blockState, LootParams.Builder lootBuilder) {
         if (!shouldDrop(blockState))
             return List.of();
 

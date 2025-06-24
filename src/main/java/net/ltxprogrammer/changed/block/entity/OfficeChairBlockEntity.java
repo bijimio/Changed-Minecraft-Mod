@@ -27,7 +27,7 @@ public class OfficeChairBlockEntity extends BlockEntity implements SeatableBlock
 
     public boolean sitEntity(LivingEntity entity) {
         if (entityHolder == null || entityHolder.isRemoved()) {
-            entityHolder = SeatEntity.createFor(entity.level, this.getBlockState(), this.getBlockPos(), false);
+            entityHolder = SeatEntity.createFor(entity.level(), this.getBlockState(), this.getBlockPos(), false);
         }
 
         if (this.getSeatedEntity() != null)

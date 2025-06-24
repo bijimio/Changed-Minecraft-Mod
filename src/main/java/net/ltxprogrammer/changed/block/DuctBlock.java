@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.entity.PlayerMoverInstance;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.InputWrapper;
+import net.ltxprogrammer.changed.util.TagUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -38,6 +39,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -309,13 +311,13 @@ public class DuctBlock extends ChangedBlock implements SimpleWaterloggedBlock
             @Override
             public void saveTo(CompoundTag tag) {
                 super.saveTo(tag);
-                tag.putInt("block", Registry.BLOCK.getId(ductBlock));
+                TagUtil.putResourceLocation(tag, "block", ForgeRegistries.BLOCKS.getKey(ductBlock));
             }
 
             @Override
             public void readFrom(CompoundTag tag) {
                 super.readFrom(tag);
-                this.ductBlock = Registry.BLOCK.byId(tag.getInt("block"));
+                this.ductBlock = ForgeRegistries.BLOCKS.getValue(TagUtil.getResourceLocation(tag, "block"));
             }
 
             @Override
@@ -347,7 +349,7 @@ public class DuctBlock extends ChangedBlock implements SimpleWaterloggedBlock
                 BlockPos currentPos = player.blockPosition();
                 BlockPos nextPos = currentPos.relative(moveDir);
 
-                BlockState nextState = player.level.getBlockState(nextPos);
+                BlockState nextState = player.level().getBlockState(nextPos);
                 if (!nextState.is(ductBlock) && !nextState.is(ChangedTags.Blocks.DUCT_EXIT))
                     return;
 
@@ -370,7 +372,7 @@ public class DuctBlock extends ChangedBlock implements SimpleWaterloggedBlock
 
             @Override
             public boolean shouldRemoveMover(Player player, InputWrapper input, LogicalSide side) {
-                return !player.level.getBlockState(player.blockPosition()).is(ductBlock);
+                return !player.level().getBlockState(player.blockPosition()).is(ductBlock);
             }
 
             @Override

@@ -8,7 +8,6 @@ import net.ltxprogrammer.changed.world.inventory.KeypadMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -42,8 +41,8 @@ public class KeypadBlockEntity extends BlockEntity implements MenuProvider {
             code = tag.getByteArray("Code");
     }
 
-    private static final Component SET_PASSWORD = new TranslatableComponent("container.changed.keypad_first");
-    private static final Component ENTER_PASSWORD = new TranslatableComponent("container.changed.keypad");
+    private static final Component SET_PASSWORD = Component.translatable("container.changed.keypad_first");
+    private static final Component ENTER_PASSWORD = Component.translatable("container.changed.keypad");
     @Override
     public Component getDisplayName() {
         if (this.code == null)

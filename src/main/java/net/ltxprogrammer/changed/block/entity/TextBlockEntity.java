@@ -6,7 +6,6 @@ import net.ltxprogrammer.changed.init.ChangedBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +35,7 @@ public class TextBlockEntity extends BlockEntity implements MenuProvider, TextEn
             text = tag.getString("Text");
     }
 
-    private static final Component NOTE = new TranslatableComponent("container.changed.note");
+    private static final Component NOTE = Component.translatable("container.changed.note");
     @Override
     public Component getDisplayName() {
         return NOTE;
@@ -46,7 +45,7 @@ public class TextBlockEntity extends BlockEntity implements MenuProvider, TextEn
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory inv, Player player) {
         if (this.getBlockState().getBlock() instanceof TextMenuProvider provider)
-            return provider.createMenu(this.getBlockState(), player.level, this.worldPosition, id, inv, player);
+            return provider.createMenu(this.getBlockState(), player.level(), this.worldPosition, id, inv, player);
         return null;
     }
 

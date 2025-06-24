@@ -8,7 +8,6 @@ import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Collection;
@@ -39,7 +38,7 @@ public class ToggleNightVisionAbility extends SimpleAbility {
         return 60;
     }
 
-    private static final Collection<Component> DESCRIPTION = Collections.singleton(new TranslatableComponent("ability.changed.toggle_night_vision.desc"));
+    private static final Collection<Component> DESCRIPTION = Collections.singleton(Component.translatable("ability.changed.toggle_night_vision.desc"));
 
     @Override
     public Collection<Component> getAbilityDescription(IAbstractChangedEntity entity) {

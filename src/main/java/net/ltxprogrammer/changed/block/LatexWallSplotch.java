@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.*;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -44,7 +44,7 @@ public class LatexWallSplotch extends HorizontalDirectionalBlock implements Simp
     private static final VoxelShape AABB = Block.box(0.0, 0.0, 15.0, 16.0, 16.0, 16.0);
 
     public LatexWallSplotch(LatexType type, List<Supplier<? extends TransfurVariant<?>>> variants) {
-        super(BlockBehaviour.Properties.of(Material.CLAY, MaterialColor.COLOR_GRAY).sound(SoundType.SLIME_BLOCK).strength(1.0F, 4.0F).noOcclusion());
+        super(BlockBehaviour.Properties.of().sound(SoundType.SLIME_BLOCK).strength(1.0F, 4.0F).noOcclusion());
         this.type = type;
         this.variants = variants;
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
@@ -116,7 +116,7 @@ public class LatexWallSplotch extends HorizontalDirectionalBlock implements Simp
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder context) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder context) {
         return List.of(new ItemStack(type.goo.get()));
     }
 

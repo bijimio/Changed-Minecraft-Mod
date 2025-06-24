@@ -23,8 +23,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -39,7 +38,7 @@ public class ErlenmeyerFlask extends Block implements SimpleWaterloggedBlock, No
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public ErlenmeyerFlask() {
-        super(Properties.of(Material.GLASS).sound(SoundType.GLASS).instabreak().dynamicShape());
+        super(Properties.of().offsetType(OffsetType.XZ).sound(SoundType.GLASS).instabreak().dynamicShape());
         this.registerDefaultState(this.stateDefinition.any().setValue(FILLED, LatexType.NEUTRAL).setValue(WATERLOGGED, false));
     }
 
@@ -50,7 +49,7 @@ public class ErlenmeyerFlask extends Block implements SimpleWaterloggedBlock, No
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         List<ItemStack> items = new ArrayList<>();
         items.add(new ItemStack(ChangedBlocks.ERLENMEYER_FLASK.get()));
         var type = state.getValue(FILLED);
@@ -92,11 +91,6 @@ public class ErlenmeyerFlask extends Block implements SimpleWaterloggedBlock, No
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Vec3 vec3 = state.getOffset(level, pos);
         return AABB.move(vec3.x, vec3.y, vec3.z);
-    }
-
-    @Override
-    public OffsetType getOffsetType() {
-        return OffsetType.XZ;
     }
 
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {

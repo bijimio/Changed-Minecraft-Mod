@@ -6,7 +6,6 @@ import net.ltxprogrammer.changed.init.ChangedGameRules;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
@@ -141,7 +140,7 @@ public class AccessChestAbilityInstance extends AbstractAbilityInstance implemen
 
     @Override
     public Component getDisplayName() {
-        return new TranslatableComponent("container.changed.access_chest");
+        return Component.translatable("container.changed.access_chest");
     }
 
     @Nullable

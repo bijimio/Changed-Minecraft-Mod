@@ -21,8 +21,6 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -34,7 +32,7 @@ public class Note extends AbstractCustomShapeEntityBlock implements TextMenuProv
     public static final VoxelShape SHAPE_WHOLE = Block.box(4.0D, 2.0D, 15.0D, 12.0D, 14.0D, 16.0D);
 
     public Note() {
-        super(Properties.of(Material.BAMBOO, MaterialColor.COLOR_YELLOW).sound(SoundType.SMALL_DRIPLEAF));
+        super(Properties.of().sound(SoundType.SMALL_DRIPLEAF));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 

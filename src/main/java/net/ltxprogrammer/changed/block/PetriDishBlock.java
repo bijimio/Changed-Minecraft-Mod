@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -34,12 +34,12 @@ public class PetriDishBlock extends Block implements SimpleWaterloggedBlock {
     public static final VoxelShape SHAPE = Block.box(6.0D, 0.0D, 6.0D, 10.0D, 1.0D, 10.0D);
 
     public PetriDishBlock(Properties properties) {
-        super(properties.dynamicShape());
+        super(properties.offsetType(OffsetType.XZ).dynamicShape());
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return List.of(new ItemStack(this));
     }
 
@@ -86,11 +86,6 @@ public class PetriDishBlock extends Block implements SimpleWaterloggedBlock {
 
     public VoxelShape getShape(BlockState p_54561_, BlockGetter p_54562_, BlockPos p_54563_, CollisionContext p_54564_) {
         return getInteractionShape(p_54561_, p_54562_, p_54563_);
-    }
-
-    @Override
-    public OffsetType getOffsetType() {
-        return OffsetType.XZ;
     }
 
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {

@@ -19,8 +19,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -36,7 +35,7 @@ public class CannedSoup extends Block implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public CannedSoup() {
-        super(BlockBehaviour.Properties.of(Material.METAL).sound(SoundType.COPPER).strength(0.5F).dynamicShape());
+        super(BlockBehaviour.Properties.of().offsetType(OffsetType.XZ).sound(SoundType.COPPER).strength(0.5F).dynamicShape());
         this.registerDefaultState(this.stateDefinition.any().setValue(CANS, 1).setValue(WATERLOGGED, false));
     }
 
@@ -47,7 +46,7 @@ public class CannedSoup extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return List.of(new ItemStack(ChangedBlocks.CANNED_SOUP.get(), state.getValue(CANS)));
     }
 
@@ -71,11 +70,6 @@ public class CannedSoup extends Block implements SimpleWaterloggedBlock {
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Vec3 vec3 = state.getOffset(level, pos);
         return shapeForState(state).move(vec3.x, vec3.y, vec3.z);
-    }
-
-    @Override
-    public OffsetType getOffsetType() {
-        return OffsetType.XZ;
     }
 
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {

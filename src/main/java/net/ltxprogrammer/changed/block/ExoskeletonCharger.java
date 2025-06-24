@@ -8,6 +8,7 @@ import net.ltxprogrammer.changed.init.ChangedItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -22,8 +23,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +33,7 @@ public class ExoskeletonCharger extends AbstractLargePanel implements IRobotChar
     public static final BooleanProperty OCCUPIED = BlockStateProperties.OCCUPIED;
 
     public ExoskeletonCharger() {
-        super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F)
+        super(Properties.of().sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F)
                 .randomTicks());
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(OCCUPIED, false));
@@ -90,7 +89,7 @@ public class ExoskeletonCharger extends AbstractLargePanel implements IRobotChar
     }
 
     @Override
-    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.randomTick(state, level, pos, random);
         if (state.getValue(SECTION) == NineSection.CENTER)
             broadcastPosition(level, pos, !state.getValue(OCCUPIED));

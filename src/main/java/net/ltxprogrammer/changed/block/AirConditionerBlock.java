@@ -7,6 +7,7 @@ import net.ltxprogrammer.changed.init.ChangedTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -20,10 +21,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +35,7 @@ public class AirConditionerBlock extends AbstractCustomShapeBlock {
     public static final VoxelShape SHAPE_WHOLE = Block.box(-15.0D, 1.0D, 4.0D, 31.0D, 31.0D, 16.0D);
 
     public AirConditionerBlock(Properties properties) {
-        super(properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F));
+        super(properties.sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(SECTION, SixSection.BOTTOM_MIDDLE));
     }
 
@@ -131,7 +130,7 @@ public class AirConditionerBlock extends AbstractCustomShapeBlock {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return state.getValue(SECTION) == SixSection.BOTTOM_MIDDLE ?
                 new ArrayList<>(Collections.singleton(this.asItem().getDefaultInstance())) :
                 List.of();
@@ -225,7 +224,7 @@ public class AirConditionerBlock extends AbstractCustomShapeBlock {
     }
 
     @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.tick(state, level, pos, random);
         level.scheduleTick(pos, this, 4);
 

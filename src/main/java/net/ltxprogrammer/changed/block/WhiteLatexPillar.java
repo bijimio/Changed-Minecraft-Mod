@@ -12,6 +12,7 @@ import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -140,7 +141,7 @@ public class WhiteLatexPillar extends AbstractCustomShapeTallBlock implements Wh
     }
 
     @Override
-    public void randomTick(BlockState blockState, ServerLevel level, BlockPos blockPos, Random random) {
+    public void randomTick(BlockState blockState, ServerLevel level, BlockPos blockPos, RandomSource random) {
         super.randomTick(blockState, level, blockPos, random);
         if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER)
             return;

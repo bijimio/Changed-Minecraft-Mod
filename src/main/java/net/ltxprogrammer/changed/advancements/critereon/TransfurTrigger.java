@@ -13,7 +13,7 @@ public class TransfurTrigger extends SimpleCriterionTrigger<TransfurTrigger.Trig
 
     public ResourceLocation getId() { return ID; }
 
-    public TransfurTrigger.TriggerInstance createInstance(JsonObject jsonObject, EntityPredicate.Composite predicate, DeserializationContext context) {
+    public TransfurTrigger.TriggerInstance createInstance(JsonObject jsonObject, ContextAwarePredicate predicate, DeserializationContext context) {
         return new TransfurTrigger.TriggerInstance(predicate, TransfurPredicate.fromJson(jsonObject));
     }
 
@@ -24,17 +24,17 @@ public class TransfurTrigger extends SimpleCriterionTrigger<TransfurTrigger.Trig
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final TransfurPredicate form;
 
-        public TriggerInstance(EntityPredicate.Composite entityPredicate, TransfurPredicate transfurPredicate) {
+        public TriggerInstance(ContextAwarePredicate entityPredicate, TransfurPredicate transfurPredicate) {
             super(ID, entityPredicate);
             this.form = transfurPredicate;
         }
 
         public static TriggerInstance transfurred() {
-            return new TriggerInstance(EntityPredicate.Composite.ANY, TransfurPredicate.ANY);
+            return new TriggerInstance(ContextAwarePredicate.ANY, TransfurPredicate.ANY);
         }
 
         public static TriggerInstance transfurred(TransfurPredicate predicate) {
-            return new TriggerInstance(EntityPredicate.Composite.ANY, predicate);
+            return new TriggerInstance(ContextAwarePredicate.ANY, predicate);
         }
 
         public boolean matches(TransfurVariantInstance<?> form) {

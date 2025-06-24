@@ -31,7 +31,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -45,7 +44,7 @@ public class CardboardBoxTall extends AbstractCustomShapeTallEntityBlock impleme
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public CardboardBoxTall() {
-        super(BlockBehaviour.Properties.of(Material.WOOL).strength(1.0F).isSuffocating(ChangedBlocks::never).isViewBlocking(ChangedBlocks::never)
+        super(BlockBehaviour.Properties.of().strength(1.0F).isSuffocating(ChangedBlocks::never).isViewBlocking(ChangedBlocks::never)
                 .sound(SoundType.SCAFFOLDING));
         this.registerDefaultState(this.stateDefinition.any().setValue(HALF, DoubleBlockHalf.LOWER).setValue(WATERLOGGED, false).setValue(OPEN, false));
     }
@@ -183,7 +182,7 @@ public class CardboardBoxTall extends AbstractCustomShapeTallEntityBlock impleme
         SeatableBlock.super.onEnterSeat(level, state, pos, entity);
 
         if (getBlockEntityForBlock(level, pos, state) instanceof CardboardBoxTallBlockEntity blockEntity) {
-            entity.level.playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ChangedSounds.BOW2, SoundSource.BLOCKS, 1.0f, 1.0f, true);
+            entity.level().playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ChangedSounds.BOW2, SoundSource.BLOCKS, 1.0f, 1.0f, true);
             blockEntity.ticksSinceChange = 0;
         }
     }
@@ -193,7 +192,7 @@ public class CardboardBoxTall extends AbstractCustomShapeTallEntityBlock impleme
         SeatableBlock.super.onExitSeat(level, state, pos, entity);
 
         if (getBlockEntityForBlock(level, pos, state) instanceof CardboardBoxTallBlockEntity blockEntity) {
-            entity.level.playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ChangedSounds.BOW2, SoundSource.BLOCKS, 1.0f, 1.0f, true);
+            entity.level().playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ChangedSounds.BOW2, SoundSource.BLOCKS, 1.0f, 1.0f, true);
             blockEntity.ticksSinceChange = 0;
         }
     }

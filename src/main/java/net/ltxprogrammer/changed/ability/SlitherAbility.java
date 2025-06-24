@@ -2,7 +2,6 @@ package net.ltxprogrammer.changed.ability;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.Pose;
 
 import java.util.Collection;
@@ -52,7 +51,7 @@ public class SlitherAbility extends SimpleAbility {
         return UseType.HOLD;
     }
 
-    private static final Collection<Component> DESCRIPTION = Collections.singleton(new TranslatableComponent("ability.changed.slither.desc"));
+    private static final Collection<Component> DESCRIPTION = Collections.singleton(Component.translatable("ability.changed.slither.desc"));
 
     @Override
     public Collection<Component> getAbilityDescription(IAbstractChangedEntity entity) {

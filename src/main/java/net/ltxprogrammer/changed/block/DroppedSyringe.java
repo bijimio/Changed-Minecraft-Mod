@@ -38,7 +38,7 @@ public class DroppedSyringe extends Block implements EntityBlock, NonLatexCovera
     protected static final VoxelShape SHAPE = Block.box(3.0D, 0.0D, 3.0D, 13.0D, 2.0D, 13.0D);
 
     public DroppedSyringe() {
-        super(BlockBehaviour.Properties.of(Material.BUILDABLE_GLASS, MaterialColor.COLOR_LIGHT_GRAY).sound(SoundType.CANDLE).instabreak());
+        super(BlockBehaviour.Properties.of().sound(SoundType.CANDLE).instabreak());
         this.registerDefaultState(this.stateDefinition.any().setValue(ROTATION, 0).setValue(WATERLOGGED, false));
     }
 

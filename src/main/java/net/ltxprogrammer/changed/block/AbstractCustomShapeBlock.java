@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -26,7 +26,7 @@ public abstract class AbstractCustomShapeBlock extends HorizontalDirectionalBloc
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState p_60537_, LootContext.Builder p_60538_) {
+    public List<ItemStack> getDrops(BlockState p_60537_, LootParams.Builder p_60538_) {
         return new ArrayList<>(Collections.singleton(this.asItem().getDefaultInstance()));
     }
 

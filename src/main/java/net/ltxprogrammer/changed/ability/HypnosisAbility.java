@@ -5,7 +5,6 @@ import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.util.CameraUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -64,7 +63,7 @@ public class HypnosisAbility extends SimpleAbility {
         return true;
     }
 
-    private static final Collection<Component> DESCRIPTION = Collections.singleton(new TranslatableComponent("ability.changed.hypnosis.desc"));
+    private static final Collection<Component> DESCRIPTION = Collections.singleton(Component.translatable("ability.changed.hypnosis.desc"));
 
     @Override
     public Collection<Component> getAbilityDescription(IAbstractChangedEntity entity) {

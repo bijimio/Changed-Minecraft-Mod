@@ -8,7 +8,7 @@ import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -82,7 +82,7 @@ public class BeehiveBed extends AbstractCustomShapeBlock {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return state.getValue(PART) == BedPart.HEAD ? super.getDrops(state, builder) : List.of();
     }
 
@@ -120,7 +120,7 @@ public class BeehiveBed extends AbstractCustomShapeBlock {
                 return InteractionResult.SUCCESS;
             } else if (state.getValue(OCCUPIED)) {
                 if (!this.kickBeeOutOfBed(level, pos)) {
-                    player.displayClientMessage(new TranslatableComponent("block.minecraft.bed.occupied"), true);
+                    player.displayClientMessage(Component.translatable("block.minecraft.bed.occupied"), true);
                 }
 
                 return InteractionResult.SUCCESS;

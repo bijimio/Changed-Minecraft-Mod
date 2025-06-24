@@ -55,7 +55,7 @@ public class SirenSingAbilityInstance extends AbstractAbilityInstance {
 
         CameraUtil.tugEntityLookDirection(livingEntity, randomXZdir, 0.125);
 
-        if (!livingEntity.isOnGround())
+        if (!livingEntity.onGround())
             return;
         final double moveScale = livingEntity.getSpeed() * 0.8 * (livingEntity instanceof Player ? 10.0 : 1.0);
         livingEntity.travel(randomXZdir.multiply(moveScale, 0, moveScale));

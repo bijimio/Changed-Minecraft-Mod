@@ -5,7 +5,6 @@ import net.ltxprogrammer.changed.world.features.structures.facility.Zone;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -118,7 +117,7 @@ public class GluBlockEntity extends BlockEntity {
         }
 
         public Component getTranslatedName() {
-            return new TranslatableComponent("glu_block.joint." + this.name);
+            return Component.translatable("glu_block.joint." + this.name);
         }
 
         public JointType next() {

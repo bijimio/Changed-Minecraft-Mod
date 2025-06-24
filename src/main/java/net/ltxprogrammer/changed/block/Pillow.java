@@ -8,11 +8,12 @@ import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -33,7 +34,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -55,7 +55,7 @@ public class Pillow extends BaseEntityBlock implements SeatableBlock, SimpleWate
     private final DyeColor color;
 
     public Pillow(DyeColor color) {
-        super(BlockBehaviour.Properties.of(Material.WOOL, color).sound(SoundType.WOOL));
+        super(BlockBehaviour.Properties.of().sound(SoundType.WOOL));
         this.color = color;
         this.registerDefaultState(this.stateDefinition.any().setValue(ROTATION, 0).setValue(WATERLOGGED, false).setValue(OCCUPIED, false));
     }
@@ -174,11 +174,11 @@ public class Pillow extends BaseEntityBlock implements SeatableBlock, SimpleWate
         } else {
             if (!BedBlock.canSetSpawn(level)) {
                 level.removeBlock(pos, false);
-                level.explode(null, DamageSource.badRespawnPointExplosion(), null, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, 5.0F, true, Explosion.BlockInteraction.DESTROY);
+                level.explode(null, level.damageSources().badRespawnPointExplosion(pos.getCenter()), null, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, 5.0F, true, Level.ExplosionInteraction.BLOCK);
                 return InteractionResult.SUCCESS;
             } else if (state.getValue(OCCUPIED)) {
                 if (!this.kickLatexOutOfBed(level, pos)) {
-                    player.displayClientMessage(new TranslatableComponent("block.minecraft.bed.occupied"), true);
+                    player.displayClientMessage(Component.translatable("block.minecraft.bed.occupied"), true);
                 }
 
                 return InteractionResult.SUCCESS;

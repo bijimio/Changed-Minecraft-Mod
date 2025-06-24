@@ -21,9 +21,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -44,7 +43,7 @@ public class BoxPile extends HorizontalDirectionalBlock implements NonLatexCover
     public static final VoxelShape ALL_BOXES = Shapes.or(BOX1, BOX2, BOX3);
 
     public BoxPile() {
-        super(BlockBehaviour.Properties.of(Material.WOOL).strength(1.0F).isSuffocating(ChangedBlocks::never).isViewBlocking(ChangedBlocks::never)
+        super(BlockBehaviour.Properties.of().strength(1.0F).isSuffocating(ChangedBlocks::never).isViewBlocking(ChangedBlocks::never)
                 .sound(SoundType.SCAFFOLDING));
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
@@ -120,7 +119,7 @@ public class BoxPile extends HorizontalDirectionalBlock implements NonLatexCover
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return state.getValue(SECTION) == QuarterSection.BOTTOM_LEFT ?
                 new ArrayList<>(Collections.singleton(this.asItem().getDefaultInstance())) :
                 List.of();

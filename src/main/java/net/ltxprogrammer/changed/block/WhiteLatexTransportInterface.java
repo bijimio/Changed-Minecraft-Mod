@@ -56,9 +56,9 @@ public interface WhiteLatexTransportInterface extends NonLatexCoverableBlock {
                 .map(grabAbility -> !grabAbility.suited && grabAbility.grabbedEntity != null).orElse(false))
             return;
 
-        ProcessTransfur.transfur(entity, entity.level, ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), false, TransfurContext.hazard(TransfurCause.WHITE_LATEX));
+        ProcessTransfur.transfur(entity, entity.level(), ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), false, TransfurContext.hazard(TransfurCause.WHITE_LATEX));
 
-        if (entity instanceof PlayerDataExtension ext && (!entity.level.isClientSide || UniversalDist.isLocalPlayer(entity)))
+        if (entity instanceof PlayerDataExtension ext && (!entity.level().isClientSide || UniversalDist.isLocalPlayer(entity)))
             ext.setPlayerMoverType(PlayerMover.WHITE_LATEX_MOVER.get());
 
         entity.refreshDimensions();
@@ -72,11 +72,11 @@ public interface WhiteLatexTransportInterface extends NonLatexCoverableBlock {
     static boolean isBoundingBoxInWhiteLatex(LivingEntity entity) {
         AABB testHitbox = entity.getBoundingBox().inflate(-0.05);
         return BlockPos.betweenClosedStream(testHitbox).anyMatch(blockPos -> {
-            final BlockState blockState = entity.level.getBlockState(blockPos);
+            final BlockState blockState = entity.level().getBlockState(blockPos);
             if (blockState.getBlock() instanceof WhiteLatexTransportInterface transportInterface)
                 return transportInterface.allowTransport(blockState);
             if (blockState.getProperties().contains(COVERED) && blockState.getValue(COVERED) == LatexType.WHITE_LATEX) {
-                var shape = blockState.getCollisionShape(entity.level, blockPos, CollisionContext.empty()).move((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ());
+                var shape = blockState.getCollisionShape(entity.level(), blockPos, CollisionContext.empty()).move((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ());
                 return Shapes.joinIsNotEmpty(shape, Shapes.create(testHitbox), BooleanOp.AND);
             }
 
