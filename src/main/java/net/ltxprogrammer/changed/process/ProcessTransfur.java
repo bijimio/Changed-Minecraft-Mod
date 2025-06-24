@@ -18,9 +18,9 @@ import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -90,7 +90,7 @@ public class ProcessTransfur {
         if (progress == oldProgress)
             return;
         ext.setTransfurProgress(progress);
-        if (!player.level.isClientSide)
+        if (!player.level().isClientSide)
             Changed.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), new SyncTransfurProgressPacket(player.getUUID(), progress));
     }
 
@@ -108,14 +108,14 @@ public class ProcessTransfur {
             return amount;
 
         float blocked = 0.0f;
-        final var pseudoSource = DamageSource.mobAttack(source.getEntity());
+        final var pseudoSource = blocker.level().damageSources().mobAttack(source.getEntity());
         if (blocker.isDamageSourceBlocked(pseudoSource)) {
             net.minecraftforge.event.entity.living.ShieldBlockEvent ev = net.minecraftforge.common.ForgeHooks.onShieldBlock(blocker, pseudoSource, amount);
             if(!ev.isCanceled()) {
                 if (ev.shieldTakesDamage()) ext.do_hurtCurrentlyUsedShield(amount);
                 blocked = ev.getBlockedDamage();
                 amount -= ev.getBlockedDamage();
-                if (!pseudoSource.isProjectile()) {
+                if (!pseudoSource.is(DamageTypeTags.IS_PROJECTILE)) {
                     ext.do_blockUsingShield(source.getEntity());
                 }
 
@@ -125,7 +125,7 @@ public class ProcessTransfur {
                     }
                 }
 
-                blocker.level.broadcastEntityEvent(blocker, (byte)29);
+                blocker.level().broadcastEntityEvent(blocker, (byte)29);
             }
         }
 
@@ -147,7 +147,8 @@ public class ProcessTransfur {
             amount = LatexProtectionEnchantment.getLatexProtection(player, amount);
             if (ChangedCompatibility.isPlayerUsedByOtherMod(player)) {
                 setPlayerTransfurProgress(player, 0.0f);
-                player.hurt(DamageSource.mobAttack(context.source == null ? transfurVariant.getEntityType().create(player.level) : context.source.getEntity()), amount);
+                var damageSource = player.level().damageSources().mobAttack(context.source == null ? transfurVariant.getEntityType().create(player.level()) : context.source.getEntity());
+                player.hurt(damageSource, amount);
                 return false;
             }
 
@@ -165,10 +166,10 @@ public class ProcessTransfur {
             setPlayerTransfurProgress(player, next);
             if (next >= max && old < max) {
                 if (TransfurVariant.getPublicTransfurVariants().anyMatch(transfurVariant::equals))
-                    transfur(player, player.level, transfurVariant, false, context);
+                    transfur(player, player.level(), transfurVariant, false, context);
                 else {
                     var variant = PatreonBenefits.getPlayerSpecialVariant(player.getUUID());
-                    transfur(player, player.level, variant == null ? ChangedTransfurVariants.FALLBACK_VARIANT.get() : variant, false, context);
+                    transfur(player, player.level(), variant == null ? ChangedTransfurVariants.FALLBACK_VARIANT.get() : variant, false, context);
                 }
 
                 return true;
@@ -237,7 +238,7 @@ public class ProcessTransfur {
 
             if (entity.getType().is(ChangedTags.EntityTypes.HUMANOIDS)) {
                 if (health <= amount * scale && health > 0.0F) {
-                    ProcessTransfur.transfur(entity, entity.level, transfurVariant, false, context);
+                    ProcessTransfur.transfur(entity, entity.level(), transfurVariant, false, context);
                     return true;
                 }
 
@@ -254,7 +255,7 @@ public class ProcessTransfur {
                     return false;
 
                 if (health <= amount * scale && health > 0.0F) {
-                    ProcessTransfur.transfur(entity, entity.level, Util.getRandom(mobFusion, entity.getRandom()), false, context);
+                    ProcessTransfur.transfur(entity, entity.level(), Util.getRandom(mobFusion, entity.getRandom()), false, context);
                     return true;
                 }
 
@@ -279,7 +280,7 @@ public class ProcessTransfur {
         if (isPlayerTransfurred(player))
             return;
         var progress = getPlayerTransfurProgress(player);
-        if (!player.level.isClientSide && progress > 0) {
+        if (!player.level().isClientSide && progress > 0) {
             int deltaTicks = Math.max(((player.tickCount - player.getLastHurtByMobTimestamp()) / 8) - 20, 0);
             float nextTicks = Math.max(progress - (deltaTicks * 0.001f), 0);
             setPlayerTransfurProgress(player, nextTicks);
@@ -402,20 +403,20 @@ public class ProcessTransfur {
     }
 
     public static void removePlayerTransfurVariant(Player player) {
-        setPlayerTransfurVariant(player, null, null, player.level.getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION) ? 0.0f : 1.0f);
+        setPlayerTransfurVariant(player, null, null, player.level().getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION) ? 0.0f : 1.0f);
     }
 
     @Deprecated
     public static @Nullable TransfurVariantInstance<?> setPlayerTransfurVariant(Player player, @Nullable TransfurVariant<?> ogVariant) {
-        return setPlayerTransfurVariant(player, ogVariant, null, player.level.getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION) ? 0.0f : 1.0f);
+        return setPlayerTransfurVariant(player, ogVariant, null, player.level().getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION) ? 0.0f : 1.0f);
     }
 
     public static @Nullable TransfurVariantInstance<?> setPlayerTransfurVariant(Player player, @Nullable TransfurVariant<?> ogVariant, @Nullable TransfurCause cause) {
-        return setPlayerTransfurVariant(player, ogVariant, TransfurContext.hazard(cause), player.level.getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION) ? 0.0f : 1.0f);
+        return setPlayerTransfurVariant(player, ogVariant, TransfurContext.hazard(cause), player.level().getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION) ? 0.0f : 1.0f);
     }
 
     public static @Nullable TransfurVariantInstance<?> setPlayerTransfurVariant(Player player, @Nullable TransfurVariant<?> ogVariant, @Nullable TransfurContext context) {
-        return setPlayerTransfurVariant(player, ogVariant, context, player.level.getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION) ? 0.0f : 1.0f);
+        return setPlayerTransfurVariant(player, ogVariant, context, player.level().getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION) ? 0.0f : 1.0f);
     }
 
     public static @Nullable TransfurVariantInstance<?> setPlayerTransfurVariant(Player player, @Nullable TransfurVariant<?> ogVariant, @Nullable TransfurContext context, float progress) {
@@ -597,31 +598,25 @@ public class ProcessTransfur {
 
     @SubscribeEvent
     public static void onLivingDamaged(LivingDamageEvent event) {
-        if (TransfurVariant.getEntityVariant(event.getEntityLiving()) == null)
+        if (TransfurVariant.getEntityVariant(event.getEntity()) == null)
             return;
 
-        if (event.getSource() instanceof EntityDamageSource entityDamageSource && entityDamageSource.getEntity() instanceof LivingEntity livingEntity) {
-            if (event.getEntityLiving() instanceof ChangedEntity changedEntity)
-                changedEntity.onDamagedBy(livingEntity);
-            ifPlayerTransfurred(EntityUtil.playerOrNull(event.getEntityLiving()), (player, variant) -> {
-                variant.getChangedEntity().onDamagedBy(livingEntity);
-            });
+        if (event.getSource().getEntity() instanceof LivingEntity livingEntity) {
+            IAbstractChangedEntity.forEitherSafe(livingEntity)
+                    .map(IAbstractChangedEntity::getChangedEntity)
+                    .ifPresent(victim -> victim.onDamagedBy(livingEntity));
         }
 
-        if (isNonGoo(event.getEntityLiving()))
+        if (isNonGoo(event.getEntity()))
             return;
 
-        if (event.getSource() instanceof EntityDamageSource entityDamageSource && entityDamageSource.getEntity() instanceof LivingEntity livingEntity &&
+        if (event.getSource().getEntity() instanceof LivingEntity livingEntity &&
                 getEntityAttackItem(livingEntity).is(ChangedTags.Items.TSC_WEAPON)) {
             event.setAmount(event.getAmount() * 1.5F);
         }
 
-        else if (event.getSource() == ChangedDamageSources.ELECTROCUTION) {
+        else if (event.getSource().is(ChangedTags.DamageTypes.LATEX_WEAK_TO)) {
             event.setAmount(event.getAmount() * 1.5F);
-        }
-
-        if (event.getSource().isFire()) {
-            event.setAmount(event.getAmount() * 2.0F);
         }
     }
 
@@ -656,19 +651,18 @@ public class ProcessTransfur {
     @SubscribeEvent
     public static void onLivingAttacked(LivingAttackEvent event) {
         //The entity getting hurt is a morph. Cancel the event.
-        if(event.getEntityLiving().getPersistentData().contains(TransfurVariant.NBT_PLAYER_ID)) {
+        if(event.getEntity().getPersistentData().contains(TransfurVariant.NBT_PLAYER_ID)) {
             event.setCanceled(true);
             return;
         }
-        if (event.getSource() instanceof ChangedDamageSources.TransfurDamageSource)
+        if (event.getSource().is(ChangedTags.DamageTypes.IS_TRANSFUR))
             return;
-        if (event.getSource().isProjectile())
+        if (event.getSource().is(DamageTypeTags.IS_PROJECTILE))
             return;
-        if (event.getEntityLiving().isDamageSourceBlocked(event.getSource()))
+        if (event.getEntity().isDamageSourceBlocked(event.getSource()))
             return;
-        if (event.getSource() == DamageSource.CACTUS && TransfurVariant.getEntityVariant(event.getEntityLiving()) != null) {
-            if (!isNonGoo(event.getEntityLiving()))
-                event.setCanceled(true);
+        if (event.getSource().is(ChangedTags.DamageTypes.LATEX_IMMUNE_TO) && !isNonGoo(event.getEntity())) {
+            event.setCanceled(true);
             return;
         }
 
@@ -678,12 +672,12 @@ public class ProcessTransfur {
             return;
         if (isNonGoo(sourceEntity))
             return;
-        if (sourceEntity.hasPassenger(event.getEntityLiving()) || event.getEntityLiving().hasPassenger(sourceEntity)) {
+        if (sourceEntity.hasPassenger(event.getEntity()) || event.getEntity().hasPassenger(sourceEntity)) {
             event.setCanceled(true);
             return;
         }
         // Check for faction immunity
-        LatexType factionD = LatexType.getEntityFactionLatexType(event.getEntityLiving());
+        LatexType factionD = LatexType.getEntityFactionLatexType(event.getEntity());
         LatexType factionS = LatexType.getEntityFactionLatexType(sourceEntity);
         if (factionD == factionS && factionS != null) {
             event.setCanceled(true);
@@ -693,7 +687,7 @@ public class ProcessTransfur {
     @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
         //The entity dying is a morph. Cancel the event.
-        if (event.getEntityLiving().getPersistentData().contains(TransfurVariant.NBT_PLAYER_ID)) {
+        if (event.getEntity().getPersistentData().contains(TransfurVariant.NBT_PLAYER_ID)) {
             event.setCanceled(true);
             return;
         }
@@ -765,7 +759,7 @@ public class ProcessTransfur {
 
         final boolean doAnimation = level.getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION);
 
-        if (entity.level.isClientSide) {
+        if (entity.level().isClientSide) {
             return;
         }
 
@@ -796,7 +790,7 @@ public class ProcessTransfur {
                 onReplicate.accept(IAbstractChangedEntity.forPlayer(player), variant);
             }
 
-            else if (!entity.level.isClientSide) {
+            else if (!entity.level().isClientSide) {
                 EntityVariantAssigned event = new EntityVariantAssigned(entity, variant, context.cause);
                 Changed.postModEvent(event);
                 if (event.variant != null)
@@ -812,7 +806,7 @@ public class ProcessTransfur {
                 return;
             if (entity instanceof Player player) {
                 var instance = getPlayerTransfurVariant(player);
-                if (instance != null && instance.ageAsVariant > entity.level.getGameRules().getInt(ChangedGameRules.RULE_FUSABILITY_DURATION_PLAYER))
+                if (instance != null && instance.ageAsVariant > entity.level().getGameRules().getInt(ChangedGameRules.RULE_FUSABILITY_DURATION_PLAYER))
                     return;
             }
 
@@ -827,7 +821,7 @@ public class ProcessTransfur {
                 LOGGER.info("Fused " + entity + " with " + variant);
             }
 
-            else if (!entity.level.isClientSide) {
+            else if (!entity.level().isClientSide) {
                 EntityVariantAssigned event = new EntityVariantAssigned(entity, fusion, context.cause);
                 Changed.postModEvent(event);
                 if (event.variant != null)

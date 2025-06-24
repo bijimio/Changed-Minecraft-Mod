@@ -3,18 +3,17 @@ package net.ltxprogrammer.changed.data;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.function.Predicate;
 
-public abstract class RegistryElementPredicate<T extends IForgeRegistryEntry<T>> implements Predicate<T> {
+public abstract class RegistryElementPredicate<T> implements Predicate<T> {
     protected final IForgeRegistry<T> registry;
 
     protected RegistryElementPredicate(IForgeRegistry<T> registry) {
         this.registry = registry;
     }
 
-    protected static class NamespaceSpec<T extends IForgeRegistryEntry<T>> extends RegistryElementPredicate<T> {
+    protected static class NamespaceSpec<T> extends RegistryElementPredicate<T> {
         private final String namespace;
 
         public NamespaceSpec(IForgeRegistry<T> registry, String namespace) {
@@ -24,13 +23,13 @@ public abstract class RegistryElementPredicate<T extends IForgeRegistryEntry<T>>
 
         @Override
         public boolean test(T t) {
-            var regName = t.getRegistryName();
+            var regName = registry.getKey(t);
             if (regName == null) return false;
             return regName.getNamespace().equals(namespace);
         }
     }
 
-    protected static class FullNameSpec<T extends IForgeRegistryEntry<T>> extends RegistryElementPredicate<T> {
+    protected static class FullNameSpec<T> extends RegistryElementPredicate<T> {
         private final ResourceLocation id;
 
         public FullNameSpec(IForgeRegistry<T> registry, ResourceLocation id) {
@@ -40,11 +39,11 @@ public abstract class RegistryElementPredicate<T extends IForgeRegistryEntry<T>>
 
         @Override
         public boolean test(T t) {
-            return id.equals(t.getRegistryName());
+            return id.equals(registry.getKey(t));
         }
     }
 
-    protected static class TagSpec<T extends IForgeRegistryEntry<T>> extends RegistryElementPredicate<T> {
+    protected static class TagSpec<T> extends RegistryElementPredicate<T> {
         private final TagKey<T> tag;
 
         public TagSpec(IForgeRegistry<T> registry, ResourceLocation tag) {
@@ -60,24 +59,24 @@ public abstract class RegistryElementPredicate<T extends IForgeRegistryEntry<T>>
         }
     }
 
-    public static <T extends IForgeRegistryEntry<T>> RegistryElementPredicate<T> parseString(IForgeRegistry<T> registry, String string) {
+    public static <T> RegistryElementPredicate<T> parseString(IForgeRegistry<T> registry, String string) {
         if (string.startsWith("#"))
-            return new TagSpec<>(registry, new ResourceLocation(string.substring(1)));
+            return new TagSpec<>(registry, ResourceLocation.parse(string.substring(1)));
         else if (string.startsWith("@"))
             return new NamespaceSpec<>(registry, string.substring(1));
         else
-            return new FullNameSpec<>(registry, new ResourceLocation(string));
+            return new FullNameSpec<>(registry, ResourceLocation.parse(string));
     }
 
-    public static <T extends IForgeRegistryEntry<T>> RegistryElementPredicate<T> forTag(IForgeRegistry<T> registry, ResourceLocation name) {
+    public static <T> RegistryElementPredicate<T> forTag(IForgeRegistry<T> registry, ResourceLocation name) {
         return new TagSpec<>(registry, name);
     }
 
-    public static <T extends IForgeRegistryEntry<T>> RegistryElementPredicate<T> forNamespace(IForgeRegistry<T> registry, String string) {
+    public static <T> RegistryElementPredicate<T> forNamespace(IForgeRegistry<T> registry, String string) {
         return new NamespaceSpec<>(registry, string);
     }
 
-    public static <T extends IForgeRegistryEntry<T>> RegistryElementPredicate<T> forID(IForgeRegistry<T> registry, ResourceLocation name) {
+    public static <T> RegistryElementPredicate<T> forID(IForgeRegistry<T> registry, ResourceLocation name) {
         return new FullNameSpec<>(registry, name);
     }
 

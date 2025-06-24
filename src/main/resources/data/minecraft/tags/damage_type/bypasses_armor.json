@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "changed:transfur",
+    "changed:absorb",
+    "changed:bloodloss",
+    "changed:electrocution",
+    "changed:white_latex",
+    "changed:latex_fluid",
+    "changed:pale"
+  ]
+}
