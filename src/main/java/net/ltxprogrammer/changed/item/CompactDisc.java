@@ -9,8 +9,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -31,7 +29,7 @@ public class CompactDisc extends Item {
     public static final String TAG_TRANSLATE = "translate";
 
     public CompactDisc() {
-        super(new Item.Properties().stacksTo(1).tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(new Item.Properties().stacksTo(1));
     }
 
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> hoverText, TooltipFlag tooltipFlag) {
@@ -39,7 +37,7 @@ public class CompactDisc extends Item {
             CompoundTag tag = stack.getTag();
             String s = DiscData.getName(tag);
             if (!StringUtil.isNullOrEmpty(s)) {
-                hoverText.add((new TranslatableComponent("text.changed.compact_disc.title", s)).withStyle(ChatFormatting.GRAY));
+                hoverText.add((Component.translatable("text.changed.compact_disc.title", s)).withStyle(ChatFormatting.GRAY));
             }
         }
     }

@@ -1,6 +1,5 @@
 package net.ltxprogrammer.changed.client.animations;
 
-import com.mojang.math.Vector3f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -10,6 +9,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraftforge.common.IExtensibleEnum;
 import org.apache.commons.lang3.NotImplementedException;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,17 +78,17 @@ public class AnimationChannel {
         final var p3 = p.right().left();
         final var p4 = p.right().right();
 
-        final var v1 = (p1 != null ? p1.getValue() : Vector3f.ZERO).copy();
-        final var v2 = (p2 != null ? p2.getValue() : Vector3f.ZERO).copy();
-        final var v3 = (p3 != null ? p3.getValue() : Vector3f.ZERO).copy();
-        final var v4 = (p4 != null ? p4.getValue() : Vector3f.ZERO).copy();
+        final var v1 = (p1 != null ? new Vector3f(p1.getValue()) : new Vector3f(0.0f));
+        final var v2 = (p2 != null ? new Vector3f(p2.getValue()) : new Vector3f(0.0f));
+        final var v3 = (p3 != null ? new Vector3f(p3.getValue()) : new Vector3f(0.0f));
+        final var v4 = (p4 != null ? new Vector3f(p4.getValue()) : new Vector3f(0.0f));
 
-        final AtomicReference<Vector3f> atomic = new AtomicReference<>(Vector3f.ZERO);
+        final AtomicReference<Vector3f> atomic = new AtomicReference<>(new Vector3f(0.0f));
         final Float4Consumer float4Consumer = (b1, b2, b3, b4) -> {
-            v1.mul(b1);
-            v2.mul(b2);
-            v3.mul(b3);
-            v4.mul(b4);
+            v1.mul(b1, b1, b1);
+            v2.mul(b2, b2, b2);
+            v3.mul(b3, b3, b3);
+            v4.mul(b4, b4, b4);
 
             v1.add(v2);
             v1.add(v3);
@@ -109,18 +109,18 @@ public class AnimationChannel {
     }
 
     public void animate(AnimationDefinition definition, ModelPart part, float time) {
-        final Vector3f result = getValue(definition, time);
+        final var result = getValue(definition, time);
 
         switch (target) {
             case POSITION:
-                part.x = result.x();
-                part.y = -result.y();
-                part.z = result.z();
+                part.x = (float) result.x();
+                part.y = (float) -result.y();
+                part.z = (float) result.z();
                 break;
             case ROTATION:
-                part.xRot = result.x();
-                part.yRot = result.y();
-                part.zRot = result.z();
+                part.xRot = (float) result.x();
+                part.yRot = (float) result.y();
+                part.zRot = (float) result.z();
                 break;
         }
     }
@@ -145,7 +145,7 @@ public class AnimationChannel {
 
         public static DataResult<Target> fromSerial(String name) {
             return Arrays.stream(values()).filter(type -> type.serialName.equals(name))
-                    .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(name + " is not a valid target"));
+                    .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(() -> name + " is not a valid target"));
         }
 
         public static Target create(String name, String serialName) {
@@ -153,7 +153,7 @@ public class AnimationChannel {
         }
     }
 
-    public enum Interpolation implements BiConsumer<Float, AnimationChannel.Float4Consumer>, StringRepresentable {
+    public enum Interpolation implements BiConsumer<Float, Float4Consumer>, StringRepresentable {
         LINEAR("linear", (u, consumer) -> consumer.accept(0.0f, 1.0f - u, u, 0.0f)),
         CATMULLROM("catmullrom", (u, consumer) -> {
             final float T = 0.5f;
@@ -185,7 +185,7 @@ public class AnimationChannel {
 
         public static DataResult<Interpolation> fromSerial(String name) {
             return Arrays.stream(values()).filter(type -> type.serialName.equals(name))
-                    .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(name + " is not a known interpolation"));
+                    .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(() -> name + " is not a known interpolation"));
         }
 
         @Override

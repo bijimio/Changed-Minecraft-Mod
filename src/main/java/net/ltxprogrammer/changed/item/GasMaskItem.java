@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
 
 public class GasMaskItem extends Item implements ExtendedItemProperties {
     public GasMaskItem() {
-        super(new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).stacksTo(1));
+        super(new Item.Properties().stacksTo(1));
     }
 
     @Override

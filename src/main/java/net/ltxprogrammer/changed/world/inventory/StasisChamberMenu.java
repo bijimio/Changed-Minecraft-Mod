@@ -47,7 +47,7 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
     private static final ResourceLocation EMPTY_SYRINGE_SLOT = Changed.modResource("items/empty_slot_syringe");
 
     public StasisChamberMenu(int id, Inventory inventory, FriendlyByteBuf extra) {
-        super(ChangedMenus.STASIS_CHAMBER, id);
+        super(ChangedMenus.STASIS_CHAMBER.get(), id);
         this.accessor = inventory.player;
         this.data = new SimpleContainerData(2);
 
@@ -66,7 +66,7 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
     }
 
     public StasisChamberMenu(int id, Inventory inventory, @Nullable StasisChamberBlockEntity blockEntity, ContainerData dataAccess) {
-        super(ChangedMenus.STASIS_CHAMBER, id);
+        super(ChangedMenus.STASIS_CHAMBER.get(), id);
         this.accessor = inventory.player;
         this.data = dataAccess;
         this.blockEntity = blockEntity;

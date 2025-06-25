@@ -7,15 +7,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.tutorial.Tutorial;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SelectAbilityTutorialStep implements ChangedTutorialInstance {
     private static final int HINT_DELAY = 300;
-    private static final Component TITLE = new TranslatableComponent("changed.tutorial.select_ability.title");
-    private static final Component DESCRIPTION = new TranslatableComponent("changed.tutorial.select_ability.description", ChangedTutorial.key(ChangedKeyMappings.SELECT_ABILITY));
+    private static final Component TITLE = Component.translatable("changed.tutorial.select_ability.title");
+    private static final Component DESCRIPTION = Component.translatable("changed.tutorial.select_ability.description", ChangedTutorial.key(ChangedKeyMappings.SELECT_ABILITY));
     private final Tutorial tutorial;
     private TutorialToast toast;
     private int timeWaiting;

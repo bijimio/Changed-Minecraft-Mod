@@ -10,6 +10,7 @@ import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.gui.AbilityOverlay;
 import net.ltxprogrammer.changed.client.gui.GrabOverlay;
 import net.ltxprogrammer.changed.client.gui.TransfurProgressOverlay;
+import net.ltxprogrammer.changed.client.gui.VariantBlindnessOverlay;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.fluid.TransfurGas;
 import net.minecraft.client.Minecraft;
@@ -17,50 +18,60 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.gui.ForgeIngameGui;
-import net.minecraftforge.client.gui.IIngameOverlay;
-import net.minecraftforge.client.gui.OverlayRegistry;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ChangedOverlays {
-    protected static final ResourceLocation VIGNETTE_LOCATION = new ResourceLocation("textures/misc/vignette.png");
+    protected static final ResourceLocation VIGNETTE_LOCATION = ResourceLocation.parse("textures/misc/vignette.png");
 
-    public static final IIngameOverlay DANGER_ELEMENT = OverlayRegistry.registerOverlayTop(Changed.modResourceStr("danger"), (gui, poseStack, partialTick, screenWidth, screenHeight) -> {
-        gui.setupOverlayRenderState(true, false);
-        TransfurProgressOverlay.renderDangerOverlay(gui, poseStack, partialTick, screenWidth, screenHeight);
-    });
-    public static final IIngameOverlay ABILITY_ELEMENT = OverlayRegistry.registerOverlayAbove(DANGER_ELEMENT, Changed.modResourceStr("ability"), (gui, poseStack, partialTick, screenWidth, screenHeight) -> {
-        gui.setupOverlayRenderState(true, false);
-        AbilityOverlay.renderSelectedAbility(gui, poseStack, partialTick, screenWidth, screenHeight);
-    });
-    public static final IIngameOverlay GRABBED_ELEMENT = OverlayRegistry.registerOverlayAbove(ForgeIngameGui.EXPERIENCE_BAR_ELEMENT, Changed.modResourceStr("grabbed"), GrabOverlay::renderProgressBars);
-    public static final IIngameOverlay GAS_VFX_ELEMENT = OverlayRegistry.registerOverlayAbove(ForgeIngameGui.VIGNETTE_ELEMENT, Changed.modResourceStr("gas_vfx"), ((gui, poseStack, partialTick, screenWidth, screenHeight) -> {
-        var cameraEntity = Minecraft.getInstance().cameraEntity;
+    public static final ResourceLocation DANGER_OVERLAY = Changed.modResource("danger");
+    public static final ResourceLocation ABILITY_OVERLAY = Changed.modResource("ability");
+    public static final ResourceLocation GRABBED_OVERLAY = Changed.modResource("grabbed");
+    public static final ResourceLocation GAS_VFX_OVERLAY = Changed.modResource("gas_vfx");
+    public static final ResourceLocation VARIANT_BLINDNESS_OVERLAY = Changed.modResource("variant_blindness");
 
-        if (cameraEntity instanceof LivingEntityDataExtension ext) {
-            ext.isEyeInGas(TransfurGas.class).map(TransfurGas::getColor).ifPresent(color -> {
-                RenderSystem.disableDepthTest();
-                RenderSystem.depthMask(false);
-                RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
-                RenderSystem.setShaderColor(color.red(), color.green(), color.blue(), 1.0F);
+    @SubscribeEvent
+    public static void registerOverlays(RegisterGuiOverlaysEvent event) {
+        event.registerAboveAll(DANGER_OVERLAY.getPath(), (gui, graphics, partialTick, screenWidth, screenHeight) -> {
+            gui.setupOverlayRenderState(true, false);
+            TransfurProgressOverlay.renderDangerOverlay(gui, graphics, partialTick, screenWidth, screenHeight);
+        });
+        event.registerAbove(DANGER_OVERLAY, ABILITY_OVERLAY.getPath(), (gui, graphics, partialTick, screenWidth, screenHeight) -> {
+            gui.setupOverlayRenderState(true, false);
+            AbilityOverlay.renderSelectedAbility(gui, graphics, partialTick, screenWidth, screenHeight);
+        });
+        event.registerAbove(VanillaGuiOverlay.EXPERIENCE_BAR.id(), GRABBED_OVERLAY.getPath(), GrabOverlay::renderProgressBars);
+        event.registerAbove(VanillaGuiOverlay.VIGNETTE.id(), GAS_VFX_OVERLAY.getPath(), (gui, graphics, partialTick, screenWidth, screenHeight) -> {
+            var cameraEntity = Minecraft.getInstance().cameraEntity;
 
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                RenderSystem.setShaderTexture(0, VIGNETTE_LOCATION);
-                Tesselator tesselator = Tesselator.getInstance();
-                BufferBuilder bufferbuilder = tesselator.getBuilder();
-                bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-                bufferbuilder.vertex(0.0D, screenHeight, -90.0D).uv(0.0F, 1.0F).endVertex();
-                bufferbuilder.vertex(screenWidth, screenHeight, -90.0D).uv(1.0F, 1.0F).endVertex();
-                bufferbuilder.vertex(screenWidth, 0.0D, -90.0D).uv(1.0F, 0.0F).endVertex();
-                bufferbuilder.vertex(0.0D, 0.0D, -90.0D).uv(0.0F, 0.0F).endVertex();
-                tesselator.end();
-                RenderSystem.depthMask(true);
-                RenderSystem.enableDepthTest();
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.defaultBlendFunc();
-            });
-        }
-    }));
+            if (cameraEntity instanceof LivingEntityDataExtension ext) {
+                ext.isEyeInGas(TransfurGas.class).map(TransfurGas::getColor).ifPresent(color -> {
+                    RenderSystem.disableDepthTest();
+                    RenderSystem.depthMask(false);
+                    RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+                    RenderSystem.setShaderColor(color.red(), color.green(), color.blue(), 1.0F);
+
+                    RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                    RenderSystem.setShaderTexture(0, VIGNETTE_LOCATION);
+                    Tesselator tesselator = Tesselator.getInstance();
+                    BufferBuilder bufferbuilder = tesselator.getBuilder();
+                    bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+                    bufferbuilder.vertex(0.0D, screenHeight, -90.0D).uv(0.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(screenWidth, screenHeight, -90.0D).uv(1.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(screenWidth, 0.0D, -90.0D).uv(1.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(0.0D, 0.0D, -90.0D).uv(0.0F, 0.0F).endVertex();
+                    tesselator.end();
+                    RenderSystem.depthMask(true);
+                    RenderSystem.enableDepthTest();
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.defaultBlendFunc();
+                });
+            }
+        });
+        event.registerBelowAll(VARIANT_BLINDNESS_OVERLAY.getPath(), VariantBlindnessOverlay::render);
+    }
 }

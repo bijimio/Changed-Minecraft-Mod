@@ -36,7 +36,7 @@ public class QueryTransfurPacket implements ChangedPacket {
             if (sender != null) {
                 SyncTransfurPacket.Builder builder = new SyncTransfurPacket.Builder();
                 changedForms.forEach(uuid -> {
-                    Player player = sender.level.getPlayerByUUID(uuid);
+                    Player player = sender.level().getPlayerByUUID(uuid);
                     if (player != null)
                         builder.addPlayer(player);
                 });

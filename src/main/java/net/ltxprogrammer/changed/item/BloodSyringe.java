@@ -36,7 +36,7 @@ public class BloodSyringe extends Item implements SpecializedAnimations {
     public static final DamageSource BLOODLOSS = (new DamageSource("changed:bloodloss")).bypassArmor();
 
     public BloodSyringe(Properties p_41383_) {
-        super(p_41383_.tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(p_41383_);
     }
 
     public void appendHoverText(ItemStack p_43359_, @Nullable Level p_43360_, List<Component> p_43361_, TooltipFlag p_43362_) {
@@ -64,7 +64,7 @@ public class BloodSyringe extends Item implements SpecializedAnimations {
             }
 
             else {
-                player.addEffect(new MobEffectInstance(ChangedEffects.HYPERCOAGULATION, 800));
+                player.addEffect(new MobEffectInstance(ChangedEffects.HYPERCOAGULATION.get(), 800));
             }
 
             player.awardStat(Stats.ITEM_USED.get(this));

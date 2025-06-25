@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.Changed;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.GameRenderer;
@@ -15,6 +14,8 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceProvider;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -120,7 +121,7 @@ public class ChangedShaders {
         return WAVE_VISION_CUTOUT_MIPPED.apply(LATEX_SHEET_MIPPED);
     }
 
-    public static void reloadShaders(ResourceManager resourceManager, Consumer<Pair<ShaderInstance, Consumer<ShaderInstance>>> loader) throws IOException {
+    public static void reloadShaders(ResourceProvider resourceManager, Consumer<Pair<ShaderInstance, Consumer<ShaderInstance>>> loader) throws IOException {
         loader.accept(Pair.of(new ShaderInstance(resourceManager, Changed.modResource("rendertype_wave_vision_entity"), DefaultVertexFormat.NEW_ENTITY), (instance) -> {
             rendertypeWaveVisionEntity = instance;
         }));

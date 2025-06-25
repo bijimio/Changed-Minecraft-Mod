@@ -46,7 +46,7 @@ public class AnimationEventPacket<T extends AnimationParameters> implements Chan
 
     public AnimationEventPacket(FriendlyByteBuf buffer) {
         this.targetId = buffer.readInt();
-        this.event = (AnimationEvent<T>) ChangedRegistry.ANIMATION_EVENTS.get().getValue(buffer.readInt());
+        this.event = (AnimationEvent<T>) ChangedRegistry.ANIMATION_EVENTS.readRegistryObject(buffer);
         this.category = buffer.readOptional(FriendlyByteBuf::readUtf).map(AnimationCategory::fromSerial).flatMap(DataResult::result).orElse(null);
         this.parameters = buffer.readOptional(FriendlyByteBuf::readAnySizeNbt).map(nbt ->
                 this.event.getCodec().parse(NbtOps.INSTANCE, nbt).getOrThrow(false, error -> {})
@@ -58,7 +58,7 @@ public class AnimationEventPacket<T extends AnimationParameters> implements Chan
     @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeInt(this.targetId);
-        buffer.writeInt(ChangedRegistry.ANIMATION_EVENTS.get().getID(this.event));
+        ChangedRegistry.ANIMATION_EVENTS.writeRegistryObject(buffer, this.event);
         buffer.writeOptional(Optional.ofNullable(category), (buf, cat) -> buf.writeUtf(cat.getSerializedName()));
         buffer.writeOptional(Optional.ofNullable(this.parameters), (buf, param) -> {
             buf.writeNbt((CompoundTag) this.event.getCodec().encodeStart(NbtOps.INSTANCE, param).getOrThrow(false, error -> {}));

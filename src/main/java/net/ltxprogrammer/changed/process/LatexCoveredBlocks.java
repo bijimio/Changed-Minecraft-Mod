@@ -54,11 +54,11 @@ public abstract class LatexCoveredBlocks {
         }
 
         public void addBlock(Block block) {
-            set.add(RegistryElementPredicate.forID(ForgeRegistries.BLOCKS, block.getRegistryName()));
+            set.add(RegistryElementPredicate.forID(ForgeRegistries.BLOCKS, ForgeRegistries.BLOCKS.getKey(block)));
         }
 
         public void addBlock(Supplier<? extends Block> block) {
-            set.add(RegistryElementPredicate.forID(ForgeRegistries.BLOCKS, block.get().getRegistryName()));
+            set.add(RegistryElementPredicate.forID(ForgeRegistries.BLOCKS, ForgeRegistries.BLOCKS.getKey(block.get())));
         }
 
         public void addBlock(ResourceLocation registryName) {

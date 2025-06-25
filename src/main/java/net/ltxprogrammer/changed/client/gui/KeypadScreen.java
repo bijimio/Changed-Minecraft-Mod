@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.world.inventory.KeypadMenu;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -31,11 +32,10 @@ public class KeypadScreen extends AbstractContainerScreen<KeypadMenu> {
         this.player = inventory.player;
     }
 
-    private void renderNumeral(PoseStack pose, @Range(from = 0, to = 10) byte numeral, int x, int y) {
+    private void renderNumeral(GuiGraphics graphics, @Range(from = 0, to = 10) byte numeral, int x, int y) {
         if (numeral == 10 && player.tickCount % 10 >= 5)
             return; // Blinking cursor
 
-        RenderSystem.setShaderTexture(0, NUMERALS);
         int numX;
         int numY;
         if (numeral >= 1 && numeral < 8) {
@@ -51,31 +51,30 @@ public class KeypadScreen extends AbstractContainerScreen<KeypadMenu> {
             numX = 66;
             numY = 30;
         }
-        blit(pose, x, y, numX, numY, 22, 30, 158, 64);
+        graphics.blit(NUMERALS, x, y, numX, numY, 22, 30, 158, 64);
     }
 
     @Override
-    protected void renderBg(PoseStack pose, float partialTicks, int x, int y) {
-        this.renderBackground(pose);
-        RenderSystem.setShaderTexture(0, BACKGROUND);
+    protected void renderBg(GuiGraphics graphics, float partialTicks, int x, int y) {
+        this.renderBackground(graphics);
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
+        graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
 
         for (int idx = 0; idx < 8; ++idx) {
             int numX = this.leftPos + 8 + (idx * 28);
             int numY = this.topPos + 22;
 
             if (idx < attemptedCode.size()) {
-                renderNumeral(pose, attemptedCode.get(idx), numX, numY);
+                renderNumeral(graphics, attemptedCode.get(idx), numX, numY);
             } else if (idx == attemptedCode.size()) {
-                renderNumeral(pose, (byte)10, numX, numY);
+                renderNumeral(graphics, (byte)10, numX, numY);
             } else break;
         }
     }
 
     @Override
-    protected void renderLabels(PoseStack pose, int x, int y) {
-        this.font.draw(pose, this.title, (float)this.titleLabelX, (float)this.titleLabelY, 4210752);
+    protected void renderLabels(GuiGraphics graphics, int x, int y) {
+        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752);
     }
 
     @Override
@@ -87,7 +86,7 @@ public class KeypadScreen extends AbstractContainerScreen<KeypadMenu> {
         }
 
         else if (!attemptedCode.isEmpty() && key == GLFW.GLFW_KEY_BACKSPACE) {
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(ChangedSounds.SWITCH1, 1.0F));
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(ChangedSounds.SWITCH1.get(), 1.0F));
             attemptedCode.remove(attemptedCode.size() - 1);
             return true;
         }
@@ -96,13 +95,13 @@ public class KeypadScreen extends AbstractContainerScreen<KeypadMenu> {
             return super.keyPressed(key, b, c);
 
         if (key >= GLFW.GLFW_KEY_0 && key <= GLFW.GLFW_KEY_9) {
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(ChangedSounds.SWITCH1, 1.0F));
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(ChangedSounds.SWITCH1.get(), 1.0F));
             attemptedCode.add((byte)(key - GLFW.GLFW_KEY_0));
             return true;
         }
 
         else if (key >= GLFW.GLFW_KEY_KP_0 && key <= GLFW.GLFW_KEY_KP_9) {
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(ChangedSounds.SWITCH1, 1.0F));
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(ChangedSounds.SWITCH1.get(), 1.0F));
             attemptedCode.add((byte)(key - GLFW.GLFW_KEY_KP_0));
             return true;
         }

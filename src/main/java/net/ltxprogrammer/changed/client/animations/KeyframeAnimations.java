@@ -1,7 +1,8 @@
 package net.ltxprogrammer.changed.client.animations;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class KeyframeAnimations {
     public static Vector3f degreeVec(float x, float y, float z) {

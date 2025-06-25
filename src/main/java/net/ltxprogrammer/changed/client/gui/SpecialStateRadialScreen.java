@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.entity.beast.SpecialLatex;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.util.SingleRunnable;
 import net.ltxprogrammer.changed.world.inventory.SpecialStateRadialMenu;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -43,13 +44,13 @@ public class SpecialStateRadialScreen extends VariantRadialScreen<SpecialStateRa
     }
 
     @Override
-    public void renderSectionForeground(PoseStack pose, int section, double x, double y, float partialTicks, int mouseX, int mouseY, float red, float green, float blue, float alpha) {
+    public void renderSectionForeground(GuiGraphics graphics, int section, double x, double y, float partialTicks, int mouseX, int mouseY, float red, float green, float blue, float alpha) {
         x = x * 0.9;
         y = (y * 0.9) - 16;
 
         var oldState = special.wantedState;
         special.wantedState = states.get(section);
-        InventoryScreen.renderEntityInInventory((int)x + this.leftPos, (int)y + 32 + this.topPos, 20,
+        InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, (int)x + this.leftPos, (int)y + 32 + this.topPos, 20,
                 (float)(this.leftPos) - mouseX + (int)x,
                 (float)(this.topPos) - mouseY + (int)y,
                 special);

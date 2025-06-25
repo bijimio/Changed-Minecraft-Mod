@@ -10,6 +10,7 @@ import net.ltxprogrammer.changed.entity.PlayerMover;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.animation.AnimationEvent;
 import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,9 +30,9 @@ public abstract class ChangedRegistry<T> implements Registry<T> {
     private static final Logger LOGGER = LogManager.getLogger(ChangedRegistry.class);
 
     private static final int MAX_VARINT = Integer.MAX_VALUE - 1;
-    private static final HashMap<ResourceKey<Registry<?>>, Supplier<ForgeRegistry<?>>> REGISTRY_HOLDERS = new HashMap<>();
+    private static final HashMap<ResourceKey<Registry<?>>, Supplier<IForgeRegistry<?>>> REGISTRY_HOLDERS = new HashMap<>();
 
-    public static class RegistryHolder<T> implements Supplier<ForgeRegistry<T>> {
+    public static class RegistryHolder<T> implements Supplier<IForgeRegistry<T>> {
         protected final ResourceKey<Registry<T>> key;
 
         public RegistryHolder(ResourceKey<Registry<T>> key) {
@@ -46,8 +47,30 @@ public abstract class ChangedRegistry<T> implements Registry<T> {
             return get().getKeys();
         }
 
+        public int getID(T value) {
+            return getRaw().getID(value);
+        }
+
+        public T getValue(int id) {
+            return getRaw().getValue(id);
+        }
+
+        public void writeRegistryObject(FriendlyByteBuf buffer, T value) {
+            buffer.writeInt(getRaw().getID(value));
+        }
+
+        public T readRegistryObject(FriendlyByteBuf buffer) {
+            return getRaw().getValue(buffer.readInt());
+        }
+
         @Override
-        public ForgeRegistry<T> get() {
+        public IForgeRegistry<T> get() {
+            if (REGISTRY_HOLDERS.isEmpty())
+                throw new IllegalStateException("Cannot access registries before creation");
+            return (IForgeRegistry<T>) REGISTRY_HOLDERS.get(key).get();
+        }
+
+        public ForgeRegistry<T> getRaw() {
             if (REGISTRY_HOLDERS.isEmpty())
                 throw new IllegalStateException("Cannot access registries before creation");
             return (ForgeRegistry<T>) REGISTRY_HOLDERS.get(key).get();

@@ -131,8 +131,4 @@ public abstract class AbstractUpperBodyAnimator<T extends ChangedEntity, M exten
         this.leftArm.copyFrom(humanoidModel.leftArm);
         this.rightArm.copyFrom(humanoidModel.rightArm);
     }
-
-    // Hook for moonlight mixin
-    @Override
-    public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {}
 }

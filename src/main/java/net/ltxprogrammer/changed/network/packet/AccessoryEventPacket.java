@@ -7,7 +7,6 @@ import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.ltxprogrammer.changed.world.inventory.AccessoryAccessMenu;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -36,14 +35,14 @@ public class AccessoryEventPacket implements ChangedPacket {
 
     public AccessoryEventPacket(FriendlyByteBuf buffer) {
         this.entityId = buffer.readInt();
-        this.slotType = ChangedRegistry.ACCESSORY_SLOTS.get().getValue(buffer.readInt());
+        this.slotType = ChangedRegistry.ACCESSORY_SLOTS.readRegistryObject(buffer);
         this.eventId = buffer.readInt();
     }
 
     @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeInt(entityId);
-        buffer.writeInt(ChangedRegistry.ACCESSORY_SLOTS.get().getID(slotType));
+        ChangedRegistry.ACCESSORY_SLOTS.writeRegistryObject(buffer, slotType);
         buffer.writeInt(eventId);
     }
 

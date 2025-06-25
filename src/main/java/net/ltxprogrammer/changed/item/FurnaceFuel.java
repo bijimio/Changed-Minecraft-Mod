@@ -23,7 +23,7 @@ public class FurnaceFuel {
     }
 
     public static void addBlockBurnTime(Supplier<? extends Block> block, Function<ItemStack, Integer> fn) {
-        BURN_TIMES.put(() -> ChangedItems.getBlockItem(block.get()), fn);
+        BURN_TIMES.put(() -> block.get().asItem(), fn);
     }
 
     public static void addItemBurnTime(Supplier<? extends Item> item, int fixedTime) {

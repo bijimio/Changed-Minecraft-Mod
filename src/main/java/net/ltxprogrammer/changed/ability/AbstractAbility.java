@@ -264,11 +264,10 @@ public abstract class AbstractAbility<Instance extends AbstractAbilityInstance> 
         CompoundTag data = new CompoundTag();
         saveData(data, entity);
 
-        int id = ChangedRegistry.ABILITY.get().getID(this);
         if (entity.getLevel().isClientSide)
-            Changed.PACKET_HANDLER.sendToServer(new SyncVariantAbilityPacket(id, data));
+            Changed.PACKET_HANDLER.sendToServer(new SyncVariantAbilityPacket(this, data));
         else
-            Changed.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), new SyncVariantAbilityPacket(id, data, entity.getUUID()));
+            Changed.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), new SyncVariantAbilityPacket(this, data, entity.getUUID()));
     }
 
     @Nullable

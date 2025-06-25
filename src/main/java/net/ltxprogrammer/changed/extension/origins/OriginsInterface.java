@@ -11,6 +11,7 @@ import io.github.edwinmindcraft.origins.common.registry.OriginRegisters;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.util.ResourceUtil;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,14 +39,14 @@ public class OriginsInterface extends SimplePreparableReloadListener<Multimap<Ta
     public static TagKey<Origin> TRANSFURABLE = OriginRegisters.ORIGINS.createTagKey(Changed.modResource("transfurable"));
 
     private static final Multimap<TagKey<Origin>, ResourceLocation> namedTags = HashMultimap.create();
-    private static final Multimap<TagKey<Origin>, Origin> localTags = HashMultimap.create();
+    private static final Multimap<TagKey<Origin>, ResourceKey<Origin>> localTags = HashMultimap.create();
 
     private static void convertTags(Registry<Origin> registry) {
-        namedTags.forEach((tagKey, id) -> localTags.put(tagKey, registry.get(id)));
+        namedTags.forEach((tagKey, id) -> localTags.put(tagKey, ResourceKey.create(registry.key(), id)));
         namedTags.clear();
     }
 
-    private static boolean isOriginTagged(Registry<Origin> registry, TagKey<Origin> tagKey, Origin origin) {
+    private static boolean isOriginTagged(Registry<Origin> registry, TagKey<Origin> tagKey, ResourceKey<Origin> origin) {
         convertTags(registry);
         return localTags.get(tagKey).contains(origin);
     }
@@ -86,7 +87,7 @@ public class OriginsInterface extends SimplePreparableReloadListener<Multimap<Ta
 
     private void processJSONFile(JsonObject root, Consumer<ResourceLocation> listed) {
         root.getAsJsonArray("values").forEach(element -> {
-            listed.accept(new ResourceLocation(element.getAsString()));
+            listed.accept(ResourceLocation.parse(element.getAsString()));
         });
     }
 

@@ -63,7 +63,7 @@ public class SyncMoversPacket implements ChangedPacket {
             Objects.requireNonNull(level);
             movers.forEach((uuid, listing) -> {
                 if (level.getPlayerByUUID(uuid) instanceof PlayerDataExtension ext) {
-                    ext.setPlayerMoverType(listing.mover == NO_FORM ? null : ChangedRegistry.PLAYER_MOVER.get().getValue(listing.mover));
+                    ext.setPlayerMoverType(listing.mover == NO_FORM ? null : ChangedRegistry.PLAYER_MOVER.getValue(listing.mover));
                     var mover = ext.getPlayerMover();
                     if (mover != null)
                         mover.readFrom(listing.data);
@@ -88,7 +88,7 @@ public class SyncMoversPacket implements ChangedPacket {
                 CompoundTag tag = new CompoundTag();
                 ext.getPlayerMover().saveTo(tag);
                 movers.put(player.getUUID(),
-                        new Listing(ChangedRegistry.PLAYER_MOVER.get().getID(ext.getPlayerMover().parent), tag));
+                        new Listing(ChangedRegistry.PLAYER_MOVER.getID(ext.getPlayerMover().parent), tag));
             } else {
                 movers.put(player.getUUID(),
                         new Listing(-1, new CompoundTag()));

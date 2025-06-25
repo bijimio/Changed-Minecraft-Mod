@@ -71,12 +71,12 @@ public class EventHandlerClient {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void onRenderPlayerPre(RenderPlayerEvent.Pre event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
 
         if (event.isCanceled())
             return;
 
-        if (player.isDeadOrDying() && player.getLastDamageSource() instanceof ChangedDamageSources.TransfurDamageSource) {
+        if (player.isDeadOrDying() && player.getLastDamageSource() != null && player.getLastDamageSource().is(ChangedTags.DamageTypes.IS_TRANSFUR)) {
             event.setCanceled(true);
             return;
         }
@@ -117,13 +117,13 @@ public class EventHandlerClient {
         Minecraft mc = Minecraft.getInstance();
         if(!mc.player.isRemoved()) //we need to cache this as the hand may be rendered even in the death screen.
         {
-            FormRenderHandler.lastPartialTick = event.getPartialTicks();
+            FormRenderHandler.lastPartialTick = event.getPartialTick();
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onRenderFog(EntityViewRenderEvent.RenderFogEvent event) {
+    public void onRenderFog(ViewportEvent.RenderFog event) {
         if (!(event.getCamera().getBlockAtCamera().getFluidState().getType() instanceof AbstractLatexFluid abstractLatexFluid)) return;
 
         event.setNearPlaneDistance(0.25F);
@@ -133,7 +133,7 @@ public class EventHandlerClient {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onFogColors(EntityViewRenderEvent.FogColors event) {
+    public void onFogColors(ViewportEvent.ComputeFogColor event) {
         if (!(event.getCamera().getBlockAtCamera().getFluidState().getType() instanceof AbstractLatexFluid abstractLatexFluid)) return;
 
         var color = abstractLatexFluid.getLatexType().color;
@@ -144,13 +144,13 @@ public class EventHandlerClient {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onRespawn(ClientPlayerNetworkEvent.RespawnEvent event) {
+    public void onRespawn(ClientPlayerNetworkEvent.Clone event) {
         Changed.PACKET_HANDLER.sendToServer(QueryTransfurPacket.Builder.of(event.getNewPlayer()));
     }
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onInputEvent(InputEvent.ClickInputEvent event) {
+    public void onInputEvent(InputEvent.InteractionKeyMappingTriggered event) {
         if (event.isAttack() || event.isUseItem()) {
             LocalPlayer localPlayer = Minecraft.getInstance().player;
 
@@ -185,8 +185,8 @@ public class EventHandlerClient {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onSetScreen(ScreenOpenEvent event) {
-        if (event.getScreen() instanceof TitleScreen) {
+    public void onSetScreen(ScreenEvent.Opening event) {
+        if (event.getNewScreen() instanceof TitleScreen) {
             if (GlUtil.getOpenGLVersion().contains("Mesa")) {
                 Changed.LOGGER.warn("Mesa graphics driver detected, certain visual features will be disabled");
                 Changed.config.client.renderDripParticlesWithNormal.set(false);
@@ -194,7 +194,7 @@ public class EventHandlerClient {
 
             if (Changed.config.client.showContentWarning.get()) {
                 // Comment this line out to disable the content warning screen
-                event.setScreen(new ContentWarningScreen());
+                event.setNewScreen(new ContentWarningScreen());
             }
         }
     }
@@ -215,7 +215,7 @@ public class EventHandlerClient {
     public static class ForgeEventHandler {
         @OnlyIn(Dist.CLIENT)
         @SubscribeEvent
-        public static void onNameFormat(RenderNameplateEvent event) {
+        public static void onNameFormat(RenderNameTagEvent event) {
             if (event.getEntity() instanceof ChangedEntity changedEntity && changedEntity.getUnderlyingPlayer() != null) {
                 if (!Changed.config.server.showTFNametags.get()) {
                     event.setResult(Event.Result.DENY);
@@ -236,13 +236,13 @@ public class EventHandlerClient {
 
         @SubscribeEvent
         public static void onChangedVariant(ProcessTransfur.EntityVariantAssigned.ChangedVariant event) {
-            if (event.livingEntity.level.isClientSide)
+            if (event.livingEntity.level().isClientSide)
                 return;
 
             if (event.oldVariant == event.newVariant || event.cause == null)
                 return;
 
-            final int duration = event.livingEntity.level.getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION) ?
+            final int duration = event.livingEntity.level().getGameRules().getBoolean(ChangedGameRules.RULE_DO_TRANSFUR_ANIMATION) ?
                     (int)(event.cause.getDuration() * 20) : 40;
             event.livingEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, 4, false, false));
 

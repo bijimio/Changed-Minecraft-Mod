@@ -64,7 +64,7 @@ public class GrabEntityPacket implements ChangedPacket {
         var context = contextSupplier.get();
         var sender = context.getSender();
         if (context.getDirection().getReceptionSide().isServer() && sender != null) {
-            var level = sender.getLevel();
+            var level = sender.level();
             var target = level.getEntity(targetEntity);
             if (!(target instanceof LivingEntity livingTarget))
                 return;

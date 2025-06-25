@@ -6,8 +6,6 @@ import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.ltxprogrammer.changed.Changed;
@@ -37,11 +35,12 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -205,7 +204,7 @@ public class WaveVisionRenderer {
         this.renderChunkLayer(ChangedShaders.latexSolid(), ChangedShaders.latexWaveVisionSolid(), poseStack, camX, camY, camZ, projectionMatrix);
 
         ChangedClient.resetWaveResonance();
-        this.minecraft.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, this.minecraft.options.mipmapLevels > 0);
+        this.minecraft.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, this.minecraft.options.mipmapLevels().get() > 0);
         this.renderChunkLayer(RenderType.cutoutMipped(), ChangedShaders.waveVisionCutoutMipped(), poseStack, camX, camY, camZ, projectionMatrix);
         ChangedClient.setWaveResonance(LATEX_RESONANCE_NEUTRAL);
         this.renderChunkLayer(ChangedShaders.waveVisionResonantCutoutMipped(LATEX_RESONANCE_NEUTRAL), poseStack, camX, camY, camZ, projectionMatrix);
@@ -262,49 +261,28 @@ public class WaveVisionRenderer {
     }
 
     private static ResourceLocation resolveResonanceTexture(ResourceLocation originalTexture) {
-        return new ResourceLocation(originalTexture.getNamespace(), originalTexture.getPath() + TEXTURE_SUFFIX);
+        return ResourceLocation.fromNamespaceAndPath(originalTexture.getNamespace(), originalTexture.getPath() + TEXTURE_SUFFIX);
     }
 
     private static void loadImageIntoMask(NativeImage mask, TextureAtlasSprite originalSprite, Resource resource) throws IOException {
         SimpleTexture.TextureImage image;
-        try {
-            NativeImage nativeimage = NativeImage.read(resource.getInputStream());
-            TextureMetadataSection texturemetadatasection = null;
 
-            try {
-                texturemetadatasection = resource.getMetadata(TextureMetadataSection.SERIALIZER);
-            } catch (RuntimeException runtimeexception) {
-                Changed.LOGGER.warn("Failed reading metadata of: {}", resource.getLocation(), runtimeexception);
-            }
-
-            image = new SimpleTexture.TextureImage(texturemetadatasection, nativeimage);
-        } catch (Throwable throwable1) {
-            if (resource != null) {
-                try {
-                    resource.close();
-                } catch (Throwable throwable) {
-                    throwable1.addSuppressed(throwable);
-                }
-            }
-
-            throw throwable1;
+        try (NativeImage nativeimage = NativeImage.read(resource.open())) {
+            image = new SimpleTexture.TextureImage(resource.metadata().getSection(TextureMetadataSection.SERIALIZER).orElse(null), nativeimage);
         }
 
-        if (resource != null) {
-            resource.close();
-        }
-
-        AnimationMetadataSection animationMetadata = resource.getMetadata(AnimationMetadataSection.SERIALIZER);
-        for (int y = 0; y < originalSprite.getHeight(); ++y) {
-            for (int x = 0; x < originalSprite.getWidth(); ++x){
+        AnimationMetadataSection animationMetadata = resource.metadata().getSection(AnimationMetadataSection.SERIALIZER).orElse(null);
+        final var contents = originalSprite.contents();
+        for (int y = 0; y < contents.height(); ++y) {
+            for (int x = 0; x < contents.width(); ++x){
                 mask.setPixelRGBA(x + originalSprite.getX(), y + originalSprite.getY(),
-                        MixedTexture.sampleNearest(image.getImage(), animationMetadata, (float)x / originalSprite.getWidth(), (float)y / originalSprite.getHeight()).toInt());
+                        MixedTexture.sampleNearest(image.getImage(), animationMetadata, (float)x / contents.width(), (float)y / contents.height()).toInt());
             }
         }
     }
 
     private static void fillMaskWithDefault(NativeImage mask, TextureAtlasSprite originalSprite) {
-        mask.fillRect(originalSprite.getX(), originalSprite.getY(), originalSprite.getWidth(), originalSprite.getHeight(), 0xFFFFFFFF);
+        mask.fillRect(originalSprite.getX(), originalSprite.getY(), originalSprite.contents().width(), originalSprite.contents().height(), 0xFFFFFFFF);
     }
 
     private static void uploadResonanceMask() {
@@ -315,7 +293,7 @@ public class WaveVisionRenderer {
     @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ModEvents {
         @SubscribeEvent
-        public static void onModelBake(ModelBakeEvent event) {
+        public static void onModelBake(ModelEvent.BakingCompleted event) {
             LOGGER.info("Creating resonance block mask");
 
             ResourceManager resources = Minecraft.getInstance().getResourceManager();
@@ -325,17 +303,17 @@ public class WaveVisionRenderer {
             NativeImage maskBuilder = new NativeImage(ext.getWidth(), ext.getHeight(), false);
 
             ext.getSprites().forEach(sprite -> {
-                ResourceLocation resonanceMask = MixedTexture.getResourceLocation(resolveResonanceTexture(sprite.getName()));
-                if (resources.hasResource(resonanceMask)) {
+                ResourceLocation resonanceMask = MixedTexture.getResourceLocation(resolveResonanceTexture(sprite.contents().name()));
+                resources.getResource(resonanceMask).ifPresentOrElse(resource -> {
                     try {
-                        loadImageIntoMask(maskBuilder, sprite, resources.getResource(resonanceMask));
+                        loadImageIntoMask(maskBuilder, sprite, resource);
                         LOGGER.debug("Loaded {} into resonance mask", resonanceMask);
                     } catch (IOException e) {
                         fillMaskWithDefault(maskBuilder, sprite);
                     }
-                } else {
+                }, () -> {
                     fillMaskWithDefault(maskBuilder, sprite);
-                }
+                });
             });
 
             LOGGER.info("Resonance block mask created");

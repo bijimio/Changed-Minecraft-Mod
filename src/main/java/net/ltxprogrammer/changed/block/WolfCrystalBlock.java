@@ -47,7 +47,7 @@ public class WolfCrystalBlock extends AbstractLatexIceBlock {
         BlockPos above = pos.above();
         if (level.getBlockState(above).is(Blocks.AIR)) {
             level.setBlock(above, ChangedBlocks.WOLF_CRYSTAL_SMALL.get().defaultBlockState(), 3);
-            level.playSound(null, pos, ChangedSounds.ICE2, SoundSource.BLOCKS, 1.0f, 1.0f);
+            level.playSound(null, pos, ChangedSounds.ICE2.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
         }
     }
 

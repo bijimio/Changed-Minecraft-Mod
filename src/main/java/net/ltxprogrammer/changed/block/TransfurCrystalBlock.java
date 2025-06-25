@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
@@ -42,13 +43,13 @@ public abstract class TransfurCrystalBlock extends BushBlock implements NonLatex
     private final Supplier<? extends Item> crystal;
 
     public TransfurCrystalBlock(Supplier<? extends TransfurVariant<?>> variant, Supplier<? extends Item> crystal, Properties p_53514_) {
-        super(p_53514_);
+        super(p_53514_.pushReaction(PushReaction.DESTROY));
         this.variant = variant;
         this.crystal = crystal;
     }
 
     public TransfurCrystalBlock(Supplier<? extends Item> crystal, Properties properties) {
-        super(properties);
+        super(properties.pushReaction(PushReaction.DESTROY));
         this.variant = null;
         this.crystal = crystal;
     }
@@ -103,7 +104,7 @@ public abstract class TransfurCrystalBlock extends BushBlock implements NonLatex
             return List.of();
 
         if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, lootBuilder.getParameter(LootContextParams.TOOL)) > 0)
-            return List.of(new ItemStack(ChangedItems.getBlockItem(this)));
+            return List.of(new ItemStack(this));
 
         if (this instanceof AbstractDoubleTransfurCrystal)
             return List.of(new ItemStack(crystal.get(), 2));

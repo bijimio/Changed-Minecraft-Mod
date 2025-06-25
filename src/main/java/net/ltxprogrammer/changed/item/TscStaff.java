@@ -12,11 +12,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -37,12 +37,12 @@ public class TscStaff extends TscWeapon implements SpecializedItemRendering, Spe
 
     @Nullable
     @Override
-    public ModelResourceLocation getEmissiveModelLocation(ItemStack itemStack, ItemTransforms.TransformType type) {
+    public ModelResourceLocation getEmissiveModelLocation(ItemStack itemStack, ItemDisplayContext type) {
         return SpecializedItemRendering.isGUI(type) ? null : STAFF_IN_HAND_EMISSIVE;
     }
 
     @Override
-    public ModelResourceLocation getModelLocation(ItemStack itemStack, ItemTransforms.TransformType type) {
+    public ModelResourceLocation getModelLocation(ItemStack itemStack, ItemDisplayContext type) {
         return SpecializedItemRendering.isGUI(type) ? STAFF_INVENTORY : STAFF_IN_HAND;
     }
 
@@ -67,8 +67,7 @@ public class TscStaff extends TscWeapon implements SpecializedItemRendering, Spe
     }
 
     public float getDestroySpeed(ItemStack itemStack, BlockState blockState) {
-        Material material = blockState.getMaterial();
-        return material != Material.PLANT && material != Material.REPLACEABLE_PLANT && !blockState.is(BlockTags.LEAVES) && material != Material.VEGETABLE ? 1.0F : 1.5F;
+        return blockState.is(BlockTags.SWORD_EFFICIENT) ? 1.5F : 1.0F;
     }
 
     public boolean mineBlock(ItemStack itemStack, Level level, BlockState blockState, BlockPos blockPos, LivingEntity entity) {
@@ -158,11 +157,11 @@ public class TscStaff extends TscWeapon implements SpecializedItemRendering, Spe
         }
 
         @Override
-        public void adjustGrip(ItemStack itemStack, EntityStateContext entity, ItemTransforms.TransformType type, PoseStack pose) {
+        public void adjustGrip(ItemStack itemStack, EntityStateContext entity, ItemDisplayContext type, PoseStack pose) {
             super.adjustGrip(itemStack, entity, type, pose);
             if (!entity.fullEquippedItem(item))
                 return;
-            if (type != ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND && type != ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND)
+            if (type != ItemDisplayContext.THIRD_PERSON_LEFT_HAND && type != ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)
                 return;
 
             pose.translate(0, -0.4, 0);

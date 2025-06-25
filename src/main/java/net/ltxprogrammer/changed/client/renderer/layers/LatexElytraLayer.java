@@ -23,7 +23,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
 public class LatexElytraLayer<T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> extends RenderLayer<T, M> {
-    private static final ResourceLocation WINGS_LOCATION = new ResourceLocation("textures/entity/elytra.png");
+    private static final ResourceLocation WINGS_LOCATION = ResourceLocation.parse("textures/entity/elytra.png");
     private final ElytraModel<T> elytraModel;
 
     public LatexElytraLayer(RenderLayerParent<T, M> p_174493_, EntityModelSet p_174494_) {

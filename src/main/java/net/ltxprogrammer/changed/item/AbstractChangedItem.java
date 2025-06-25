@@ -5,6 +5,6 @@ import net.minecraft.world.item.Item;
 
 public class AbstractChangedItem extends Item {
     public AbstractChangedItem() {
-        super(new Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(new Properties());
     }
 }

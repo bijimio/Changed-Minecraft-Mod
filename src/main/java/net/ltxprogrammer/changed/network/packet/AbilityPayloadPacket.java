@@ -30,14 +30,14 @@ public class AbilityPayloadPacket implements ChangedPacket {
 
     public AbilityPayloadPacket(FriendlyByteBuf buffer) {
         this.entityId = buffer.readInt();
-        this.ability = ChangedRegistry.ABILITY.get().getValue(buffer.readInt());
+        this.ability = ChangedRegistry.ABILITY.readRegistryObject(buffer);
         this.tag = buffer.readAnySizeNbt();
     }
 
     @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeInt(entityId);
-        buffer.writeInt(ChangedRegistry.ABILITY.get().getID(ability));
+        ChangedRegistry.ABILITY.writeRegistryObject(buffer, ability);
         buffer.writeNbt(tag);
     }
 

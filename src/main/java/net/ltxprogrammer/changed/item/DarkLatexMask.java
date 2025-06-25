@@ -35,7 +35,7 @@ public class DarkLatexMask extends Item implements ExtendedItemProperties {
     ));
 
     public DarkLatexMask() {
-        super(new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(new Item.Properties());
     }
 
     @Override

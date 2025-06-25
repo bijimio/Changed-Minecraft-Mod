@@ -26,7 +26,7 @@ public class AbstractLatexItem extends ItemNameBlockItem {
     public AbstractLatexItem(LatexType type) {
         // TODO make better
         super(type == LatexType.DARK_LATEX ? ChangedBlocks.DARK_LATEX_WALL_SPLOTCH.get() : ChangedBlocks.WHITE_LATEX_WALL_SPLOTCH.get(),
-                new Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).food(Foods.DRIED_KELP));
+                new Properties().food(Foods.DRIED_KELP));
         this.type = type;
     }
 

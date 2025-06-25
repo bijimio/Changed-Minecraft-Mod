@@ -44,7 +44,7 @@ public class SeatEntityInfoPacket implements ChangedPacket {
         var context = contextSupplier.get();
         if (context.getDirection().getReceptionSide() == LogicalSide.SERVER) { // Echo with entity
             final SeatEntityInfoPacket response;
-            if (context.getSender().getLevel().getBlockEntity(this.position) instanceof SeatableBlockEntity seat) {
+            if (context.getSender().level().getBlockEntity(this.position) instanceof SeatableBlockEntity seat) {
                 if (seat.getEntityHolder() != null)
                     response = new SeatEntityInfoPacket(seat.getEntityHolder());
                 else

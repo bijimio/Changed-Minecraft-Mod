@@ -26,14 +26,14 @@ public abstract class TscWeapon extends Item implements Vanishable {
     private final Cacheable<Multimap<Attribute, AttributeModifier>> defaultModifiers;
 
     public TscWeapon(Properties properties) {
-        super(properties.tab(ChangedTabs.TAB_CHANGED_COMBAT));
+        super(properties);
         this.defaultModifiers = new Cacheable<>() {
             @Override
             protected Multimap<Attribute, AttributeModifier> initialGet() {
                 ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
                 builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", attackDamage(), AttributeModifier.Operation.ADDITION));
                 builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier", attackSpeed(), AttributeModifier.Operation.ADDITION));
-                builder.put(ForgeMod.ATTACK_RANGE.get(), new AttributeModifier("Weapon modifier", attackRange(), AttributeModifier.Operation.MULTIPLY_BASE));
+                builder.put(ForgeMod.ENTITY_REACH.get(), new AttributeModifier("Weapon modifier", attackRange(), AttributeModifier.Operation.MULTIPLY_BASE));
                 return builder.build();
             }
         };
@@ -57,15 +57,15 @@ public abstract class TscWeapon extends Item implements Vanishable {
     public static void sweepWeapon(LivingEntity source, double attackRange) {
         double d0 = (double)(-Mth.sin(source.getYRot() * ((float)Math.PI / 180F))) * attackRange;
         double d1 = (double)Mth.cos(source.getYRot() * ((float)Math.PI / 180F)) * attackRange;
-        if (source.level instanceof ServerLevel serverLevel)
-            serverLevel.sendParticles(ChangedParticles.TSC_SWEEP_ATTACK,
+        if (source.level() instanceof ServerLevel serverLevel)
+            serverLevel.sendParticles(ChangedParticles.TSC_SWEEP_ATTACK.get(),
                     source.getX() + d0, source.getY(0.5D),
                     source.getZ() + d1, 0, d0, 0.0D, d1, 0.0D);
     }
 
     public static void applyShock(LivingEntity enemy, int attackStun) {
         ChangedSounds.broadcastSound(enemy, ChangedSounds.PARALYZE1, 1, 1);
-        enemy.addEffect(new MobEffectInstance(ChangedEffects.SHOCK, attackStun, 0, false, false, true));
+        enemy.addEffect(new MobEffectInstance(ChangedEffects.SHOCK.get(), attackStun, 0, false, false, true));
         ChangedAnimationEvents.broadcastEntityAnimation(enemy, ChangedAnimationEvents.SHOCK_STUN.get(), StunAnimationParameters.INSTANCE);
     }
 }

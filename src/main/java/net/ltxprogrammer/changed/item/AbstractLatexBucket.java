@@ -15,7 +15,7 @@ public class AbstractLatexBucket extends BucketItem {
     public final Supplier<? extends AbstractLatexFluid> fluid;
 
     public AbstractLatexBucket(Supplier<? extends AbstractLatexFluid> supplier) {
-        super(supplier, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1).rarity(Rarity.COMMON).tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(supplier, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1).rarity(Rarity.COMMON));
         this.fluid = supplier;
     }
 

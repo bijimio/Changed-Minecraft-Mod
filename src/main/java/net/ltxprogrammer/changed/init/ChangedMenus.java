@@ -1,40 +1,35 @@
 package net.ltxprogrammer.changed.init;
 
+import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.world.inventory.*;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.IContainerFactory;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChangedMenus {
-    private static final List<MenuType<?>> REGISTRY = new ArrayList<>();
-    public static final MenuType<AbilityRadialMenu> ABILITY_RADIAL = register("ability_radial", AbilityRadialMenu::new);
-    public static final MenuType<HairStyleRadialMenu> HAIRSTYLE_RADIAL = register("hairstyle_radial", HairStyleRadialMenu::new);
-    public static final MenuType<SpecialStateRadialMenu> SPECIAL_RADIAL = register("special_radial", SpecialStateRadialMenu::new);
-    public static final MenuType<ComputerMenu> COMPUTER = register("computer", ComputerMenu::new);
-    public static final MenuType<InfuserMenu> INFUSER = register("infuser", InfuserMenu::new);
-    public static final MenuType<PurifierMenu> PURIFIER = register("purifier", PurifierMenu::new);
-    public static final MenuType<KeypadMenu> KEYPAD = register("keypad", KeypadMenu::new);
-    public static final MenuType<ClipboardMenu> CLIPBOARD = register("clipboard", ClipboardMenu::new);
-    public static final MenuType<NoteMenu> NOTE = register("note", NoteMenu::new);
-    public static final MenuType<StasisChamberMenu> STASIS_CHAMBER = register("stasis_chamber", StasisChamberMenu::new);
-    public static final MenuType<AccessoryAccessMenu> ACCESSORY_ACCESS = register("accessory_access", AccessoryAccessMenu::new);
+    public static final DeferredRegister<MenuType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Changed.MODID);
 
-    private static <T extends AbstractContainerMenu> MenuType<T> register(String name, IContainerFactory<T> containerFactory) {
-        MenuType<T> menuType = new MenuType<T>(containerFactory);
-        menuType.setRegistryName(name);
-        REGISTRY.add(menuType);
-        return menuType;
+    public static final RegistryObject<MenuType<AbilityRadialMenu>> ABILITY_RADIAL = register("ability_radial", AbilityRadialMenu::new);
+    public static final RegistryObject<MenuType<HairStyleRadialMenu>> HAIRSTYLE_RADIAL = register("hairstyle_radial", HairStyleRadialMenu::new);
+    public static final RegistryObject<MenuType<SpecialStateRadialMenu>> SPECIAL_RADIAL = register("special_radial", SpecialStateRadialMenu::new);
+    public static final RegistryObject<MenuType<ComputerMenu>> COMPUTER = register("computer", ComputerMenu::new);
+    public static final RegistryObject<MenuType<InfuserMenu>> INFUSER = register("infuser", InfuserMenu::new);
+    public static final RegistryObject<MenuType<PurifierMenu>> PURIFIER = register("purifier", PurifierMenu::new);
+    public static final RegistryObject<MenuType<KeypadMenu>> KEYPAD = register("keypad", KeypadMenu::new);
+    public static final RegistryObject<MenuType<ClipboardMenu>> CLIPBOARD = register("clipboard", ClipboardMenu::new);
+    public static final RegistryObject<MenuType<NoteMenu>> NOTE = register("note", NoteMenu::new);
+    public static final RegistryObject<MenuType<StasisChamberMenu>> STASIS_CHAMBER = register("stasis_chamber", StasisChamberMenu::new);
+    public static final RegistryObject<MenuType<AccessoryAccessMenu>> ACCESSORY_ACCESS = register("accessory_access", AccessoryAccessMenu::new);
+
+    private static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> register(String name, IContainerFactory<T> containerFactory) {
+        return REGISTRY.register(name, () -> new MenuType<>(containerFactory, FeatureFlagSet.of()));
     }
 
-    @SubscribeEvent
-    public static void registerContainers(RegistryEvent.Register<MenuType<?>> event) {
-        event.getRegistry().registerAll(REGISTRY.toArray(new MenuType[0]));
+    private static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> register(String name, IContainerFactory<T> containerFactory, FeatureFlagSet requiredFlags) {
+        return REGISTRY.register(name, () -> new MenuType<>(containerFactory, requiredFlags));
     }
 }

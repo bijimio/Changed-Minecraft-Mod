@@ -5,8 +5,7 @@ import net.ltxprogrammer.changed.client.renderer.animate.upperbody.AbstractUpper
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.extension.RequiredMods;
-import net.mehvahdjukaar.selene.api.IThirdPersonAnimationProvider;
-import net.mehvahdjukaar.selene.util.TwoHandedAnimation;
+import net.mehvahdjukaar.moonlight.api.item.IThirdPersonAnimationProvider;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.InteractionHand;
@@ -24,40 +23,41 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @RequiredMods("selene")
 public abstract class AbstractUpperBodyAnimatorMixin<T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> extends HumanoidAnimator.Animator<T, M> {
     @Unique
-    public TwoHandedAnimation animationType = new TwoHandedAnimation();
+    public ItemStack getItemInHand(T entity, HumanoidArm arm) {
+        return entity.getItemInHand(entity.getMainArm() == arm ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND);
+    }
 
     @Inject(method = "poseRightArmForItem", at = @At("HEAD"), cancellable = true, require = 0)
     public void poseRightArm(T entity, CallbackInfo ci) {
-        //cancel off hand animation if two handed so two handed animation always happens last
-        if (this.animationType.isTwoHanded()) ci.cancel();
         HumanoidArm handSide = entity.getMainArm();
-        ItemStack stack = entity.getItemInHand(handSide == HumanoidArm.RIGHT ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND);
-        Item item = stack.getItem();
-        if (item instanceof IThirdPersonAnimationProvider thirdPersonAnimationProvider) {
-            if (thirdPersonAnimationProvider.poseRightArm(stack, (HumanoidModel)this.core.entityModel, entity, handSide, this.animationType)) {
-                this.core.applyPropertyModel((HumanoidModel<?>) this.core.entityModel);
+        ItemStack stack = getItemInHand(entity, HumanoidArm.RIGHT);
+        if (stack.getItem() instanceof IThirdPersonAnimationProvider thirdPersonAnimationProvider) {
+            if (thirdPersonAnimationProvider.poseRightArm(stack, this.core.entityModel, entity, handSide)) {
+                this.core.applyPropertyModel(this.core.entityModel);
                 ci.cancel();
             }
         }
+
+        //cancel off hand animation if two handed so two handed animation always happens last
+        if (getItemInHand(entity, HumanoidArm.LEFT).getItem() instanceof IThirdPersonAnimationProvider thirdPersonAnimationProvider &&
+                thirdPersonAnimationProvider.isTwoHanded())
+            ci.cancel();
     }
 
     @Inject(method = "poseLeftArmForItem", at = @At(value = "HEAD"), cancellable = true, require = 0)
     public void poseLeftArm(T entity, CallbackInfo ci) {
-        //cancel off hand animation if two handed so two handed animation always happens last
-        if (this.animationType.isTwoHanded()) ci.cancel();
         HumanoidArm handSide = entity.getMainArm();
-        ItemStack stack = entity.getItemInHand(handSide == HumanoidArm.RIGHT ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
-        Item item = stack.getItem();
-        if (item instanceof IThirdPersonAnimationProvider thirdPersonAnimationProvider) {
-            if (thirdPersonAnimationProvider.poseLeftArmGeneric(stack, (HumanoidModel)this.core.entityModel, entity, handSide, this.animationType)) {
-                this.core.applyPropertyModel((HumanoidModel<?>) this.core.entityModel);
+        ItemStack stack = getItemInHand(entity, HumanoidArm.LEFT);
+        if (stack.getItem() instanceof IThirdPersonAnimationProvider thirdPersonAnimationProvider) {
+            if (thirdPersonAnimationProvider.poseLeftArm(stack, this.core.entityModel, entity, handSide)) {
+                this.core.applyPropertyModel(this.core.entityModel);
                 ci.cancel();
             }
         }
-    }
 
-    @Inject(method = "setupAnim", at = @At(value = "RETURN"), require = 0)
-    public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        this.animationType.setTwoHanded(false);
+        //cancel off hand animation if two handed so two handed animation always happens last
+        if (getItemInHand(entity, HumanoidArm.RIGHT).getItem() instanceof IThirdPersonAnimationProvider thirdPersonAnimationProvider &&
+                thirdPersonAnimationProvider.isTwoHanded())
+            ci.cancel();
     }
 }

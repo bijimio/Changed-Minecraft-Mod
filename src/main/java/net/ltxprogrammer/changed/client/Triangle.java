@@ -2,12 +2,9 @@ package net.ltxprogrammer.changed.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.UVPair;
+import org.joml.*;
 
 import javax.annotation.Nullable;
 
@@ -24,8 +21,8 @@ public class Triangle {
         Matrix4f matrix4f = pose.pose();
         Matrix3f matrix3f = pose.normal();
 
-        Vector3f vector3f = this.normal.copy();
-        vector3f.transform(matrix3f);
+        Vector3f vector3f = new Vector3f(this.normal);
+        vector3f.mul(matrix3f);
         float nx = vector3f.x();
         float ny = vector3f.y();
         float nz = vector3f.z();
@@ -36,7 +33,7 @@ public class Triangle {
             float f4 = vertex.pos.y() / 16.0F;
             float f5 = vertex.pos.z() / 16.0F;
             Vector4f vector4f = new Vector4f(f3, f4, f5, 1.0F);
-            vector4f.transform(matrix4f);
+            vector4f.mul(matrix4f);
 
             consumer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.u, vertex.v, packedOverlay, packedLight, nx, ny, nz);
             if (vertex == this.vertices[2])
@@ -67,8 +64,8 @@ public class Triangle {
                     new ModelPart.Vertex(p3, uv3.u() / (float)textureWidth, uv3.v() / (float)textureHeight)
             };
 
-            Vector3f p1p2 = p2.copy();
-            Vector3f p1p3 = p3.copy();
+            Vector3f p1p2 = new Vector3f(p2);
+            Vector3f p1p3 = new Vector3f(p3);
             p1p2.sub(p1);
             p1p3.sub(p1);
             p1p3.cross(p1p2);

@@ -3,8 +3,7 @@ package net.ltxprogrammer.changed.client.gui;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.client.renderer.AdvancedHumanoidRenderer;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
@@ -14,6 +13,7 @@ import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.util.SingleRunnable;
 import net.ltxprogrammer.changed.world.inventory.HairStyleRadialMenu;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class HairStyleRadialScreen extends VariantRadialScreen<HairStyleRadialMe
         this.styles = variant.getChangedEntity().getValidHairStyles();
     }
 
-    public static void renderEntityHeadWithHair(int x, int y, int scale, float lookX, float lookY, ChangedEntity entity, float alpha) {
+    public static void renderEntityHeadWithHair(GuiGraphics graphics, int x, int y, int scale, float lookX, float lookY, ChangedEntity entity, float alpha) {
         float f = (float)Math.atan((double)(lookX / 40.0F));
         float f1 = (float)Math.atan((double)(lookY / 40.0F));
         PoseStack posestack = RenderSystem.getModelViewStack();
@@ -50,8 +51,8 @@ public class HairStyleRadialScreen extends VariantRadialScreen<HairStyleRadialMe
         PoseStack posestack1 = new PoseStack();
         posestack1.translate(0.0D, 0.0D, 1000.0D);
         posestack1.scale((float)scale, (float)scale, (float)scale);
-        Quaternion quaternion = Vector3f.YP.rotationDegrees(f * 20.0F);
-        Quaternion quaternion1 = Vector3f.XP.rotationDegrees(-f1 * 20.0F);
+        Quaternionf quaternion = Axis.YP.rotationDegrees(f * 20.0F);
+        Quaternionf quaternion1 = Axis.XP.rotationDegrees(-f1 * 20.0F);
         quaternion.mul(quaternion1);
         posestack1.mulPose(quaternion);
         float f2 = entity.yBodyRot;
@@ -66,10 +67,10 @@ public class HairStyleRadialScreen extends VariantRadialScreen<HairStyleRadialMe
         entity.yHeadRotO = entity.getYRot();
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        quaternion1.conj();
+        quaternion1.conjugate();
         dispatcher.overrideCameraOrientation(quaternion1);
         dispatcher.setRenderShadow(false);
-        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource bufferSource = graphics.bufferSource();
         RenderSystem.runAsFancy(() -> {
             var renderer = dispatcher.getRenderer(entity);
             if (renderer instanceof AdvancedHumanoidRenderer latexRenderer) {
@@ -111,13 +112,13 @@ public class HairStyleRadialScreen extends VariantRadialScreen<HairStyleRadialMe
     }
 
     @Override
-    public void renderSectionForeground(PoseStack pose, int section, double x, double y, float partialTicks, int mouseX, int mouseY, float red, float green, float blue, float alpha) {
+    public void renderSectionForeground(GuiGraphics graphics, int section, double x, double y, float partialTicks, int mouseX, int mouseY, float red, float green, float blue, float alpha) {
         x = x * 0.9;
         y = (y * 0.9) - 16;
 
         var oldStyle = variant.getChangedEntity().getHairStyle();
         variant.getChangedEntity().setHairStyle(styles.get(section));
-        renderEntityHeadWithHair((int)x + this.leftPos, (int)y + 32 + this.topPos, 40,
+        renderEntityHeadWithHair(graphics, (int)x + this.leftPos, (int)y + 32 + this.topPos, 40,
                 (float)(this.leftPos) - mouseX + (int)x,
                 (float)(this.topPos) - mouseY + (int)y,
                 variant.getChangedEntity(), alpha);

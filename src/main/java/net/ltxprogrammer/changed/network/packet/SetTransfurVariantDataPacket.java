@@ -9,33 +9,47 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 public class SetTransfurVariantDataPacket implements ChangedPacket {
     private final int id;
     @Nullable
-    private final List<SynchedEntityData.DataItem<?>> packedItems;
+    private final List<SynchedEntityData.DataValue<?>> packedItems;
 
-    public SetTransfurVariantDataPacket(int id, SynchedEntityData data, boolean clearDirty) {
-        this.id = id;
-        if (clearDirty) {
-            this.packedItems = data.getAll();
-            data.clearDirty();
-        } else {
-            this.packedItems = data.packDirty();
+    private static void pack(List<SynchedEntityData.DataValue<?>> p_253940_, FriendlyByteBuf p_253901_) {
+        for(SynchedEntityData.DataValue<?> datavalue : p_253940_) {
+            datavalue.write(p_253901_);
         }
 
+        p_253901_.writeByte(255);
+    }
+
+    private static List<SynchedEntityData.DataValue<?>> unpack(FriendlyByteBuf p_253726_) {
+        List<SynchedEntityData.DataValue<?>> list = new ArrayList<>();
+
+        int i;
+        while((i = p_253726_.readUnsignedByte()) != 255) {
+            list.add(SynchedEntityData.DataValue.read(p_253726_, i));
+        }
+
+        return list;
+    }
+
+    public SetTransfurVariantDataPacket(int id, List<SynchedEntityData.DataValue<?>> data) {
+        this.id = id;
+        this.packedItems = data;
     }
 
     public SetTransfurVariantDataPacket(FriendlyByteBuf buffer) {
         this.id = buffer.readVarInt();
-        this.packedItems = SynchedEntityData.unpack(buffer);
+        this.packedItems = unpack(buffer);
     }
 
-    public void write(FriendlyByteBuf p_133158_) {
-        p_133158_.writeVarInt(this.id);
-        SynchedEntityData.pack(this.packedItems, p_133158_);
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeVarInt(this.id);
+        pack(this.packedItems, buffer);
     }
 
     @Override
@@ -51,11 +65,6 @@ public class SetTransfurVariantDataPacket implements ChangedPacket {
             });
             context.setPacketHandled(true);
         }
-    }
-
-    @Nullable
-    public List<SynchedEntityData.DataItem<?>> getUnpackedData() {
-        return this.packedItems;
     }
 
     public int getId() {

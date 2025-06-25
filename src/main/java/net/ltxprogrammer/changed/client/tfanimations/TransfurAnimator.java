@@ -1,8 +1,6 @@
 package net.ltxprogrammer.changed.client.tfanimations;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import net.ltxprogrammer.changed.client.CubeExtender;
 import net.ltxprogrammer.changed.client.FormRenderHandler;
 import net.ltxprogrammer.changed.client.PoseStackExtender;
@@ -18,6 +16,7 @@ import net.ltxprogrammer.changed.entity.AccessoryEntities;
 import net.ltxprogrammer.changed.entity.LimbCoverTransition;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
+import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.util.Color3;
 import net.ltxprogrammer.changed.util.Transition;
 import net.minecraft.CrashReport;
@@ -43,6 +42,8 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -51,6 +52,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class TransfurAnimator {
+    public static final Set<Direction> ALL_VISIBLE = EnumSet.allOf(Direction.class);
+
     public record ModelPose(PoseStack.Pose matrix, PartPose pose) {
         public ModelPose translate(float x, float y, float z) {
             return new ModelPose(matrix, PartPose.offsetAndRotation(
@@ -92,7 +95,7 @@ public abstract class TransfurAnimator {
     private static ModelPart.Cube copyCube(ModelPart.Cube cube) {
         ModelPart.Cube newCube = new ModelPart.Cube(0, 0, cube.minX, cube.minY, cube.minZ,
                 cube.maxX - cube.minX, cube.maxY - cube.minY, cube.maxZ - cube.minZ,
-                0.0f, 0.0f, 0.0f, false, 1.0f, 1.0f);
+                0.0f, 0.0f, 0.0f, false, 1.0f, 1.0f, ALL_VISIBLE);
         ((CubeExtender)newCube).copyPolygonsFrom(cube);
         return newCube;
     }
@@ -135,7 +138,7 @@ public abstract class TransfurAnimator {
 
         ModelPart.Cube newCube = new ModelPart.Cube(0, 0, minX, minY, minZ,
                 maxX - minX, maxY - minY, maxZ - minZ,
-                0.0f, 0.0f, 0.0f, false, 1.0f, 1.0f);
+                0.0f, 0.0f, 0.0f, false, 1.0f, 1.0f, ALL_VISIBLE);
         var polyCube = ((CubeExtender)newCube).getPolygons();
         var polyClamp = ((CubeExtender)clampBy).getPolygons();
         for (int i = 0; i < polyCube.length && i < polyClamp.length; ++i) {
@@ -278,7 +281,7 @@ public abstract class TransfurAnimator {
         float lerpMaxZ = Mth.lerp(lerp, a.maxZ, b.maxZ);
 
         ModelPart.Cube ret = new ModelPart.Cube(0, 0, lerpMinX, lerpMinY, lerpMinZ, lerpMaxX - lerpMinX, lerpMaxY - lerpMinY, lerpMaxZ - lerpMinZ,
-                0.0f, 0.0f, 0.0f, false, 0.0f, 0.0f);
+                0.0f, 0.0f, 0.0f, false, 0.0f, 0.0f, ALL_VISIBLE);
 
         final var polyA = ((CubeExtender)a).getPolygons();
         final var polyB = ((CubeExtender)b).getPolygons();
@@ -328,17 +331,15 @@ public abstract class TransfurAnimator {
     }
 
     private static Matrix4f lerpMatrix(Matrix4f a, Matrix4f b, float lerp) {
-        a.multiply(1.0f - lerp);
-        b.multiply(lerp);
-        a.add(b);
-        return a;
+        Matrix4f out = new Matrix4f(a);
+        out.lerp(b, lerp);
+        return out;
     }
 
     private static Matrix3f lerpMatrix(Matrix3f a, Matrix3f b, float lerp) {
-        a.mul(1.0f - lerp);
-        b.mul(lerp);
-        a.add(b);
-        return a;
+        Matrix3f out = new Matrix3f(a);
+        out.lerp(b, lerp);
+        return out;
     }
 
     private static float wrapRadians(float angle) {
@@ -373,8 +374,8 @@ public abstract class TransfurAnimator {
         var tmp = new PoseStack();
         tmp.pushPose();
 
-        Matrix4f m = lerpMatrix(before.matrix.pose().copy(), after.matrix.pose().copy(), lerp);
-        Matrix3f n = lerpMatrix(before.matrix.normal().copy(), after.matrix.normal().copy(), lerp);
+        Matrix4f m = lerpMatrix(before.matrix.pose(), after.matrix.pose(), lerp);
+        Matrix3f n = lerpMatrix(before.matrix.normal(), after.matrix.normal(), lerp);
         ((PoseStackExtender)tmp).setPose(m, n);
 
         return new ModelPose(tmp.last(), lerpPartPose(before.pose, after.pose, lerp));
@@ -654,7 +655,7 @@ public abstract class TransfurAnimator {
                                         CrashReport report = CrashReport.forThrowable(e, "Rendering transfurring entity's accessories");
                                         CrashReportCategory category = report.addCategory("Accessory being rendered");
                                         category.setDetail("Accessory Item", itemStack);
-                                        category.setDetail("Accessory Slot", slotType.getRegistryName());
+                                        category.setDetail("Accessory Slot", ChangedRegistry.ACCESSORY_SLOTS.getKey(slotType));
                                         throw new ReportedException(report);
                                     }
                                 });

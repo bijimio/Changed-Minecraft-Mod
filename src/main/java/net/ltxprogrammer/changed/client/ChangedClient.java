@@ -1,7 +1,6 @@
 package net.ltxprogrammer.changed.client;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.animations.AnimationAssociations;
 import net.ltxprogrammer.changed.client.animations.AnimationDefinitions;
@@ -29,6 +28,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +48,7 @@ public class ChangedClient {
     public static void registerEventListeners() {
         Changed.addEventListener(ChangedClient::afterRenderStage);
         Changed.addEventListener(ChangedClient::onClientTick);
+        Changed.addLoadingEventListener(AbilityRenderer::onRegisterModels);
     }
 
     public static void registerReloadListeners(Consumer<PreparableReloadListener> resourceManager) {
@@ -65,7 +66,7 @@ public class ChangedClient {
     }
 
     public static double getAcceptableParticleDistanceSqr() {
-        return switch (minecraft.options.particles) {
+        return switch (minecraft.options.particles().get()) {
             case ALL -> 9999999999999999.0;
             case DECREASED -> 4096.0;
             case MINIMAL -> 256.0;
@@ -153,7 +154,7 @@ public class ChangedClient {
 
     private static boolean renderingWaveVision = false;
     private static float waveEffect = 0.0f;
-    private static Vector3f waveResonance = Vector3f.ZERO;
+    private static Vector3f waveResonance = new Vector3f(0f);
     public static float setupWaveVisionEffect(float partialTicks) {
         float effect = ProcessTransfur.getPlayerTransfurVariantSafe(EntityUtil.playerOrNull(minecraft.cameraEntity))
                 .filter(variant -> variant.visionType == VisionType.WAVE_VISION)
@@ -181,7 +182,7 @@ public class ChangedClient {
     }
 
     public static void resetWaveResonance() {
-        ChangedClient.waveResonance = Vector3f.ZERO;
+        ChangedClient.waveResonance = new Vector3f(0f);
     }
 
     public static Vector3f getWaveResonance() {

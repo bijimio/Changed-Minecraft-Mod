@@ -11,10 +11,10 @@ import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.util.MapUtil;
 import net.ltxprogrammer.changed.util.TagUtil;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.SimpleContainer;
@@ -48,7 +48,7 @@ public class InfuserRecipe implements Recipe<SimpleContainer> {
             new MapUtil.HashBuilder<Item, Function<ItemStack, ItemStack>>()
                     .put(Items.ARROW, stack -> new ItemStack(ChangedItems.LATEX_TIPPED_ARROW.get(), Math.min(stack.getCount(), 16)))
                     .put(ChangedItems.BLOOD_SYRINGE.get(), stack -> new ItemStack(ChangedItems.LATEX_SYRINGE.get()))
-                    .put(ChangedItems.getBlockItem(ChangedBlocks.ERLENMEYER_FLASK.get()), stack -> new ItemStack(ChangedItems.LATEX_FLASK.get()))
+                    .put(ChangedBlocks.ERLENMEYER_FLASK.get().asItem(), stack -> new ItemStack(ChangedItems.LATEX_FLASK.get()))
                     .finish();
 
     public static ItemStack getBaseFor(ItemStack stack) {
@@ -107,10 +107,6 @@ public class InfuserRecipe implements Recipe<SimpleContainer> {
         return this.group;
     }
 
-    public ItemStack getResultItem() {
-        return new ItemStack(ChangedItems.LATEX_SYRINGE.get());
-    }
-
     public ItemStack processItem(ItemStack stack, Gender gender) {
         CompoundTag tag = stack.getOrCreateTag();
         if (gendered)
@@ -143,8 +139,14 @@ public class InfuserRecipe implements Recipe<SimpleContainer> {
         return i == this.ingredients.size() && (isSimple ? stackedcontents.canCraft(this, (IntList)null) : net.minecraftforge.common.util.RecipeMatcher.findMatches(inputs,  this.ingredients) != null);
     }
 
-    public ItemStack assemble(SimpleContainer p_44260_) {
-        return this.getResultItem();
+    @Override
+    public ItemStack assemble(SimpleContainer container, RegistryAccess registryAccess) {
+        return new ItemStack(ChangedItems.LATEX_SYRINGE.get());
+    }
+
+    @Override
+    public ItemStack getResultItem(RegistryAccess registryAccess) {
+        return new ItemStack(ChangedItems.LATEX_SYRINGE.get());
     }
 
     public boolean canCraftInDimensions(int p_44252_, int p_44253_) {
@@ -154,17 +156,17 @@ public class InfuserRecipe implements Recipe<SimpleContainer> {
     public Component getNameFor(Level level, Gender gender) {
         ResourceLocation formId = form;
         if (gendered)
-            formId = new ResourceLocation(formId + "/" + gender.toString().toLowerCase());
+            formId = ResourceLocation.parse(formId + "/" + gender.toString().toLowerCase());
         TransfurVariant<?> variant = ChangedRegistry.TRANSFUR_VARIANT.get().getValue(formId);
         if (variant == null)
-            return new TranslatableComponent("syringe." + form);
+            return Component.translatable("syringe." + form);
         ChangedEntity entity = ChangedEntities.getCachedEntity(level, variant.getEntityType());
         Component component = entity.getDisplayName();
         entity.remove(Entity.RemovalReason.DISCARDED);
         return component;
     }
 
-    public static class Serializer extends net.minecraftforge.registries.ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<InfuserRecipe> {
+    public static class Serializer implements RecipeSerializer<InfuserRecipe> {
         public InfuserRecipe fromJson(ResourceLocation p_44290_, JsonObject p_44291_) {
             String s = GsonHelper.getAsString(p_44291_, "group", "");
             NonNullList<Ingredient> nonnulllist = itemsFromJson(GsonHelper.getAsJsonArray(p_44291_, "ingredients"));
@@ -174,7 +176,7 @@ public class InfuserRecipe implements Recipe<SimpleContainer> {
                 throw new JsonParseException("Too many ingredients for infuser recipe. The maximum is " + (MAX_WIDTH * MAX_HEIGHT));
             } else {
                 boolean gendered = GsonHelper.getAsBoolean(p_44291_, "gendered", false);
-                ResourceLocation form = new ResourceLocation(GsonHelper.getAsString(p_44291_, "form"));
+                ResourceLocation form = ResourceLocation.parse(GsonHelper.getAsString(p_44291_, "form"));
                 return new InfuserRecipe(p_44290_, s, gendered, form, nonnulllist);
             }
         }
@@ -184,7 +186,7 @@ public class InfuserRecipe implements Recipe<SimpleContainer> {
 
             for (int i = 0; i < p_44276_.size(); ++i) {
                 Ingredient ingredient = Ingredient.fromJson(p_44276_.get(i));
-                if (net.minecraftforge.common.ForgeConfig.SERVER.skipEmptyShapelessCheck.get() || !ingredient.isEmpty()) {
+                if (!ingredient.isEmpty()) {
                     nonnulllist.add(ingredient);
                 }
             }

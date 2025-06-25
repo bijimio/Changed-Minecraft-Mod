@@ -69,7 +69,7 @@ public class SyncTransfurPacket implements ChangedPacket {
                 Player player = level.getPlayerByUUID(uuid);
                 if (player != null) {
                     final var variant = ProcessTransfur.setPlayerTransfurVariant(player,
-                            ChangedRegistry.TRANSFUR_VARIANT.get().getValue(listing.form),
+                            ChangedRegistry.TRANSFUR_VARIANT.getValue(listing.form),
                             TransfurContext.hazard(listing.cause),
                             listing.progress,
                             listing.temporaryFromSuit);
@@ -98,8 +98,7 @@ public class SyncTransfurPacket implements ChangedPacket {
         public void addPlayer(Player player) {
             ProcessTransfur.ifPlayerTransfurred(player, variant -> {
                 changedForms.put(player.getUUID(),
-                        new Listing(ChangedRegistry.TRANSFUR_VARIANT.get().getID(
-                                variant.getParent()),
+                        new Listing(ChangedRegistry.TRANSFUR_VARIANT.getID(variant.getParent()),
                                 variant.transfurContext.cause,
                                 variant.transfurProgression,
                                 variant.isTemporaryFromSuit(),

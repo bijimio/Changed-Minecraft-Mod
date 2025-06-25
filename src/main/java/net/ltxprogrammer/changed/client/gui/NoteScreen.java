@@ -3,7 +3,6 @@ package net.ltxprogrammer.changed.client.gui;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.world.inventory.NoteMenu;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -36,7 +35,7 @@ public class NoteScreen extends TextMenuScreen<NoteMenu> {
         return Changed.modResource("textures/gui/note_container.png");
     }
 
-    private static final Component NOTE = new TranslatableComponent("container.changed.note");
+    private static final Component NOTE = Component.translatable("container.changed.note");
     @Override
     public Component getNoteTitle() {
         return NOTE;

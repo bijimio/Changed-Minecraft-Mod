@@ -6,7 +6,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 import java.util.stream.Stream;
 
@@ -21,7 +20,7 @@ public abstract class OriginsHelper {
     }
 
     public static ResourceLocation modResource(String path) {
-        return new ResourceLocation(MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
     public static boolean doesOriginUsePlayer(Player player) {

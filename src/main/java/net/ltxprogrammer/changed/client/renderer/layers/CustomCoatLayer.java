@@ -21,8 +21,8 @@ public class CustomCoatLayer<M extends AdvancedHumanoidModel<T>, T extends Chang
     public CustomCoatLayer(RenderLayerParent<T, M> parent, M model, ResourceLocation textureBase) {
         super(parent);
         this.model = model;
-        this.renderTypeDark = RenderType.entityCutout(new ResourceLocation(textureBase.getNamespace(), textureBase.getPath() + "_dark.png"));
-        this.renderTypeLight = RenderType.entityCutout(new ResourceLocation(textureBase.getNamespace(), textureBase.getPath() + "_light.png"));
+        this.renderTypeDark = RenderType.entityCutout(ResourceLocation.fromNamespaceAndPath(textureBase.getNamespace(), textureBase.getPath() + "_dark.png"));
+        this.renderTypeLight = RenderType.entityCutout(ResourceLocation.fromNamespaceAndPath(textureBase.getNamespace(), textureBase.getPath() + "_light.png"));
     }
 
     @Override

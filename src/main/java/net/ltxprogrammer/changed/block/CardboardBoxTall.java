@@ -182,7 +182,7 @@ public class CardboardBoxTall extends AbstractCustomShapeTallEntityBlock impleme
         SeatableBlock.super.onEnterSeat(level, state, pos, entity);
 
         if (getBlockEntityForBlock(level, pos, state) instanceof CardboardBoxTallBlockEntity blockEntity) {
-            entity.level().playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ChangedSounds.BOW2, SoundSource.BLOCKS, 1.0f, 1.0f, true);
+            entity.level().playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ChangedSounds.BOW2.get(), SoundSource.BLOCKS, 1.0f, 1.0f, true);
             blockEntity.ticksSinceChange = 0;
         }
     }
@@ -192,7 +192,7 @@ public class CardboardBoxTall extends AbstractCustomShapeTallEntityBlock impleme
         SeatableBlock.super.onExitSeat(level, state, pos, entity);
 
         if (getBlockEntityForBlock(level, pos, state) instanceof CardboardBoxTallBlockEntity blockEntity) {
-            entity.level().playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ChangedSounds.BOW2, SoundSource.BLOCKS, 1.0f, 1.0f, true);
+            entity.level().playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ChangedSounds.BOW2.get(), SoundSource.BLOCKS, 1.0f, 1.0f, true);
             blockEntity.ticksSinceChange = 0;
         }
     }

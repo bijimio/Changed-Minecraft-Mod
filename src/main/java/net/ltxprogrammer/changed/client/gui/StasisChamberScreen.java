@@ -8,13 +8,14 @@ import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.ltxprogrammer.changed.world.inventory.StasisChamberMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -47,11 +48,11 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
     private ModifyType modifyType = ModifyType.DEFAULT;
 
     @Override
-    public void render(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         this.menu.hideSlots = buttonScope != ButtonScope.DEFAULT;
 
-        this.renderBackground(ms);
-        super.render(ms, mouseX, mouseY, partialTicks);
+        this.renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTicks);
 
         final int textLeftMargin = this.leftPos + 176;
         final int textRightMargin = this.leftPos + 278;
@@ -61,40 +62,40 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
 
         if (buttonScope == ButtonScope.PROGRAMS) {
             menu.getChamberedEntity().ifPresent(entity -> {
-                Gui.drawCenteredString(ms, Minecraft.getInstance().font, entity.getDisplayName(), (textLeftMargin + textRightMargin) / 2, textTopMargin, 0xFFFFFF);
+                graphics.drawCenteredString(this.font, entity.getDisplayName(), (textLeftMargin + textRightMargin) / 2, textTopMargin, 0xFFFFFF);
             });
 
             AtomicInteger yOffset = new AtomicInteger(0);
             menu.getCurrentCommand().ifPresent(command -> {
-                Gui.drawString(ms, Minecraft.getInstance().font, command.getActiveDisplayText(), textLeftMargin, commandsTopMargin + yOffset.getAndAdd(12), 0x20FF20);
+                graphics.drawString(this.font, command.getActiveDisplayText(), textLeftMargin, commandsTopMargin + yOffset.getAndAdd(12), 0x20FF20);
             });
             menu.getScheduledCommands().forEach(command -> {
-                Gui.drawString(ms, Minecraft.getInstance().font, command.getDisplayText(), textLeftMargin, commandsTopMargin + yOffset.getAndAdd(12), 0xFFFFFF);
+                graphics.drawString(this.font, command.getDisplayText(), textLeftMargin, commandsTopMargin + yOffset.getAndAdd(12), 0xFFFFFF);
             });
         }
 
         else {
             menu.getChamberedEntity().ifPresent(entity -> {
-                Gui.drawCenteredString(ms, Minecraft.getInstance().font, entity.getDisplayName(), (textLeftMargin + textRightMargin) / 2, textTopMargin, 0xFFFFFF);
+                graphics.drawCenteredString(this.font, entity.getDisplayName(), (textLeftMargin + textRightMargin) / 2, textTopMargin, 0xFFFFFF);
 
                 int entityX = (textLeftMargin + textRightMargin) / 2;
                 int entityY = commandsBottomMargin - 5;
-                InventoryScreen.renderEntityInInventory(entityX, entityY, 40,
+                InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, entityX, entityY, 40,
                         (float)(this.leftPos) - mouseX + entityX,
                         (float)(this.topPos) - mouseY + (entityY - 100),
                         entity);
             });
         }
 
-        this.renderTooltip(ms, mouseX, mouseY);
+        this.renderTooltip(graphics, mouseX, mouseY);
 
         if (this.hoveredSlot != null && !this.hoveredSlot.hasItem()) {
             if (menu.getCustomSlot(0) == this.hoveredSlot) {
-                setToolTip(() -> this.renderTooltip(ms, new TranslatableComponent("changed.stasis.slot.variant.tooltip"), mouseX, mouseY));
+                setToolTip(() -> graphics.renderTooltip(this.font, Component.translatable("changed.stasis.slot.variant.tooltip"), mouseX, mouseY));
             }
 
             else if (menu.getCustomSlot(1) == this.hoveredSlot) {
-                setToolTip(() -> this.renderTooltip(ms, new TranslatableComponent("changed.stasis.slot.fluid.tooltip"), mouseX, mouseY));
+                setToolTip(() -> graphics.renderTooltip(this.font, Component.translatable("changed.stasis.slot.fluid.tooltip"), mouseX, mouseY));
             }
         }
 
@@ -108,26 +109,25 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
     }
 
     @Override
-    protected void renderBg(PoseStack ms, float partialTicks, int gx, int gy) {
+    protected void renderBg(GuiGraphics graphics, float partialTicks, int gx, int gy) {
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        RenderSystem.setShaderTexture(0, texture);
-        blit(ms, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth + 18, this.imageHeight);
+        graphics.blit(texture, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth + 18, this.imageHeight);
 
         this.menu.slots.forEach(slot -> {
             if (slot.isActive()) {
-                blit(ms, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, this.imageWidth, 0, 18, 18, this.imageWidth + 18, this.imageHeight);
+                graphics.blit(texture, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, this.imageWidth, 0, 18, 18, this.imageWidth + 18, this.imageHeight);
             }
         });
 
-        RenderSystem.setShaderTexture(0, Changed.modResource("textures/gui/progress_bar_back.png"));
-        blit(ms, this.leftPos + 217, this.topPos + 144, 0, 0, 48, 12, 48, 12);
+        graphics.blit(Changed.modResource("textures/gui/progress_bar_back.png"),
+                this.leftPos + 217, this.topPos + 144, 0, 0, 48, 12, 48, 12);
 
         float progress = menu.getFluidLevel(partialTicks);
-        RenderSystem.setShaderTexture(0, Changed.modResource("textures/gui/progress_bar_front.png"));
-        blit(ms, this.leftPos + 217, this.topPos + 144, 0, 0, (int)(48 * progress), 12, 48, 12);
+        graphics.blit(Changed.modResource("textures/gui/progress_bar_front.png"),
+                this.leftPos + 217, this.topPos + 144, 0, 0, (int)(48 * progress), 12, 48, 12);
 
         RenderSystem.disableBlend();
     }
@@ -140,16 +140,6 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
         }
 
         return super.keyPressed(key, b, c);
-    }
-
-    @Override
-    protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY) {
-    }
-
-    @Override
-    public void onClose() {
-        super.onClose();
-        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
     }
 
     public enum ButtonScope {
@@ -223,8 +213,6 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
     public void init() {
         super.init();
 
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-
         int leftMargin = this.leftPos + 7;
         int topMargin = this.topPos + 7;
         int buttonWidth = 79;
@@ -233,78 +221,56 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
         int buttonWidthSpacing = buttonWidth + 4;
         int buttonWidthLong = buttonWidth + buttonWidthSpacing;
 
-        programsButton = this.addRenderableWidget(new Button(leftMargin, topMargin, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.programs"), button -> {
+        programsButton = this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.programs"), button -> {
             buttonScope = buttonScope.toggleScope(ButtonScope.PROGRAMS);
             this.checkButtonStates();
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.programs.tooltip"), x, y));
-        }));
+        }).bounds(leftMargin, topMargin, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.programs.tooltip"))).build());
 
-        modifyButton = this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify"), button -> {
+        modifyButton = this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.modify"), button -> {
             buttonScope = buttonScope.toggleScope(ButtonScope.MODIFICATIONS);
             this.checkButtonStates();
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.modify.tooltip"), x, y));
-        }));
+        }).bounds(leftMargin + buttonWidthSpacing, topMargin, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.modify.tooltip"))).build());
 
-        openDoorButton = this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.open"), button -> {
+        openDoorButton = this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.open"), button -> {
             menu.sendSimpleCommand(StasisChamberMenu.Command.OPEN_DOOR);
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.open.tooltip"), x, y));
-        }));
+        }).bounds(leftMargin, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.open.tooltip"))).build());
 
-        closeDoorButton = this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.close"), button -> {
+        closeDoorButton = this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.close"), button -> {
             menu.sendSimpleCommand(StasisChamberMenu.Command.CLOSE_DOOR);
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.close.tooltip"), x, y));
-        }));
+        }).bounds(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.close.tooltip"))).build());
 
-        programWidgets.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.program.transfur"), button -> {
+        programWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.program.transfur"), button -> {
             menu.inputProgram("transfur");
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.program.transfur.tooltip"), x, y));
-        })));
+        }).bounds(leftMargin, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.program.transfur.tooltip"))).build()));
 
-        programWidgets.add(this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.program.modify"), button -> {
+        programWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.program.modify"), button -> {
             menu.inputProgram("modify");
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.program.modify.tooltip"), x, y));
-        })));
+        }).bounds(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.program.modify.tooltip"))).build()));
 
-        programWidgets.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing * 2, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.program.capture_next"), button -> {
+        programWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.program.capture_next"), button -> {
             menu.inputProgram("captureNextEntity");
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.program.capture_next.tooltip"), x, y));
-        })));
+        }).bounds(leftMargin, topMargin + buttonHeightSpacing * 2, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.program.capture_next.tooltip"))).build()));
 
-        programWidgets.add(this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing * 2, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.program.toggle_stasis"), button -> {
+        programWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.program.toggle_stasis"), button -> {
             menu.inputProgram("toggleStasis");
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.program.toggle_stasis.tooltip"), x, y));
-        })));
+        }).bounds(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing * 2, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.program.toggle_stasis.tooltip"))).build()));
 
-        programWidgets.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing * 3, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.program.create_entity"), button -> {
+        programWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.program.create_entity"), button -> {
             menu.inputProgram("createEntity");
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.program.create_entity.tooltip"), x, y));
-        })));
+        }).bounds(leftMargin, topMargin + buttonHeightSpacing * 3, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.program.create_entity.tooltip"))).build()));
 
-        programWidgets.add(this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing * 3, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.program.discard_entity"), button -> {
+        programWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.program.discard_entity"), button -> {
             menu.inputProgram("discardEntity");
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.program.discard_entity.tooltip"), x, y));
-        })));
+        }).bounds(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing * 3, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.program.discard_entity.tooltip"))).build()));
 
-        programWidgets.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing * 4, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.program.abort"), button -> {
+        programWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.program.abort"), button -> {
             menu.inputProgram("abort");
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.program.abort.tooltip"), x, y));
-        })));
+        }).bounds(leftMargin, topMargin + buttonHeightSpacing * 4, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.program.abort.tooltip"))).build()));
 
-        waitDurationSlider = this.addRenderableWidget(new AbstractSliderButton(leftMargin, topMargin + buttonHeightSpacing * 5, buttonWidthLong, buttonHeight, new TranslatableComponent("changed.stasis.program.wait_duration", menu.getWaitDurationSeconds(menu.getWaitDurationPercent())), menu.getWaitDurationPercent()) {
+        waitDurationSlider = this.addRenderableWidget(new AbstractSliderButton(leftMargin, topMargin + buttonHeightSpacing * 5, buttonWidthLong, buttonHeight, Component.translatable("changed.stasis.program.wait_duration", menu.getWaitDurationSeconds(menu.getWaitDurationPercent())), menu.getWaitDurationPercent()) {
             @Override
             protected void updateMessage() {
-                setMessage(new TranslatableComponent("changed.stasis.program.wait_duration", menu.getWaitDurationSeconds(this.value)));
+                setMessage(Component.translatable("changed.stasis.program.wait_duration", menu.getWaitDurationSeconds(this.value)));
             }
 
             @Override
@@ -313,86 +279,70 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
             }
 
             @Override
-            public void renderButton(PoseStack poseStack, int p_93677_, int p_93678_, float p_93679_) {
+            public void renderWidget(GuiGraphics graphics, int p_93677_, int p_93678_, float p_93679_) {
                 if (!(this.isHoveredOrFocused() && minecraft.mouseHandler.isLeftPressed())) {
                     double last = this.value;
                     this.value = menu.getWaitDurationPercent();
                     if (last != this.value)
                         updateMessage();
                 }
-                super.renderButton(poseStack, p_93677_, p_93678_, p_93679_);
+                super.renderWidget(graphics, p_93677_, p_93678_, p_93679_);
             }
         });
         programWidgets.add(waitDurationSlider);
 
-        genderButton = this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing, buttonWidthLong, buttonHeight, new TranslatableComponent("changed.stasis.modify.gender"), button -> {
+        genderButton = this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.modify.gender"), button -> {
             menu.inputModifyConfig(menu.getConfiguredCustomLatex());
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.modify.gender.tooltip"), x, y));
-        }));
+        }).bounds(leftMargin, topMargin + buttonHeightSpacing, buttonWidthLong, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.modify.gender.tooltip"))).build());
 
-        modificationWidgets.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.torso", CustomLatexEntity.TorsoType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
+        modificationWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.modify.torso", CustomLatexEntity.TorsoType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.TorsoType.fromFlags(flags).cycle();
             menu.inputModifyConfig(next.setFlags(flags));
-            button.setMessage(new TranslatableComponent("changed.stasis.modify.torso", next.name()));
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.modify.torso.tooltip"), x, y));
-        })));
+            button.setMessage(Component.translatable("changed.stasis.modify.torso", next.name()));
+        }).bounds(leftMargin, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.modify.torso.tooltip"))).build()));
 
-        modificationWidgets.add(this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.hair", CustomLatexEntity.HairType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
+        modificationWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.modify.hair", CustomLatexEntity.HairType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.HairType.fromFlags(flags).cycle();
             menu.inputModifyConfig(next.setFlags(flags));
-            button.setMessage(new TranslatableComponent("changed.stasis.modify.hair", next.name()));
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.modify.hair.tooltip"), x, y));
-        })));
+            button.setMessage(Component.translatable("changed.stasis.modify.hair", next.name()));
+        }).bounds(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.modify.hair.tooltip"))).build()));
 
-        modificationWidgets.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing * 2, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.ears", CustomLatexEntity.EarType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
+        modificationWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.modify.ears", CustomLatexEntity.EarType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.EarType.fromFlags(flags).cycle();
             menu.inputModifyConfig(next.setFlags(flags));
-            button.setMessage(new TranslatableComponent("changed.stasis.modify.ears", next.name()));
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.modify.ears.tooltip"), x, y));
-        })));
+            button.setMessage(Component.translatable("changed.stasis.modify.ears", next.name()));
+        }).bounds(leftMargin, topMargin + buttonHeightSpacing * 2, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.modify.ears.tooltip"))).build()));
 
-        modificationWidgets.add(this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing * 2, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.tail", CustomLatexEntity.TailType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
+        modificationWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.modify.tail", CustomLatexEntity.TailType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.TailType.fromFlags(flags).cycle();
             menu.inputModifyConfig(next.setFlags(flags));
-            button.setMessage(new TranslatableComponent("changed.stasis.modify.tail", next.name()));
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.modify.tail.tooltip"), x, y));
-        })));
+            button.setMessage(Component.translatable("changed.stasis.modify.tail", next.name()));
+        }).bounds(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing * 2, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.modify.tail.tooltip"))).build()));
 
-        modificationWidgets.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing * 3, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.legs", CustomLatexEntity.LegType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
+        modificationWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.modify.legs", CustomLatexEntity.LegType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.LegType.fromFlags(flags).cycle();
             menu.inputModifyConfig(next.setFlags(flags));
-            button.setMessage(new TranslatableComponent("changed.stasis.modify.legs", next.name()));
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.modify.legs.tooltip"), x, y));
-        })));
+            button.setMessage(Component.translatable("changed.stasis.modify.legs", next.name()));
+        }).bounds(leftMargin, topMargin + buttonHeightSpacing * 3, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.modify.legs.tooltip"))).build()));
 
-        modificationWidgets.add(this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing * 3, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.arms", CustomLatexEntity.ArmType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
+        modificationWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.modify.arms", CustomLatexEntity.ArmType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.ArmType.fromFlags(flags).cycle();
             menu.inputModifyConfig(next.setFlags(flags));
-            button.setMessage(new TranslatableComponent("changed.stasis.modify.arms", next.name()));
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.modify.arms.tooltip"), x, y));
-        })));
+            button.setMessage(Component.translatable("changed.stasis.modify.arms", next.name()));
+        }).bounds(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing * 3, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.modify.arms.tooltip"))).build()));
 
-        modificationWidgets.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing * 4, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.scale", CustomLatexEntity.ScaleType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
+        modificationWidgets.add(this.addRenderableWidget(Button.builder(Component.translatable("changed.stasis.modify.scale", CustomLatexEntity.ScaleType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.ScaleType.fromFlags(flags).cycle();
             menu.inputModifyConfig(next.setFlags(flags));
-            button.setMessage(new TranslatableComponent("changed.stasis.modify.scale", next.name()));
-        }, (button, stack, x, y) -> {
-            setToolTip(() -> this.renderTooltip(stack, new TranslatableComponent("changed.stasis.modify.scale.tooltip"), x, y));
-        })));
+            button.setMessage(Component.translatable("changed.stasis.modify.scale", next.name()));
+        }).bounds(leftMargin, topMargin + buttonHeightSpacing * 4, buttonWidth, buttonHeight).tooltip(Tooltip.create(Component.translatable("changed.stasis.modify.scale.tooltip"))).build()));
 
         initialized = true;
 

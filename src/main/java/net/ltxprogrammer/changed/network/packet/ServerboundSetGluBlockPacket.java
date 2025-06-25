@@ -47,7 +47,7 @@ public class ServerboundSetGluBlockPacket implements ChangedPacket {
     @Override
     public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
         var context = contextSupplier.get();
-        var level = context.getSender().level;
+        var level = context.getSender().level();
         var blockState = level.getBlockState(pos);
         var blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof GluBlockEntity gluBlockEntity) {

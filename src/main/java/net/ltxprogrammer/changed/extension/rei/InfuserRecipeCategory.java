@@ -22,9 +22,9 @@ import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.item.Syringe;
 import net.ltxprogrammer.changed.item.VariantHoldingBase;
 import net.ltxprogrammer.changed.recipe.InfuserRecipe;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -33,11 +33,11 @@ import java.util.List;
 
 public class InfuserRecipeCategory implements DisplayCategory<InfuserRecipeDisplay> {
     private final Renderer icon;
-    private final TranslatableComponent localizedName;
+    private final Component localizedName;
 
     public InfuserRecipeCategory() {
         icon = EntryStacks.of(ChangedBlocks.INFUSER.get());
-        localizedName = new TranslatableComponent("container.changed.infuser");
+        localizedName = Component.translatable("container.changed.infuser");
     }
 
     @Override
@@ -100,8 +100,7 @@ public class InfuserRecipeCategory implements DisplayCategory<InfuserRecipeDispl
         }
 
         @Override
-        public void render(PoseStack pose, int mouseX, int mouseY, float delta) {
-            RenderSystem.setShaderTexture(0, GENDER_SWITCH_LOCATION);
+        public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.enableDepthTest();
             RenderSystem.enableBlend();
@@ -122,7 +121,7 @@ public class InfuserRecipeCategory implements DisplayCategory<InfuserRecipeDispl
 
             int switchX = 0;
             int switchY = disabled ? bounds.height * 2 : (toggle ? bounds.height : 0);
-            blit(pose, bounds.x, bounds.y, switchX, switchY, bounds.width, bounds.height, bounds.width * 2, bounds.height * 3);
+            graphics.blit(GENDER_SWITCH_LOCATION, bounds.x, bounds.y, switchX, switchY, bounds.width, bounds.height, bounds.width * 2, bounds.height * 3);
         }
 
         @Override

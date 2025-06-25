@@ -194,7 +194,7 @@ public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock impl
             return;
         } // Container fell in fluid
 
-        level.playSound(null, pos, ChangedSounds.CRASH, SoundSource.BLOCKS, 1.0f, 1.0f);
+        level.playSound(null, pos, ChangedSounds.CRASH.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
 
         blockEntity.ifPresent(container -> {
             if (container.getFillLevel() == 0)

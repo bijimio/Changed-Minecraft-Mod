@@ -49,6 +49,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -221,12 +222,12 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
     public static final VoxelShape SHAPE_DOOR = Shapes.or(SHAPE_FRAME_FRONT);
     public static final VoxelShape SHAPE_COLLISION_CLOSED = Shapes.or(SHAPE_FRAME, SHAPE_DOOR);
 
-    private final SoundEvent open, close;
+    private final RegistryObject<SoundEvent> open, close;
 
     private final VoxelShape shapeFrame;
     private final VoxelShape shapeCollisionClosed;
 
-    public StasisChamber(SoundEvent open, SoundEvent close) {
+    public StasisChamber(RegistryObject<SoundEvent> open, RegistryObject<SoundEvent> close) {
         super(Properties.of().sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F));
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
@@ -465,7 +466,7 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
             level.setBlockAndUpdate(nPos, nBlock.setValue(OPEN, wantState));
             level.gameEvent(GameEvent.BLOCK_OPEN, pos, GameEvent.Context.of(state));
         }
-        level.playSound(null, pos, open, SoundSource.BLOCKS, 1, 1);
+        level.playSound(null, pos, open.get(), SoundSource.BLOCKS, 1, 1);
         return true;
     }
 
@@ -484,7 +485,7 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
             level.setBlockAndUpdate(nPos, nBlock.setValue(OPEN, wantState));
             level.gameEvent(GameEvent.BLOCK_CLOSE, pos, GameEvent.Context.of(state));
         }
-        level.playSound(null, pos, close, SoundSource.BLOCKS, 1, 1);
+        level.playSound(null, pos, close.get(), SoundSource.BLOCKS, 1, 1);
         return true;
     }
 

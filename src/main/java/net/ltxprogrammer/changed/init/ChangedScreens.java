@@ -12,17 +12,17 @@ public class ChangedScreens {
     @SubscribeEvent
     public static void clientLoad(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            MenuScreens.register(ChangedMenus.COMPUTER, ComputerExploreScreen::new);
-            MenuScreens.register(ChangedMenus.INFUSER, InfuserScreen::new);
-            MenuScreens.register(ChangedMenus.PURIFIER, PurifierScreen::new);
-            MenuScreens.register(ChangedMenus.ABILITY_RADIAL, AbilityRadialScreen::new);
-            MenuScreens.register(ChangedMenus.HAIRSTYLE_RADIAL, HairStyleRadialScreen::new);
-            MenuScreens.register(ChangedMenus.SPECIAL_RADIAL, SpecialStateRadialScreen::new);
-            MenuScreens.register(ChangedMenus.KEYPAD, KeypadScreen::new);
-            MenuScreens.register(ChangedMenus.CLIPBOARD, ClipboardScreen::new);
-            MenuScreens.register(ChangedMenus.NOTE, NoteScreen::new);
-            MenuScreens.register(ChangedMenus.STASIS_CHAMBER, StasisChamberScreen::new);
-            MenuScreens.register(ChangedMenus.ACCESSORY_ACCESS, AccessoryAccessScreen::new);
+            MenuScreens.register(ChangedMenus.COMPUTER.get(), ComputerExploreScreen::new);
+            MenuScreens.register(ChangedMenus.INFUSER.get(), InfuserScreen::new);
+            MenuScreens.register(ChangedMenus.PURIFIER.get(), PurifierScreen::new);
+            MenuScreens.register(ChangedMenus.ABILITY_RADIAL.get(), AbilityRadialScreen::new);
+            MenuScreens.register(ChangedMenus.HAIRSTYLE_RADIAL.get(), HairStyleRadialScreen::new);
+            MenuScreens.register(ChangedMenus.SPECIAL_RADIAL.get(), SpecialStateRadialScreen::new);
+            MenuScreens.register(ChangedMenus.KEYPAD.get(), KeypadScreen::new);
+            MenuScreens.register(ChangedMenus.CLIPBOARD.get(), ClipboardScreen::new);
+            MenuScreens.register(ChangedMenus.NOTE.get(), NoteScreen::new);
+            MenuScreens.register(ChangedMenus.STASIS_CHAMBER.get(), StasisChamberScreen::new);
+            MenuScreens.register(ChangedMenus.ACCESSORY_ACCESS.get(), AccessoryAccessScreen::new);
         });
     }
 }

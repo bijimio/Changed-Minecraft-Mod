@@ -32,7 +32,7 @@ public class GasCanister extends FluidCanister implements SpecializedAnimations 
     private final @Nullable Supplier<? extends TransfurGas> gas;
 
     public GasCanister(Block block, @Nullable Supplier<? extends TransfurGas> gas) {
-        super(block, new Item.Properties().tab(ChangedTabs.TAB_CHANGED_BLOCKS).durability(CAPACITY), gas);
+        super(block, new Item.Properties().durability(CAPACITY), gas);
         this.gas = gas;
     }
 
@@ -69,8 +69,8 @@ public class GasCanister extends FluidCanister implements SpecializedAnimations 
         if (gas != null && !gas.get().variants.isEmpty())
             nParticle.setVariant(Util.getRandom(gas.get().variants, level.random).get());
 
-        float randX = (level.random.nextFloat(90.0f) - 45.0f) * 0.5f;
-        float randY = (level.random.nextFloat(90.0f) - 45.0f) * 0.5f;
+        float randX = (level.random.nextFloat() * 90.0f - 45.0f) * 0.5f;
+        float randY = (level.random.nextFloat() * 90.0f - 45.0f) * 0.5f;
 
         Vec3 frontVector = entity.getViewVector(0.5f);
         Vec3 rightVector = frontVector.cross(entity.getUpVector(0.5f));

@@ -3,13 +3,12 @@ package net.ltxprogrammer.changed.network;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
 public class ExtraJumpKeybind {
-    private static final Component CONTAINER_TITLE = new TranslatableComponent("container.changed.extra_hands");
+    private static final Component CONTAINER_TITLE = Component.translatable("container.changed.extra_hands");
 
     public ExtraJumpKeybind() {
     }

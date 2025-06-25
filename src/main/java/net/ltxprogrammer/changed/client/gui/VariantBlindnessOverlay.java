@@ -12,68 +12,63 @@ import net.ltxprogrammer.changed.entity.beast.DarkLatexEntity;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class VariantBlindnessOverlay {
-    private static final ResourceLocation TEXTURE = new ResourceLocation("textures/misc/white.png");
+    private static final ResourceLocation TEXTURE = ResourceLocation.parse("textures/misc/white.png");
     private static final float ALPHA = 0.45F;
     private static float alphaO = 0.0F;
 
-    @SubscribeEvent(priority = EventPriority.NORMAL)
-    public static void eventHandler(RenderGameOverlayEvent.Pre event) {
-        if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
-            Player player = Minecraft.getInstance().player;
-            if (!ProcessTransfur.isPlayerTransfurred(player))
-                return;
-            var variant = ProcessTransfur.getPlayerTransfurVariant(player);
-            if (variant == null)
-                return;
-            if (player.hasEffect(MobEffects.NIGHT_VISION))
-                return; // Override effect
-            if (variant.visionType != VisionType.REDUCED)
-                return;
-            Color3 color = variant.getParent().getColors().getFirst();
-            float darkness = (15 - player.level.getRawBrightness(player.eyeBlockPosition(), 0)) / 15.0f;
-            float alpha;
-            if (variant.getLatexType() == LatexType.DARK_LATEX)
-                alpha = Mth.lerp(0.65F, alphaO, darkness * ALPHA);
-            else
-                alpha = ALPHA * Minecraft.getInstance().options.screenEffectScale;
-            alphaO = alpha;
+    public static void render(Gui gui, GuiGraphics graphics, float partialTicks, int screenWidth, int screenHeight) {
+        Player player = Minecraft.getInstance().player;
+        if (!ProcessTransfur.isPlayerTransfurred(player))
+            return;
+        var variant = ProcessTransfur.getPlayerTransfurVariant(player);
+        if (variant == null)
+            return;
+        if (player.hasEffect(MobEffects.NIGHT_VISION))
+            return; // Override effect
+        if (variant.visionType != VisionType.REDUCED)
+            return;
+        Color3 color = variant.getParent().getColors().getFirst();
+        var eyePosition = player.getEyePosition(partialTicks);
+        float darkness = (15 - player.level().getRawBrightness(new BlockPos(Mth.floor(eyePosition.x), Mth.floor(eyePosition.y), Mth.floor(eyePosition.z)), 0)) / 15.0f;
+        float alpha;
+        if (variant.getLatexType() == LatexType.DARK_LATEX)
+            alpha = Mth.lerp(0.65F, alphaO, darkness * ALPHA);
+        else
+            alpha = ALPHA * Minecraft.getInstance().options.screenEffectScale().get().floatValue();
+        alphaO = alpha;
 
-            RenderSystem.disableDepthTest();
-            RenderSystem.depthMask(false);
-            RenderSystem.enableBlend();
-            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-            RenderSystem.setShaderTexture(0, TEXTURE);
-            RenderSystem.enableBlend();
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-            int i1 = event.getWindow().getScreenWidth();
-            int j1 = event.getWindow().getScreenHeight();
-            Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder bufferbuilder = tesselator.getBuilder();
-            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-            bufferbuilder.vertex(0.0D, (double)j1, -90).uv(0.0F, 1.0F).color(color.red(), color.green(), color.blue(), alpha).endVertex();
-            bufferbuilder.vertex((double)i1, (double)j1, -90).uv(1.0F, 1.0F).color(color.red(), color.green(), color.blue(), alpha).endVertex();
-            bufferbuilder.vertex((double)i1, 0.0D, -90).uv(1.0F, 0.0F).color(color.red(), color.green(), color.blue(), alpha).endVertex();
-            bufferbuilder.vertex(0.0D, 0.0D, -90).uv(0.0F, 0.0F).color(color.red(), color.green(), color.blue(), alpha).endVertex();
-            tesselator.end();
-            RenderSystem.depthMask(true);
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.enableDepthTest();
-            RenderSystem.disableBlend();
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-        }
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, TEXTURE);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        int i1 = screenWidth;
+        int j1 = screenHeight;
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.vertex(0.0D, (double)j1, -90).uv(0.0F, 1.0F).color(color.red(), color.green(), color.blue(), alpha).endVertex();
+        bufferbuilder.vertex((double)i1, (double)j1, -90).uv(1.0F, 1.0F).color(color.red(), color.green(), color.blue(), alpha).endVertex();
+        bufferbuilder.vertex((double)i1, 0.0D, -90).uv(1.0F, 0.0F).color(color.red(), color.green(), color.blue(), alpha).endVertex();
+        bufferbuilder.vertex(0.0D, 0.0D, -90).uv(0.0F, 0.0F).color(color.red(), color.green(), color.blue(), alpha).endVertex();
+        tesselator.end();
+        RenderSystem.depthMask(true);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
+        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 }

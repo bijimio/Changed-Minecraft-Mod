@@ -4,7 +4,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.platform.PngInfo;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Either;
@@ -28,10 +27,7 @@ import net.minecraft.client.renderer.block.model.MultiVariant;
 import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.client.renderer.block.model.multipart.MultiPart;
 import net.minecraft.client.renderer.block.model.multipart.Selector;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
@@ -43,8 +39,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -170,8 +165,10 @@ public abstract class LatexCoveredBlockRenderer {
 
     // Not really much of a preparable reload listener
     public static class LatexBlockUploader implements AutoCloseable {
+        private static final ResourceLocation COVER_ATLAS_INFO = Changed.modResource("latex_cover");
+
         private final Map<ResourceLocation, MixedTexture> registeredSprites = new HashMap<>();
-        private @Nullable TextureAtlas.Preparations preparations = null;
+        private @Nullable SpriteLoader.Preparations preparations = null;
         private final LatexAtlas textureAtlas = new LatexAtlas(LATEX_COVER_ATLAS, this::getUnderlyingTexture);
 
         public LatexAtlas getTextureAtlas() {
@@ -193,6 +190,10 @@ public abstract class LatexCoveredBlockRenderer {
         public void stitchIfPossible(ResourceManager resources, ProfilerFiller profiler) {
             if (preparations == null)
                 preparations = this.textureAtlas.prepareToStitch(resources, registeredSprites.keySet().stream(), profiler, 4);
+
+            var stitchFuture = SpriteLoader.create(this.textureAtlas)
+                    .loadAndStitch(resources, COVER_ATLAS_INFO, 0, execA)
+                    .thenCompose(SpriteLoader.Preparations::waitForUpload);
         }
 
         public void upload(ResourceManager resources, ProfilerFiller profiler) {
@@ -201,7 +202,7 @@ public abstract class LatexCoveredBlockRenderer {
             this.stitchIfPossible(resources, profiler);
             if (preparations == null)
                 throw new IllegalStateException("Expected preparations");
-            this.textureAtlas.reload(preparations);
+            this.textureAtlas.upload(preparations);
             preparations = null;
             MixedTexture.clearMemoryCache();
             profiler.pop();
@@ -215,14 +216,14 @@ public abstract class LatexCoveredBlockRenderer {
     }
 
     protected static class Registrar {
-        private final ModelBakeEvent event;
+        private final ModelEvent.ModifyBakingResult event;
         private final Map<ResourceLocation, UnbakedModel> models;
         private final Map<ResourceLocation, UnbakedModel> earlyBakeModels;
         private final Map<ResourceLocation, ModelResourceLocation> referencePreBaked;
         private final LatexBlockUploader uploader;
         public final boolean mixTextures;
 
-        public Registrar(ModelBakeEvent event,
+        public Registrar(ModelEvent.ModifyBakingResult event,
                          Map<ResourceLocation, UnbakedModel> models,
                          Map<ResourceLocation, UnbakedModel> earlyBakeModels,
                          Map<ResourceLocation, ModelResourceLocation> referencePreBaked,
@@ -271,11 +272,11 @@ public abstract class LatexCoveredBlockRenderer {
         public UnbakedModel getModel(ResourceLocation name) {
             if (models.containsKey(name))
                 return models.get(name);
-            return event.getModelLoader().getModelOrMissing(name);
+            return event.getModelBakery().getModel(name);
         }
 
         private TextureAtlasSprite getSprite(Material material) {
-            return event.getModelManager().getAtlas(material.atlasLocation()).getSprite(material.texture());
+            return event.getModelBakery().getAtlas(material.atlasLocation()).getSprite(material.texture());
         }
 
         public void bakeAll() {
@@ -297,7 +298,7 @@ public abstract class LatexCoveredBlockRenderer {
                     model.getMaterials(this::getModel, new HashSet<>());
                 } catch (Exception ignored) {}
 
-                event.getModelRegistry().put(entry.getKey(), model.bake(event.getModelLoader(), this::getSprite, BlockModelRotation.X0_Y0, name));
+                event.getModelBakery().getModel().put(entry.getKey(), model.bake(event.getModelLoader(), this::getSprite, BlockModelRotation.X0_Y0, name));
 
                 int currentIndex = index.incrementAndGet();
                 if (currentIndex % 50000 == 0) {
@@ -384,15 +385,15 @@ public abstract class LatexCoveredBlockRenderer {
 
             return false;
         }
-        if (parentName.equals(new ResourceLocation("block/cube")))
+        if (parentName.equals(ResourceLocation.parse("block/cube")))
             return true;
-        if (parentName.equals(new ResourceLocation("block/cube_mirrored")))
+        if (parentName.equals(ResourceLocation.parse("block/cube_mirrored")))
             return true;
-        if (parentName.equals(new ResourceLocation("block/cube_all")))
+        if (parentName.equals(ResourceLocation.parse("block/cube_all")))
             return true;
-        if (parentName.equals(new ResourceLocation("block/cube_column")))
+        if (parentName.equals(ResourceLocation.parse("block/cube_column")))
             return true;
-        if (parentName.equals(new ResourceLocation("block/block")))
+        if (parentName.equals(ResourceLocation.parse("block/block")))
             return true;
         var parentModel = registrar.getModel(blockModel.getParentLocation());
         if (!(parentModel instanceof BlockModel parentBlockModel))
@@ -408,16 +409,16 @@ public abstract class LatexCoveredBlockRenderer {
                 if (refName.equals("particle"))
                     return;
                 either.ifLeft(material -> {
-                    var newMaterial = getLatexedMaterial(new ResourceLocation(material.texture() + nameAppend));
+                    var newMaterial = getLatexedMaterial(ResourceLocation.parse(material.texture() + nameAppend));
                     injectedTextures.put(refName, Either.left(newMaterial));
                     registrar.registerTexture(newMaterial.texture(), new MixedTexture(
                             material.texture(), overlay.guessSide(refName), newMaterial.texture()
                     ));
                 }).ifRight(string -> {
-                    var newMaterial = getLatexedMaterial(new ResourceLocation(string + nameAppend));
+                    var newMaterial = getLatexedMaterial(ResourceLocation.parse(string + nameAppend));
                     injectedTextures.put(refName, Either.left(newMaterial));
                     registrar.registerTexture(newMaterial.texture(), new MixedTexture(
-                            new ResourceLocation(string), overlay.guessSide(refName), newMaterial.texture()
+                            ResourceLocation.parse(string), overlay.guessSide(refName), newMaterial.texture()
                     ));
                 });
             });
@@ -452,7 +453,7 @@ public abstract class LatexCoveredBlockRenderer {
             }
 
             String nameAppend = "/" + type.getSerializedName();
-            ResourceLocation newName = new ResourceLocation(modelLocation.getNamespace(), modelLocation.getPath() + nameAppend);
+            ResourceLocation newName = ResourceLocation.fromNamespaceAndPath(modelLocation.getNamespace(), modelLocation.getPath() + nameAppend);
 
             if (registrar.mixTextures || !qualifiesForCheap(registrar, modelLocation.getNamespace(), blockModel)) {
                 allGeneric.set(false);
@@ -565,7 +566,7 @@ public abstract class LatexCoveredBlockRenderer {
         }
 
         @SubscribeEvent
-        public static void onModelBake(ModelBakeEvent event) {
+        public static void onModelBake(ModelEvent.ModifyBakingResult event) {
             LatexBlockUploader uploader = getUploader();
 
             MODEL_CACHE.clear();
@@ -598,7 +599,7 @@ public abstract class LatexCoveredBlockRenderer {
 
                     registrar.registerTexture(name, new MixedTexture(Changed.modResource("blocks/dark_latex_block_top"), overlay.top, name));
                     registrar.registerEarlyBake(getDefaultLatexModelCached.apply(type), new BlockModel(
-                            new ResourceLocation("minecraft", "block/cube_all"),
+                            ResourceLocation.fromNamespaceAndPath("minecraft", "block/cube_all"),
                             List.of(),
                             Map.of("all", Either.left(getLatexedMaterial(name)),
                                     "particle", Either.left(overlay.particleMaterial)),

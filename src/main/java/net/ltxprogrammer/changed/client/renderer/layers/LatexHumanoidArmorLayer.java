@@ -60,7 +60,7 @@ public class LatexHumanoidArmorLayer<T extends ChangedEntity, M extends Advanced
         ItemStack itemstack = FormFittingEnchantment.getFormFitted(entity, entity.getItemBySlot(slot), slot);
         if (itemstack.getItem() instanceof ArmorItem) {
             ArmorItem armoritem = (ArmorItem)itemstack.getItem();
-            if (armoritem.getSlot() == slot) {
+            if (armoritem.getEquipmentSlot() == slot) {
                 boolean foil = itemstack.hasFoil();
                 var altModel = net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemstack, slot, model);
                 if (altModel != model) {
@@ -147,7 +147,7 @@ public class LatexHumanoidArmorLayer<T extends ChangedEntity, M extends Advanced
         ResourceLocation resourcelocation = ARMOR_LOCATION_CACHE.get(s1);
 
         if (resourcelocation == null) {
-            resourcelocation = new ResourceLocation(s1);
+            resourcelocation = ResourceLocation.parse(s1);
             ARMOR_LOCATION_CACHE.put(s1, resourcelocation);
         }
 

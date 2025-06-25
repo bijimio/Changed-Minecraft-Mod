@@ -61,7 +61,7 @@ public class KeypadBlock extends AbstractCustomShapeEntityBlock {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof MenuProvider provider) {
                 if (state.getValue(POWERED)) {
-                    ChangedSounds.broadcastSound(Objects.requireNonNull(level.getServer()), ChangedSounds.KEY, pos, 1.0f, 1.0f);
+                    ChangedSounds.broadcastSound((ServerLevel) level, ChangedSounds.KEY, pos, 1.0f, 1.0f);
                     level.setBlockAndUpdate(pos, state.setValue(POWERED, Boolean.FALSE));
                     this.updateNeighbours(state, level, pos);
                 } else
@@ -144,7 +144,7 @@ public class KeypadBlock extends AbstractCustomShapeEntityBlock {
     @Override
     public void tick(BlockState blockState, ServerLevel level, BlockPos blockPos, RandomSource random) {
         super.tick(blockState, level, blockPos, random);
-        ChangedSounds.broadcastSound(level.getServer(), ChangedSounds.CHIME2, blockPos, 1, 1);
+        ChangedSounds.broadcastSound(level, ChangedSounds.CHIME2, blockPos, 1, 1);
     }
 
     public RenderShape getRenderShape(BlockState p_49232_) {

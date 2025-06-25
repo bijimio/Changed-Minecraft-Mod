@@ -69,11 +69,11 @@ public class QuadrupedalArmor extends ArmorItem implements ExtendedItemPropertie
         };
     }
 
-    public QuadrupedalArmor(ArmorMaterial material, EquipmentSlot slot) {
-        super(increaseDurability(material), slot, new Properties().tab(ChangedTabs.TAB_CHANGED_COMBAT));
+    public QuadrupedalArmor(ArmorMaterial material, ArmorItem.Type slot) {
+        super(increaseDurability(material), slot, new Properties());
     }
 
-    public QuadrupedalArmor(ArmorMaterial material, EquipmentSlot slot, Properties properties) {
+    public QuadrupedalArmor(ArmorMaterial material, ArmorItem.Type slot, Properties properties) {
         super(increaseDurability(material), slot, properties);
     }
 

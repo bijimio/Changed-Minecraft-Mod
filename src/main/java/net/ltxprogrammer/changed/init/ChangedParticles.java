@@ -11,10 +11,12 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
-import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,58 +24,48 @@ import java.util.function.Function;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChangedParticles {
-    private static final Map<ResourceLocation, ParticleType<?>> REGISTRY = new HashMap<>();
+    public static final DeferredRegister<ParticleType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Changed.MODID);
 
-    public static final ParticleType<ColoredParticleOption> DRIPPING_LATEX = register(Changed.modResource("dripping_latex"),
+    public static final RegistryObject<ParticleType<ColoredParticleOption>> DRIPPING_LATEX = register("dripping_latex",
             ColoredParticleOption.DESERIALIZER, ColoredParticleOption::codec);
-    public static final ParticleType<ColoredParticleOption> GAS = register(Changed.modResource("gas"),
+    public static final RegistryObject<ParticleType<ColoredParticleOption>> GAS = register("gas",
             ColoredParticleOption.DESERIALIZER, ColoredParticleOption::codec);
-    public static final ParticleType<EmoteParticleOption> EMOTE = register(Changed.modResource("emote"),
+    public static final RegistryObject<ParticleType<EmoteParticleOption>> EMOTE = register("emote",
             EmoteParticleOption.DESERIALIZER, EmoteParticleOption::codec);
-    public static final SimpleParticleType TSC_SWEEP_ATTACK = (SimpleParticleType)register(Changed.modResource("tsc_sweep_attack"),
-            new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> TSC_SWEEP_ATTACK = REGISTRY.register("tsc_sweep_attack",
+            () -> new SimpleParticleType(false));
 
     public static ColoredParticleOption drippingLatex(Color3 color) {
-        return new ColoredParticleOption(DRIPPING_LATEX, color);
+        return new ColoredParticleOption(DRIPPING_LATEX.get(), color);
     }
 
     public static ColoredParticleOption gas(Color3 color) {
-        return new ColoredParticleOption(GAS, color);
+        return new ColoredParticleOption(GAS.get(), color);
     }
 
     public static EmoteParticleOption emote(Entity entity, Emote emote) {
-        return new EmoteParticleOption(EMOTE, emote, entity);
+        return new EmoteParticleOption(EMOTE.get(), emote, entity);
     }
 
-    private static <T extends ParticleOptions> ParticleType<T> register(ResourceLocation name, ParticleType<T> type) {
-        type.setRegistryName(name);
-        REGISTRY.put(name, type);
-        return type;
-    }
-
-    private static <T extends ParticleOptions> ParticleType<T> register(ResourceLocation name, ParticleOptions.Deserializer<T> dec, final Function<ParticleType<T>, Codec<T>> fn) {
+    private static <T extends ParticleOptions> RegistryObject<ParticleType<T>> register(String name, ParticleOptions.Deserializer<T> dec, final Function<ParticleType<T>, Codec<T>> fn) {
         var type = new ParticleType<T>(false, dec) {
             public Codec<T> codec() {
                 return fn.apply(this);
             }
         };
 
-        return register(name, type);
-    }
-
-    @SubscribeEvent
-    public static void registerParticleTypes(RegistryEvent.Register<ParticleType<?>> event) {
-        REGISTRY.forEach((name, entry) -> {
-            event.getRegistry().register(entry);
+        return REGISTRY.register(name, () -> new ParticleType<T>(false, dec) {
+            public Codec<T> codec() {
+                return fn.apply(this);
+            }
         });
     }
 
     @SubscribeEvent
-    public static void registerParticles(ParticleFactoryRegisterEvent event) {
-        var engine = Minecraft.getInstance().particleEngine;
-        engine.register(DRIPPING_LATEX, LatexDripParticle.Provider::new);
-        engine.register(GAS, GasParticle.Provider::new);
-        engine.register(EMOTE, EmoteParticle.Provider::new);
-        engine.register(TSC_SWEEP_ATTACK, TscSweepParticle.Provider::new);
+    public static void registerParticles(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(DRIPPING_LATEX.get(), LatexDripParticle.Provider::new);
+        event.registerSpriteSet(GAS.get(), GasParticle.Provider::new);
+        event.registerSpriteSet(EMOTE.get(), EmoteParticle.Provider::new);
+        event.registerSpriteSet(TSC_SWEEP_ATTACK.get(), TscSweepParticle.Provider::new);
     }
 }

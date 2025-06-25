@@ -17,7 +17,7 @@ public class TransfurCrystalItem extends Item {
     private final List<Supplier<? extends TransfurVariant<?>>> variants;
 
     public TransfurCrystalItem(List<Supplier<? extends TransfurVariant<?>>> variants) {
-        super(new Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(new Properties());
         this.variants = variants;
     }
 

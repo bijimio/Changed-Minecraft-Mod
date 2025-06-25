@@ -11,17 +11,17 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -79,25 +79,24 @@ public abstract class TextMenuScreen<T extends TextMenu> extends Screen implemen
     @Override
     protected void init() {
         super.init();
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
 
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
 
-        this.doneButton = this.addRenderableWidget(new Button(this.width / 2 - 100, this.topPos + getBackgroundHeight() + 10, 98, 20, CommonComponents.GUI_DONE, (button) -> {
+        this.doneButton = this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (button) -> {
             this.saveChanges(true);
             this.onClose();
-        }));
-        this.cancelButton = this.addRenderableWidget(new Button(this.width / 2 + 2, this.topPos + getBackgroundHeight() + 10, 98, 20, CommonComponents.GUI_CANCEL, (button) -> {
+        }).bounds(this.width / 2 - 100, this.topPos + getBackgroundHeight() + 10, 98, 20).build());
+        this.cancelButton = this.addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, (button) -> {
             this.saveChanges(false);
             this.onClose();
-        }));
+        }).bounds(this.width / 2 + 2, this.topPos + getBackgroundHeight() + 10, 98, 20).build());
 
 
-        this.doneReadingButton = this.addRenderableWidget(new Button(this.width / 2 - 49, this.topPos + getBackgroundHeight() + 10, 98, 20, CommonComponents.GUI_DONE, (button) -> {
+        this.doneReadingButton = this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (button) -> {
             this.saveChanges(false);
             this.onClose();
-        }));
+        }).bounds(this.width / 2 - 49, this.topPos + getBackgroundHeight() + 10, 98, 20).build());
 
         if (canEdit()) {
             doneButton.visible = true;
@@ -238,24 +237,23 @@ public abstract class TextMenuScreen<T extends TextMenu> extends Screen implemen
     }
 
     @Override
-    public void render(PoseStack pose, int cursorX, int cursorY, float partialTicks) {
-        this.renderBackground(pose);
-        RenderSystem.setShaderTexture(0, getBackground());
+    public void render(GuiGraphics graphics, int cursorX, int cursorY, float partialTicks) {
+        this.renderBackground(graphics);
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
+        graphics.blit(getBackground(), this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
 
         TextMenuScreen.DisplayCache displayCache = this.getDisplayCache();
 
         for(TextMenuScreen.LineInfo lineInfo : displayCache.lines) {
-            this.font.draw(pose, lineInfo.asComponent, (float)lineInfo.x, (float)lineInfo.y, getTextColor());
+            graphics.drawString(this.font, lineInfo.asComponent, lineInfo.x, lineInfo.y, getTextColor());
         }
 
-        this.renderHighlight(displayCache.selection);
-        this.renderCursor(pose, displayCache.cursor, displayCache.cursorAtEnd);
+        this.renderHighlight(graphics, displayCache.selection);
+        this.renderCursor(graphics, displayCache.cursor, displayCache.cursorAtEnd);
 
-        this.renderLabels(pose, cursorX, cursorY);
+        this.renderLabels(graphics, cursorX, cursorY);
 
-        super.render(pose, cursorX, cursorY, partialTicks);
+        super.render(graphics, cursorX, cursorY, partialTicks);
     }
 
     public boolean canEdit() {
@@ -280,48 +278,33 @@ public abstract class TextMenuScreen<T extends TextMenu> extends Screen implemen
         }
     }
 
-    private void renderCursor(PoseStack poseStack, TextMenuScreen.Pos2i pos, boolean atEnd) {
+    private void renderCursor(GuiGraphics graphics, TextMenuScreen.Pos2i pos, boolean atEnd) {
         if (canEdit() && this.frameTick / 6 % 2 == 0) {
             pos = this.convertLocalToScreen(pos);
             if (!atEnd) {
-                GuiComponent.fill(poseStack, pos.x, pos.y - 1, pos.x + 1, pos.y + 9, getTextColor());
+                graphics.fill(pos.x, pos.y - 1, pos.x + 1, pos.y + 9, getTextColor());
             } else {
-                this.font.draw(poseStack, "_", (float)pos.x, (float)pos.y, getTextColor());
+                graphics.drawString(this.font, "_", pos.x, pos.y, getTextColor());
             }
         }
 
     }
 
-    private void renderHighlight(Rect2i[] rects) {
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.getBuilder();
-        RenderSystem.setShader(GameRenderer::getPositionShader);
-        RenderSystem.setShaderColor(0.0F, 0.0F, 255.0F, 255.0F);
-        RenderSystem.disableTexture();
-        RenderSystem.enableColorLogicOp();
-        RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-
+    private void renderHighlight(GuiGraphics graphics, Rect2i[] rects) {
         for(Rect2i rect2i : rects) {
             int i = rect2i.getX();
             int j = rect2i.getY();
             int k = i + rect2i.getWidth();
             int l = j + rect2i.getHeight();
-            bufferbuilder.vertex((double)i, (double)l, 0.0D).endVertex();
-            bufferbuilder.vertex((double)k, (double)l, 0.0D).endVertex();
-            bufferbuilder.vertex((double)k, (double)j, 0.0D).endVertex();
-            bufferbuilder.vertex((double)i, (double)j, 0.0D).endVertex();
-        }
 
-        tesselator.end();
-        RenderSystem.disableColorLogicOp();
-        RenderSystem.enableTexture();
+            graphics.fill(RenderType.guiTextHighlight(), i, j, k, l, -16776961);
+        }
     }
 
-    protected void renderLabels(PoseStack pose, int cursorX, int cursorY) {
+    protected void renderLabels(GuiGraphics graphics, int cursorX, int cursorY) {
         var noteTitle = this.getNoteTitle();
         if (noteTitle != null)
-            this.font.draw(pose, noteTitle, this.leftPos + this.titleLabelX, this.topPos + this.titleLabelY, 4210752);
+            graphics.drawString(this.font, noteTitle, this.leftPos + this.titleLabelX, this.topPos + this.titleLabelY, 4210752);
     }
 
     public boolean charTyped(char c, int i) {
@@ -560,7 +543,7 @@ public abstract class TextMenuScreen<T extends TextMenu> extends Screen implemen
             this.contents = p_98233_;
             this.x = p_98234_;
             this.y = p_98235_;
-            this.asComponent = (new TextComponent(p_98233_)).setStyle(p_98232_);
+            this.asComponent = (Component.literal(p_98233_)).setStyle(p_98232_);
         }
     }
 

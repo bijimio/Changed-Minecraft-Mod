@@ -24,17 +24,17 @@ public class AbdomenArmor extends ArmorItem implements ExtendedItemProperties {
         return slot == EquipmentSlot.FEET;
     }
 
-    public AbdomenArmor(ArmorMaterial material, EquipmentSlot slot) {
-        super(material, slot, new Properties().tab(ChangedTabs.TAB_CHANGED_COMBAT));
+    public AbdomenArmor(ArmorMaterial material, ArmorItem.Type slot) {
+        super(material, slot, new Properties());
     }
 
-    public AbdomenArmor(ArmorMaterial material, EquipmentSlot slot, Properties properties) {
+    public AbdomenArmor(ArmorMaterial material, ArmorItem.Type slot, Properties properties) {
         super(material, slot, properties);
     }
 
     @Override
     public boolean canWalkOnPowderedSnow(ItemStack stack, LivingEntity wearer) {
-        return material.getName().equals(ArmorMaterials.LEATHER.getName()) && slot == EquipmentSlot.FEET;
+        return material.getName().equals(ArmorMaterials.LEATHER.getName()) && getEquipmentSlot() == EquipmentSlot.FEET;
     }
 
     @Override

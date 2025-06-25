@@ -131,7 +131,7 @@ public abstract class AbstractLatexBlock extends Block implements NonLatexCovera
     @Override
     public List<ItemStack> getDrops(BlockState blockState, LootParams.Builder builder) {
         if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, builder.getParameter(LootContextParams.TOOL)) > 0)
-            return List.of(new ItemStack(ChangedItems.getBlockItem(this)));
+            return List.of(new ItemStack(this));
         return List.of(goo.get().getDefaultInstance(), goo.get().getDefaultInstance(), goo.get().getDefaultInstance());
     }
 

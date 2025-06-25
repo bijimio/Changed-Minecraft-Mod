@@ -1,7 +1,7 @@
 package net.ltxprogrammer.changed.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.renderer.model.RoombaModel;
 import net.ltxprogrammer.changed.entity.robot.Roomba;
@@ -35,7 +35,7 @@ public class RoombaRenderer extends MobRenderer<Roomba, RoombaModel> {
         }
 
         if (f > 0.0F) {
-            poseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.sin(f) * f * f1 / 10.0F * (float)roomba.getHurtDir()));
+            poseStack.mulPose(Axis.YP.rotationDegrees(Mth.sin(f) * f * f1 / 10.0F * (float)roomba.getHurtDir()));
         }
 
         super.render(roomba, yRot, partialTicks, poseStack, bufferSource, packedLight);

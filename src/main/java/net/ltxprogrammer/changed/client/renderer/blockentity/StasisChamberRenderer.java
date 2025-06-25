@@ -20,7 +20,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.ForgeHooksClient;
+import org.joml.*;
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -88,15 +90,15 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
         Matrix4f matrix4f = pose.pose();
         Matrix3f matrix3f = pose.normal();
 
-        var up = Vector3f.YP.copy();
-        up.transform(matrix3f);
+        var up = new Vector3f(0f, 1f, 0f);
+        up.mul(matrix3f);
 
         for (var vertex : TOP_SURFACE_VERTICES) {
             float x = vertex.pos.x() / 16.0F;
             float y = vertex.pos.y() / 16.0F;
             float z = vertex.pos.z() / 16.0F;
             Vector4f vector4f = new Vector4f(x, y, z, 1.0F);
-            vector4f.transform(matrix4f);
+            vector4f.mul(matrix4f);
             buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), r, g, b, a,
                     sprite.getU(vertex.u),
                     sprite.getV(vertex.v),
@@ -113,16 +115,16 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
         Matrix4f matrix4f = pose.pose();
         Matrix3f matrix3f = pose.normal();
 
-        var front = Vector3f.ZP.copy();
-        front.transform(matrix3f);
-        var left = Vector3f.XP.copy();
-        left.add(Vector3f.ZP);
+        var front = new Vector3f(0f, 0f, 1f);
+        front.mul(matrix3f);
+        var left = new Vector3f(1f, 0f, 0f);
+        left.add(new Vector3f(0f, 0f, 1f));
         left.normalize();
-        left.transform(matrix3f);
-        var right = Vector3f.XN.copy();
-        right.add(Vector3f.ZP);
+        left.mul(matrix3f);
+        var right = new Vector3f(-1f, 0f, 0f);
+        right.add(new Vector3f(0f, 0f, 1f));
         right.normalize();
-        right.transform(matrix3f);
+        right.mul(matrix3f);
 
         float thisPos = 0f;
         while (blockSize > 0f) {
@@ -133,7 +135,7 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
                 float y = vertex.pos.y() / 16.0F;
                 float z = vertex.pos.z() / 16.0F;
                 Vector4f vector4f = new Vector4f(x, y, z, 1.0F);
-                vector4f.transform(matrix4f);
+                vector4f.mul(matrix4f);
 
                 buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), r, g, b, a,
                         sprite.getU(vertex.u),
@@ -146,7 +148,7 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
                 float y = vertex.pos.y() / 16.0F;
                 float z = vertex.pos.z() / 16.0F;
                 Vector4f vector4f = new Vector4f(x, y, z, 1.0F);
-                vector4f.transform(matrix4f);
+                vector4f.mul(matrix4f);
 
                 buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), r, g, b, a,
                         sprite.getU(vertex.u),
@@ -159,7 +161,7 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
                 float y = vertex.pos.y() / 16.0F;
                 float z = vertex.pos.z() / 16.0F;
                 Vector4f vector4f = new Vector4f(x, y, z, 1.0F);
-                vector4f.transform(matrix4f);
+                vector4f.mul(matrix4f);
 
                 buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), r, g, b, a,
                         sprite.getU(vertex.u),
@@ -183,10 +185,10 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
             pose.translate(0, -1f, 0f);
             pose.translate(0.5f, 0f, 0.5f);
             pose.mulPose(switch (blockEntity.getBlockState().getValue(HorizontalDirectionalBlock.FACING)) {
-                case EAST -> Vector3f.YP.rotationDegrees(-90.0F);
-                case WEST -> Vector3f.YP.rotationDegrees(90.0F);
-                case SOUTH -> Vector3f.YP.rotationDegrees(180.0F);
-                default -> Quaternion.ONE;
+                case EAST -> Axis.YP.rotationDegrees(-90.0F);
+                case WEST -> Axis.YP.rotationDegrees(90.0F);
+                case SOUTH -> Axis.YP.rotationDegrees(180.0F);
+                default -> new Quaternionf();
             });
             pose.translate(-0.5f, 0f, -0.5f);
 

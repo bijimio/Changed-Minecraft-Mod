@@ -239,7 +239,7 @@ public class HumanoidAnimator<T extends ChangedEntity, M extends AdvancedHumanoi
     private void setupCameraAnimStage(AnimateStage stage, @NotNull CameraExtender camera, @NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         var animatorList = cameraAnimators.get(stage);
         if (animatorList == null) return;
-        boolean bobView = Minecraft.getInstance().options.bobView;
+        boolean bobView = Minecraft.getInstance().options.bobView().get();
 
         animatorList.forEach(animator -> {
             if (animator.requiresViewBob() && !bobView)

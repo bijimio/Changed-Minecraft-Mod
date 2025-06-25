@@ -91,7 +91,7 @@ public class LaserEmitterBlock extends DirectionalBlock {
             }
 
             if (level instanceof ServerLevel serverLevel)
-                ChangedSounds.broadcastSound(serverLevel.getServer(), ChangedSounds.SHOT1, blockPos, 1, 1);
+                ChangedSounds.broadcastSound(serverLevel, ChangedSounds.SHOT1, blockPos, 1, 1);
         } else if (!shouldPower && blockState.getValue(POWERED)) {
             level.setBlockAndUpdate(blockPos, blockState.setValue(POWERED, Boolean.FALSE));
             int distance = 0;

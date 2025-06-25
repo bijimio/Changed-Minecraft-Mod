@@ -101,7 +101,7 @@ public class LatexPupCrystal extends TransfurCrystalBlock {
         }
 
         else {
-            level.playSound(null, pos, ChangedSounds.ICE2, SoundSource.BLOCKS, 1.0f, 1.0f);
+            level.playSound(null, pos, ChangedSounds.ICE2.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
 
             level.setBlockAndUpdate(pos, state.setValue(EXTENDED, true));
             var upState = level.getBlockState(pos.above());

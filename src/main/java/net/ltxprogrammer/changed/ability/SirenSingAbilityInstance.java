@@ -39,7 +39,7 @@ public class SirenSingAbilityInstance extends AbstractAbilityInstance {
     @Override
     public void startUsing() {
         final var self = entity.getEntity();
-        self.playSound(ChangedSounds.SIREN, 1, 1);
+        self.playSound(ChangedSounds.SIREN.get(), 1, 1);
         lastSingTick = entity.getEntity().tickCount + (8 * 20) + 10;
     }
 

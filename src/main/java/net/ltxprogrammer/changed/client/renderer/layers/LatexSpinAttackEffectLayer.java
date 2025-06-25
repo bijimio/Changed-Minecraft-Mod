@@ -2,7 +2,7 @@ package net.ltxprogrammer.changed.client.renderer.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -21,7 +21,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class LatexSpinAttackEffectLayer<T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> extends RenderLayer<T, M> {
-    public static final ResourceLocation TEXTURE = new ResourceLocation("textures/entity/trident_riptide.png");
+    public static final ResourceLocation TEXTURE = ResourceLocation.parse("textures/entity/trident_riptide.png");
     public static final String BOX = "box";
     private final ModelPart box;
 
@@ -45,7 +45,7 @@ public class LatexSpinAttackEffectLayer<T extends ChangedEntity, M extends Advan
             for(int i = 0; i < 3; ++i) {
                 p_117526_.pushPose();
                 float f = p_117533_ * (float)(-(45 + i * 5));
-                p_117526_.mulPose(Vector3f.YP.rotationDegrees(f));
+                p_117526_.mulPose(Axis.YP.rotationDegrees(f));
                 float f1 = 0.75F * (float)i;
                 p_117526_.scale(f1, f1, f1);
                 p_117526_.translate(0.0D, (double)(-0.2F + 0.6F * (float)i), 0.0D);
