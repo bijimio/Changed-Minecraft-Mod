@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/slab_top",
   "textures": {
-    "bottom": "changed:blocks/library_tan",
-    "top": "changed:blocks/library_tan",
-    "side": "changed:blocks/library_tan"
+    "bottom": "changed:block/library_tan",
+    "top": "changed:block/library_tan",
+    "side": "changed:block/library_tan"
   }
 }

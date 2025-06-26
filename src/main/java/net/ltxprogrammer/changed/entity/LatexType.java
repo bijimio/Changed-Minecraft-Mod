@@ -14,7 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.common.IExtensibleEnum;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,8 +22,8 @@ import java.util.function.Supplier;
 
 public enum LatexType implements StringRepresentable, IExtensibleEnum {
     NEUTRAL("neutral"),
-    DARK_LATEX("dark_latex", ChangedItems.DARK_LATEX_GOO, ChangedItems.DARK_LATEX_BUCKET, ChangedBlocks.DARK_LATEX_BLOCK, ChangedEntities.DARK_LATEX_WOLF_PUP, Color3.DARK, MaterialColor.COLOR_GRAY),
-    WHITE_LATEX("white_latex", ChangedItems.WHITE_LATEX_GOO, ChangedItems.WHITE_LATEX_BUCKET, ChangedBlocks.WHITE_LATEX_BLOCK, () -> null /* null for now */, Color3.WHITE, MaterialColor.QUARTZ);
+    DARK_LATEX("dark_latex", ChangedItems.DARK_LATEX_GOO, ChangedItems.DARK_LATEX_BUCKET, ChangedBlocks.DARK_LATEX_BLOCK, ChangedEntities.DARK_LATEX_WOLF_PUP, Color3.DARK, MapColor.TERRACOTTA_BLACK),
+    WHITE_LATEX("white_latex", ChangedItems.WHITE_LATEX_GOO, ChangedItems.WHITE_LATEX_BUCKET, ChangedBlocks.WHITE_LATEX_BLOCK, () -> null /* null for now */, Color3.WHITE, MapColor.TERRACOTTA_WHITE);
 
     private final String serialName;
     public final Supplier<? extends AbstractLatexItem> goo;
@@ -31,7 +31,7 @@ public enum LatexType implements StringRepresentable, IExtensibleEnum {
     public final Supplier<? extends Block> block;
     public final Supplier<? extends EntityType<?>> pup;
     public final Color3 color;
-    public final MaterialColor materialColor;
+    public final MapColor mapColor;
 
     LatexType(String serialName) {
         this.serialName = serialName;
@@ -40,17 +40,16 @@ public enum LatexType implements StringRepresentable, IExtensibleEnum {
         this.block = () -> null;
         this.pup = () -> null;
         this.color = Color3.WHITE;
-        this.materialColor = MaterialColor.WOOL;
+        this.mapColor = MapColor.NONE;
     }
-    LatexType(String serialName, Supplier<? extends AbstractLatexItem> goo, Supplier<? extends AbstractLatexBucket> gooBucket, Supplier<? extends Block> block, Supplier<? extends EntityType<?>> pup, Color3 color,
-              MaterialColor materialColor) {
+    LatexType(String serialName, Supplier<? extends AbstractLatexItem> goo, Supplier<? extends AbstractLatexBucket> gooBucket, Supplier<? extends Block> block, Supplier<? extends EntityType<?>> pup, Color3 color, MapColor mapColor) {
         this.serialName = serialName;
         this.goo = goo;
         this.gooBucket = gooBucket;
         this.block = block;
         this.pup = pup;
         this.color = color;
-        this.materialColor = materialColor;
+        this.mapColor = mapColor;
     }
 
     public static LatexType getEntityLatexType(@NotNull Entity entity) {
@@ -93,7 +92,7 @@ public enum LatexType implements StringRepresentable, IExtensibleEnum {
         return serialName;
     }
 
-    public static LatexType create(String name, String serialName, Supplier<? extends Item> goo, Supplier<? extends Item> gooBucket, Supplier<Block> block, Supplier<? extends EntityType<?>> pup, Color3 color, MaterialColor materialColor)
+    public static LatexType create(String name, String serialName, Supplier<? extends Item> goo, Supplier<? extends Item> gooBucket, Supplier<Block> block, Supplier<? extends EntityType<?>> pup, Color3 color, MapColor mapColor)
     {
         throw new IllegalStateException("Enum not extended");
     }

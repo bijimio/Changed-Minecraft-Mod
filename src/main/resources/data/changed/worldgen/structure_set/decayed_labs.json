@@ -1,0 +1,27 @@
+{
+  "structures": [
+    { "structure": "changed:aquatic1", "weight": 1 },
+    { "structure": "changed:aquatic2", "weight": 1 },
+    { "structure": "changed:human_research_lab1", "weight": 1 },
+    { "structure": "changed:laser_lab1", "weight": 1 },
+    { "structure": "changed:office_area1", "weight": 1 },
+    { "structure": "changed:office_area2", "weight": 1 },
+    { "structure": "changed:research_tower1", "weight": 1 },
+    { "structure": "changed:research_tower2", "weight": 1 },
+    { "structure": "changed:research_tower3", "weight": 1 },
+    { "structure": "changed:research_tower4", "weight": 1 },
+    { "structure": "changed:treatment_1", "weight": 1 },
+    { "structure": "changed:treatment_2", "weight": 1 },
+    { "structure": "changed:treatment_3", "weight": 1 },
+    { "structure": "changed:white_latex_lab1", "weight": 1 },
+    { "structure": "changed:white_latex_lab2", "weight": 1 }
+  ],
+  "placement": {
+    "salt": 16706816,
+
+    "type": "minecraft:random_spread",
+    "spread_type": "linear",
+    "spacing": 24,
+    "separation": 8
+  }
+}

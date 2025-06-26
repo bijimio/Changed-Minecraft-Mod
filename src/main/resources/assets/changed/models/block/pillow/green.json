@@ -1,5 +1,5 @@
 {
 	"textures": {
-		"particle": "changed:blocks/pillow/green"
+		"particle": "changed:block/pillow/green"
 	}
 }

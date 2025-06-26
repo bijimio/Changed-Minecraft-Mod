@@ -25,10 +25,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
@@ -96,7 +98,7 @@ public abstract class ChangedEntity extends Monster {
     public Vec3 getDeltaMovement(float partialTicks) {
         return new Vec3(
                 Mth.lerp(partialTicks, deltaMovementOO.x, deltaMovementO.x),
-                this.onGround ? 0.0 : Mth.lerp(partialTicks, deltaMovementOO.y, deltaMovementO.y),
+                this.onGround() ? 0.0 : Mth.lerp(partialTicks, deltaMovementOO.y, deltaMovementO.y),
                 Mth.lerp(partialTicks, deltaMovementOO.z, deltaMovementO.z)
         );
     }
@@ -177,7 +179,7 @@ public abstract class ChangedEntity extends Monster {
         super.aiStep();
 
         float f;
-        if (this.onGround && !this.isDeadOrDying() && !this.isSwimming()) {
+        if (this.onGround() && !this.isDeadOrDying() && !this.isSwimming()) {
             f = Math.min(0.1F, (float)this.getDeltaMovement().horizontalDistance());
         } else {
             f = 0.0F;
@@ -208,9 +210,9 @@ public abstract class ChangedEntity extends Monster {
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             var id = this.entityData.get(DATA_TARGET_ID);
-            return id.isPresent() && this.level.getEntity(id.getAsInt()) instanceof LivingEntity livingEntity ? livingEntity : null;
+            return id.isPresent() && this.level().getEntity(id.getAsInt()) instanceof LivingEntity livingEntity ? livingEntity : null;
         } else
             return super.getTarget();
     }
@@ -283,7 +285,7 @@ public abstract class ChangedEntity extends Monster {
     public HairStyle getDefaultHairStyle() {
         if (this.getValidHairStyles() != null) {
             var styles = this.getValidHairStyles();
-            return styles.isEmpty() ? HairStyle.BALD.get() :  styles.get(level.random.nextInt(styles.size()));
+            return styles.isEmpty() ? HairStyle.BALD.get() :  styles.get(level().random.nextInt(styles.size()));
         }
 
         else
@@ -303,7 +305,7 @@ public abstract class ChangedEntity extends Monster {
     }
 
     public boolean shouldShowName() {
-        return underlyingPlayer != null && underlyingPlayer.level.isClientSide ?
+        return underlyingPlayer != null && underlyingPlayer.level().isClientSide ?
                 !UniversalDist.isLocalPlayer(this.getUnderlyingPlayer()) : super.shouldShowName();
     }
 
@@ -430,7 +432,7 @@ public abstract class ChangedEntity extends Monster {
         return false;
     }
 
-    public static <T extends ChangedEntity> boolean checkEntitySpawnRules(EntityType<T> entityType, ServerLevelAccessor world, MobSpawnType reason, BlockPos pos, Random random) {
+    public static <T extends ChangedEntity> boolean checkEntitySpawnRules(EntityType<T> entityType, ServerLevelAccessor world, MobSpawnType reason, BlockPos pos, RandomSource random) {
         if (pos.getY() < world.getSeaLevel() - 10)
             return false;
         if (random.nextFloat() > 0.5f)
@@ -493,7 +495,7 @@ public abstract class ChangedEntity extends Monster {
     }
 
     @Override
-    public @NotNull Packet<?> getAddEntityPacket() {
+    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
@@ -502,7 +504,7 @@ public abstract class ChangedEntity extends Monster {
     }
 
     protected int getLevelBrightnessAt(BlockPos pos) {
-        return this.level.isThundering() ? this.level.getMaxLocalRawBrightness(pos, 10) : this.level.getMaxLocalRawBrightness(pos);
+        return this.level().isThundering() ? this.level().getMaxLocalRawBrightness(pos, 10) : this.level().getMaxLocalRawBrightness(pos);
     }
 
     protected boolean targetSelectorTest(LivingEntity livingEntity) {
@@ -530,10 +532,10 @@ public abstract class ChangedEntity extends Monster {
         if (getLatexType().isHostileTo(LatexType.getEntityLatexType(livingEntity)))
             return true;
         if (livingEntity instanceof Player player) {
-            if (!livingEntity.level.getGameRules().getBoolean(ChangedGameRules.RULE_NPC_WANT_FUSE_PLAYER))
+            if (!livingEntity.level().getGameRules().getBoolean(ChangedGameRules.RULE_NPC_WANT_FUSE_PLAYER))
                 return false;
             var instance = ProcessTransfur.getPlayerTransfurVariant(player);
-            if (instance != null && instance.ageAsVariant > livingEntity.level.getGameRules().getInt(ChangedGameRules.RULE_FUSABILITY_DURATION_PLAYER))
+            if (instance != null && instance.ageAsVariant > livingEntity.level().getGameRules().getInt(ChangedGameRules.RULE_FUSABILITY_DURATION_PLAYER))
                 return false;
         }
         if (TransfurVariant.getPublicTransfurVariants().anyMatch(possibleFusion -> possibleFusion.isFusionOf(selfVariant, playerVariant)))
@@ -630,18 +632,18 @@ public abstract class ChangedEntity extends Monster {
             if (possibleFusion.isEmpty())
                 return false;
 
-            if (level.isClientSide)
+            if (level().isClientSide)
                 return true;
 
             { // Check if attacker can't fuse
                 var instance = ProcessTransfur.getPlayerTransfurVariant(underlyingPlayer);
-                if (instance != null && instance.ageAsVariant > level.getGameRules().getInt(ChangedGameRules.RULE_FUSABILITY_DURATION_PLAYER))
+                if (instance != null && instance.ageAsVariant > level().getGameRules().getInt(ChangedGameRules.RULE_FUSABILITY_DURATION_PLAYER))
                     possibleFusion = List.of();
             }
 
             { // Check if attackee can't fuse
                 var instance = ProcessTransfur.getPlayerTransfurVariant(EntityUtil.playerOrNull(entity));
-                if (instance != null && instance.ageAsVariant > level.getGameRules().getInt(ChangedGameRules.RULE_FUSABILITY_DURATION_PLAYER))
+                if (instance != null && instance.ageAsVariant > level().getGameRules().getInt(ChangedGameRules.RULE_FUSABILITY_DURATION_PLAYER))
                     possibleFusion = List.of();
             }
 
@@ -672,14 +674,14 @@ public abstract class ChangedEntity extends Monster {
             if (selfVariant == null)
                 selfVariant = this.getTransfurVariant();
 
-            if (!level.isClientSide) {
+            if (!level().isClientSide) {
                 ChangedFusions.INSTANCE.getFusionsFor(selfVariant, entity.getClass()).forEach(possibleMobFusions::add);
                 ChangedFusions.INSTANCE.getFusionsFor(targetVariant, this.getClass()).forEach(possibleMobFusions::add);
             }
 
             { // Check if attacker can't fuse
                 var instance = ProcessTransfur.getPlayerTransfurVariant(underlyingPlayer);
-                if (instance != null && instance.ageAsVariant > level.getGameRules().getInt(ChangedGameRules.RULE_FUSABILITY_DURATION_PLAYER))
+                if (instance != null && instance.ageAsVariant > level().getGameRules().getInt(ChangedGameRules.RULE_FUSABILITY_DURATION_PLAYER))
                     possibleMobFusions.clear();
             }
         }
@@ -736,13 +738,13 @@ public abstract class ChangedEntity extends Monster {
             d1 = (Math.random() - Math.random()) * 0.01D;
         }
 
-        entity.hurtDir = (float)(Mth.atan2(d0, d1) * (double)(180F / (float)Math.PI) - (double)entity.getYRot());
+        entity.animateHurt((float)(Mth.atan2(d0, d1) * (double)(180F / (float)Math.PI) - (double)entity.getYRot()));
         entity.knockback((double)0.4F, d1, d0);
 
         if(entity instanceof Player)
-            ChangedSounds.broadcastSound(entity, ChangedSounds.BLOW1, 1, entity.level.random.nextFloat() * 0.1F + 0.9F);
+            ChangedSounds.broadcastSound(entity, ChangedSounds.BLOW1, 1, entity.level().random.nextFloat() * 0.1F + 0.9F);
 
-        entity.hurt(ChangedDamageSources.entityTransfur(source), 0.0F);
+        entity.hurt(ChangedDamageSources.entityTransfur(entity.level().registryAccess(), source), 0.0F);
         boolean doesAbsorption = source.wantAbsorption();
         if (!possibleMobFusions.isEmpty())
             doesAbsorption = true;
@@ -766,7 +768,7 @@ public abstract class ChangedEntity extends Monster {
             return false;
 
         float damage = (float)maybeGetUnderlying().getAttributeValue(ChangedAttributes.TRANSFUR_DAMAGE.get());
-        damage = ProcessTransfur.difficultyAdjustTransfurAmount(entity.level.getDifficulty(), damage);
+        damage = ProcessTransfur.difficultyAdjustTransfurAmount(entity.level().getDifficulty(), damage);
         TransfurVariant<?> variant = this.getTransfurVariant();
 
         if (entity instanceof LivingEntity livingEntity) {
@@ -834,14 +836,14 @@ public abstract class ChangedEntity extends Monster {
         if (!(this instanceof AquaticEntity))
             this.goalSelector.addGoal(5, new FloatGoal(this));
         if (this instanceof PowderSnowWalkable)
-            this.goalSelector.addGoal(5, new ChangedClimbOnTopOfPowderSnowGoal(this, this.level));
+            this.goalSelector.addGoal(5, new ChangedClimbOnTopOfPowderSnowGoal(this, this.level()));
     }
 
     @Override
     public void tick() {
         super.tick();
         moveCloak();
-        variantTick(this.level);
+        variantTick(this.level());
 
         var player = getUnderlyingPlayer();
         if (player != null) { // ticking whilst hosting a player, mirror players inputs
@@ -860,7 +862,7 @@ public abstract class ChangedEntity extends Monster {
         
         this.horizontalCollision = player.horizontalCollision;
         this.verticalCollision = player.verticalCollision;
-        this.setOnGround(player.isOnGround());
+        this.setOnGround(player.onGround());
         this.setShiftKeyDown(player.isCrouching());
         if (this.isSprinting() != player.isSprinting())
             this.setSprinting(player.isSprinting());
@@ -868,13 +870,13 @@ public abstract class ChangedEntity extends Monster {
 
         this.hurtTime = player.hurtTime;
         this.deathTime = player.deathTime;
-        this.animationPosition = player.animationPosition;
-        this.animationSpeed = player.animationSpeed;
-        this.animationSpeedOld = player.animationSpeedOld;
+        this.walkAnimation.position = player.walkAnimation.position;
+        this.walkAnimation.speed = player.walkAnimation.speed;
+        this.walkAnimation.speedOld = player.walkAnimation.speedOld;
         this.attackAnim = player.attackAnim;
         this.oAttackAnim = player.oAttackAnim;
         this.flyDist = player.flyDist;
-        this.flyingSpeed = player.flyingSpeed;
+        //this.flyingSpeed = player.flyingSpeed; // TODO mixin
 
         this.wasTouchingWater = player.wasTouchingWater;
         this.swimAmount = player.swimAmount;
@@ -976,7 +978,7 @@ public abstract class ChangedEntity extends Monster {
             this.flyAmount = Math.max(0.0F, this.flyAmount - 0.15F);
         }
 
-        if (!this.level.isClientSide) return;
+        if (!this.level().isClientSide) return;
 
         this.tailDragAmountO = this.tailDragAmount;
 
@@ -1111,7 +1113,7 @@ public abstract class ChangedEntity extends Monster {
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains("HairStyle"))
-            hairStyle = ChangedRegistry.HAIR_STYLE.get().getValue(tag.getInt("HairStyle"));
+            hairStyle = ChangedRegistry.HAIR_STYLE.getValue(tag.getInt("HairStyle"));
         if (tag.contains("LocalVariantInfo")) {
             BasicPlayerInfo info = new BasicPlayerInfo();
             info.load(tag.getCompound("LocalVariantInfo"));
@@ -1124,7 +1126,7 @@ public abstract class ChangedEntity extends Monster {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putInt("HairStyle", ChangedRegistry.HAIR_STYLE.get().getID(hairStyle));
+        tag.putInt("HairStyle", ChangedRegistry.HAIR_STYLE.getID(hairStyle));
         {
             var bpi = new CompoundTag();
             this.entityData.get(DATA_LOCAL_VARIANT_INFO).save(bpi);

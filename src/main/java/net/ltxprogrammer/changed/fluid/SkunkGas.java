@@ -1,6 +1,5 @@
 package net.ltxprogrammer.changed.fluid;
 
-import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.init.ChangedFluids;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
@@ -10,18 +9,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.fluids.FluidAttributes;
-
-import java.util.List;
+import net.minecraftforge.fluids.ForgeFlowingFluid;
 
 public abstract class SkunkGas extends TransfurGas {
-    public static final Properties PROPERTIES = new Properties(
-            ChangedFluids.SKUNK_GAS,
-            ChangedFluids.SKUNK_GAS_FLOWING,
-            FluidAttributes.builder(Changed.modResource("blocks/skunk_gas"), Changed.modResource("blocks/skunk_gas"))
-                    .viscosity(200).color(0x7FFFFFFF))
+    public static final ForgeFlowingFluid.Properties PROPERTIES = new ForgeFlowingFluid.Properties(
+            ChangedFluids.TRANSFUR_GAS, ChangedFluids.SKUNK_GAS, ChangedFluids.SKUNK_GAS_FLOWING)
+            .tickRate(4)
+            .levelDecreasePerBlock(1)
             .explosionResistance(100f)
-            .tickRate(4).levelDecreasePerBlock(1)
             .block(ChangedBlocks.SKUNK_GAS);
 
     protected SkunkGas() {

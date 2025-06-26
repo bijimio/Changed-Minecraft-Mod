@@ -13,16 +13,18 @@ import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
 import net.ltxprogrammer.changed.network.packet.ChangedPacket;
 import net.ltxprogrammer.changed.util.EntityUtil;
+import net.ltxprogrammer.changed.util.ResourceUtil;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.ltxprogrammer.changed.world.inventory.AccessoryAccessMenu;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EntityType;
@@ -75,7 +77,7 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
 
             final var slotsAfter = slots.getSlotTypes().collect(Collectors.toSet());
 
-            if (!entity.level.isClientSide) {
+            if (!entity.level().isClientSide) {
                 Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity),
                         new AccessorySyncPacket(entity.getId(), slots));
 
@@ -99,13 +101,13 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
         Multimap<EntityType<?>, AccessorySlotType> working = HashMultimap.create();
 
         root.getAsJsonArray("entities").forEach(entity -> {
-            final ResourceLocation entityId = new ResourceLocation(entity.getAsString());
-            if (!ForgeRegistries.ENTITIES.containsKey(entityId))
+            final ResourceLocation entityId = ResourceLocation.parse(entity.getAsString());
+            if (!ForgeRegistries.ENTITY_TYPES.containsKey(entityId))
                 throw new IllegalArgumentException("Unknown entity " + entityId);
-            final EntityType<?> entityType = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entity.getAsString()));
+            final EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(entityId);
 
             root.getAsJsonArray("slots").forEach(slot -> {
-                working.put(entityType, ChangedRegistry.ACCESSORY_SLOTS.get().getValue(new ResourceLocation(slot.getAsString())));
+                working.put(entityType, ChangedRegistry.ACCESSORY_SLOTS.get().getValue(ResourceLocation.parse(slot.getAsString())));
             });
         });
 
@@ -115,34 +117,9 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
     @Override
     @NotNull
     public Multimap<EntityType<?>, AccessorySlotType> prepare(ResourceManager resources, @Nonnull ProfilerFiller profiler) {
-        final var entries = resources.listResources("accessories/entities", filename ->
-                ResourceLocation.isValidResourceLocation(filename) &&
-                        filename.endsWith(".json"));
-
-        Multimap<EntityType<?>, AccessorySlotType> working = HashMultimap.create();
-
-        entries.forEach(filename -> {
-            try {
-                final Resource content = resources.getResource(filename);
-
-                try {
-                    final Reader reader = new InputStreamReader(content.getInputStream(), StandardCharsets.UTF_8);
-
-                    working.putAll(processJSONFile(JsonParser.parseReader(reader).getAsJsonObject()));
-
-                    reader.close();
-                } catch (Exception e) {
-                    content.close();
-                    throw e;
-                }
-
-                content.close();
-            } catch (Exception e) {
-                Changed.LOGGER.error("Failed to load entities for Curios from \"{}\" : {}", filename, e);
-            }
-        });
-
-        return working;
+        return ResourceUtil.processJSONResources(HashMultimap.create(), resources, "accessories/entities", (map, filename, id, json) -> {
+            map.putAll(processJSONFile(json));
+        }, (exception, filename) -> Changed.LOGGER.error("Failed to load entities for AccessorySlots from \"{}\" : {}", filename, exception));
     }
 
     @Override
@@ -169,9 +146,9 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
             buffer.readMap(FriendlyByteBuf::readInt, mapBuffer -> {
                 return mapBuffer.readCollection(HashSet::new, FriendlyByteBuf::readInt);
             }).forEach((key, slots) -> {
-                final EntityType<?> entityType = Registry.ENTITY_TYPE.byId(key);
+                final EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.byId(key);
                 for (var slotTypeId : slots) {
-                    map.put(entityType, ChangedRegistry.ACCESSORY_SLOTS.get().getValue(slotTypeId));
+                    map.put(entityType, ChangedRegistry.ACCESSORY_SLOTS.getValue(slotTypeId));
                 }
             });
             this.receiverAccessories = buffer.readOptional(AccessorySyncPacket::new).orElse(null);
@@ -181,8 +158,8 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
         public void write(FriendlyByteBuf buffer) {
             var intMap = new HashMap<Integer, Set<Integer>>();
             this.map.forEach((entityType, slotType) -> {
-                intMap.computeIfAbsent(Registry.ENTITY_TYPE.getId(entityType), id -> new HashSet<>())
-                        .add(ChangedRegistry.ACCESSORY_SLOTS.get().getID(slotType));
+                intMap.computeIfAbsent(BuiltInRegistries.ENTITY_TYPE.getId(entityType), id -> new HashSet<>())
+                        .add(ChangedRegistry.ACCESSORY_SLOTS.getID(slotType));
             });
             buffer.writeMap(intMap, FriendlyByteBuf::writeInt,
                     (setBuffer, intSet) -> setBuffer.writeCollection(intSet, FriendlyByteBuf::writeInt));

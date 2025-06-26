@@ -1,6 +1,6 @@
 {
 	"parent": "minecraft:item/generated",
 	"textures": {
-		"layer0": "changed:items/tsc_staff"
+		"layer0": "changed:item/tsc_staff"
 	}
 }

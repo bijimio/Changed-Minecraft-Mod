@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -75,7 +75,7 @@ public abstract class GameRendererMixin {
     }
 
     @Inject(method = "reloadShaders", at = @At("RETURN"))
-    public void reloadChangedShaders(ResourceManager resourceManager, CallbackInfo callback) {
+    public void reloadChangedShaders(ResourceProvider resourceManager, CallbackInfo callback) {
         List<Pair<ShaderInstance, Consumer<ShaderInstance>>> shaderInstances = new ArrayList<>();
         try {
             ChangedShaders.reloadShaders(resourceManager, shaderInstances::add);

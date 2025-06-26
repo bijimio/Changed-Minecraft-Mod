@@ -5,6 +5,7 @@ import net.ltxprogrammer.changed.entity.PlayerMover;
 import net.ltxprogrammer.changed.entity.PlayerMoverInstance;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.util.InputWrapper;
 import net.ltxprogrammer.changed.util.TagUtil;
 import net.minecraft.core.BlockPos;
@@ -190,8 +191,8 @@ public class DuctBlock extends ChangedBlock implements SimpleWaterloggedBlock
     }
 
     public boolean isLadder(final BlockState state, final LevelReader level, final BlockPos pos, final LivingEntity entity) {
-        BlockPos entityBlockPos = new BlockPos(entity.position().add(0.0, 0.25, 0.0));
-        return super.isLadder(state, level, pos, entity) || entityBlockPos.equals(pos) || entity.eyeBlockPosition().equals(pos);
+        BlockPos entityBlockPos = EntityUtil.getBlock(entity.position().add(0.0, 0.25, 0.0));
+        return super.isLadder(state, level, pos, entity) || entityBlockPos.equals(pos) || EntityUtil.getEyeBlock(entity).equals(pos);
     }
 
     public BlockState getStateForPlacement(final BlockPlaceContext context) {

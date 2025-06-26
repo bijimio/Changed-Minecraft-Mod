@@ -113,12 +113,12 @@ public class PurifierBlockEntity extends BaseContainerBlockEntity implements Sta
     }
 
     public static boolean isConversionRecipe(RecipeManager recipeManager, ItemStack stack) {
-        return recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE).stream().anyMatch(recipe -> recipe.getIngredient().test(stack));
+        return recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE.get()).stream().anyMatch(recipe -> recipe.getIngredient().test(stack));
     }
 
     public ItemLike getConversionFor(RecipeManager recipeManager,ItemStack stack) {
         try {
-            return recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE).stream()
+            return recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE.get()).stream()
                     .filter(recipe -> recipe.getIngredient().test(stack)).toList().get(0).getResult();
         } catch (Exception ex) {
             Changed.LOGGER.error("Error retrieving recipe that should exist");

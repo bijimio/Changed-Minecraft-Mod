@@ -95,7 +95,7 @@ public class SyncTransfurPacket implements ChangedPacket {
     public static class Builder {
         private final Map<UUID, Listing> changedForms = new HashMap<>();
 
-        public void addPlayer(Player player) {
+        public void addPlayer(Player player, boolean excludeNormal) {
             ProcessTransfur.ifPlayerTransfurred(player, variant -> {
                 changedForms.put(player.getUUID(),
                         new Listing(ChangedRegistry.TRANSFUR_VARIANT.getID(variant.getParent()),
@@ -104,9 +104,14 @@ public class SyncTransfurPacket implements ChangedPacket {
                                 variant.isTemporaryFromSuit(),
                                 variant.save()));
             }, () -> {
-                changedForms.put(player.getUUID(),
+                if (!excludeNormal)
+                    changedForms.put(player.getUUID(),
                         new Listing(NO_FORM, TransfurCause.DEFAULT, 0f, false, new CompoundTag()));
             });
+        }
+
+        public boolean worthSending() {
+            return !changedForms.isEmpty();
         }
 
         public SyncTransfurPacket build() {
@@ -115,7 +120,7 @@ public class SyncTransfurPacket implements ChangedPacket {
 
         public static SyncTransfurPacket of(Player player) {
             Builder builder = new Builder();
-            builder.addPlayer(player);
+            builder.addPlayer(player, false);
             return builder.build();
         }
     }

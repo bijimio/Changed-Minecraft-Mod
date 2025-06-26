@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/template_trapdoor_bottom",
   "textures": {
-    "texture": "changed:blocks/vent_hatch"
+    "texture": "changed:block/vent_hatch"
   }
 }

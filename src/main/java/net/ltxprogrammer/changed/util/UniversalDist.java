@@ -88,7 +88,7 @@ public class UniversalDist {
 
     public static boolean isClientRemotePlayer(LivingEntity entity) {
         if (entity instanceof Player player) {
-            return player.level.isClientSide && !isLocalPlayer(player);
+            return player.level().isClientSide && !isLocalPlayer(player);
         }
 
         return false;

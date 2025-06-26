@@ -37,22 +37,16 @@ public abstract class ServerEntityMixin {
             var entity = variant.getChangedEntity();
 
             SynchedEntityData synchedentitydata = entity.getEntityData();
-            if (synchedentitydata.isDirty()) {
-                var packet = new SetTransfurVariantDataPacket(this.entity.getId(), synchedentitydata, false);
+            final var data = synchedentitydata.packDirty();
+            if (data != null && !data.isEmpty()) {
+                var packet = new SetTransfurVariantDataPacket(this.entity.getId(), data);
                 Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this.entity), packet);
             }
         });
     }
 
-    @Unique private ServerPlayer packetListener;
-
-    @Inject(method = "addPairing", at = @At("HEAD"))
-    private void captureListener(ServerPlayer packetListener, CallbackInfo ci) {
-        this.packetListener = packetListener;
-    }
-
     @Inject(method = "sendPairingData", at = @At("RETURN"))
-    private void andSendAccessoryData(Consumer<Packet<?>> connectionSend, CallbackInfo ci) {
+    private void andSendAccessoryData(ServerPlayer packetListener, Consumer<Packet<?>> connectionSend, CallbackInfo ci) {
         if (entity instanceof LivingEntityDataExtension ext) {
             ext.getAccessorySlots().ifPresent(slots -> {
                 if (slots.getContainerSize() > 0)

@@ -1,8 +1,6 @@
 package net.ltxprogrammer.changed.util;
 
 import com.mojang.datafixers.util.Either;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector4f;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.entity.PlayerDataExtension;
 import net.ltxprogrammer.changed.network.packet.TugCameraPacket;
@@ -15,6 +13,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 public class CameraUtil {
     public static class TugData {
@@ -119,14 +119,14 @@ public class CameraUtil {
         livingEntity.yRotO = yRotO;
     }
 
-    private static @NotNull Matrix4f inverseMatrix = Util.make(new Matrix4f(), Matrix4f::setIdentity);
+    private static @NotNull Matrix4f inverseMatrix = Util.make(new Matrix4f(), Matrix4f::identity);
     public static void setInverseMatrix(@NotNull Matrix4f matrix) {
         inverseMatrix = matrix;
     }
 
     public static Vector4f toWorldSpace(Vector4f screenSpace) {
         Vector4f v = new Vector4f(screenSpace.x(), screenSpace.y(), screenSpace.z(), screenSpace.w());
-        v.transform(inverseMatrix);
+        v.mulTranspose(inverseMatrix);
         return v;
     }
 }

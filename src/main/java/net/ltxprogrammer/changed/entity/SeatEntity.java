@@ -7,9 +7,11 @@ import net.ltxprogrammer.changed.init.ChangedEntities;
 import net.ltxprogrammer.changed.network.packet.SeatEntityInfoPacket;
 import net.ltxprogrammer.changed.util.TagUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -17,15 +19,17 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public class SeatEntity extends Entity {
-    public static final EntityDataAccessor<Optional<BlockState>> BLOCK_STATE = SynchedEntityData.defineId(SeatEntity.class, EntityDataSerializers.BLOCK_STATE);
+    public static final EntityDataAccessor<BlockState> BLOCK_STATE = SynchedEntityData.defineId(SeatEntity.class, EntityDataSerializers.BLOCK_STATE);
     public static final EntityDataAccessor<BlockPos> BLOCK_POS = SynchedEntityData.defineId(SeatEntity.class, EntityDataSerializers.BLOCK_POS);
     public static final EntityDataAccessor<Boolean> SEATED_INVISIBLE = SynchedEntityData.defineId(SeatEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> SEATED_LOCKED = SynchedEntityData.defineId(SeatEntity.class, EntityDataSerializers.BOOLEAN);
@@ -39,7 +43,7 @@ public class SeatEntity extends Entity {
     public void onAddedToWorld() {
         super.onAddedToWorld();
         final BlockPos attached = this.getAttachedBlockPos();
-        if (level.isLoaded(attached) && level.getBlockEntity(attached) instanceof SeatableBlockEntity seatableBlockEntity) {
+        if (level().isLoaded(attached) && level().getBlockEntity(attached) instanceof SeatableBlockEntity seatableBlockEntity) {
             var existing = seatableBlockEntity.getEntityHolder();
             if (existing == null || existing.isRemoved())
                 seatableBlockEntity.setEntityHolder(this);
@@ -51,7 +55,7 @@ public class SeatEntity extends Entity {
         if (seat == null)
             return null;
 
-        seat.entityData.set(BLOCK_STATE, Optional.of(state));
+        seat.entityData.set(BLOCK_STATE, state);
         seat.entityData.set(BLOCK_POS, pos);
         seat.entityData.set(SEATED_INVISIBLE, seatedInvisible);
         seat.entityData.set(SEATED_LOCKED, seatedLocked);
@@ -92,7 +96,7 @@ public class SeatEntity extends Entity {
     }
 
     public Optional<BlockState> getAttachedBlockState() {
-        return this.entityData.get(BLOCK_STATE);
+        return Optional.of(this.entityData.get(BLOCK_STATE)).filter(state -> !state.isAir());
     }
 
     public BlockPos getAttachedBlockPos() {
@@ -114,7 +118,7 @@ public class SeatEntity extends Entity {
         if (blockState.isEmpty())
             return super.getPassengersRidingOffset();
         if (blockState.get().getBlock() instanceof SeatableBlock seatableBlock)
-            return seatableBlock.getSitOffset(this.level, blockState.get(), getAttachedBlockPos()).y;
+            return seatableBlock.getSitOffset(this.level(), blockState.get(), getAttachedBlockPos()).y;
         return super.getPassengersRidingOffset();
     }
 
@@ -141,7 +145,7 @@ public class SeatEntity extends Entity {
         super.tick();
 
         var blockPos = getAttachedBlockPos();
-        if (!level.isLoaded(blockPos))
+        if (!level().isLoaded(blockPos))
             return; // Avoid loading chunks
 
         var oBlockState = getAttachedBlockState();
@@ -150,16 +154,16 @@ public class SeatEntity extends Entity {
             return;
         }
 
-        var nBlockState = level.getBlockState(blockPos);
+        var nBlockState = level().getBlockState(blockPos);
         if (nBlockState.getBlock() != oBlockState.get().getBlock()) {
             this.discard();
             return;
         }
 
         if (nBlockState != oBlockState.get()) {
-            this.entityData.set(BLOCK_STATE, Optional.of(nBlockState));
+            this.entityData.set(BLOCK_STATE, nBlockState);
             if (nBlockState.getBlock() instanceof SeatableBlock seatableBlock) {
-                var offset = seatableBlock.getSitOffset(level, nBlockState, blockPos);
+                var offset = seatableBlock.getSitOffset(level(), nBlockState, blockPos);
                 this.setPos(blockPos.getX() + 0.5 + offset.x, blockPos.getY() - 0.5, blockPos.getZ() + 0.5 + offset.z);
             }
 
@@ -179,7 +183,7 @@ public class SeatEntity extends Entity {
 
         this.getAttachedBlockState().ifPresent(blockState -> {
             if (blockState.getBlock() instanceof SeatableBlock seatableBlock) {
-                seatableBlock.onEnterSeat(entity.level, blockState, this.getAttachedBlockPos(), entity);
+                seatableBlock.onEnterSeat(entity.level(), blockState, this.getAttachedBlockPos(), entity);
             }
         });
     }
@@ -190,7 +194,7 @@ public class SeatEntity extends Entity {
 
         this.getAttachedBlockState().ifPresent(blockState -> {
             if (blockState.getBlock() instanceof SeatableBlock seatableBlock) {
-                seatableBlock.onExitSeat(entity.level, blockState, this.getAttachedBlockPos(), entity);
+                seatableBlock.onExitSeat(entity.level(), blockState, this.getAttachedBlockPos(), entity);
             }
         });
     }
@@ -202,7 +206,7 @@ public class SeatEntity extends Entity {
 
     @Override
     protected void defineSynchedData() {
-        this.entityData.define(BLOCK_STATE, Optional.empty());
+        this.entityData.define(BLOCK_STATE, Blocks.AIR.defaultBlockState());
         this.entityData.define(BLOCK_POS, BlockPos.ZERO);
         this.entityData.define(SEATED_INVISIBLE, false);
         this.entityData.define(SEATED_LOCKED, false);
@@ -212,7 +216,7 @@ public class SeatEntity extends Entity {
     @Override
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
         if (tag.contains("attachedBlockState"))
-            this.entityData.set(BLOCK_STATE, Optional.of(NbtUtils.readBlockState(tag.getCompound("attachedBlockState"))));
+            this.entityData.set(BLOCK_STATE, NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), tag.getCompound("attachedBlockState")));
         if (tag.contains("attachedBlockPos"))
             this.entityData.set(BLOCK_POS, TagUtil.getBlockPos(tag, "attachedBlockPos"));
         if (tag.contains("seatedInvisible"))
@@ -234,7 +238,7 @@ public class SeatEntity extends Entity {
     }
 
     @Override
-    public @NotNull Packet<?> getAddEntityPacket() {
+    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

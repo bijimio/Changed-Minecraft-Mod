@@ -1,48 +1,56 @@
 package net.ltxprogrammer.changed.world.features.structures;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.ltxprogrammer.changed.init.ChangedStructureTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
-import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
-public class DecayedLab extends StructureFeature<NoneFeatureConfiguration> {
-    private final GenerationStep.Decoration step;
+public class DecayedLab extends Structure {
+    public static final Codec<DecayedLab> CODEC = RecordCodecBuilder.create((instance) -> {
+        return instance.group(
+                settingsCodec(instance),
+                ResourceLocation.CODEC.fieldOf("piece").forGetter(DecayedLab::getPiece),
+                ResourceLocation.CODEC.fieldOf("loot_table").forGetter(DecayedLab::getLootTable)
+        ).apply(instance, DecayedLab::new);
+    });
 
-    public DecayedLab(Codec<NoneFeatureConfiguration> codec, GenerationStep.Decoration step, ResourceLocation nbt, ResourceLocation lootTable) {
-        super(codec, PieceGeneratorSupplier.simple(DecayedLab.checkLocation(nbt), DecayedLab.generatePieces(nbt, lootTable)));
-        this.step = step;
+    private final ResourceLocation piece;
+    private final ResourceLocation lootTable;
+
+    public DecayedLab(Structure.StructureSettings settings, ResourceLocation piece, ResourceLocation lootTable) {
+        super(settings);
+        this.piece = piece;
+        this.lootTable = lootTable;
     }
 
-    private static <C extends FeatureConfiguration> Predicate<PieceGeneratorSupplier.Context<C>> checkLocation(ResourceLocation nbt) {
-        return context -> {
-            if (!context.validBiomeOnTop(Heightmap.Types.WORLD_SURFACE_WG)) {
-                return false;
-            } else {
-                StructureTemplate template = context.structureManager().get(nbt).orElseThrow();
-
-                if (context.getLowestY(template.getSize().getX(), template.getSize().getZ()) < context.chunkGenerator().getSeaLevel())
-                    return false;
-                return true;
-            }
-        };
+    public ResourceLocation getPiece() {
+        return piece;
     }
 
-    private static PieceGenerator<NoneFeatureConfiguration> generatePieces(ResourceLocation nbt, ResourceLocation lootTable) {
-        return (builder, context) -> {
-            builder.addPiece(new SurfaceNBTPiece(nbt, lootTable, context));
-        };
+    public ResourceLocation getLootTable() {
+        return lootTable;
+    }
+
+    private void generatePieces(StructurePiecesBuilder builder, GenerationContext context) {
+        builder.addPiece(new SurfaceNBTPiece(this.getPiece(), null, context));
     }
 
     @Override
-    public GenerationStep.Decoration step() {
-        return step;
+    protected Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
+        return onTopOfChunkCenter(context, Heightmap.Types.WORLD_SURFACE_WG, (builder) -> {
+            generatePieces(builder, context);
+        });
+    }
+
+    @Override
+    public StructureType<?> type() {
+        return ChangedStructureTypes.DECAYED_LAB.get();
     }
 }

@@ -5,12 +5,14 @@ import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -44,14 +46,6 @@ public class EntityUtil {
                 .orElse(entity);
     }
 
-    public static float getFrictionOnBlock(@NotNull Entity entity) {
-        return getFrictionOnBlock(entity.level, new BlockPos(entity.getX(), entity.getBoundingBox().minY - 0.5000001D, entity.getZ()), entity);
-    }
-
-    public static float getFrictionOnBlock(LevelReader level, BlockPos pos, @Nullable Entity entity) {
-        return getFrictionOnBlock(level.getBlockState(pos), level, pos, entity);
-    }
-
     public static float getFrictionOnBlock(BlockState instance, LevelReader level, BlockPos pos, @Nullable Entity entity) {
         final float originalFriction = instance.getFriction(level, pos, entity);
 
@@ -65,5 +59,18 @@ public class EntityUtil {
         }
 
         return originalFriction;
+    }
+
+    public static BlockPos getEyeBlock(Entity entity) {
+        final var eyePos = entity.getEyePosition();
+        return new BlockPos(Mth.floor(eyePos.x), Mth.floor(eyePos.y), Mth.floor(eyePos.z));
+    }
+
+    public static BlockPos getBlock(Vec3 pos) {
+        return new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z));
+    }
+
+    public static BlockPos getBlock(double x, double y, double z) {
+        return new BlockPos(Mth.floor(x), Mth.floor(y), Mth.floor(z));
     }
 }

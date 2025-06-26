@@ -8,8 +8,8 @@ import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.Gender;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.*;
-import net.ltxprogrammer.changed.util.MapUtil;
 import net.ltxprogrammer.changed.util.TagUtil;
+import net.minecraft.Util;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
@@ -30,6 +30,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -45,11 +46,11 @@ public class InfuserRecipe implements Recipe<SimpleContainer> {
     private final boolean isSimple;
 
     public static final Map<? extends Item, Function<ItemStack, ItemStack>> INFUSER_BASE_CONVERSION =
-            new MapUtil.HashBuilder<Item, Function<ItemStack, ItemStack>>()
-                    .put(Items.ARROW, stack -> new ItemStack(ChangedItems.LATEX_TIPPED_ARROW.get(), Math.min(stack.getCount(), 16)))
-                    .put(ChangedItems.BLOOD_SYRINGE.get(), stack -> new ItemStack(ChangedItems.LATEX_SYRINGE.get()))
-                    .put(ChangedBlocks.ERLENMEYER_FLASK.get().asItem(), stack -> new ItemStack(ChangedItems.LATEX_FLASK.get()))
-                    .finish();
+            Util.make(new HashMap<>(), map -> {
+                map.put(Items.ARROW, stack -> new ItemStack(ChangedItems.LATEX_TIPPED_ARROW.get(), Math.min(stack.getCount(), 16)));
+                map.put(ChangedItems.BLOOD_SYRINGE.get(), stack -> new ItemStack(ChangedItems.LATEX_SYRINGE.get()));
+                map.put(ChangedBlocks.ERLENMEYER_FLASK.get().asItem(), stack -> new ItemStack(ChangedItems.LATEX_FLASK.get()));
+            });
 
     public static ItemStack getBaseFor(ItemStack stack) {
         var func = INFUSER_BASE_CONVERSION.get(stack.getItem());
@@ -223,6 +224,6 @@ public class InfuserRecipe implements Recipe<SimpleContainer> {
 
     @Override
     public RecipeType<?> getType() {
-        return ChangedRecipeTypes.INFUSER_RECIPE;
+        return ChangedRecipeTypes.INFUSER_RECIPE.get();
     }
 }

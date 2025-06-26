@@ -26,7 +26,7 @@ public class ChangedBlockEntities {
         return () -> new BlockEntityType<T>(entitySupplier, blocks.map(Supplier::get).collect(Collectors.toSet()), null);
     }
 
-    public static final DeferredRegister<BlockEntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, Changed.MODID);
+    public static final DeferredRegister<BlockEntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Changed.MODID);
     public static final RegistryObject<BlockEntityType<PurifierBlockEntity>> PURIFIER = REGISTRY.register("purifier", deferredProvider(PurifierBlockEntity::new, ChangedBlocks.PURIFIER));
     public static final RegistryObject<BlockEntityType<CardboardBoxTallBlockEntity>> CARDBOARD_BOX_TALL = REGISTRY.register("cardboard_box", deferredProvider(CardboardBoxTallBlockEntity::new, ChangedBlocks.CARDBOARD_BOX_TALL));
     public static final RegistryObject<BlockEntityType<KeypadBlockEntity>> KEYPAD = REGISTRY.register("keypad", deferredProvider(KeypadBlockEntity::new, ChangedBlocks.KEYPAD));

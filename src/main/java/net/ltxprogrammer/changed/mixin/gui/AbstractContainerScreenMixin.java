@@ -8,6 +8,7 @@ import net.ltxprogrammer.changed.init.ChangedTextures;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.world.inventory.AccessoryAccessMenu;
 import net.ltxprogrammer.changed.world.inventory.SlotWrapper;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
@@ -33,7 +34,7 @@ import java.util.Map;
 
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMenu> extends Screen implements MenuAccess<T> {
-    @Shadow protected abstract void renderSlot(PoseStack p_97800_, Slot p_97801_);
+    @Shadow protected abstract void renderSlot(GuiGraphics graphics, Slot p_97801_);
 
     @Unique
     private static final Map<ResourceLocation, EquipmentSlot> REVERSE_MAP = ImmutableMap.of(
@@ -54,7 +55,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
     }
 
     @Inject(method = "renderSlot", at = @At("HEAD"), cancellable = true)
-    public void renderSlot(PoseStack pose, Slot slot, CallbackInfo callback) {
+    public void renderSlot(GuiGraphics graphics, Slot slot, CallbackInfo callback) {
         if (slot instanceof SlotWrapper)
             return; // Process as normal
 
@@ -78,7 +79,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
 
                 if (material != null) {
                     callback.cancel();
-                    renderSlot(pose, new SlotWrapper(slot, slot.getSlotIndex(), slot.x, slot.y, material));
+                    renderSlot(graphics, new SlotWrapper(slot, slot.getSlotIndex(), slot.x, slot.y, material));
                 }
             });
         }

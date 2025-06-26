@@ -31,7 +31,7 @@ public class RandomVariantFunction extends LootItemConditionalFunction {
     }
 
     public LootItemFunctionType getType() {
-        return ChangedLootItemFunctions.RANDOM_VARIANT;
+        return ChangedLootItemFunctions.RANDOM_VARIANT.get();
     }
 
     public ItemStack run(ItemStack itemStack, LootContext context) {

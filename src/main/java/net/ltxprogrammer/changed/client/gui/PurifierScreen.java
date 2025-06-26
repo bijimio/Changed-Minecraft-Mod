@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.block.entity.PurifierBlockEntity;
 import net.ltxprogrammer.changed.world.inventory.PurifierMenu;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,28 +25,25 @@ public class PurifierScreen extends AbstractContainerScreen<PurifierMenu> {
     private static final ResourceLocation texture = Changed.modResource("textures/gui/purifier.png");
 
     @Override
-    public void render(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(ms);
-        super.render(ms, mouseX, mouseY, partialTicks);
-        this.renderTooltip(ms, mouseX, mouseY);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(PoseStack ms, float partialTicks, int gx, int gy) {
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+    protected void renderBg(GuiGraphics graphics, float partialTicks, int gx, int gy) {
+        graphics.setColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        RenderSystem.setShaderTexture(0, texture);
-        blit(ms, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
+        graphics.blit(texture, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
 
-        RenderSystem.setShaderTexture(0, Changed.modResource("textures/gui/progress_bar_back.png"));
-        blit(ms, this.leftPos + 63, this.topPos + 62, 0, 0, 48, 12, 48, 12);
+        graphics.blit(Changed.modResource("textures/gui/progress_bar_back.png"), this.leftPos + 63, this.topPos + 62, 0, 0, 48, 12, 48, 12);
 
         var slot = menu.slots.get(0);
         float progress = (float)menu.data.get(0) / (float) PurifierBlockEntity.getTotalProgress(this.minecraft.level.getRecipeManager(), slot.getItem());
-        RenderSystem.setShaderTexture(0, Changed.modResource("textures/gui/progress_bar_front.png"));
-        blit(ms, this.leftPos + 63, this.topPos + 62, 0, 0, (int)(48 * progress), 12, 48, 12);
+        graphics.blit(Changed.modResource("textures/gui/progress_bar_front.png"), this.leftPos + 63, this.topPos + 62, 0, 0, (int)(48 * progress), 12, 48, 12);
 
         RenderSystem.disableBlend();
     }
@@ -63,24 +61,6 @@ public class PurifierScreen extends AbstractContainerScreen<PurifierMenu> {
     @Override
     public void containerTick() {
         super.containerTick();
-    }
-
-    @Override
-    protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY) {
-    }
-
-    @Override
-    public void onClose() {
-        super.onClose();
-        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
-    }
-
-    @Override
-    public void init() {
-        super.init();
-
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-
     }
 
 }

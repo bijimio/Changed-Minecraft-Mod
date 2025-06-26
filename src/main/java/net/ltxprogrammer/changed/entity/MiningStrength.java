@@ -31,7 +31,7 @@ public enum MiningStrength implements StringRepresentable, Predicate<MobEffect> 
 
     public static DataResult<MiningStrength> fromSerial(String name) {
         return Arrays.stream(values()).filter(type -> type.serialName.equals(name))
-                .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(name + " is not a valid mining strength"));
+                .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(() -> name + " is not a valid mining strength"));
     }
 
     @Override

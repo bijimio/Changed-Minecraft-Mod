@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/outer_stairs",
   "textures": {
-    "bottom": "changed:blocks/wall_lightred",
-    "top": "changed:blocks/wall_lightred",
-    "side": "changed:blocks/wall_lightred"
+    "bottom": "changed:block/wall_lightred",
+    "top": "changed:block/wall_lightred",
+    "side": "changed:block/wall_lightred"
   }
 }

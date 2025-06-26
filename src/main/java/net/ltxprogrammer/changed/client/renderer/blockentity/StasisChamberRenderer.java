@@ -195,7 +195,7 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
             var fluidState = fluid.defaultFluidState();
             var sprites = ForgeHooksClient.getFluidSprites(blockEntity.getLevel(), blockEntity.getBlockPos(), fluidState);
 
-            var color = fluid.getAttributes().getColor(blockEntity.getLevel(), blockEntity.getBlockPos());
+            var color = 0xFFFFFFFF;//fluid.getAttributes().getColor(blockEntity.getLevel(), blockEntity.getBlockPos());
             var rgb = Color3.fromInt(color);
             float alpha = ((float)((color >> 24) & 0xFF)) / 255f;
             if (fluid.isSame(Fluids.WATER))
@@ -217,16 +217,14 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
             }
 
             final float renderAlpha = alpha;
-            for (RenderType rendertype : RenderType.chunkBufferLayers()) {
-                if (!fluidState.isEmpty() && ItemBlockRenderTypes.canRenderInLayer(fluidState, rendertype)) {
-                    final PoseStack.Pose renderPose = pose.last();
-                    ChangedClient.recordTranslucentRender(buffers, rendertype, buffer -> {
-                        if (fillPercent < 1f)
-                            renderTopSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), renderAlpha, sprites[0]);
-                        renderFrontSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), renderAlpha, sprites[1], fillYLevel);
-                    });
-                }
-            }
+
+            RenderType rendertype = ItemBlockRenderTypes.getRenderLayer(fluidState);
+            final PoseStack.Pose renderPose = pose.last();
+            ChangedClient.recordTranslucentRender(buffers, rendertype, buffer -> {
+                if (fillPercent < 1f)
+                    renderTopSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), renderAlpha, sprites[0]);
+                renderFrontSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), renderAlpha, sprites[1], fillYLevel);
+            });
 
             pose.popPose();
         });

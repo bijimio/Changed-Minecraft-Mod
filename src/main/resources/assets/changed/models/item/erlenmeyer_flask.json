@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "changed:items/erlenmeyer_flask_item"
+    "layer0": "changed:item/erlenmeyer_flask_item"
   }
 }

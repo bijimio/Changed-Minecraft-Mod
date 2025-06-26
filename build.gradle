@@ -46,7 +46,8 @@ minecraft {
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
     runs {
-        client {
+        // applies to all the run configs below
+        configureEach {
             workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
@@ -61,92 +62,36 @@ minecraft {
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
 
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', 'changed'
-
             mods {
-                changed {
+                "changed" {
                     source sourceSets.main
                 }
             }
         }
 
-        server {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
-
+        client {
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', 'changed'
+        }
 
-            mods {
-                changed {
-                    source sourceSets.main
-                }
-            }
+        server {
+            property 'forge.enabledGameTestNamespaces', 'changed'
+            args '--nogui'
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
         // By default, the server will crash when no gametests are provided.
         // The gametest system is also enabled by default for other run configs under the /test command.
         gameTestServer {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
-
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', 'changed'
-
-            mods {
-                changed {
-                    source sourceSets.main
-                }
-            }
         }
 
         data {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
+            // example of overriding the workingDirectory set in configureEach above
+            workingDirectory project.file('run-data')
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             args '--mod', 'changed', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-
-            mods {
-                changed {
-                    source sourceSets.main
-                }
-            }
         }
     }
 }
@@ -214,8 +159,8 @@ dependencies {
     implementation fg.deobf("curse.maven:presence-footsteps-forge-433068:5015286") // Forge 1.20.1 v1.9.1-beta.1
     implementation fg.deobf("curse.maven:spark-361579:4738952") // Forge 1.20.1 v1.10.53
     implementation fg.deobf("curse.maven:modernfix-790626:6609555") // Forge 1.20.1 v5.23.1
-    implementation fg.deobf("curse.maven:rubidium-574856:4952685") // Forge 1.20.1 v0.7.1a
-    implementation fg.deobf("curse.maven:oculus-581495:6020952") // Forge 1.20.1 v1.8.0
+    implementation fg.deobf("curse.maven:rubidium-574856:4573226") // Forge 1.20.1 v0.6.5
+    implementation fg.deobf("curse.maven:oculus-581495:4578741") // Forge 1.20.1 v1.6.4
     implementation fg.deobf("curse.maven:vivecraft-667903:6208688") // Forge 1.20.1 v1.2.5
     runtimeOnly fg.deobf("curse.maven:ferritecore-429235:4810975") // Forge 1.20.1 v6.0.1
 

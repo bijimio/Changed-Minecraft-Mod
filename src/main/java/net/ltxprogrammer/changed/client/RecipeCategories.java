@@ -68,7 +68,7 @@ public class RecipeCategories {
                     new ItemStack(ChangedItems.LATEX_SYRINGE.get()), ChangedTransfurVariants.DARK_LATEX_WOLF_FEMALE.getId()));
 
     public static void registerCategories(RegisterRecipeBookCategoriesEvent event) {
-        registerTypeCategories(event, ChangedRecipeTypes.INFUSER_BOOK, ChangedRecipeTypes.INFUSER_RECIPE, INFUSER_SEARCH, ImmutableList.of(
+        registerTypeCategories(event, ChangedRecipeTypes.INFUSER_BOOK, ChangedRecipeTypes.INFUSER_RECIPE.get(), INFUSER_SEARCH, ImmutableList.of(
                 INFUSER_SEARCH, INFUSER_DARK_LATEX, INFUSER_WHITE_LATEX, INFUSER_AQUATIC, INFUSER_AERIAL, INFUSER_GENDERED
         ), recipe -> {
             ResourceLocation form = recipe.form;

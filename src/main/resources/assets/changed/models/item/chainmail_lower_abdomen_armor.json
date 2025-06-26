@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "changed:items/chainmail_lower_abdomen_armor"
+    "layer0": "changed:item/chainmail_lower_abdomen_armor"
   }
 }

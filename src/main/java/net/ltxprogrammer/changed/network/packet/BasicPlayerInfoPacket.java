@@ -54,12 +54,13 @@ public class BasicPlayerInfoPacket implements ChangedPacket {
         NetworkEvent.Context context = contextSupplier.get();
         if (context.getDirection().getReceptionSide().isClient()) {
             Level level = UniversalDist.getLevel();
+            Player localPlayer = UniversalDist.getLocalPlayer();
 
             if (!playerInfos.isEmpty()) {
                 Objects.requireNonNull(level);
                 playerInfos.forEach((uuid, listing) -> {
                     var player = level.getPlayerByUUID(uuid);
-                    if (player instanceof PlayerDataExtension ext && !UniversalDist.isLocalPlayer(player)) {
+                    if (player instanceof PlayerDataExtension ext && player != localPlayer) {
                         ext.getBasicPlayerInfo().copyFrom(listing.info);
                     }
                 });
@@ -67,7 +68,7 @@ public class BasicPlayerInfoPacket implements ChangedPacket {
             }
 
             else {
-                Changed.PACKET_HANDLER.sendToServer(BasicPlayerInfoPacket.Builder.of(UniversalDist.getLocalPlayer()));
+                Changed.PACKET_HANDLER.sendToServer(BasicPlayerInfoPacket.Builder.of(localPlayer));
                 context.setPacketHandled(true);
             }
         }
@@ -89,6 +90,10 @@ public class BasicPlayerInfoPacket implements ChangedPacket {
             if (player instanceof PlayerDataExtension ext) {
                 playerInfos.put(player.getUUID(), new Listing(ext.getBasicPlayerInfo()));
             }
+        }
+
+        public boolean worthSending() {
+            return !playerInfos.isEmpty();
         }
 
         public BasicPlayerInfoPacket build() {

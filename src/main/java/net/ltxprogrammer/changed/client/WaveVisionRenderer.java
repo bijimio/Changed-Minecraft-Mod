@@ -44,6 +44,7 @@ import org.joml.Vector3f;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class WaveVisionRenderer {
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -176,13 +177,14 @@ public class WaveVisionRenderer {
                     uniform.upload();
                 }
 
-                vertexbuffer.drawChunkLayer();
+                vertexbuffer.bind();
+                vertexbuffer.draw();
                 flag1 = true;
             }
         }
 
         if (uniform != null) {
-            uniform.set(Vector3f.ZERO);
+            uniform.set(new Vector3f(0f, 0f, 0f));
         }
 
         shader.clear();
@@ -191,7 +193,6 @@ public class WaveVisionRenderer {
         }
 
         VertexBuffer.unbind();
-        VertexBuffer.unbindVertexArray();
         this.minecraft.getProfiler().pop();
         actualRenderType.clearRenderState();
     }
@@ -267,7 +268,8 @@ public class WaveVisionRenderer {
     private static void loadImageIntoMask(NativeImage mask, TextureAtlasSprite originalSprite, Resource resource) throws IOException {
         SimpleTexture.TextureImage image;
 
-        try (NativeImage nativeimage = NativeImage.read(resource.open())) {
+        try (InputStream stream = resource.open()) {
+            NativeImage nativeimage = NativeImage.read(stream);
             image = new SimpleTexture.TextureImage(resource.metadata().getSection(TextureMetadataSection.SERIALIZER).orElse(null), nativeimage);
         }
 
@@ -275,8 +277,11 @@ public class WaveVisionRenderer {
         final var contents = originalSprite.contents();
         for (int y = 0; y < contents.height(); ++y) {
             for (int x = 0; x < contents.width(); ++x){
-                mask.setPixelRGBA(x + originalSprite.getX(), y + originalSprite.getY(),
-                        MixedTexture.sampleNearest(image.getImage(), animationMetadata, (float)x / contents.width(), (float)y / contents.height()).toInt());
+                mask.setPixelRGBA(x + originalSprite.getX(), y + originalSprite.getY(), MixedTexture.sampleNearest(
+                        image.getImage(),
+                        animationMetadata,
+                        (float)x / contents.width(),
+                        (float)y / contents.height()).toInt());
             }
         }
     }

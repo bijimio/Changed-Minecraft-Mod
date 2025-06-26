@@ -38,7 +38,7 @@ public class QueryTransfurPacket implements ChangedPacket {
                 changedForms.forEach(uuid -> {
                     Player player = sender.level().getPlayerByUUID(uuid);
                     if (player != null)
-                        builder.addPlayer(player);
+                        builder.addPlayer(player, false);
                 });
                 Changed.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(context::getSender), builder.build());
             }

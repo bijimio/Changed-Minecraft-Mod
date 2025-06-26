@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.entity.*;
-import net.ltxprogrammer.changed.entity.beast.SpecialLatex;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
@@ -167,10 +166,6 @@ public class ProcessTransfur {
             if (next >= max && old < max) {
                 if (TransfurVariant.getPublicTransfurVariants().anyMatch(transfurVariant::equals))
                     transfur(player, player.level(), transfurVariant, false, context);
-                else {
-                    var variant = PatreonBenefits.getPlayerSpecialVariant(player.getUUID());
-                    transfur(player, player.level(), variant == null ? ChangedTransfurVariants.FALLBACK_VARIANT.get() : variant, false, context);
-                }
 
                 return true;
             }
@@ -243,7 +238,7 @@ public class ProcessTransfur {
                 }
 
                 else {
-                    entity.hurt(ChangedDamageSources.entityTransfur(context.source), amount * scale);
+                    entity.hurt(ChangedDamageSources.entityTransfur(entity.level().registryAccess(), context.source), amount * scale);
                     return false;
                 }
             }
@@ -260,7 +255,7 @@ public class ProcessTransfur {
                 }
 
                 else {
-                    entity.hurt(ChangedDamageSources.entityTransfur(context.source), amount * scale);
+                    entity.hurt(ChangedDamageSources.entityTransfur(entity.level().registryAccess(), context.source), amount * scale);
                     return false;
                 }
             }
@@ -576,19 +571,11 @@ public class ProcessTransfur {
 
     private static boolean isNonGoo(LivingEntity entity) {
         if (entity instanceof ChangedEntity latex) {
-            if (latex instanceof SpecialLatex specialLatex)
-                return specialLatex.getCurrentData() != null && specialLatex.getCurrentData().organic();
-            else
-                return !entity.getType().is(ChangedTags.EntityTypes.LATEX);
+            return !entity.getType().is(ChangedTags.EntityTypes.LATEX);
         }
 
         else return ifPlayerTransfurred(EntityUtil.playerOrNull(entity), variant -> {
-            if (!variant.getParent().getEntityType().is(ChangedTags.EntityTypes.LATEX))
-                return true;
-            else if (variant.getChangedEntity() instanceof SpecialLatex special &&
-                    special.getCurrentData() != null && special.getCurrentData().organic())
-                return true;
-            return false;
+            return !variant.getParent().getEntityType().is(ChangedTags.EntityTypes.LATEX);
         }, () -> true);
     }
 
@@ -622,7 +609,7 @@ public class ProcessTransfur {
 
     public static boolean killPlayerByAbsorption(Player player, LivingEntity source) {
         player.invulnerableTime = 0;
-        player.hurt(ChangedDamageSources.entityAbsorb(source), Float.MAX_VALUE);
+        player.hurt(ChangedDamageSources.entityAbsorb(player.level().registryAccess(), source), Float.MAX_VALUE);
         if (!Float.isFinite(player.getHealth()))
             player.setHealth(0.0f);
         return player.isDeadOrDying();
@@ -630,7 +617,7 @@ public class ProcessTransfur {
 
     public static boolean killPlayerByTransfur(Player player, LivingEntity source) {
         player.invulnerableTime = 0;
-        player.hurt(ChangedDamageSources.entityTransfur(source), Float.MAX_VALUE);
+        player.hurt(ChangedDamageSources.entityTransfur(player.level().registryAccess(), source), Float.MAX_VALUE);
         if (!Float.isFinite(player.getHealth()))
             player.setHealth(0.0f);
         return player.isDeadOrDying();

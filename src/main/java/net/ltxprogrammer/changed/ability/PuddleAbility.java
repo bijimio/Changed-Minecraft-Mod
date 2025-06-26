@@ -17,7 +17,7 @@ public class PuddleAbility extends SimpleAbility {
     @Override
     public void startUsing(IAbstractChangedEntity entity) {
         if (entity.getChangedEntity() instanceof DarkLatexWolfPup pup) {
-            entity.getEntity().playSound(ChangedSounds.POISON, 1, 1);
+            entity.getEntity().playSound(ChangedSounds.POISON.get(), 1, 1);
             pup.setPuddle(true);
         }
     }

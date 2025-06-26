@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cross",
   "textures": {
-    "cross": "changed:blocks/latex_crystal"
+    "cross": "changed:block/latex_crystal"
   }
 }

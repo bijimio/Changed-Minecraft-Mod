@@ -22,7 +22,7 @@ import java.util.Comparator;
 public class PillowRenderer implements BlockEntityRenderer<PillowBlockEntity> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Changed.modResource("pillow"), "main");
     public static final RenderType[] RENDER_TYPES = Arrays.stream(DyeColor.values()).sorted(Comparator.comparingInt(DyeColor::getId)).map((color) -> {
-        return RenderType.entitySolid(Changed.modResource("textures/blocks/pillow/" + color.getName() + ".png"));
+        return RenderType.entitySolid(Changed.modResource("textures/block/pillow/" + color.getName() + ".png"));
     }).toArray(RenderType[]::new);
     private final ModelPart pillow;
 

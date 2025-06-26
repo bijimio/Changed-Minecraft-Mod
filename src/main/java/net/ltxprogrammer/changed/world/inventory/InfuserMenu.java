@@ -299,7 +299,7 @@ public class InfuserMenu extends RecipeBookMenu<SimpleContainer> implements Supp
 
             ServerPlayer serverplayer = (ServerPlayer)this.entity;
             Optional<InfuserRecipe> recipeOptional = serverplayer.level().getServer().getRecipeManager()
-                    .getRecipeFor(ChangedRecipeTypes.INFUSER_RECIPE, copyContainer, serverplayer.level());
+                    .getRecipeFor(ChangedRecipeTypes.INFUSER_RECIPE.get(), copyContainer, serverplayer.level());
             ItemStack input = this.internal.getStackInSlot(1);
             recipeOptional.ifPresentOrElse(recipe -> {
                 if (input.isEmpty()) {

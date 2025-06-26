@@ -505,7 +505,7 @@ public class CustomLatexEntity extends ChangedEntity implements LatexTaur<Custom
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (isSaddled()) {
             this.doPlayerRide(player);
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
 
         return InteractionResult.PASS;

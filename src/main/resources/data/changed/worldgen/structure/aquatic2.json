@@ -1,0 +1,8 @@
+{
+  "type": "changed:decayed_lab",
+  "biomes": "#changed:worldgen/biome/has_structure/decayed_labs",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "piece": "changed:aquatic2",
+  "loot_table": "changed:chests/decayed_lab_aqua"
+}

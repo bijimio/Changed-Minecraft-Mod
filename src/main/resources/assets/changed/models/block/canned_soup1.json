@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "changed:blocks/canned_soup",
-		"particle": "changed:blocks/canned_soup"
+		"0": "changed:block/canned_soup",
+		"particle": "changed:block/canned_soup"
 	},
 	"elements": [
 		{

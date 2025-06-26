@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.Math;
 
 public class ExoskeletonRenderer extends MobRenderer<Exoskeleton, ExoskeletonModel> {
-    private static final RenderType BEAM_RENDER_TYPE = RenderType.eyes(Changed.modResource("textures/blocks/laser_beam.png"));
+    private static final RenderType BEAM_RENDER_TYPE = RenderType.eyes(Changed.modResource("textures/block/laser_beam.png"));
 
     public ExoskeletonRenderer(EntityRendererProvider.Context context) {
         super(context, new ExoskeletonModel(context.bakeLayer(ExoskeletonModel.LAYER_LOCATION_SUIT)), 0.4f);

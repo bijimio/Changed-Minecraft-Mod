@@ -1,29 +1,22 @@
 package net.ltxprogrammer.changed.fluid;
 
-import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.init.ChangedFluids;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.ltxprogrammer.changed.util.Color3;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 
 public abstract class WolfGas extends TransfurGas {
     public static final ForgeFlowingFluid.Properties PROPERTIES = new ForgeFlowingFluid.Properties(
-            ChangedFluids.WOLF_GAS,
-            ChangedFluids.WOLF_GAS_FLOWING,
-            FluidAttributes.builder(Changed.modResource("blocks/wolf_gas"), Changed.modResource("blocks/wolf_gas"))
-                    .viscosity(200).color(0x7FFFFFFF))
+            ChangedFluids.TRANSFUR_GAS, ChangedFluids.WOLF_GAS, ChangedFluids.WOLF_GAS_FLOWING)
+            .tickRate(4)
+            .levelDecreasePerBlock(1)
             .explosionResistance(100f)
-            .tickRate(4).levelDecreasePerBlock(1)
             .block(ChangedBlocks.WOLF_GAS);
 
     protected WolfGas() {

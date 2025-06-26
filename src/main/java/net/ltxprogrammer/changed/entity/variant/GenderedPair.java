@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.variant;
 
 import net.ltxprogrammer.changed.entity.ChangedEntity;
+import net.minecraft.util.RandomSource;
 
 import java.util.Random;
 import java.util.function.Supplier;
@@ -22,7 +23,7 @@ public class GenderedPair<M extends ChangedEntity, F extends ChangedEntity> {
         return femaleVariant.get();
     }
 
-    public TransfurVariant<?> getRandomVariant(Random random) {
+    public TransfurVariant<?> getRandomVariant(RandomSource random) {
         return random.nextBoolean() ? getFemaleVariant() : getMaleVariant();
     }
 

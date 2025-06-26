@@ -1,7 +1,7 @@
 {
   "parent": "block/block",
   "textures": {
-    "blank": "changed:blocks/blank",
+    "blank": "changed:block/blank",
     "particle": "#leaves"
   },
   "elements": [

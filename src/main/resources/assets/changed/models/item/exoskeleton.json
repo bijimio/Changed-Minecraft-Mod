@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "changed:items/exoskeleton"
+    "layer0": "changed:item/exoskeleton"
   }
 }

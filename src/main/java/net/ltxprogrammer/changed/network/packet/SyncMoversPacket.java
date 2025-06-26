@@ -95,6 +95,10 @@ public class SyncMoversPacket implements ChangedPacket {
             }
         }
 
+        public boolean worthSending() {
+            return !movers.isEmpty();
+        }
+
         public SyncMoversPacket build() {
             return new SyncMoversPacket(movers);
         }

@@ -1,0 +1,13 @@
+{
+  "structures": [
+    { "structure": "changed:facility", "weight": 1 }
+  ],
+  "placement": {
+    "salt": 1027072,
+
+    "type": "minecraft:random_spread",
+    "spread_type": "linear",
+    "spacing": 15,
+    "separation": 8
+  }
+}

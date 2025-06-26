@@ -126,6 +126,6 @@ public class PurifierRecipe implements Recipe<SimpleContainer> {
 
     @Override
     public RecipeType<?> getType() {
-        return ChangedRecipeTypes.PURIFIER_RECIPE;
+        return ChangedRecipeTypes.PURIFIER_RECIPE.get();
     }
 }

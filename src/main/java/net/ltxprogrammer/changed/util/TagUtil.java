@@ -50,7 +50,7 @@ public class TagUtil {
     }
 
     public static ResourceLocation getResourceLocation(CompoundTag cTag, String name) {
-        return new ResourceLocation(cTag.getString(name));
+        return ResourceLocation.parse(cTag.getString(name));
     }
 
     public static void putBlockPos(CompoundTag cTag, String name, BlockPos pos) {

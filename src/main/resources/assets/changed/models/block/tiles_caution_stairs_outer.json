@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/outer_stairs",
   "textures": {
-    "bottom": "changed:blocks/tiles_caution",
-    "top": "changed:blocks/tiles_caution",
-    "side": "changed:blocks/tiles_caution"
+    "bottom": "changed:block/tiles_caution",
+    "top": "changed:block/tiles_caution",
+    "side": "changed:block/tiles_caution"
   }
 }

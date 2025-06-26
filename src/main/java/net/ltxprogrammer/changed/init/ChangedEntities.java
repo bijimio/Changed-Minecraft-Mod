@@ -12,7 +12,6 @@ import net.ltxprogrammer.changed.entity.projectile.GasParticle;
 import net.ltxprogrammer.changed.entity.projectile.LatexInkball;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.entity.robot.Roomba;
-import net.ltxprogrammer.changed.world.biome.ChangedBiomeInterface;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +26,6 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -53,7 +51,7 @@ public class ChangedEntities {
     public static Pair<Integer, Integer> getEntityColor(ResourceLocation location) {
         return ENTITY_COLOR_MAP.computeIfAbsent(location, loc -> {
             try {
-                if (Registry.ITEM.get(new ResourceLocation(loc.getNamespace(), loc.getPath() + "_spawn_egg")) instanceof ForgeSpawnEggItem item)
+                if (ForgeRegistries.ITEMS.getValue(ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), loc.getPath() + "_spawn_egg")) instanceof ForgeSpawnEggItem item)
                     return new Pair<>(item.getColor(0), item.getColor(1));
                 else
                     return new Pair<>(0xF0F0F0, 0xF0F0F0);
@@ -93,7 +91,7 @@ public class ChangedEntities {
     }
 
     public static final Map<Supplier<? extends EntityType<?>>, Predicate<Level>> DIMENSION_RESTRICTIONS = new HashMap<>();
-    public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.ENTITIES, Changed.MODID);
+    public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Changed.MODID);
     public static final Map<RegistryObject<? extends EntityType<?>>, RegistryObject<ForgeSpawnEggItem>> SPAWN_EGGS = new HashMap<>();
     public static final RegistryObject<EntityType<WhiteLatexWolfFemale>> WHITE_LATEX_WOLF_FEMALE = registerSpawning("white_latex_wolf_female", 0xFFFFFF, 0xFF927F,
             EntityType.Builder.of(WhiteLatexWolfFemale::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.7F, 1.93F),
@@ -341,8 +339,6 @@ public class ChangedEntities {
             EntityType.Builder.of(DarkLatexWolfPartial::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.7F, 1.93F));
     public static final RegistryObject<EntityType<LatexHuman>> LATEX_HUMAN = registerNoEgg("latex_human", 0x8B8B8B, 0xC6C6C6,
             EntityType.Builder.of(LatexHuman::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.6F, 1.8F));
-    public static final RegistryObject<EntityType<SpecialLatex>> SPECIAL_LATEX = registerNoEgg("special_latex",
-            EntityType.Builder.of(SpecialLatex::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.7F, 1.93F));
 
     public static final RegistryObject<EntityType<BehemothHead>> BEHEMOTH_HEAD = registerNoEgg("behemoth_head",
             EntityType.Builder.of(BehemothHead::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(3.0f, 3.0f));
@@ -409,8 +405,7 @@ public class ChangedEntities {
         RegistryObject<EntityType<T>> entityType = REGISTRY.register(name, () -> builder.build(regName));
         INIT_FUNC_REGISTRY.add(ChangedEntity.getInit(entityType, spawnType, spawnPredicate));
         ATTR_FUNC_REGISTRY.add(new Pair<>(entityType::get, attributes));
-        RegistryObject<ForgeSpawnEggItem> spawnEggItem = ChangedItems.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(entityType, eggBack, eggHighlight,
-                new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ENTITIES)));
+        RegistryObject<ForgeSpawnEggItem> spawnEggItem = ChangedItems.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(entityType, eggBack, eggHighlight, new Item.Properties()));
         SPAWN_EGGS.put(entityType, spawnEggItem);
         DIMENSION_RESTRICTIONS.put(entityType, dimension);
         return entityType;
@@ -430,14 +425,14 @@ public class ChangedEntities {
 
     @Mod.EventBusSubscriber
     public static class EventListener {
-        @SubscribeEvent
+        /*@SubscribeEvent
         public static void addSpawners(BiomeLoadingEvent event) { // Inject spawns into vanilla / modded biomes (not including changed)
             if (event.getName() != null && event.getName().getNamespace().equals(Changed.MODID))
                 return;
 
             final var spawns = event.getSpawns();
 
-            /* Cave spawning entities */
+            *//* Cave spawning entities *//*
 
             ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.UNDERGROUND, LATEX_STIGER, 80, 1, 3, 0.7, 0.15);
             ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.UNDERGROUND, LATEX_TRAFFIC_CONE_DRAGON, 100, 1, 3, 0.7, 0.15);
@@ -447,7 +442,7 @@ public class ChangedEntities {
             // Passive
             ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.UNDERGROUND, BEIFENG, 10, 1, 1, 0.7, 0.15);
 
-            /* Surface spawning entities */
+            *//* Surface spawning entities *//*
 
             if (event.getCategory() == Biome.BiomeCategory.PLAINS) {
                 ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, WHITE_LATEX_WOLF_MALE, 100, 1, 3, 0.7, 0.15);
@@ -549,7 +544,7 @@ public class ChangedEntities {
                 ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, GAS_TIGER, 1, 1, 2, 0.7, 0.15);
             }
 
-            /* Water spawning entities */
+            *//* Water spawning entities *//*
 
             if (event.getCategory() == Biome.BiomeCategory.OCEAN || event.getCategory() == Biome.BiomeCategory.RIVER) {
                 ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_MANTA_RAY_MALE, 30, 1, 3, 0.7, 0.15);
@@ -565,6 +560,6 @@ public class ChangedEntities {
                 ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_SQUID_DOG_FEMALE, 80, 1, 3, 0.7, 0.35);
                 ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, SHARK, 100, 1, 3, 0.7, 0.15);
             }
-        }
+        }*/
     }
 }

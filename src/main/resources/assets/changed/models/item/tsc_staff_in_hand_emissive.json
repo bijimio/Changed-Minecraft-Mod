@@ -3,8 +3,8 @@
 	"texture_size": [32, 32],
 	"gui_light": "front",
 	"textures": {
-		"0": "changed:items/3d/tsc_staff_emissive",
-		"particle": "changed:items/3d/tsc_staff_emissive"
+		"0": "changed:item/3d/tsc_staff_emissive",
+		"particle": "changed:item/3d/tsc_staff_emissive"
 	},
 	"elements": [
 		{

@@ -122,7 +122,7 @@ public enum TransfurCause implements StringRepresentable {
 
     public static DataResult<TransfurCause> fromSerial(String name) {
         return Arrays.stream(values()).filter(type -> type.serialName.equals(name))
-                .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(name + " is not a valid cause"));
+                .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(() -> name + " is not a valid cause"));
     }
 
     private static float firstLimb(float totalProgress) {

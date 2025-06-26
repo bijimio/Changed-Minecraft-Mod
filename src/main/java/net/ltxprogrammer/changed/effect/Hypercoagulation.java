@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 public class Hypercoagulation extends MobEffect {
     public Hypercoagulation() {
         super(MobEffectCategory.HARMFUL, 14688288);
-        setRegistryName("hypercoagulation");
     }
 
     @Override
@@ -28,6 +27,6 @@ public class Hypercoagulation extends MobEffect {
     public void applyEffectTick(@NotNull LivingEntity entity, int amplifier) {
         if (EntityUtil.maybeGetOverlaying(entity).getType().is(ChangedTags.EntityTypes.LATEX))
             return;
-        entity.hurt(ChangedDamageSources.BLOODLOSS, 1.0f);
+        entity.hurt(ChangedDamageSources.BLOODLOSS.source(entity.level().registryAccess()), 1.0f);
     }
 }

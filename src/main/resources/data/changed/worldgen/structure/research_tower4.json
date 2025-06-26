@@ -1,0 +1,8 @@
+{
+  "type": "changed:decayed_lab",
+  "biomes": "#changed:worldgen/biome/has_structure/decayed_labs",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "piece": "changed:research_tower4",
+  "loot_table": "changed:chests/decayed_lab_origin"
+}

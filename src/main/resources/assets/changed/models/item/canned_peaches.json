@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "changed:items/canned_peaches"
+    "layer0": "changed:item/canned_peaches"
   }
 }

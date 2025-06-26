@@ -82,8 +82,6 @@ public interface IAbstractChangedEntity {
             doesAbsorption = getSelfVariant().transfurMode() == TransfurMode.ABSORPTION;
         else if (getTransfurVariant() != null && getTransfurVariant().transfurMode() == TransfurMode.ABSORPTION)
             doesAbsorption = true;
-        else if (getTransfurVariant() != null && getTransfurVariant().getEntityType() == ChangedEntities.SPECIAL_LATEX.get())
-            doesAbsorption = true;
         else
             doesAbsorption = false;
 

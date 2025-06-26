@@ -1,7 +1,8 @@
 package net.ltxprogrammer.changed.data;
 
 import net.minecraft.Util;
-import net.minecraft.server.packs.FolderPackResources;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
@@ -61,23 +62,23 @@ public class BuiltinRepositorySource implements RepositorySource {
     }
 
     @Override
-    public void loadPacks(Consumer<Pack> out, Pack.PackConstructor constructor) {
+    public void loadPacks(Consumer<Pack> out) {
         for(String id : packIds) {
-            Pack pack = Pack.create(modId + ":" + id, false,
-                    this.createSupplier(this.modFile.toFile(), id), constructor, Pack.Position.TOP, PackSource.BUILT_IN);
+            /*Pack pack = Pack.create(modId + ":" + id, Component.literal(id), false,
+                    this.createSupplier(this.modFile.toFile(), id), Pack.Position.TOP, false, PackSource.BUILT_IN);
             if (pack instanceof PackExtender ext)
                 ext.setIncludeByDefault(false);
             if (pack != null) {
                 out.accept(pack);
-            }
+            }*/
         }
     }
 
-    private Supplier<PackResources> createSupplier(File file, String packName) {
+    /*private Supplier<PackResources> createSupplier(File file, String packName) {
         return isJar ? () -> {
             return new BuiltinPackResources(file, packsFolder + "/" + packName + "/");
         } : () -> {
-            return new FolderPackResources(new File(file, packsFolder + "/" + packName));
+            return new FilePackResources(packName, new File(file, packsFolder + "/" + packName));
         };
-    }
+    }*/
 }

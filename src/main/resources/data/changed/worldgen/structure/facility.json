@@ -1,0 +1,6 @@
+{
+  "type": "changed:facility",
+  "biomes": "#changed:worldgen/biome/has_structure/facility",
+  "step": "underground_structures",
+  "spawn_overrides": {}
+}

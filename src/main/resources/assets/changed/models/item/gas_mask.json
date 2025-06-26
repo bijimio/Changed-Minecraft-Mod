@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "changed:items/gas_mask"
+    "layer0": "changed:item/gas_mask"
   }
 }

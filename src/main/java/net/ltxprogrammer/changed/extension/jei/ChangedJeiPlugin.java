@@ -78,8 +78,8 @@ public class ChangedJeiPlugin implements IModPlugin {
         IIngredientHelper<ItemStack> ingredientHelper = ingredientManager.getIngredientHelper(VanillaTypes.ITEM_STACK);
         RecipeManager recipeManager = Minecraft.getInstance().level.getRecipeManager();
 
-        registration.addRecipes(infuserRecipeCategory.getRecipeType(), recipeManager.getAllRecipesFor(ChangedRecipeTypes.INFUSER_RECIPE));
-        registration.addRecipes(purifierRecipeCategory.getRecipeType(), recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE));
+        registration.addRecipes(infuserRecipeCategory.getRecipeType(), recipeManager.getAllRecipesFor(ChangedRecipeTypes.INFUSER_RECIPE.get()));
+        registration.addRecipes(purifierRecipeCategory.getRecipeType(), recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE.get()));
     }
 
     @Override

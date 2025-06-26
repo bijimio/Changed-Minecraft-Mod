@@ -91,7 +91,7 @@ public class ServerTransfurVariantInstance<T extends ChangedEntity> extends Tran
         super.tick();
 
         if (parent.getEntityType().is(ChangedTags.EntityTypes.LATEX))
-            host.removeEffect(ChangedEffects.HYPERCOAGULATION);
+            host.removeEffect(ChangedEffects.HYPERCOAGULATION.get());
 
         final double distance = 8D;
         final double farRunSpeed = 1.0D;
@@ -102,7 +102,7 @@ public class ServerTransfurVariantInstance<T extends ChangedEntity> extends Tran
 
             final double speedScale = entityClass.isAssignableFrom(AbstractVillager.class) ? 0.5D : 1.0D;
 
-            List<? extends PathfinderMob> entitiesScared = host.level.getEntitiesOfClass(entityClass, host.getBoundingBox().inflate(distance, 6D, distance), entity -> entity.hasLineOfSight(host));
+            List<? extends PathfinderMob> entitiesScared = host.level().getEntitiesOfClass(entityClass, host.getBoundingBox().inflate(distance, 6D, distance), entity -> entity.hasLineOfSight(host));
 
             for (var v : entitiesScared) {
                 //if the creature has no path, or the target path is < distance, make the creature run.

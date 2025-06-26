@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:block/cube_directional",
   "textures": {
-    "particle": "changed:blocks/glu_top",
-    "north": "changed:blocks/glu_top",
-    "south": "changed:blocks/glu_bottom",
-    "east": "changed:blocks/glu_side",
-    "west": "changed:blocks/glu_side",
-    "up": "changed:blocks/glu_lock",
-    "down": "changed:blocks/glu_side"
+    "particle": "changed:block/glu_top",
+    "north": "changed:block/glu_top",
+    "south": "changed:block/glu_bottom",
+    "east": "changed:block/glu_side",
+    "west": "changed:block/glu_side",
+    "up": "changed:block/glu_lock",
+    "down": "changed:block/glu_side"
   }
 }

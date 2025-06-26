@@ -40,14 +40,14 @@ public class VariantAbilityActivate implements ChangedPacket {
     public VariantAbilityActivate(FriendlyByteBuf buffer) {
         this.uuid = buffer.readUUID();
         this.keyState = buffer.readBoolean();
-        this.ability = ChangedRegistry.ABILITY.get().getValue(buffer.readInt());
+        this.ability = ChangedRegistry.ABILITY.readRegistryObject(buffer);
     }
 
     @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeUUID(uuid);
         buffer.writeBoolean(keyState);
-        buffer.writeInt(ChangedRegistry.ABILITY.get().getID(ability));
+        ChangedRegistry.ABILITY.writeRegistryObject(buffer, ability);
     }
 
     @Override

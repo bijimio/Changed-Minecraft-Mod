@@ -52,8 +52,8 @@ public class ChangedReiPlugin implements REIClientPlugin {
 
     @Override
     public void registerDisplays(DisplayRegistry registry) {
-        registry.registerRecipeFiller(InfuserRecipe.class, ChangedRecipeTypes.INFUSER_RECIPE, InfuserRecipeDisplay::new);
-        registry.registerRecipeFiller(PurifierRecipe.class, ChangedRecipeTypes.PURIFIER_RECIPE, PurifierRecipeDisplay::new);
+        registry.registerRecipeFiller(InfuserRecipe.class, ChangedRecipeTypes.INFUSER_RECIPE.get(), InfuserRecipeDisplay::new);
+        registry.registerRecipeFiller(PurifierRecipe.class, ChangedRecipeTypes.PURIFIER_RECIPE.get(), PurifierRecipeDisplay::new);
     }
 
     @Override

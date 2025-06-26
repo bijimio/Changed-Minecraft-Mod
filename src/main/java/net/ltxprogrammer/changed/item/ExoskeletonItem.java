@@ -183,7 +183,7 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
             int rate = slotContext.wearer().isInWater() ? 20 : 40;
 
             if (slotContext.wearer().tickCount % rate == 0) {
-                slotContext.wearer().hurt(ChangedDamageSources.ELECTROCUTION.source(), 3);
+                slotContext.wearer().hurt(ChangedDamageSources.ELECTROCUTION.source(slotContext.wearer().level().registryAccess()), 3);
                 TscWeapon.applyShock(slotContext.wearer(), 3);
                 degradeCharge(slotContext, 30);
             }

@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "changed:items/sports_bra"
+    "layer0": "changed:item/sports_bra"
   }
 }

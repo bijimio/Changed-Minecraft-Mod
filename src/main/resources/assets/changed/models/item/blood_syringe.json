@@ -1,7 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "changed:items/blood_syringe"
+    "layer0": "changed:item/blood_syringe"
   },
   "display": {
     "thirdperson_lefthand": {

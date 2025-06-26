@@ -114,7 +114,7 @@ public class Syringe extends Item implements SpecializedAnimations {
         if (ProcessTransfur.isPlayerLatex(player) && player != sourcePlayer)
             return stack;
 
-        player.hurt(ChangedDamageSources.BLOODLOSS.source(), 1.0f);
+        player.hurt(ChangedDamageSources.BLOODLOSS.source(player.level().registryAccess()), 1.0f);
         player.awardStat(Stats.ITEM_USED.get(this));
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);

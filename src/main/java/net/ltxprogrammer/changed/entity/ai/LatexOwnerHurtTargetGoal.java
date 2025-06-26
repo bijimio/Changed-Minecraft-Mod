@@ -33,23 +33,22 @@ public class LatexOwnerHurtTargetGoal<T extends ChangedEntity & TamableLatexEnti
 
     public boolean canUse() {
         if (this.tameAnimal.isTame()) {
-            if (!(this.tameAnimal.getOwner() instanceof LivingEntity livingentity)) {
-                return false;
-            } else {
-                this.ownerLastHurt = livingentity.getLastHurtMob();
-                int i = livingentity.getLastHurtMobTimestamp();
-                return i != this.timestamp && this.canAttack(this.ownerLastHurt, TargetingConditions.DEFAULT) && this.tameAnimal.wantsToAttack(this.ownerLastHurt, livingentity);
+            final LivingEntity owner = this.tameAnimal.getOwner();
+            if (owner != null) {
+                this.ownerLastHurt = owner.getLastHurtMob();
+                int i = owner.getLastHurtMobTimestamp();
+                return i != this.timestamp && this.canAttack(this.ownerLastHurt, TargetingConditions.DEFAULT) && this.tameAnimal.wantsToAttack(this.ownerLastHurt, owner);
             }
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public void start() {
         this.mob.setTarget(this.ownerLastHurt);
-        if (this.tameAnimal.getOwner() instanceof LivingEntity livingentity) {
-            this.timestamp = livingentity.getLastHurtMobTimestamp();
-        }
+        final LivingEntity owner = this.tameAnimal.getOwner();
+        if (owner != null)
+            this.timestamp = owner.getLastHurtMobTimestamp();
 
         super.start();
     }

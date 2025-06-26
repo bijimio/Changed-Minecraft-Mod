@@ -67,15 +67,14 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
         NetworkHooks.openScreen(player,
                 new SimpleMenuProvider((id, inv, accessor) -> new AccessoryAccessMenu(id, accessor, slots.getOrderedSlots()), Component.empty()),
                 extra -> {
-                    extra.writeCollection(slots.getOrderedSlots(), (listBuffer, slotType) -> listBuffer.writeInt(registry.getID(slotType)));
+                    extra.writeCollection(slots.getOrderedSlots(), ChangedRegistry.ACCESSORY_SLOTS::writeRegistryObject);
                 });
     }
 
     private static List<AccessorySlotType> readSlotTypes(@Nullable FriendlyByteBuf buffer) {
         if (buffer == null)
             return List.of();
-        final var registry = ChangedRegistry.ACCESSORY_SLOTS.get();
-        return buffer.readList(listBuffer -> registry.getValue(listBuffer.readInt()));
+        return buffer.readList(ChangedRegistry.ACCESSORY_SLOTS::readRegistryObject);
     }
 
     public AccessoryAccessMenu(int id, Inventory inventory, FriendlyByteBuf extra) {

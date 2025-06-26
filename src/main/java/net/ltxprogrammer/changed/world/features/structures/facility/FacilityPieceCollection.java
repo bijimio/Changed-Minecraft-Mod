@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.world.features.structures.facility;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.Util;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.Weight;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandom;
@@ -30,7 +31,7 @@ public class FacilityPieceCollection {
         return pieces.stream().map(WeightedEntry.Wrapper::getData);
     }
 
-    public Stream<FacilityPiece> shuffledStream(Random random) {
+    public Stream<FacilityPiece> shuffledStream(RandomSource random) {
         if (this.totalWeight == 0) {
             return Stream.empty();
         } else {
@@ -49,7 +50,7 @@ public class FacilityPieceCollection {
         }
     }
 
-    public Optional<FacilityPiece> findNextPiece(Random random) {
+    public Optional<FacilityPiece> findNextPiece(RandomSource random) {
         if (this.totalWeight == 0) {
             return Optional.empty();
         } else {

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "changed:items/chainmail_quadrupedal_leggings"
+    "layer0": "changed:item/chainmail_quadrupedal_leggings"
   }
 }

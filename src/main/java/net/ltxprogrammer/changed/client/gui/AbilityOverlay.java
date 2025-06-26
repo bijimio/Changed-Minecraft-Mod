@@ -55,7 +55,7 @@ public class AbilityOverlay {
         }
     }
 
-    public static void renderForeground(int x, int y, PoseStack stack, AbstractRadialScreen.ColorScheme scheme, Player player, TransfurVariantInstance<?> variant, AbstractAbilityInstance selected) {
+    public static void renderForeground(int x, int y, GuiGraphics graphics, AbstractRadialScreen.ColorScheme scheme, Player player, TransfurVariantInstance<?> variant, AbstractAbilityInstance selected) {
         ChangedClient.abilityRenderer.getOrThrow().renderAndDecorateAbility(
                 player,
                 selected,
@@ -66,12 +66,6 @@ public class AbilityOverlay {
                 true,
                 0
         );
-
-        /*RenderSystem.setShaderTexture(0, selected.ability.getTexture(IAbstractChangedEntity.forPlayer(player)));
-        RenderSystem.setShaderColor(0, 0, 0, 0.5f); // Render ability shadow
-        blit(stack, x, y + 4, 0, 0, 32, 32, 32, 32);
-        RenderSystem.setShaderColor(scheme.foreground().red(), scheme.foreground().green(), scheme.foreground().blue(), 1.0F);
-        blit(stack, x, y, 0, 0, 32, 32, 32, 32);*/
     }
 
     public static void renderSelectedAbility(Gui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {

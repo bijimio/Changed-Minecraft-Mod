@@ -174,8 +174,8 @@ public class ChangedShaders {
 
     public static final RenderStateShard.TextureStateShard BLOCK_SHEET_MIPPED = new RenderStateShard.TextureStateShard(TextureAtlas.LOCATION_BLOCKS, false, true);
     public static final RenderStateShard.TextureStateShard BLOCK_SHEET = new RenderStateShard.TextureStateShard(TextureAtlas.LOCATION_BLOCKS, false, false);
-    public static final RenderStateShard.TextureStateShard LATEX_SHEET_MIPPED = new RenderStateShard.TextureStateShard(LatexCoveredBlockRenderer.LATEX_COVER_ATLAS, false, true);
-    public static final RenderStateShard.TextureStateShard LATEX_SHEET = new RenderStateShard.TextureStateShard(LatexCoveredBlockRenderer.LATEX_COVER_ATLAS, false, false);
+    public static final RenderStateShard.TextureStateShard LATEX_SHEET_MIPPED = BLOCK_SHEET_MIPPED;//new RenderStateShard.TextureStateShard(LatexCoveredBlockRenderer.LATEX_COVER_ATLAS, false, true);
+    public static final RenderStateShard.TextureStateShard LATEX_SHEET = BLOCK_SHEET;//new RenderStateShard.TextureStateShard(LatexCoveredBlockRenderer.LATEX_COVER_ATLAS, false, false);
 
     public static final RenderStateShard.MultiTextureStateShard BLOCK_SHEET_MIPPED_RESONANT = RenderStateShard.MultiTextureStateShard.builder().add(TextureAtlas.LOCATION_BLOCKS, false, true).add(WaveVisionRenderer.WAVE_RESONANCE_BLOCK_MASK, false, true).build();
     public static final RenderStateShard.MultiTextureStateShard BLOCK_SHEET_RESONANT = RenderStateShard.MultiTextureStateShard.builder().add(TextureAtlas.LOCATION_BLOCKS, false, false).add(WaveVisionRenderer.WAVE_RESONANCE_BLOCK_MASK, false, false).build();

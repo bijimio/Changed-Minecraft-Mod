@@ -50,6 +50,6 @@ public class DarkLatexMaskModel extends Model {
     }
 
     public ResourceLocation getTexture() {
-        return Changed.modResource("textures/items/3d/dark_latex_mask.png");
+        return Changed.modResource("textures/item/3d/dark_latex_mask.png");
     }
 }

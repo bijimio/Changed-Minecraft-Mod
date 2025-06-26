@@ -3,7 +3,6 @@ package net.ltxprogrammer.changed.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.ltxprogrammer.changed.Changed;
-import net.ltxprogrammer.changed.entity.beast.SpecialLatex;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.util.Color3;
 import net.ltxprogrammer.changed.util.SingleRunnable;
@@ -85,13 +84,6 @@ public abstract class AbstractRadialScreen<T extends AbstractContainerMenu> exte
     public static ColorScheme getColors(@Nullable TransfurVariantInstance<?> variant) {
         if (variant == null)
             return new ColorScheme(Color3.WHITE, Color3.GRAY);
-
-        if (variant.getChangedEntity() instanceof SpecialLatex specialLatex && specialLatex.specialLatexForm != null) {
-            return new ColorScheme(
-                    specialLatex.getCurrentData().primaryColor(),
-                    specialLatex.getCurrentData().secondaryColor()
-            );
-        }
 
         var colors = variant.getParent().getColors();
         return new ColorScheme(colors.getFirst(), colors.getSecond());

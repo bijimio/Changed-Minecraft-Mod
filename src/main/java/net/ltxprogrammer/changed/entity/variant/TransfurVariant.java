@@ -30,7 +30,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.event.IModBusEvent;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -43,13 +43,13 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry<TransfurVariant<?>> {
+public class TransfurVariant<T extends ChangedEntity> {
     public static final String NBT_PLAYER_ID = "changed:player_id";
     public static final ResourceLocation SPECIAL_LATEX = Changed.modResource("form_special");
     private static final List<ResourceLocation> SPECIAL_LATEX_FORMS = new ArrayList<>();
 
     public static Stream<TransfurVariant<?>> getPublicTransfurVariants() {
-        return ChangedRegistry.TRANSFUR_VARIANT.get().getValues().stream().filter(variant -> !SPECIAL_LATEX_FORMS.contains(variant.getRegistryName()));
+        return ChangedRegistry.TRANSFUR_VARIANT.get().getValues().stream().filter(variant -> !SPECIAL_LATEX_FORMS.contains(ChangedRegistry.TRANSFUR_VARIANT.get().getKey(variant)));
     }
 
     @Deprecated
@@ -73,7 +73,7 @@ public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry
     }
 
     public ResourceLocation getFormId() {
-        return getRegistryName();
+        return ChangedRegistry.TRANSFUR_VARIANT.get().getKey(this);
     }
 
     public boolean isReducedFall() {
@@ -158,7 +158,7 @@ public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry
     }
 
     public String toString() {
-        return getRegistryName().toString();
+        return getFormId().toString();
     }
 
     // Variant properties
@@ -212,7 +212,7 @@ public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry
         T entity = ctor.get().create(level);
         entity.setId(getNextEntId()); //to prevent ID collision
         entity.setSilent(true);
-        entity.goalSelector.removeAllGoals();
+        entity.goalSelector.removeAllGoals(goal -> true);
         return entity;
     }
 
@@ -223,10 +223,6 @@ public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry
     public T generateForm(@NotNull Player player, Level level) {
         T latexForm = createChangedEntity(level);
         latexForm.moveTo((player.getX()), (player.getY()), (player.getZ()), player.getYRot(), 0);
-        if (latexForm instanceof SpecialLatex specialLatex)
-            specialLatex.setSpecialForm(UUID.fromString(
-                    getFormId().toString().substring(Changed.modResourceStr("special/form_").length())));
-
         latexForm.setCustomName(player.getDisplayName());
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             if (player == Minecraft.getInstance().player)
@@ -238,15 +234,11 @@ public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry
 
 
     public ChangedEntity spawnAtEntity(@NotNull LivingEntity entity) {
-        ChangedEntity newEntity = ctor.get().create(entity.level);
-        newEntity.finalizeSpawn((ServerLevelAccessor) entity.level, entity.level.getCurrentDifficultyAt(newEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, null,
+        ChangedEntity newEntity = ctor.get().create(entity.level());
+        newEntity.finalizeSpawn((ServerLevelAccessor) entity.level(), entity.level().getCurrentDifficultyAt(newEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, null,
                 null);
         newEntity.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
-        entity.level.addFreshEntity(newEntity);
-        if (newEntity instanceof SpecialLatex specialLatex) {
-            specialLatex.setSpecialForm(UUID.fromString(
-                    getFormId().toString().substring(Changed.modResourceStr("special/form_").length())));
-        }
+        entity.level().addFreshEntity(newEntity);
         return newEntity;
     }
 
@@ -281,7 +273,7 @@ public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry
                 var instance = ProcessTransfur.setPlayerTransfurVariant(player, this, TransfurContext.hazard(TransfurCause.GRAB_REPLICATE), 1.0f);
                 instance.willSurviveTransfur = true;
 
-                ProcessTransfur.forceNearbyToRetarget(player.level, player);
+                ProcessTransfur.forceNearbyToRetarget(player.level(), player);
 
                 ProcessTransfur.onNewlyTransfurred(IAbstractChangedEntity.forPlayer(player));
                 return IAbstractChangedEntity.forPlayer(player);
@@ -302,7 +294,7 @@ public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry
             // Drop held items
             Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HAND).forEach(slot -> {
                 if (entity.getRandom().nextFloat() < 0.05f) // 5% Drop rate
-                    Block.popResource(entity.level, entity.blockPosition(), entity.getItemBySlot(slot).copy());
+                    Block.popResource(entity.level(), entity.blockPosition(), entity.getItemBySlot(slot).copy());
             });
 
             entity.discard();
@@ -368,7 +360,7 @@ public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry
         TransfurMode transfurMode = TransfurMode.REPLICATION;
         List<Function<EntityType<?>, ? extends AbstractAbility<?>>> abilities = new ArrayList<>();
         float cameraZOffset = 0.0F;
-        ResourceLocation sound = ChangedSounds.POISON.getLocation();
+        ResourceLocation sound = ChangedSounds.POISON.getId();
 
         public Builder(Supplier<EntityType<T>> entityType) {
             this.entityType = entityType;
@@ -596,76 +588,8 @@ public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry
                 });
     }
 
-    // Parses variant from JSON, does not register variant
-    public static TransfurVariant<?> fromJson(ResourceLocation id, JsonObject root) {
-        return fromJson(id, root, List.of());
-    }
-
-    public static TransfurVariant<?> fromJson(ResourceLocation id, JsonObject root, List<AbstractAbility<?>> injectAbilities) {
-        ResourceLocation entityType = ResourceLocation.tryParse(GsonHelper.getAsString(root, "entity", ChangedEntities.SPECIAL_LATEX.getId().toString()));
-
-        List<Class<? extends PathfinderMob>> scares = new ArrayList<>(ImmutableList.of(AbstractVillager.class));
-        GsonHelper.getAsJsonArray(root, "scares", new JsonArray()).forEach(element -> {
-            try {
-                scares.add((Class<? extends PathfinderMob>) Class.forName(element.getAsString()));
-            } catch (Exception e) {
-                Changed.LOGGER.error("Invalid class given: {}", element.getAsString());
-            }
-        });
-
-        List<TransfurVariant<?>> fusionOf = new ArrayList<>();
-        GsonHelper.getAsJsonArray(root, "fusionOf", new JsonArray()).forEach(element -> {
-            fusionOf.add(ChangedRegistry.TRANSFUR_VARIANT.get().getValue(ResourceLocation.tryParse(element.getAsString())));
-        });
-
-        AtomicReference<TransfurVariant<?>> mobFusionLatex = new AtomicReference<>(null);
-        AtomicReference<Class<? extends LivingEntity>> mobFusionMob = null;
-        GsonHelper.getAsJsonArray(root, "mobFusionOf", new JsonArray()).forEach(element -> {
-            if (ChangedRegistry.TRANSFUR_VARIANT.get().containsKey(ResourceLocation.tryParse(element.getAsString())))
-                mobFusionLatex.set(ChangedRegistry.TRANSFUR_VARIANT.get().getValue(ResourceLocation.tryParse(element.getAsString())));
-            try {
-                mobFusionMob.compareAndSet(null, (Class<? extends LivingEntity>)Class.forName(element.getAsString()));
-            } catch (ClassNotFoundException ignored) {}
-        });
-
-        List<AbstractAbility<?>> abilities = new ArrayList<>(injectAbilities);
-        GsonHelper.getAsJsonArray(root, "abilities", new JsonArray()).forEach(element -> {
-            abilities.add(ChangedRegistry.ABILITY.get().getValue(ResourceLocation.tryParse(element.getAsString())));
-        });
-
-        List<Function<EntityType<?>, ? extends AbstractAbility<?>>> nAbilitiesList = abilities.stream().map(a -> (Function<EntityType<?>, AbstractAbility<?>>) type -> a).collect(Collectors.toList());
-
-        boolean nightVision = GsonHelper.getAsBoolean(root, "nightVision", false);
-        boolean weakMining = GsonHelper.getAsBoolean(root, "weakMining", false);
-        float speed = GsonHelper.getAsFloat(root, "groundSpeed", 1.0F) * 0.1f;
-        float swimSpeed = GsonHelper.getAsFloat(root, "swimSpeed", 1.0F);
-        int additionalHealth = GsonHelper.getAsInt(root, "additionalHealth", 4);
-
-        return new TransfurVariant<>(
-                () -> (EntityType<ChangedEntity>) Registry.ENTITY_TYPE.get(entityType),
-                LatexType.valueOf(GsonHelper.getAsString(root, "latexType", LatexType.NEUTRAL.toString())),
-                GsonHelper.getAsFloat(root, "jumpStrength", 1.0f),
-                BreatheMode.valueOf(GsonHelper.getAsString(root, "breatheMode", BreatheMode.NORMAL.toString())),
-                GsonHelper.getAsFloat(root, "stepSize", 0.6f),
-                GsonHelper.getAsBoolean(root, "canGlide", false),
-                GsonHelper.getAsInt(root, "extraJumpCharges", 0),
-                GsonHelper.getAsBoolean(root, "reducedFall", false),
-                GsonHelper.getAsBoolean(root, "canClimb", false),
-                VisionType.fromSerial(GsonHelper.getAsString(root, "visionType", (nightVision ? VisionType.NIGHT_VISION : VisionType.NORMAL).getSerializedName()))
-                        .result().orElse(VisionType.NORMAL),
-                MiningStrength.fromSerial(GsonHelper.getAsString(root, "miningStrength", (weakMining ? MiningStrength.WEAK : MiningStrength.NORMAL).getSerializedName()))
-                        .result().orElse(MiningStrength.NORMAL),
-                UseItemMode.valueOf(GsonHelper.getAsString(root, "itemUseMode", UseItemMode.NORMAL.toString())),
-                scares,
-                TransfurMode.valueOf(GsonHelper.getAsString(root, "transfurMode", TransfurMode.REPLICATION.toString())),
-                nAbilitiesList,
-                GsonHelper.getAsFloat(root, "cameraZOffset", 0.0F),
-                ResourceLocation.tryParse(GsonHelper.getAsString(root, "sound", ChangedSounds.POISON.getLocation().toString()))).setRegistryName(id);
-    }
-
-
     public Pair<Color3, Color3> getColors() {
-        var ints = ChangedEntities.getEntityColor(getEntityType().getRegistryName());
+        var ints = ChangedEntities.getEntityColor(getEntityType().builtInRegistryHolder().key().location());
         return new Pair<>(
                 Color3.fromInt(ints.getFirst()),
                 Color3.fromInt(ints.getSecond()));

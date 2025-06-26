@@ -3,11 +3,11 @@ package net.ltxprogrammer.changed.data;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.util.CollectionUtil;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.core.Direction;
+import org.joml.Vector3f;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,7 +32,7 @@ public class DelayLoadedModel {
             Vector3f from = vec3fFromJson(object.get("from").getAsJsonArray());
             Vector3f to = vec3fFromJson(object.get("to").getAsJsonArray());
             float inflate = object.has("inflate") ? object.get("inflate").getAsFloat() : 0.0f;
-            Vector3f rotation = object.has("rotation") ? vec3fFromJson(object.get("rotation").getAsJsonArray()) : Vector3f.ZERO;
+            Vector3f rotation = object.has("rotation") ? vec3fFromJson(object.get("rotation").getAsJsonArray()) : new Vector3f(0f);
             Vector3f origin = vec3fFromJson(object.get("origin").getAsJsonArray());
             Map<Direction, UV> faces = new HashMap<>();
             JsonObject facesJson = object.get("faces").getAsJsonObject();
@@ -247,7 +247,7 @@ public class DelayLoadedModel {
             float ry = degToRad(-group.rotation.y());
             float rz = degToRad(group.rotation.z());
 
-            Vector3f origin = group.origin.copy();
+            Vector3f origin = new Vector3f(group.origin);
             if (group.parent != null)
                 origin.sub(group.parent.origin);
             origin.mul(-1.0f, -1.0f, 1.0f);

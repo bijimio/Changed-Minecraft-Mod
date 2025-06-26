@@ -29,7 +29,7 @@ public abstract class MinecraftMixin {
         if (LatexType.getEntityLatexType(livingEntity) == LatexType.WHITE_LATEX)
             return;
 
-        BlockState standing = livingEntity.level.getBlockState(livingEntity.blockPosition().below());
+        BlockState standing = livingEntity.level().getBlockState(livingEntity.blockPosition().below());
         if (standing == null || standing.isAir())
             return;
         if (AbstractLatexBlock.getLatexed(standing) == LatexType.WHITE_LATEX)

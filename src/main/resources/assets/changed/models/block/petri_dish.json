@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "changed:blocks/petri_dish",
-		"particle": "changed:blocks/petri_dish"
+		"0": "changed:block/petri_dish",
+		"particle": "changed:block/petri_dish"
 	},
 	"elements": [
 		{

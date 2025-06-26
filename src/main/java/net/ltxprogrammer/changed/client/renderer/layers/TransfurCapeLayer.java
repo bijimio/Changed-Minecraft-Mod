@@ -39,7 +39,7 @@ public class TransfurCapeLayer<T extends ChangedEntity, M extends AdvancedHumano
    private final ModelPart Joint;
 
    private static List<UUID> DEV_CAPES = List.of(UUID.fromString("380df991-f603-344c-a090-369bad2a924a"));
-   private static final ResourceLocation DEV_CAPE = Changed.modResource("textures/items/3d/dev_cape.png");
+   private static final ResourceLocation DEV_CAPE = Changed.modResource("textures/item/3d/dev_cape.png");
 
    private TransfurCapeLayer(RenderLayerParent<T, M> parent, ModelPart cloak) {
       super(parent);

@@ -51,7 +51,7 @@ public class LatexStiger extends AbstractCaveEntity {
 
     public void tick() {
         super.tick();
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.setClimbing(this.horizontalCollision);
         }
 

@@ -41,6 +41,7 @@ public class ChangedTabs {
                     .displayItems((params, output) -> {
                         // TODO
 
+                        ChangedItems.DARK_LATEX_MASK.get().fillItemList(CHANGED_ONLY, params, output);
                         ChangedItems.LATEX_SYRINGE.get().fillItemList(CHANGED_ONLY, params, output);
                         ChangedItems.LATEX_FLASK.get().fillItemList(CHANGED_ONLY, params, output);
                         ChangedItems.LATEX_TIPPED_ARROW.get().fillItemList(CHANGED_ONLY, params, output);

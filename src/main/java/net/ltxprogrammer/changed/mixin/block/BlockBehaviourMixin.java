@@ -9,6 +9,7 @@ import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,7 +20,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
@@ -39,9 +41,9 @@ import java.util.Random;
 import static net.ltxprogrammer.changed.block.AbstractLatexBlock.*;
 
 @Mixin(BlockBehaviour.class)
-public abstract class BlockBehaviourMixin extends net.minecraftforge.registries.ForgeRegistryEntry<Block> {
+public abstract class BlockBehaviourMixin {
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
-    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull Random random, CallbackInfo callbackInfo) {
+    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull RandomSource random, CallbackInfo callbackInfo) {
         if (state.getProperties().contains(COVERED) && state.getValue(COVERED) != LatexType.NEUTRAL) {
             callbackInfo.cancel();
 
@@ -54,7 +56,7 @@ public abstract class BlockBehaviourMixin extends net.minecraftforge.registries.
     }
 
     @Inject(method = "getDrops", at = @At("RETURN"), cancellable = true)
-    public void getDrops(BlockState state, LootContext.Builder builder, CallbackInfoReturnable<List<ItemStack>> callbackInfoReturnable) {
+    public void getDrops(BlockState state, LootParams.Builder builder, CallbackInfoReturnable<List<ItemStack>> callbackInfoReturnable) {
         if (state.getProperties().contains(COVERED) && state.getValue(COVERED) != LatexType.NEUTRAL) {
             var goo = state.getValue(COVERED).goo;
             ArrayList<ItemStack> newList = new ArrayList<>(callbackInfoReturnable.getReturnValue());
@@ -77,8 +79,8 @@ public abstract class BlockBehaviourMixin extends net.minecraftforge.registries.
             return;
         }
 
-        if (!BlockRenderHelper.canBlockRenderAsSolid(otherState))
-            return;
+        /*if (!BlockRenderHelper.canBlockRenderAsSolid(otherState))
+            return;*/
 
         if (!otherState.isFaceSturdy(UniversalDist.getLevel(), BlockPos.ZERO, direction.getOpposite()))
             return;

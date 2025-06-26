@@ -21,7 +21,7 @@ public abstract class ItemBlockRenderTypesMixin {
     @Unique
     private static boolean recurseFlag = false;
 
-    private static boolean checkLatexCoveredLayers(BlockState state, RenderType type, CallbackInfoReturnable<Boolean> callback) {
+    /*private static boolean checkLatexCoveredLayers(BlockState state, RenderType type, CallbackInfoReturnable<Boolean> callback) {
         if (!state.getProperties().contains(COVERED) || state.getValue(COVERED) == LatexType.NEUTRAL)
             return false;
 
@@ -72,5 +72,5 @@ public abstract class ItemBlockRenderTypesMixin {
             return;
         if (checkResonantBlockLayers(state, type, callback))
             return;
-    }
+    }*/
 }

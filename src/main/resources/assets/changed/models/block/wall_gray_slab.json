@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/slab",
   "textures": {
-    "bottom": "changed:blocks/wall_gray",
-    "top": "changed:blocks/wall_gray",
-    "side": "changed:blocks/wall_gray"
+    "bottom": "changed:block/wall_gray",
+    "top": "changed:block/wall_gray",
+    "side": "changed:block/wall_gray"
   }
 }

@@ -51,7 +51,7 @@ public class LeglessSlitherAnimator<T extends ChangedEntity, M extends AdvancedH
     public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         float tailDrag = entity.getTailDragAmount(this.core.partialTicks) * 0.5f;
         float verticalDrag = entity.getSimulatedSpring(SpringType.HEAVY_STRONG, SpringType.Direction.VERTICAL, this.core.partialTicks) * 0.4f;
-        if (entity.isOnGround())
+        if (entity.onGround())
             verticalDrag = Math.min(0f, verticalDrag);
 
         float overallAngle = 0f;

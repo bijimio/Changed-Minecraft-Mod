@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "changed:items/diamond_upper_abdomen_armor"
+    "layer0": "changed:item/diamond_upper_abdomen_armor"
   }
 }

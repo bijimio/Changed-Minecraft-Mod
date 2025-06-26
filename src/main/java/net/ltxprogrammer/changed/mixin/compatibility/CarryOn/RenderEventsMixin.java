@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Mixin(value = RenderEvents.class, remap = false)
+/*@Mixin(value = RenderEvents.class, remap = false)
 @RequiredMods("carryon")
 public abstract class RenderEventsMixin {
     @Unique private static Player currentPlayer = null;
@@ -162,4 +162,4 @@ public abstract class RenderEventsMixin {
             CarryRenderHelper.renderItem(state, tag, stack, tileStack, matrix, buffer, light, model);
         });
     }
-}
+}*/

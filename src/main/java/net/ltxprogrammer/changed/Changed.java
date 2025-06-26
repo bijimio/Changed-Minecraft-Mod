@@ -91,11 +91,10 @@ public class Changed {
         ChangedAttributes.REGISTRY.register(modEventBus);
         ChangedEnchantments.REGISTRY.register(modEventBus);
         ChangedRecipeSerializers.REGISTRY.register(modEventBus);
-        ChangedStructureSets.REGISTRY.register(modEventBus);
-        ChangedStructures.CONFIGURED_REGISTRY.register(modEventBus);
-        ChangedStructures.REGISTRY.register(modEventBus);
+        ChangedStructureTypes.REGISTRY.register(modEventBus);
         ChangedStructurePieceTypes.REGISTRY.register(modEventBus);
-        ChangedDamageSources.REGISTRY.register(modEventBus);
+        ChangedLootItemFunctions.REGISTRY.register(modEventBus);
+        ChangedRecipeTypes.REGISTRY.register(modEventBus);
         ChangedTabs.REGISTRY.register(modEventBus);
         ChangedSounds.REGISTRY.register(modEventBus);
         ChangedPaintings.REGISTRY.register(modEventBus);
@@ -104,9 +103,9 @@ public class Changed {
         ChangedFeatures.REGISTRY_PROCESSOR.register(modEventBus);
         ChangedMenus.REGISTRY.register(modEventBus);
         ChangedEffects.REGISTRY.register(modEventBus);
-        ChangedBiomes.REGISTRY.register(modEventBus);
         ChangedBlockEntities.REGISTRY.register(modEventBus);
-        ChangedFluids.REGISTRY.register(modEventBus);
+        ChangedFluids.REGISTRY_TYPES.register(modEventBus);
+        ChangedFluids.REGISTRY_FLUIDS.register(modEventBus);
         ChangedItems.REGISTRY.register(modEventBus);
         ChangedBlockStateProviders.REGISTRY.register(modEventBus);
         ChangedBlocks.REGISTRY.register(modEventBus);

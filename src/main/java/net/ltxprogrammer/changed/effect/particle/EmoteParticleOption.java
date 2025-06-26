@@ -11,6 +11,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class EmoteParticleOption implements ParticleOptions {
     private static Entity entityOrException(int id) {
@@ -65,7 +66,7 @@ public class EmoteParticleOption implements ParticleOptions {
 
     @Override
     public String writeToString() {
-        return Registry.PARTICLE_TYPE.getKey(this.getType()) + " " + emote.ordinal();
+        return ForgeRegistries.PARTICLE_TYPES.getKey(this.getType()) + " " + emote.ordinal();
     }
 
     public Entity getEntity() {

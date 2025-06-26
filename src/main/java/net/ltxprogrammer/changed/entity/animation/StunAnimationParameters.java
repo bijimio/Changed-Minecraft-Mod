@@ -18,7 +18,7 @@ public class StunAnimationParameters implements AnimationParameters {
 
     @Override
     public boolean shouldEndAnimation(LivingEntity livingEntity, float totalTime) {
-        return !livingEntity.hasEffect(ChangedEffects.SHOCK) && totalTime > 0.2f;
+        return !livingEntity.hasEffect(ChangedEffects.SHOCK.get()) && totalTime > 0.2f;
     }
 
     @Override

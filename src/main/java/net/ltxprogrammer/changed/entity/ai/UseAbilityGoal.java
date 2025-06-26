@@ -43,7 +43,7 @@ public class UseAbilityGoal extends Goal {
         }
 
         if (selectedAbility == null) {
-            CollectionUtil.shuffle(abilities.entrySet().stream(), latex.level.random).forEach(entry -> {
+            CollectionUtil.shuffle(abilities.entrySet().stream(), latex.level().random).forEach(entry -> {
                 if (selectedAbility == null && entry.getValue().getFirst().test(entry.getValue().getSecond()) &&
                     !entry.getValue().getSecond().getController().isCoolingDown()) {
                     selectedAbility = entry.getKey();

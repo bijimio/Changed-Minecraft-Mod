@@ -1,9 +1,9 @@
 package net.ltxprogrammer.changed.mixin.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import net.ltxprogrammer.changed.client.PoseStackExtender;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -45,8 +45,8 @@ public abstract class PoseStackMixin implements PoseStackExtender {
     @Override
     public void setPose(Matrix4f pose, Matrix3f normal) {
         var l = last();
-        l.pose().load(pose);
-        l.normal().load(normal);
+        l.pose().set(pose);
+        l.normal().set(normal);
     }
 
     @Override

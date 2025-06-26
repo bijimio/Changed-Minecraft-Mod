@@ -91,16 +91,6 @@ public class AbilityRadialScreen extends VariantRadialScreen<AbilityRadialMenu> 
                     variant.getChangedEntity(), alpha);
         }
 
-        else if (ability == ChangedAbilities.SELECT_SPECIAL_STATE.get()) {
-            x = x * 0.9;
-            y = (y * 0.9) - 16;
-
-            InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, (int)x + this.leftPos, (int)y + 32 + this.topPos, 20,
-                    (float)(this.leftPos) - mouseX + (int)x,
-                    (float)(this.topPos) - mouseY + (int)y,
-                    variant.getChangedEntity());
-        }
-
         else {
             ChangedClient.abilityRenderer.getOrThrow().renderAndDecorateAbility(
                     menu.player,

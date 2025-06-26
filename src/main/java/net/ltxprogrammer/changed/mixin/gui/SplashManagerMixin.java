@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mixin(SplashManager.class)
 public abstract class SplashManagerMixin extends SimplePreparableReloadListener<List<String>> {
@@ -32,45 +34,10 @@ public abstract class SplashManagerMixin extends SimplePreparableReloadListener<
     protected void prepare(ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfoReturnable<List<String>> callback) {
         List<String> newList = new ArrayList<>(callback.getReturnValue());
 
-        try {
-            Resource resource = Minecraft.getInstance().getResourceManager().getResource(CHANGED_SPLASHES_LOCATION);
+        try (BufferedReader bufferedreader = Minecraft.getInstance().getResourceManager().openAsReader(CHANGED_SPLASHES_LOCATION)) {
+            bufferedreader.lines().map(String::trim).forEach(newList::add);
+        } catch (IOException ioexception) {}
 
-            try {
-                BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
-
-                try {
-                    newList.addAll(bufferedreader.lines().map(String::trim).toList());
-                } catch (Throwable throwable2) {
-                    try {
-                        bufferedreader.close();
-                    } catch (Throwable throwable1) {
-                        throwable2.addSuppressed(throwable1);
-                    }
-
-                    throw throwable2;
-                }
-
-                bufferedreader.close();
-            } catch (Throwable throwable3) {
-                if (resource != null) {
-                    try {
-                        resource.close();
-                    } catch (Throwable throwable) {
-                        throwable3.addSuppressed(throwable);
-                    }
-                }
-
-                throw throwable3;
-            }
-
-            if (resource != null) {
-                resource.close();
-            }
-
-            callback.setReturnValue(newList);
-            return;
-        } catch (IOException ioexception) {
-            return;
-        }
+        callback.setReturnValue(newList);
     }
 }

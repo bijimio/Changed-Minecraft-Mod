@@ -40,13 +40,13 @@ public class WhiteLatexFluidBlock extends AbstractLatexFluidBlock implements Whi
     @Override
     public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         super.entityInside(state, level, pos, entity);
-        if (entity instanceof ChangedEntity ChangedEntity) {
-            if (ChangedEntity.getLatexType().isHostileTo(LatexType.WHITE_LATEX))
-                ChangedEntity.hurt(ChangedDamageSources.WHITE_LATEX, 3.0f);
+        if (entity instanceof ChangedEntity changedEntity) {
+            if (changedEntity.getLatexType().isHostileTo(LatexType.WHITE_LATEX))
+                changedEntity.hurt(ChangedDamageSources.WHITE_LATEX.source(changedEntity.level().registryAccess()), 3.0f);
         }
         ProcessTransfur.ifPlayerTransfurred(EntityUtil.playerOrNull(entity), (player, variantInstance) -> {
             if (variantInstance.getLatexType().isHostileTo(LatexType.WHITE_LATEX))
-                player.hurt(ChangedDamageSources.WHITE_LATEX, 3.0f);
+                player.hurt(ChangedDamageSources.WHITE_LATEX.source(player.level().registryAccess()), 3.0f);
         });
     }
 }

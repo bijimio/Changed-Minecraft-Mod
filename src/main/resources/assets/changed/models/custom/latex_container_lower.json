@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "changed:blocks/latex_container",
-		"particle": "changed:blocks/latex_container"
+		"0": "changed:block/latex_container",
+		"particle": "changed:block/latex_container"
 	},
 	"elements": [
 		{

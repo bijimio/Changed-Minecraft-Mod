@@ -33,8 +33,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class BloodSyringe extends Item implements SpecializedAnimations {
-    public static final DamageSource BLOODLOSS = (new DamageSource("changed:bloodloss")).bypassArmor();
-
     public BloodSyringe(Properties p_41383_) {
         super(p_41383_);
     }
@@ -152,10 +150,10 @@ public class BloodSyringe extends Item implements SpecializedAnimations {
     public InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity livingEntity, InteractionHand hand) {
         return Changed.postModEvent(
                 new UsedOnEntity(livingEntity,
-                        player.level,
+                        player.level(),
                         player,
                         itemStack)) ?
-                InteractionResult.sidedSuccess(player.level.isClientSide) :
+                InteractionResult.sidedSuccess(player.level().isClientSide) :
                 super.interactLivingEntity(itemStack, player, livingEntity, hand);
     }
 }

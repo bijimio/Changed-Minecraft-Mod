@@ -8,10 +8,9 @@ import net.ltxprogrammer.changed.util.InputWrapper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.RegistryObject;
 
-public abstract class PlayerMover<T extends PlayerMoverInstance<?>> extends ForgeRegistryEntry<PlayerMover<?>> {
+public abstract class PlayerMover<T extends PlayerMoverInstance<?>> {
     public abstract T createInstance();
 
     private static class DefaultMover extends PlayerMover<DefaultMover.DefaultInstance> {

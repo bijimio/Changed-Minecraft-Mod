@@ -36,6 +36,8 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 public abstract class AbstractLatexBlock extends Block implements NonLatexCoverableBlock {
+    // TODO replace with its own chunk data layer, instead of per-blockstate
+    @Deprecated
     public static final EnumProperty<LatexType> COVERED = EnumProperty.create("covered_with", LatexType.class, LatexType.values());
 
     private final LatexType latexType;
@@ -46,8 +48,6 @@ public abstract class AbstractLatexBlock extends Block implements NonLatexCovera
     }
 
     public static LatexType getLatexed(BlockState blockState) {
-        if (blockState.getProperties().contains(COVERED))
-            return blockState.getValue(COVERED);
         if (blockState.getBlock() instanceof AbstractLatexBlock block)
             return block.latexType;
         return LatexType.NEUTRAL;

@@ -24,7 +24,7 @@ public abstract class PrimaryLevelDataMixin {
 
     @Inject(method = "updatePlayerTag", at = @At("RETURN"))
     private void updateChangedTag(CallbackInfo callback) {
-        if (this.playerDataVersion >= SharedConstants.getCurrentVersion().getWorldVersion() && Changed.dataFixer != null)
+        if (this.playerDataVersion >= SharedConstants.getCurrentVersion().getProtocolVersion() && Changed.dataFixer != null)
             Changed.dataFixer.updateCompoundTag(DataFixTypes.PLAYER, this.loadedPlayerTag);
     }
 

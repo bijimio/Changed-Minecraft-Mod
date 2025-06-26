@@ -11,8 +11,6 @@
     "minecraft:savanna_plateau",
     "minecraft:windswept_hills",
     "minecraft:sparse_jungle",
-    "minecraft:desert",
-    "changed:dark_latex_plains",
-    "changed:white_latex_forest"
+    "minecraft:desert"
   ]
 }

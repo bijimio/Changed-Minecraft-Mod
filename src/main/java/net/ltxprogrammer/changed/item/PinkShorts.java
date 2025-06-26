@@ -23,7 +23,7 @@ public class PinkShorts extends ClothingItem implements LatexFusingItem {
 
     @Override
     public TransfurVariant<?> getFusionVariant(TransfurVariant<?> currentVariant, LivingEntity livingEntity, ItemStack itemStack) {
-        if (livingEntity.level.isClientSide)
+        if (livingEntity.level().isClientSide)
             return currentVariant;
 
         if (currentVariant.is(ChangedTransfurVariants.LATEX_DEER))
@@ -32,14 +32,14 @@ public class PinkShorts extends ClothingItem implements LatexFusingItem {
             return ChangedTransfurVariants.LATEX_PINK_YUIN_DRAGON.get();
         else {
             if (livingEntity.getRandom().nextBoolean()) {
-                var newEntity = currentVariant.getEntityType().create(livingEntity.level);
+                var newEntity = currentVariant.getEntityType().create(livingEntity.level());
                 newEntity.moveTo(livingEntity.position());
-                livingEntity.level.addFreshEntity(newEntity);
+                livingEntity.level().addFreshEntity(newEntity);
                 return ChangedTransfurVariants.LATEX_PINK_WYVERN.get();
             } else {
-                var wyvern = ChangedEntities.LATEX_PINK_WYVERN.get().create(livingEntity.level);
+                var wyvern = ChangedEntities.LATEX_PINK_WYVERN.get().create(livingEntity.level());
                 wyvern.moveTo(livingEntity.position());
-                livingEntity.level.addFreshEntity(wyvern);
+                livingEntity.level().addFreshEntity(wyvern);
                 return currentVariant; // Return current to consume pants (Yummy)
             }
         }

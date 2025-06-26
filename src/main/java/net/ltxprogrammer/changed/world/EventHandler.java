@@ -10,11 +10,11 @@ import net.minecraftforge.fml.common.Mod;
 public abstract class EventHandler {
     @SubscribeEvent
     public static void onEmptySwingEvent(PlayerInteractEvent.LeftClickEmpty event) {
-        AccessorySlots.getForEntity(event.getEntityLiving()).ifPresent(slots -> slots.onEntitySwing(event.getHand()));
+        AccessorySlots.getForEntity(event.getEntity()).ifPresent(slots -> slots.onEntitySwing(event.getHand()));
     }
 
     @SubscribeEvent
     public static void onEntityAttackedEvent(LivingAttackEvent event) {
-        AccessorySlots.getForEntity(event.getEntityLiving()).ifPresent(slots -> slots.onEntityDamage(event.getSource(), event.getAmount()));
+        AccessorySlots.getForEntity(event.getEntity()).ifPresent(slots -> slots.onEntityDamage(event.getSource(), event.getAmount()));
     }
 }

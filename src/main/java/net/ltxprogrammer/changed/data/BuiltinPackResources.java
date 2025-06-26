@@ -6,7 +6,6 @@ import com.google.common.collect.Sets;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.AbstractPackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.ResourcePackFileNotFoundException;
 import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Nullable;
@@ -20,7 +19,7 @@ import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class BuiltinPackResources extends AbstractPackResources {
+/*public class BuiltinPackResources extends AbstractPackResources {
     private final File file;
     private final String prefix;
     private final Splitter splitter;
@@ -130,7 +129,7 @@ public class BuiltinPackResources extends AbstractPackResources {
                     String s3 = s2.substring(s.length());
                     String[] astring = s3.split("/");
                     if (astring.length >= maxDepth + 1 && filter.test(astring[astring.length - 1])) {
-                        list.add(new ResourceLocation(namespace, s3));
+                        list.add(ResourceLocation.fromNamespaceAndPath(namespace, s3));
                     }
                 }
             }
@@ -138,4 +137,4 @@ public class BuiltinPackResources extends AbstractPackResources {
 
         return list;
     }
-}
+}*/

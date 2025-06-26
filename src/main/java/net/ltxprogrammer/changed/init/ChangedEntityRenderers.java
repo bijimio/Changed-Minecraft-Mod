@@ -153,8 +153,6 @@ public class ChangedEntityRenderers {
         event.registerEntityRenderer(ChangedEntities.MILK_PUDDING.get(), MilkPuddingRenderer::new);
         event.registerEntityRenderer(ChangedEntities.SHARK.get(), SharkRenderer::new);
 
-        event.registerEntityRenderer(ChangedEntities.SPECIAL_LATEX.get(), SpecialLatexRenderer::new);
-
         event.registerEntityRenderer(ChangedEntities.ROOMBA.get(), RoombaRenderer::new);
         event.registerEntityRenderer(ChangedEntities.EXOSKELETON.get(), ExoskeletonRenderer::new);
 

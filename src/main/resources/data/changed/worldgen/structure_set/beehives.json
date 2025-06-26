@@ -1,0 +1,13 @@
+{
+  "structures": [
+    { "structure": "changed:beehive1", "weight": 1 }
+  ],
+  "placement": {
+    "salt": 781824,
+
+    "type": "minecraft:random_spread",
+    "spread_type": "linear",
+    "spacing": 20,
+    "separation": 8
+  }
+}

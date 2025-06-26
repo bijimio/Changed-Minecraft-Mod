@@ -260,14 +260,10 @@ public class ChangedBlocks {
 
     public static void cutoutRenderer(Block block) {
         Changed.LOGGER.warn("Block assigned for cutout renderer : {}", block);
-        /*DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
-                ItemBlockRenderTypes.setRenderLayer(block, renderType -> renderType == RenderType.cutout()));*/
     }
 
     public static void translucentRenderer(Block block) {
         Changed.LOGGER.warn("Block assigned for translucent renderer : {}", block);
-        /*DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
-                ItemBlockRenderTypes.setRenderLayer(block, renderType -> renderType == RenderType.translucent()));*/
     }
 
     private static RegistryObject<FlowerPotBlock> registerPottedPlant(String name, RegistryObject<? extends Block> plant) {
@@ -283,10 +279,7 @@ public class ChangedBlocks {
     }
 
     private static <T extends Block> RegistryObject<T> registerNoItem(String name, Supplier<T> blockConstructor, @Nullable Consumer<Block> renderLayer) {
-        RegistryObject<T> block = REGISTRY.register(name, blockConstructor);
-        if (renderLayer != null)
-            REGISTRY_CRL.put(block, renderLayer);
-        return block;
+        return REGISTRY.register(name, blockConstructor);
     }
 
     private static <T extends Block> RegistryObject<T> register(String name, Supplier<T> block) {
@@ -300,15 +293,13 @@ public class ChangedBlocks {
     private static <T extends Block, I extends Item> RegistryObject<T> register(String name, Supplier<T> blockConstructor, @Nullable Consumer<Block> renderLayer,
                                                                                 @Nullable Function<T, I> item) {
         RegistryObject<T> block = REGISTRY.register(name, blockConstructor);
-        if (renderLayer != null)
-            REGISTRY_CRL.put(block, renderLayer);
         if (item != null)
             ChangedItems.register(name, () -> item.apply(block.get()));
         return block;
     }
 
     public static ResourceLocation textureOf(RegistryObject<? extends Block> block) {
-        return Changed.modResource("blocks/" + block.getId().getPath());
+        return Changed.modResource("block/" + block.getId().getPath());
     }
 
     @OnlyIn(Dist.CLIENT)

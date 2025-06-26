@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class LatexContainerRenderer<T extends LatexContainerBlockEntity> implements BlockEntityRenderer<T> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Changed.modResource("latex_fill"), "main");
-    public static final ResourceLocation TEXTURE = Changed.modResource("textures/blocks/latex_fill.png");
+    public static final ResourceLocation TEXTURE = Changed.modResource("textures/block/latex_fill.png");
     private static final RenderType renderType = RenderType.entityCutout(TEXTURE);
     private final ModelPart goo;
 

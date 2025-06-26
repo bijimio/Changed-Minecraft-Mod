@@ -82,7 +82,7 @@ public class ComputerMenu extends TextMenu {
 
                 switch (op) {
                     case GET_RECIPE -> {
-                        data.getFileSafe(Path.of(payload.getString("path"))).flatMap(file -> player.level.getRecipeManager().byKey(ResourceLocation.tryParse(file.content))).ifPresent(recipe -> {
+                        data.getFileSafe(Path.of(payload.getString("path"))).flatMap(file -> player.level().getRecipeManager().byKey(ResourceLocation.tryParse(file.content))).ifPresent(recipe -> {
                             player.awardRecipes(Collections.singleton(recipe));
                         });
                     }

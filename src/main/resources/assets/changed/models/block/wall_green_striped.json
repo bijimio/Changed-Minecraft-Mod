@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "down": "changed:blocks/wall_green",
-    "up": "changed:blocks/wall_green",
-    "north": "changed:blocks/wall_green_striped",
-    "east": "changed:blocks/wall_green_striped",
-    "south": "changed:blocks/wall_green_striped",
-    "west": "changed:blocks/wall_green_striped",
-    "particle": "changed:blocks/wall_green"
+    "down": "changed:block/wall_green",
+    "up": "changed:block/wall_green",
+    "north": "changed:block/wall_green_striped",
+    "east": "changed:block/wall_green_striped",
+    "south": "changed:block/wall_green_striped",
+    "west": "changed:block/wall_green_striped",
+    "particle": "changed:block/wall_green"
   }
 }

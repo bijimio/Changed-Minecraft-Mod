@@ -7,6 +7,7 @@ import net.ltxprogrammer.changed.entity.TransfurMode;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -15,7 +16,7 @@ import java.util.function.Supplier;
 public class AbilityColors {
     public static final int DEFAULT = -1;
     // FORGE: Use RegistryDelegates as non-Vanilla item ids are not constant
-    private final java.util.Map<Holder.Reference<AbstractAbility<?>>, AbilityColor> abilityColors = new java.util.HashMap<>();
+    private final java.util.Map<ResourceLocation, AbilityColor> abilityColors = new java.util.HashMap<>();
 
     public static AbstractRadialScreen.ColorScheme getAbilityColors(AbstractAbilityInstance abilityInstance) {
         return AbstractRadialScreen.getColors(abilityInstance.entity.getTransfurVariantInstance()).setForegroundToBright();
@@ -55,13 +56,13 @@ public class AbilityColors {
 
     public void register(AbilityColor abilityColor, AbstractAbility<?>... abilities) {
         for (AbstractAbility<?> ability : abilities) {
-            this.abilityColors.put(ChangedRegistry.ABILITY.get().getDelegateOrThrow(ability), abilityColor);
+            this.abilityColors.put(ChangedRegistry.ABILITY.getKey(ability), abilityColor);
         }
     }
 
     public void register(AbilityColor abilityColor, Collection<AbstractAbility<?>> abilities) {
         for (AbstractAbility<?> ability : abilities) {
-            this.abilityColors.put(ChangedRegistry.ABILITY.get().getDelegateOrThrow(ability), abilityColor);
+            this.abilityColors.put(ChangedRegistry.ABILITY.getKey(ability), abilityColor);
         }
     }
 }

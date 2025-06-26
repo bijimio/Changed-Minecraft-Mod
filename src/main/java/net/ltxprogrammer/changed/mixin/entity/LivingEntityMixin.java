@@ -109,10 +109,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
 
     @Inject(method = "updateFallFlying", at = @At("HEAD"), cancellable = true)
     private void updateFallFlying(CallbackInfo callback) {
-        if (this.level.isClientSide) return;
+        if (this.level().isClientSide) return;
         ProcessTransfur.ifPlayerTransfurred(EntityUtil.playerOrNull(this), (player, variant) -> {
             if (variant.getParent().canGlide) {
-                this.setSharedFlag(7, player.isFallFlying() && !player.isOnGround() && !player.isPassenger() && !player.hasEffect(MobEffects.LEVITATION));
+                this.setSharedFlag(7, player.isFallFlying() && !player.onGround() && !player.isPassenger() && !player.hasEffect(MobEffects.LEVITATION));
                 callback.cancel();
             }
         });
@@ -260,15 +260,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
         // Code from Entity.updateFluidOnEyes()
         double yCheck = this.getEyeY() - 0.11111111;
 
-        BlockPos blockpos = new BlockPos(this.getX(), yCheck, this.getZ());
-        FluidState fluidstate = this.level.getFluidState(blockpos);
-        double yFluid = ((float)blockpos.getY() + fluidstate.getHeight(this.level, blockpos));
+        BlockPos blockpos = EntityUtil.getBlock(this.getX(), yCheck, this.getZ());
+        FluidState fluidstate = this.level().getFluidState(blockpos);
+        double yFluid = ((float)blockpos.getY() + fluidstate.getHeight(this.level(), blockpos));
         if (yFluid > yCheck && fluidstate.getType() instanceof Gas transfurGas)
             eyeInGas = transfurGas;
 
-        var blockstate = this.level.getBlockState(blockpos);
+        var blockstate = this.level().getBlockState(blockpos);
         if (blockstate.is(ChangedBlocks.STASIS_CHAMBER.get())) {
-            this.level.getBlockEntity(
+            this.level().getBlockEntity(
                     blockstate.getValue(StasisChamber.SECTION).getRelative(blockpos, blockstate.getValue(HorizontalDirectionalBlock.FACING), ThreeXThreeSection.CENTER),
                     ChangedBlockEntities.STASIS_CHAMBER.get()
             ).filter(chamber -> chamber.getFluidYHeight() > yCheck).flatMap(StasisChamberBlockEntity::getFluidType).ifPresent(fluid -> {
@@ -341,7 +341,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
             return;
 
         if (!this.isSilent()) {
-            this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), extended.getBreakSound(itemStack), this.getSoundSource(), 0.8F, 0.8F + this.level.random.nextFloat() * 0.4F, false);
+            this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), extended.getBreakSound(itemStack), this.getSoundSource(), 0.8F, 0.8F + this.level().random.nextFloat() * 0.4F, false);
         }
 
         this.spawnItemParticles(itemStack, 5);
@@ -350,7 +350,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
     }
 
     @Shadow public abstract boolean canStandOnFluid(FluidState state);
-    @Shadow public abstract boolean isEffectiveAi();
     @Shadow public abstract boolean hasEffect(MobEffect effect);
     @Shadow public abstract AttributeInstance getAttribute(Attribute attribute);
     @Shadow protected abstract boolean isAffectedByFluids();
@@ -387,7 +386,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
             }
             d0 = gravity.getValue();
 
-            FluidState fluidstate = this.level.getFluidState(this.blockPosition());
+            FluidState fluidstate = this.level().getFluidState(this.blockPosition());
             if (this.isInLatex() && this.isAffectedByFluids() && !this.canStandOnFluid(fluidstate)) {
                 double d8 = this.getY();
                 this.moveRelative(0.02F, direction);
@@ -467,11 +466,11 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
 
     @Inject(method = "stopSleeping", at = @At("HEAD"), cancellable = true)
     public void unlessIsStabilizedAndMultiplayer(CallbackInfo ci) {
-        if ((LivingEntity)(Object)this instanceof Player && level instanceof ServerLevel serverLevel) {
+        if ((LivingEntity)(Object)this instanceof Player && level() instanceof ServerLevel serverLevel) {
             if (serverLevel.players().stream().filter(player -> !player.isSpectator()).count() == 1) {
                 // Singleplayer, just skip stasis time
                 if (this.vehicle instanceof SeatEntity seatEntity) {
-                    this.level.getBlockEntity(seatEntity.getAttachedBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get())
+                    this.level().getBlockEntity(seatEntity.getAttachedBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get())
                             .ifPresent(StasisChamberBlockEntity::trimSchedule);
                 }
                 return;
@@ -485,7 +484,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
     public void getStasisChamberOrientation(CallbackInfoReturnable<Direction> cir) {
         if (this.vehicle instanceof SeatEntity seatEntity) {
             seatEntity.getAttachedBlockState()
-                    .map(state -> state.getBedDirection(this.level, seatEntity.getAttachedBlockPos()))
+                    .map(state -> state.getBedDirection(this.level(), seatEntity.getAttachedBlockPos()))
                     .ifPresent(cir::setReturnValue);
         }
     }
@@ -503,7 +502,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
 
     @Inject(method = "dropEquipment", at = @At("RETURN"))
     public void dropAccessories(CallbackInfo ci) {
-        if (!this.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+        if (!this.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
             for(int i = 0; i < accessorySlots.getContainerSize(); ++i) {
                 ItemStack itemstack = accessorySlots.getItem(i);
                 if (!itemstack.isEmpty() && EnchantmentHelper.hasVanishingCurse(itemstack)) {

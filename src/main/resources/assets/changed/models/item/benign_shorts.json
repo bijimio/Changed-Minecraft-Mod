@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "changed:items/benign_shorts"
+    "layer0": "changed:item/benign_shorts"
   }
 }

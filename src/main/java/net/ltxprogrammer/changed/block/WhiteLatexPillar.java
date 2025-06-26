@@ -127,15 +127,15 @@ public class WhiteLatexPillar extends AbstractCustomShapeTallBlock implements Wh
                 }
 
                 else if (latexType.isHostileTo(LatexType.WHITE_LATEX)) {
-                    player.hurt(ChangedDamageSources.WHITE_LATEX, 3.0f);
+                    player.hurt(ChangedDamageSources.WHITE_LATEX.source(player.level().registryAccess()), 3.0f);
                 }
             }
             else {
                 ProcessTransfur.progressTransfur(le, 4.8f, ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), TransfurContext.hazard(TransfurCause.WHITE_LATEX));
             }
-        } else if (entity instanceof ChangedEntity ChangedEntity) {
-            if (ChangedEntity.getLatexType().isHostileTo(LatexType.WHITE_LATEX))
-                ChangedEntity.hurt(ChangedDamageSources.WHITE_LATEX, 3.0f);
+        } else if (entity instanceof ChangedEntity changedEntity) {
+            if (changedEntity.getLatexType().isHostileTo(LatexType.WHITE_LATEX))
+                changedEntity.hurt(ChangedDamageSources.WHITE_LATEX.source(changedEntity.level().registryAccess()), 3.0f);
         }
         entity.makeStuckInBlock(state, new Vec3((double)0.8F, 0.75D, (double)0.8F));
     }
@@ -148,7 +148,7 @@ public class WhiteLatexPillar extends AbstractCustomShapeTallBlock implements Wh
 
         boolean wantToAppear = WhiteLatexBlock.targetNearby(level, blockPos);
         if (blockState.getValue(EXTENDED) != wantToAppear) {
-            ChangedSounds.broadcastSound(level.getServer(), ChangedSounds.POISON, blockPos, 1, 1);
+            ChangedSounds.broadcastSound(level, ChangedSounds.POISON, blockPos, 1, 1);
             level.setBlockAndUpdate(blockPos, blockState.setValue(EXTENDED, wantToAppear));
             level.setBlockAndUpdate(blockPos.above(), blockState.setValue(HALF, DoubleBlockHalf.UPPER).setValue(EXTENDED, wantToAppear));
         }

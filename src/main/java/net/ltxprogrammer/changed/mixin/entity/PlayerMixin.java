@@ -6,10 +6,7 @@ import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
-import net.ltxprogrammer.changed.init.ChangedAbilities;
-import net.ltxprogrammer.changed.init.ChangedAttributes;
-import net.ltxprogrammer.changed.init.ChangedDamageSources;
-import net.ltxprogrammer.changed.init.ChangedSounds;
+import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.network.packet.SyncMoversPacket;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.CameraUtil;
@@ -67,7 +64,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerDataExte
     protected void tryToStartFallFlying(CallbackInfoReturnable<Boolean> ci) {
         Player player = (Player)(Object)this;
         if (latexVariant != null && latexVariant.getParent().canGlide) {
-            if (!player.isOnGround() && !player.isFallFlying() && !player.isInWater() && !player.hasEffect(MobEffects.LEVITATION)) {
+            if (!player.onGround() && !player.isFallFlying() && !player.isInWater() && !player.hasEffect(MobEffects.LEVITATION)) {
                 player.startFallFlying();
                 ci.setReturnValue(true);
                 ci.cancel();
@@ -97,14 +94,14 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerDataExte
 
     @Inject(method = "getHurtSound", at = @At("HEAD"), cancellable = true)
     protected void getHurtSound(DamageSource source, CallbackInfoReturnable<SoundEvent> ci) {
-        if (source instanceof ChangedDamageSources.TransfurDamageSource)
-            ci.setReturnValue(ChangedSounds.BLOW1);
+        if (source.is(ChangedTags.DamageTypes.IS_TRANSFUR))
+            ci.setReturnValue(ChangedSounds.BLOW1.get());
     }
 
     @Inject(method = "getSwimSound", at = @At("HEAD"), cancellable = true)
     protected void getSwimSound(CallbackInfoReturnable<SoundEvent> ci) {
         if (WhiteLatexTransportInterface.isEntityInWhiteLatex(this)) {
-            ci.setReturnValue(ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("block.slime_block.step")));
+            ci.setReturnValue(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse("block.slime_block.step")));
             ci.cancel();
         }
     }
@@ -136,7 +133,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerDataExte
 
     @Inject(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;doPostDamageEffects(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/Entity;)V"))
     public void accessoryAttack(Entity target, CallbackInfo ci) {
-        if (!level.isClientSide)
+        if (!level().isClientSide)
             AccessorySlots.getForEntity((LivingEntity)(Object)this).ifPresent(slots -> slots.onEntityAttack(InteractionHand.MAIN_HAND, target));
     }
 
@@ -260,7 +257,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerDataExte
         var ability = AbstractAbility.getAbilityInstance(grabbedBy, ChangedAbilities.GRAB_ENTITY_ABILITY.get());
         if (ability != null && !ability.grabbedHasControl) {
             this.noPhysics = true;
-            this.onGround = false;
+            this.setOnGround(false);
         }
     }
 
@@ -282,7 +279,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerDataExte
             this.playerMover.onRemove((Player)(Object)this);
 
         this.playerMover = playerMover;
-        if (!level.isClientSide)
+        if (!level().isClientSide)
             Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this), SyncMoversPacket.Builder.of((Player)(Object)this));
     }
 

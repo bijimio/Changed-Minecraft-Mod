@@ -114,7 +114,7 @@ public enum LimbCoverTransition {
             return FULL_COVER;
 
         int index = Mth.floor(progress * FRAME_COUNT);
-        return new ResourceLocation(transition.getNamespace(), "textures/models/latex_cover/" + transition.getPath() + "/" + index + ".png");
+        return ResourceLocation.fromNamespaceAndPath(transition.getNamespace(), "textures/models/latex_cover/" + transition.getPath() + "/" + index + ".png");
     }
 
     public float getAlphaForProgress(float progress) {

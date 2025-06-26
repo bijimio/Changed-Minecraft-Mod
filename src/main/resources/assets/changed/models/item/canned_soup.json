@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "changed:items/canned_soup"
+    "layer0": "changed:item/canned_soup"
   }
 }

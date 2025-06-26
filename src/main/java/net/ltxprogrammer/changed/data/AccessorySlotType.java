@@ -42,7 +42,7 @@ public class AccessorySlotType {
             return noItemIcon;
 
         ResourceLocation id = ChangedRegistry.ACCESSORY_SLOTS.getKey(this);
-        noItemIcon = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "items/empty_" + id.getPath() + "_slot");
+        noItemIcon = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/empty_" + id.getPath() + "_slot");
         return noItemIcon;
     }
 

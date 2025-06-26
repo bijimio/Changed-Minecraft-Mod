@@ -67,7 +67,7 @@ public class LeglessInitAnimatorV2<T extends ChangedEntity, M extends AdvancedHu
 
         float tailDrag = entity.getTailDragAmount(this.core.partialTicks) * 0.5f;
         float verticalDrag = entity.getSimulatedSpring(SpringType.HEAVY_STRONG, SpringType.Direction.VERTICAL, this.core.partialTicks) * 0.4f;
-        if (entity.isOnGround())
+        if (entity.onGround())
             verticalDrag = Math.min(0f, verticalDrag);
 
         for (ModelPart joint : tailJoints) {

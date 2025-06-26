@@ -37,7 +37,7 @@ public class FormFittingEnchantment extends Enchantment {
             else
                 return null;
         }).filter(Objects::nonNull)
-                .filter(armorItem -> armorItem.getSlot() == slot)
+                .filter(armorItem -> armorItem.getEquipmentSlot() == slot)
                 .filter(armorItem -> armorItem.getMaterial().getName().equals(material.getName()));
     }
 

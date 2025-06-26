@@ -77,7 +77,7 @@ public class LatexGnollTaur extends WhiteLatexKnight implements LatexTaur<LatexG
     public InteractionResult mobInteract(Player p_30713_, InteractionHand p_30714_) {
         if (isSaddled()) {
             this.doPlayerRide(p_30713_);
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
 
         return InteractionResult.PASS;

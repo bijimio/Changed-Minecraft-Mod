@@ -1,13 +1,13 @@
 package net.ltxprogrammer.changed.mixin.render;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.CubeExtender;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,6 +18,7 @@ import java.util.Set;
 
 @Mixin(ModelPart.Cube.class)
 public abstract class CubeMixin implements CubeExtender {
+    // TODO: This is no longer guaranteed to have 6 faces
     @Shadow @Final private ModelPart.Polygon[] polygons;
 
     @Override

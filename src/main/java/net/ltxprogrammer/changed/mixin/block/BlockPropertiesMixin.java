@@ -5,8 +5,7 @@ import net.ltxprogrammer.changed.block.AbstractLatexBlock;
 import net.ltxprogrammer.changed.entity.LatexType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -19,7 +18,7 @@ import java.util.function.Function;
 
 @Mixin(BlockBehaviour.Properties.class)
 public abstract class BlockPropertiesMixin {
-    @Shadow Function<BlockState, MaterialColor> materialColor;
+    @Shadow Function<BlockState, MapColor> mapColor;
 
     @Unique
     private static LatexType getTypeOrNeutral(BlockState state) {
@@ -34,25 +33,13 @@ public abstract class BlockPropertiesMixin {
         }
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/world/level/material/Material;Lnet/minecraft/world/level/material/MaterialColor;)V", at = @At("RETURN"))
-    public void initDirectColor(Material material, MaterialColor color, CallbackInfo ci) {
-        var oldFunc = materialColor;
-        materialColor = blockState -> {
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void initDirectColor(CallbackInfo ci) {
+        var oldFunc = mapColor;
+        mapColor = blockState -> {
             var latex = getTypeOrNeutral(blockState);
             if (latex != LatexType.NEUTRAL)
-                return latex.materialColor; // override color
-            else
-                return oldFunc.apply(blockState);
-        };
-    }
-
-    @Inject(method = "<init>(Lnet/minecraft/world/level/material/Material;Ljava/util/function/Function;)V", at = @At("RETURN"))
-    public void initDirectColor(Material material, Function<BlockState, MaterialColor> color, CallbackInfo ci) {
-        var oldFunc = materialColor;
-        materialColor = blockState -> {
-            var latex = getTypeOrNeutral(blockState);
-            if (latex != LatexType.NEUTRAL)
-                return latex.materialColor; // override color
+                return latex.mapColor; // override color
             else
                 return oldFunc.apply(blockState);
         };

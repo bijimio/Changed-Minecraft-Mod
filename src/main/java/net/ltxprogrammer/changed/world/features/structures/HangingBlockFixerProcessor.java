@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Intended to locally fix MC-102223
@@ -34,11 +36,14 @@ public class HangingBlockFixerProcessor extends StructureProcessor {
         if (EntityType.by(entityInfo.nbt).orElse(null) == EntityType.PAINTING) {
             // Code adapted from minecraftjibam2 on https://bugs.mojang.com/browse/MC/issues/MC-102223
 
-            var motive = Registry.MOTIVE.get(ResourceLocation.tryParse(entityInfo.nbt.getString("Motive")));
+            var motive = ForgeRegistries.PAINTING_VARIANTS.getValue(ResourceLocation.tryParse(entityInfo.nbt.getString("Motive")));
             var direction = placementSettings.getRotation().rotate(Direction.from2DDataValue(entityInfo.nbt.getByte("Facing")));
 
             var pos = new BlockPos.MutableBlockPos();
-            pos.set(new BlockPos(entityInfo.pos));
+            pos.set(new BlockPos(
+                    Mth.floor(entityInfo.pos.x),
+                    Mth.floor(entityInfo.pos.y),
+                    Mth.floor(entityInfo.pos.z)));
 
             var width = motive.getWidth() / 16;
             var height = motive.getHeight() / 16;
@@ -65,6 +70,6 @@ public class HangingBlockFixerProcessor extends StructureProcessor {
     }
 
     protected StructureProcessorType<?> getType() {
-        return ChangedFeatures.HANGING_BLOCK_FIXER_PROCESSOR;
+        return ChangedFeatures.HANGING_BLOCK_FIXER_PROCESSOR.get();
     }
 }

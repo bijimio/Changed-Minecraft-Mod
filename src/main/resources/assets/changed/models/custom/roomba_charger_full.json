@@ -3,8 +3,8 @@
 	"texture_size": [64, 64],
 	"textures": {
 		"0": "changed:roomba_charging",
-		"1": "changed:blocks/roomba_charger",
-		"particle": "changed:blocks/roomba_charger"
+		"1": "changed:block/roomba_charger",
+		"particle": "changed:block/roomba_charger"
 	},
 	"elements": [
 		{

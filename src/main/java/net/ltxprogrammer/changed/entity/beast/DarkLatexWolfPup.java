@@ -56,7 +56,7 @@ public class DarkLatexWolfPup extends AbstractDarkLatexEntity {
     public boolean doHurtTarget(Entity entity) {
         if (entity instanceof LivingEntity livingEntity) {
             if (!this.isPuddle())
-                this.playSound(ChangedSounds.POISON, 1.0f, 1.0f);
+                this.playSound(ChangedSounds.POISON.get(), 1.0f, 1.0f);
             this.setPuddle(true);
             ticksLeftAsPuddle = 120;
             livingEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 2, false, false, false)); // Slowness 2 for 5 seconds
@@ -152,7 +152,7 @@ public class DarkLatexWolfPup extends AbstractDarkLatexEntity {
         var underlyingPlayer = getUnderlyingPlayer();
         if (ProcessTransfur.ifPlayerTransfurred(underlyingPlayer, variant -> {
             if (variant.ageAsVariant > MAX_AGE || age > MAX_AGE) {
-                var newVariant = ChangedTransfurVariants.Gendered.DARK_LATEX_WOLVES.getRandomVariant(level.random);
+                var newVariant = ChangedTransfurVariants.Gendered.DARK_LATEX_WOLVES.getRandomVariant(level().random);
                 ProcessTransfur.changeTransfur(underlyingPlayer, newVariant);
                 ChangedSounds.broadcastSound(this, newVariant.sound, 1.0f, 1.0f);
                 underlyingPlayer.heal(12.0f);
@@ -160,7 +160,7 @@ public class DarkLatexWolfPup extends AbstractDarkLatexEntity {
         })) return;
 
         if (age > MAX_AGE) {
-            var newVariant = ChangedTransfurVariants.Gendered.DARK_LATEX_WOLVES.getRandomVariant(level.random);
+            var newVariant = ChangedTransfurVariants.Gendered.DARK_LATEX_WOLVES.getRandomVariant(level().random);
             var wolf = newVariant.getEntityType().create(level);
             if (wolf != null) {
                 wolf.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
@@ -188,7 +188,7 @@ public class DarkLatexWolfPup extends AbstractDarkLatexEntity {
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             boolean flag = this.isOwnedBy(player) || this.isTame() || this.isTameItem(itemstack) && !this.isTame();
             return flag ? InteractionResult.CONSUME : InteractionResult.PASS;
         } else {
@@ -202,23 +202,23 @@ public class DarkLatexWolfPup extends AbstractDarkLatexEntity {
                         this.tame(player);
                         this.navigation.stop();
                         this.setTarget(null);
-                        this.level.broadcastEntityEvent(this, (byte)7);
+                        this.level().broadcastEntityEvent(this, (byte)7);
                     } else if (!variant.getLatexType().isHostileTo(LatexType.DARK_LATEX) && this.random.nextInt(10) == 0) {
                         this.tame(player);
                         this.navigation.stop();
                         this.setTarget(null);
-                        this.level.broadcastEntityEvent(this, (byte)7);
+                        this.level().broadcastEntityEvent(this, (byte)7);
                     } else {
-                        this.level.broadcastEntityEvent(this, (byte)6);
+                        this.level().broadcastEntityEvent(this, (byte)6);
                     }
                 }, () -> {
                     if (this.random.nextInt(10) == 0) { // One in 10 chance
                         this.tame(player);
                         this.navigation.stop();
                         this.setTarget(null);
-                        this.level.broadcastEntityEvent(this, (byte)7);
+                        this.level().broadcastEntityEvent(this, (byte)7);
                     } else {
-                        this.level.broadcastEntityEvent(this, (byte)6);
+                        this.level().broadcastEntityEvent(this, (byte)6);
                     }
                 });
 

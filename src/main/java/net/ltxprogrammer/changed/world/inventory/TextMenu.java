@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +29,7 @@ public abstract class TextMenu extends AbstractContainerMenu implements Updateab
 
     public TextMenu(MenuType<?> type, int id, Inventory inventory, BlockPos pos, BlockState state, TextEnterable textMenuBlockEntity) {
         super(type, id);
-        this.level = inventory.player.level;
+        this.level = inventory.player.level();
         this.player = inventory.player;
         this.blockPos = pos;
         this.blockState = state;
@@ -38,7 +39,7 @@ public abstract class TextMenu extends AbstractContainerMenu implements Updateab
 
     public TextMenu(MenuType<?> type, int id, Inventory inventory, FriendlyByteBuf extraData) {
         super(type, id);
-        this.level = inventory.player.level;
+        this.level = inventory.player.level();
         this.player = inventory.player;
         this.blockPos = null;
         this.blockState = Blocks.AIR.defaultBlockState();
@@ -49,6 +50,11 @@ public abstract class TextMenu extends AbstractContainerMenu implements Updateab
 
         this.textCopy = extraData.readUtf();
         this.textCopyLastReceived = this.textCopy;
+    }
+
+    @Override
+    public ItemStack quickMoveStack(Player p_38941_, int p_38942_) {
+        return ItemStack.EMPTY;
     }
 
     public boolean canEditExisting() {

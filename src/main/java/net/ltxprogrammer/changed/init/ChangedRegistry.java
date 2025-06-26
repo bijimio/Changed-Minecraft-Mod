@@ -43,6 +43,10 @@ public abstract class ChangedRegistry<T> implements Registry<T> {
             return get().getKey(value);
         }
 
+        public T getValue(ResourceLocation key) {
+            return get().getValue(key);
+        }
+
         public Set<ResourceLocation> getKeys() {
             return get().getKeys();
         }

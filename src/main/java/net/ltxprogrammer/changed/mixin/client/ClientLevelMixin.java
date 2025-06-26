@@ -7,10 +7,12 @@ import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.block.MicrophoneBlock;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -38,13 +40,11 @@ import java.util.stream.Stream;
 public abstract class ClientLevelMixin extends Level {
     @Final @Shadow private Minecraft minecraft;
 
-    @Shadow public abstract void playLocalSound(double p_104600_, double p_104601_, double p_104602_, SoundEvent p_104603_, SoundSource p_104604_, float p_104605_, float p_104606_, boolean p_104607_);
-
-    @Shadow public abstract void playLocalSound(BlockPos p_104678_, SoundEvent p_104679_, SoundSource p_104680_, float p_104681_, float p_104682_, boolean p_104683_);
-
-    protected ClientLevelMixin(WritableLevelData data, ResourceKey<Level> key, Holder<DimensionType> dimension, Supplier<ProfilerFiller> profilerFillerSupplier, boolean p_204153_, boolean p_204154_, long p_204155_) {
-        super(data, key, dimension, profilerFillerSupplier, p_204153_, p_204154_, p_204155_);
+    protected ClientLevelMixin(WritableLevelData p_270739_, ResourceKey<Level> p_270683_, RegistryAccess p_270200_, Holder<DimensionType> p_270240_, Supplier<ProfilerFiller> p_270692_, boolean p_270904_, boolean p_270470_, long p_270248_, int p_270466_) {
+        super(p_270739_, p_270683_, p_270200_, p_270240_, p_270692_, p_270904_, p_270470_, p_270248_, p_270466_);
     }
+
+    @Shadow public abstract void playLocalSound(double p_104600_, double p_104601_, double p_104602_, SoundEvent p_104603_, SoundSource p_104604_, float p_104605_, float p_104606_, boolean p_104607_);
 
     private Stream<Pair<BlockPos, BlockState>> getBlockStatePairsIfLoaded(AABB aabb) {
         int i = Mth.floor(aabb.minX);
@@ -68,7 +68,7 @@ public abstract class ClientLevelMixin extends Level {
         }
 
         AtomicBoolean singleListener = new AtomicBoolean(false);
-        this.getBlockStatePairsIfLoaded(new AABB(new BlockPos(x, y, z)).inflate(3.0)).forEach(pair -> {
+        this.getBlockStatePairsIfLoaded(new AABB(EntityUtil.getBlock(x, y, z)).inflate(3.0)).forEach(pair -> {
             BlockPos blockPos = pair.getFirst();
             BlockState blockState = pair.getSecond();
             if (!blockState.is(ChangedBlocks.MICROPHONE.get()) || !blockState.getValue(MicrophoneBlock.ENABLED))

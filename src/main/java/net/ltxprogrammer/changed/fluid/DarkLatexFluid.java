@@ -16,20 +16,18 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 
 import java.util.List;
 
 public abstract class DarkLatexFluid extends AbstractLatexFluid {
     public static final ForgeFlowingFluid.Properties PROPERTIES = new ForgeFlowingFluid.Properties(
-            ChangedFluids.DARK_LATEX,
-            ChangedFluids.DARK_LATEX_FLOWING,
-            FluidAttributes.builder(Changed.modResource("blocks/dark_latex_block_top"), Changed.modResource("blocks/dark_latex_block_top"))
-                    .viscosity(6000).color(0xFFFFFFFF))
+            ChangedFluids.LATEX_FLUID, ChangedFluids.DARK_LATEX, ChangedFluids.DARK_LATEX_FLOWING)
+            .tickRate(50)
+            .levelDecreasePerBlock(3)
             .explosionResistance(100f)
-            .tickRate(50).levelDecreasePerBlock(3)
-            .bucket(ChangedItems.DARK_LATEX_BUCKET).block(ChangedBlocks.DARK_LATEX_FLUID);
+            .bucket(ChangedItems.DARK_LATEX_BUCKET)
+            .block(ChangedBlocks.DARK_LATEX_FLUID);
 
     protected DarkLatexFluid() {
         super(PROPERTIES, LatexType.DARK_LATEX, List.of(ChangedTransfurVariants.DARK_LATEX_WOLF_MALE, ChangedTransfurVariants.DARK_LATEX_WOLF_FEMALE, ChangedTransfurVariants.DARK_LATEX_YUFENG));

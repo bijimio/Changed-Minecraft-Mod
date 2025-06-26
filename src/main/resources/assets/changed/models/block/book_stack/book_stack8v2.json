@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "changed:blocks/book_stack",
-		"particle": "changed:blocks/book_stack"
+		"0": "changed:block/book_stack",
+		"particle": "changed:block/book_stack"
 	},
 	"elements": [
 		{

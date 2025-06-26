@@ -35,7 +35,7 @@ public class Keyframe {
         Vector3f actual;
         if (degrees.isPresent()) {
             actual = degrees.get();
-            actual.multiply(Mth.DEG_TO_RAD, Mth.DEG_TO_RAD, Mth.DEG_TO_RAD);
+            actual.mul(Mth.DEG_TO_RAD, Mth.DEG_TO_RAD, Mth.DEG_TO_RAD);
         } else if (radians.isPresent())
             actual = radians.get();
         else if (position.isPresent())

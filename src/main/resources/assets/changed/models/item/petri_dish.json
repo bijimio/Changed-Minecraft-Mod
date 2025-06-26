@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "changed:items/petri_dish"
+    "layer0": "changed:item/petri_dish"
   }
 }
