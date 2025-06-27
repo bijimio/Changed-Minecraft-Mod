@@ -79,7 +79,7 @@ public abstract class AdvancedHumanoidRenderer<T extends ChangedEntity, M extend
                                     ArmorModelPicker<? super T> modelPicker, float shadowSize) {
         super(context, main, shadowSize);
         if (main == null) return;
-        this.armorLayer = new LatexHumanoidArmorLayer<>(this, modelPicker);
+        this.armorLayer = new LatexHumanoidArmorLayer<>(this, modelPicker, context.getModelManager());
         this.addLayers(context, main);
     }
 
