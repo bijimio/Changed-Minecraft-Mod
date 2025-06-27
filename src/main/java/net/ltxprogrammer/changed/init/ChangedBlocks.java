@@ -294,7 +294,7 @@ public class ChangedBlocks {
                                                                                 @Nullable Function<T, I> item) {
         RegistryObject<T> block = REGISTRY.register(name, blockConstructor);
         if (item != null)
-            ChangedItems.register(name, () -> item.apply(block.get()));
+            ChangedItems.REGISTRY.register(name, () -> item.apply(block.get()));
         return block;
     }
 

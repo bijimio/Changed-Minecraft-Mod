@@ -405,7 +405,7 @@ public class ChangedEntities {
         RegistryObject<EntityType<T>> entityType = REGISTRY.register(name, () -> builder.build(regName));
         INIT_FUNC_REGISTRY.add(ChangedEntity.getInit(entityType, spawnType, spawnPredicate));
         ATTR_FUNC_REGISTRY.add(new Pair<>(entityType::get, attributes));
-        RegistryObject<ForgeSpawnEggItem> spawnEggItem = ChangedItems.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(entityType, eggBack, eggHighlight, new Item.Properties()));
+        RegistryObject<ForgeSpawnEggItem> spawnEggItem = ChangedItems.REGISTRY.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(entityType, eggBack, eggHighlight, new Item.Properties()));
         SPAWN_EGGS.put(entityType, spawnEggItem);
         DIMENSION_RESTRICTIONS.put(entityType, dimension);
         return entityType;

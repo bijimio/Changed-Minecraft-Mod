@@ -146,7 +146,7 @@ public class ChangedItems {
         return register(name, () -> new LatexRecordItem(8, soundEventSupplier, (new Item.Properties()).stacksTo(1).rarity(Rarity.RARE), lengthInTicks));
     }
 
-    static <T extends Item> RegistryObject<T> register(String name, Supplier<T> item) {
+    private static <T extends Item> RegistryObject<T> register(String name, Supplier<T> item) {
         return REGISTRY.register(name, item);
     }
 }

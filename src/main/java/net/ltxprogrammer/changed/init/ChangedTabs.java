@@ -1,12 +1,16 @@
 package net.ltxprogrammer.changed.init;
 
 import net.ltxprogrammer.changed.Changed;
+import net.ltxprogrammer.changed.block.*;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.item.LatexRecordItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -33,13 +37,165 @@ public class ChangedTabs {
     public static RegistryObject<CreativeModeTab> TAB_CHANGED_BLOCKS = register("blocks", builder ->
             builder.icon(() -> new ItemStack(ChangedBlocks.WALL_LIGHTRED_STRIPED.get()))
                     .displayItems((params, output) -> {
-                        // TODO
+                        output.accept(ChangedBlocks.INFUSER.get());
+                        output.accept(ChangedBlocks.PURIFIER.get());
+                        output.accept(ChangedBlocks.STASIS_CHAMBER.get());
+
+                        output.accept(ChangedBlocks.AIR_CONDITIONER.get());
+                        output.accept(ChangedBlocks.BEAKER.get());
+                        output.accept(ChangedBlocks.BEDSIDE_IV_RACK.get());
+                        output.accept(ChangedBlocks.BLACK_RAILING.get());
+                        output.accept(ChangedBlocks.CLIPBOARD.get());
+                        output.accept(ChangedBlocks.NOTE.get());
+                        output.accept(ChangedBlocks.COMPUTER.get());
+                        output.accept(ChangedBlocks.CANNED_PEACHES.get());
+                        output.accept(ChangedBlocks.CANNED_SOUP.get());
+                        output.accept(ChangedBlocks.CARDBOARD_BOX.get());
+                        output.accept(ChangedBlocks.CARDBOARD_BOX_SMALL.get());
+                        output.accept(ChangedBlocks.CARDBOARD_BOX_TALL.get());
+                        output.accept(ChangedBlocks.BOX_PILE.get());
+                        output.accept(ChangedBlocks.DUCT.get());
+                        output.accept(ChangedBlocks.ERLENMEYER_FLASK.get());
+                        output.accept(ChangedBlocks.EXOSKELETON_CHARGER.get());
+                        output.accept(ChangedBlocks.IRON_CRATE.get());
+                        output.accept(ChangedBlocks.KEYPAD.get());
+                        output.accept(ChangedBlocks.LAB_LIGHT.get());
+                        output.accept(ChangedBlocks.LAB_LIGHT_SMALL.get());
+                        output.accept(ChangedBlocks.LAB_TABLE.get());
+                        output.accept(ChangedBlocks.LASER_EMITTER.get());
+                        output.accept(ChangedBlocks.LATEX_CRYSTAL.get());
+                        output.accept(ChangedBlocks.LATEX_PUP_CRYSTAL.get());
+                        output.accept(ChangedBlocks.LATEX_CONTAINER.get());
+                        output.accept(ChangedBlocks.LATEX_TRAFFIC_CONE.get());
+                        output.accept(ChangedBlocks.BEIFENG_CRYSTAL.get());
+                        output.accept(ChangedBlocks.BEIFENG_CRYSTAL_SMALL.get());
+                        output.accept(ChangedBlocks.DARK_DRAGON_CRYSTAL.get());
+                        output.accept(ChangedBlocks.WOLF_CRYSTAL.get());
+                        output.accept(ChangedBlocks.WOLF_CRYSTAL_SMALL.get());
+                        output.accept(ChangedBlocks.DARK_LATEX_CRYSTAL_LARGE.get());
+                        output.accept(ChangedBlocks.WHITE_LATEX_PUDDLE_MALE.get());
+                        output.accept(ChangedBlocks.WHITE_LATEX_PUDDLE_FEMALE.get());
+                        output.accept(ChangedBlocks.PIPE.get());
+                        output.accept(ChangedBlocks.PETRI_DISH.get());
+                        output.accept(ChangedBlocks.RETINAL_SCANNER.get());
+                        output.accept(ChangedBlocks.ROOMBA_CHARGER.get());
+                        output.accept(ChangedBlocks.SPEAKER.get());
+                        output.accept(ChangedBlocks.MICROPHONE.get());
+                        output.accept(ChangedBlocks.MICROSCOPE.get());
+                        output.accept(ChangedBlocks.OFFICE_CHAIR.get());
+                        output.accept(ChangedBlocks.ORANGE_TREE_LEAVES.get());
+                        output.accept(ChangedBlocks.TAPE_RECORDER.get());
+                        output.accept(ChangedBlocks.TILES_BLUE.get());
+                        output.accept(ChangedBlocks.TILES_BLUE_SMALL.get());
+                        output.accept(ChangedBlocks.TILES_CAUTION.get());
+                        output.accept(ChangedBlocks.TILES_CAUTION_SLAB.get());
+                        output.accept(ChangedBlocks.TILES_CAUTION_STAIRS.get());
+                        output.accept(ChangedBlocks.TILES_GREENHOUSE.get());
+                        output.accept(ChangedBlocks.TILES_GREENHOUSE_CONNECTED.get());
+                        output.accept(ChangedBlocks.WALL_GREENHOUSE.get());
+                        output.accept(ChangedBlocks.TILES_GRAYBLUE.get());
+                        output.accept(ChangedBlocks.TILES_GRAYBLUE_CONNECTED.get());
+                        output.accept(ChangedBlocks.TILES_GRAYBLUE_SLAB.get());
+                        output.accept(ChangedBlocks.TILES_GRAYBLUE_STAIRS.get());
+                        output.accept(ChangedBlocks.TILES_GRAY.get());
+                        output.accept(ChangedBlocks.TILES_GRAY_SLAB.get());
+                        output.accept(ChangedBlocks.TILES_GRAY_STAIRS.get());
+                        output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED.get());
+                        output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED_CONNECTED.get());
+                        output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED_SLAB.get());
+                        output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED_STAIRS.get());
+                        output.accept(ChangedBlocks.TILES_LIBRARY_BROWN.get());
+                        output.accept(ChangedBlocks.TILES_LIBRARY_BROWN_SLAB.get());
+                        output.accept(ChangedBlocks.TILES_LIBRARY_BROWN_STAIRS.get());
+                        output.accept(ChangedBlocks.TILES_LIBRARY_TAN.get());
+                        output.accept(ChangedBlocks.TILES_LIBRARY_TAN_SLAB.get());
+                        output.accept(ChangedBlocks.TILES_LIBRARY_TAN_STAIRS.get());
+                        output.accept(ChangedBlocks.TILES_TEAL.get());
+                        output.accept(ChangedBlocks.TILES_WHITE.get());
+                        output.accept(ChangedBlocks.TILES_WHITE_CONNECTED.get());
+                        output.accept(ChangedBlocks.TILES_WHITE_SLAB.get());
+                        output.accept(ChangedBlocks.TILES_WHITE_STAIRS.get());
+                        output.accept(ChangedBlocks.ORANGE_LAB_CARPETING.get());
+                        output.accept(ChangedBlocks.VENT_FAN.get());
+                        output.accept(ChangedBlocks.VENT_HATCH.get());
+                        output.accept(ChangedBlocks.WALL_BLUE_STRIPED.get());
+                        output.accept(ChangedBlocks.WALL_BLUE_TILED.get());
+                        output.accept(ChangedBlocks.WALL_CAUTION.get());
+                        output.accept(ChangedBlocks.WALL_LIBRARY_UPPER.get());
+                        output.accept(ChangedBlocks.WALL_LIBRARY_LOWER.get());
+                        output.accept(ChangedBlocks.WALL_LIGHTRED.get());
+                        output.accept(ChangedBlocks.WALL_LIGHTRED_SLAB.get());
+                        output.accept(ChangedBlocks.WALL_LIGHTRED_STAIRS.get());
+                        output.accept(ChangedBlocks.WALL_LIGHTRED_STRIPED.get());
+                        output.accept(ChangedBlocks.WALL_GRAY.get());
+                        output.accept(ChangedBlocks.WALL_GRAY_SLAB.get());
+                        output.accept(ChangedBlocks.WALL_GRAY_STAIRS.get());
+                        output.accept(ChangedBlocks.WALL_GRAY_STRIPED.get());
+                        output.accept(ChangedBlocks.WALL_GREEN.get());
+                        output.accept(ChangedBlocks.WALL_GREEN_SLAB.get());
+                        output.accept(ChangedBlocks.WALL_GREEN_STAIRS.get());
+                        output.accept(ChangedBlocks.WALL_GREEN_STRIPED.get());
+                        output.accept(ChangedBlocks.WALL_VENT.get());
+                        output.accept(ChangedBlocks.WALL_WHITE.get());
+                        output.accept(ChangedBlocks.WALL_WHITE_GREEN_STRIPED.get());
+                        output.accept(ChangedBlocks.WALL_WHITE_GREEN_TILED.get());
+                        output.accept(ChangedBlocks.WALL_WHITE_SLAB.get());
+                        output.accept(ChangedBlocks.WALL_WHITE_STAIRS.get());
+                        output.accept(ChangedBlocks.WHITE_LAB_TABLE.get());
+
+                        output.accept(ChangedBlocks.BEEHIVE_BED.get());
+                        output.accept(ChangedBlocks.BEEHIVE_WALL.get());
+                        output.accept(ChangedBlocks.BEEHIVE_CORNER.get());
+                        output.accept(ChangedBlocks.BEEHIVE_FLOOR.get());
+                        output.accept(ChangedBlocks.BEEHIVE_ROOF.get());
+
+                        output.accept(ChangedBlocks.LARGE_LAB_DOOR.get());
+                        output.accept(ChangedBlocks.LARGE_LIBRARY_DOOR.get());
+                        output.accept(ChangedBlocks.LARGE_MAINTENANCE_DOOR.get());
+                        output.accept(ChangedBlocks.LARGE_BLUE_LAB_DOOR.get());
+                        output.accept(ChangedBlocks.LAB_DOOR.get());
+                        output.accept(ChangedBlocks.LIBRARY_DOOR.get());
+                        output.accept(ChangedBlocks.MAINTENANCE_DOOR.get());
+                        output.accept(ChangedBlocks.BLUE_LAB_DOOR.get());
+
+                        output.accept(ChangedBlocks.EMPTY_CANISTER.get());
+                        output.accept(ChangedBlocks.OXYGENATED_WATER_CANISTER.get());
+                        output.accept(ChangedBlocks.WOLF_GAS_CANISTER.get());
+                        output.accept(ChangedBlocks.TIGER_GAS_CANISTER.get());
+                        output.accept(ChangedBlocks.SKUNK_GAS_CANISTER.get());
+
+                        output.accept(ChangedBlocks.DARK_LATEX_BLOCK.get());
+                        output.accept(ChangedBlocks.DARK_LATEX_WALL_SPLOTCH.get());
+                        output.accept(ChangedBlocks.DARK_LATEX_ICE.get());
+                        output.accept(ChangedBlocks.WOLF_CRYSTAL_BLOCK.get());
+                        output.accept(ChangedBlocks.WHITE_LATEX_BLOCK.get());
+                        output.accept(ChangedBlocks.WHITE_LATEX_WALL_SPLOTCH.get());
+                        output.accept(ChangedBlocks.WHITE_LATEX_PILLAR.get());
+
+                        ChangedBlocks.PILLOWS.values().stream().map(RegistryObject::get).forEach(output::accept);
                     }).build());
 
     public static RegistryObject<CreativeModeTab> TAB_CHANGED_ITEMS = register("items", builder ->
             builder.icon(() -> new ItemStack(ChangedItems.LATEX_BASE.get()))
                     .displayItems((params, output) -> {
-                        // TODO
+                        output.accept(ChangedItems.GAS_MASK.get());
+                        output.accept(ChangedItems.COMPACT_DISC.get());
+                        output.accept(ChangedItems.LAB_BOOK.get());
+                        output.accept(ChangedItems.LATEX_BASE.get());
+                        output.accept(ChangedItems.ORANGE.get());
+                        output.accept(ChangedItems.SYRINGE.get());
+                        output.accept(ChangedItems.BLOOD_SYRINGE.get());
+                        output.accept(ChangedItems.DARK_LATEX_GOO.get());
+                        output.accept(ChangedItems.DARK_LATEX_BUCKET.get());
+                        output.accept(ChangedItems.WHITE_LATEX_GOO.get());
+                        output.accept(ChangedItems.WHITE_LATEX_BUCKET.get());
+                        output.accept(ChangedItems.DARK_LATEX_CRYSTAL_FRAGMENT.get());
+                        output.accept(ChangedItems.BEIFENG_CRYSTAL_FRAGMENT.get());
+                        output.accept(ChangedItems.WOLF_CRYSTAL_FRAGMENT.get());
+                        output.accept(ChangedItems.DARK_DRAGON_CRYSTAL_FRAGMENT.get());
+                        output.accept(ChangedItems.LATEX_INKBALL.get());
+                        output.accept(ChangedItems.ROOMBA.get());
+                        output.accept(ChangedItems.EXOSKELETON.get());
 
                         ChangedItems.DARK_LATEX_MASK.get().fillItemList(CHANGED_ONLY, params, output);
                         ChangedItems.LATEX_SYRINGE.get().fillItemList(CHANGED_ONLY, params, output);
