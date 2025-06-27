@@ -61,9 +61,9 @@ public abstract class GuiMixin {
             ProcessTransfur.ifPlayerTransfurred(player, variant -> {
                 var colors = VariantRadialScreen.getColors(variant);
                 var color = type == Gui.HeartType.NORMAL ? colors.background() : colors.foreground();
-                RenderSystem.setShaderColor(color.red(), color.green(), color.blue(), 1);
+                graphics.setColor(color.red(), color.green(), color.blue(), 1);
                 graphics.blit(GUI_LATEX_HEARTS, x, y, type.getX(half, blinking), texY, 9, 9);
-                RenderSystem.setShaderColor(1, 1, 1, 1);
+                graphics.setColor(1, 1, 1, 1);
                 graphics.blit(GUI_LATEX_HEARTS, x, y, type.getX(half, blinking), texY + 9, 9, 9);
                 callback.cancel();
             });
@@ -147,7 +147,7 @@ public abstract class GuiMixin {
                 }
 
                 list.forEach(Runnable::run);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             }
 
             callback.cancel();

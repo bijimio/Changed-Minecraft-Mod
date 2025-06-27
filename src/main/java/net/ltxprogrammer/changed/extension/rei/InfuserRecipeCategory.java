@@ -101,7 +101,7 @@ public class InfuserRecipeCategory implements DisplayCategory<InfuserRecipeDispl
 
         @Override
         public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.enableDepthTest();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();

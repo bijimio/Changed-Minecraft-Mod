@@ -689,13 +689,13 @@ public class ProcessTransfur {
 
             worldTickCount++;
 
-            if (worldTickCount % 60 == 0) { // Discrete sync packet
+            /*if (worldTickCount % 60 == 0) { // Discrete sync packet
                 ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers().forEach(serverPlayer -> {
                     // Latex variant
                     Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> serverPlayer), SyncTransfurPacket.Builder.of(serverPlayer));
                     Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> serverPlayer), BasicPlayerInfoPacket.Builder.of(serverPlayer));
                 });
-            }
+            }*/
 
             if (worldTickCount % 1200 == 0) {
                 try {

@@ -4,18 +4,17 @@ import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.entity.beast.DoubleHeadedEntity;
-import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
-import net.ltxprogrammer.changed.network.packet.MultiRotateHeadPacket;
-import net.ltxprogrammer.changed.network.packet.SetTransfurVariantDataPacket;
+import net.ltxprogrammer.changed.network.packet.*;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
-import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -46,11 +45,35 @@ public abstract class ServerEntityMixin {
     }
 
     @Inject(method = "sendPairingData", at = @At("RETURN"))
-    private void andSendAccessoryData(ServerPlayer packetListener, Consumer<Packet<?>> connectionSend, CallbackInfo ci) {
+    private void andSendChangedData(ServerPlayer packetListener, Consumer<Packet<?>> connectionSend, CallbackInfo ci) {
+        if (entity instanceof Player player) {
+            BasicPlayerInfoPacket.Builder builderBPI = new BasicPlayerInfoPacket.Builder();
+            if (packetListener != player) builderBPI.addPlayer(player);
+            if (builderBPI.worthSending())
+                connectionSend.accept(
+                        Changed.PACKET_HANDLER.toVanillaPacket(builderBPI.build(), NetworkDirection.PLAY_TO_CLIENT)
+                );
+
+            SyncTransfurPacket.Builder builderTf = new SyncTransfurPacket.Builder();
+            builderTf.addPlayer(player, true);
+            if (builderTf.worthSending())
+                connectionSend.accept(
+                        Changed.PACKET_HANDLER.toVanillaPacket(builderTf.build(), NetworkDirection.PLAY_TO_CLIENT)
+                );
+
+            SyncMoversPacket.Builder builderMover = new SyncMoversPacket.Builder();
+            builderMover.addPlayer(player, true);
+            if (builderMover.worthSending())
+                connectionSend.accept(
+                    Changed.PACKET_HANDLER.toVanillaPacket(builderMover.build(), NetworkDirection.PLAY_TO_CLIENT)
+                );
+        }
         if (entity instanceof LivingEntityDataExtension ext) {
             ext.getAccessorySlots().ifPresent(slots -> {
                 if (slots.getContainerSize() > 0)
-                    Changed.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> packetListener), new AccessorySyncPacket(this.entity.getId(), slots));
+                    connectionSend.accept(
+                            Changed.PACKET_HANDLER.toVanillaPacket(new AccessorySyncPacket(this.entity.getId(), slots), NetworkDirection.PLAY_TO_CLIENT)
+                    );
             });
         }
     }

@@ -28,7 +28,7 @@ public class ContentWarningScreen extends Screen {
         graphics.blit(BACKGROUND_LOCATION, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         graphics.blit(ICON_LOCATION, this.width / 2 - 45, 20, 0, 0, 90, 90, 90, 90);
     }
 

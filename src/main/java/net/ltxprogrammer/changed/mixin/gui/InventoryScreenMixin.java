@@ -90,10 +90,11 @@ public abstract class InventoryScreenMixin extends EffectRenderingInventoryScree
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, LATEX_INVENTORY_LOCATION);
 
-            RenderSystem.setShaderColor(secondary.red(), secondary.green(), secondary.blue(), 1.0F);
+            graphics.setColor(secondary.red(), secondary.green(), secondary.blue(), 1.0F);
             graphics.blit(LATEX_INVENTORY_LOCATION, i, j, 256, 0, this.imageWidth, this.imageHeight, 768, 256);
-            RenderSystem.setShaderColor(primary.red(), primary.green(), primary.blue(), 1.0F);
+            graphics.setColor(primary.red(), primary.green(), primary.blue(), 1.0F);
             graphics.blit(LATEX_INVENTORY_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight, 768, 256);
+            graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 
             InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, i + 51, j + 75, 30, (float)(i + 51) - this.xMouse, (float)(j + 75 - 50) - this.yMouse, this.minecraft.player);
 

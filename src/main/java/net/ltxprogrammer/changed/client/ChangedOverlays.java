@@ -53,7 +53,7 @@ public class ChangedOverlays {
                     RenderSystem.disableDepthTest();
                     RenderSystem.depthMask(false);
                     RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
-                    RenderSystem.setShaderColor(color.red(), color.green(), color.blue(), 1.0F);
+                    graphics.setColor(color.red(), color.green(), color.blue(), 1.0F);
 
                     RenderSystem.setShader(GameRenderer::getPositionTexShader);
                     RenderSystem.setShaderTexture(0, VIGNETTE_LOCATION);
@@ -67,7 +67,7 @@ public class ChangedOverlays {
                     tesselator.end();
                     RenderSystem.depthMask(true);
                     RenderSystem.enableDepthTest();
-                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
                     RenderSystem.defaultBlendFunc();
                 });
             }

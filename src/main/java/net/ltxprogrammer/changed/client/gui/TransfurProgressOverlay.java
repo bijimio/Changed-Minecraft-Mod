@@ -95,7 +95,7 @@ public class TransfurProgressOverlay {
         dangerLevel = Mth.clamp(dangerLevel, 0.0f, 1.0f);
         coverProgress = Mth.clamp(coverProgress, 0.0f, 1.0f);
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        graphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 
         final Position position = Changed.config.client.transfurMeterPosition.get();
 
@@ -104,9 +104,9 @@ public class TransfurProgressOverlay {
         graphics.blit(DANGER_INDICATOR, x, y, 0, 0, 8, 32, 48, 32);
         graphics.blit(DANGER_INDICATOR, x, y + Mth.ceil((1.0f - dangerLevel) * 32.0f), 8,  Mth.ceil((1.0f - dangerLevel) * 32.0f), 8, Mth.floor(dangerLevel * 32.0f), 48, 32);
         if (coverProgress > 0.0f) {
-            RenderSystem.setShaderColor(morphColor.red(), morphColor.green(), morphColor.blue(), 1.0f);
+            graphics.setColor(morphColor.red(), morphColor.green(), morphColor.blue(), 1.0f);
             graphics.blit(DANGER_INDICATOR, x - 4, y, 32,  0, 16, Mth.floor(coverProgress * 32.0f), 48, 32);
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            graphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
         if (getBlink(dangerLevel, coverProgress))
             graphics.blit(DANGER_INDICATOR, x - 4, y, 16, 0, 16, 32, 48, 32);

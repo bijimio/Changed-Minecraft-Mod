@@ -36,7 +36,7 @@ public class AbilityOverlay {
     public static void renderBackground(int x, int y, GuiGraphics graphics, AbstractRadialScreen.ColorScheme scheme, Player player, TransfurVariantInstance<?> variant, AbstractAbilityInstance selected) {
         RenderSystem.setShaderTexture(0, ABILITY_BACKGROUNDS);
         RenderSystem.enableDepthTest();
-        RenderSystem.setShaderColor(scheme.background().red(), scheme.background().green(), scheme.background().blue(), 1.0F);
+        graphics.setColor(scheme.background().red(), scheme.background().green(), scheme.background().blue(), 1.0F);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -50,7 +50,7 @@ public class AbilityOverlay {
         if (cool > 0)
             graphics.blit(ABILITY_BACKGROUNDS, x, y + (32 - cool), gooOrNot, 32 + (32 - cool), 32, cool, 64, 96); // ready
         if (active > 0) {
-            RenderSystem.setShaderColor(scheme.foreground().red(), scheme.foreground().green(), scheme.foreground().blue(), 1.0F);
+            graphics.setColor(scheme.foreground().red(), scheme.foreground().green(), scheme.foreground().blue(), 1.0F);
             graphics.blit(ABILITY_BACKGROUNDS, x, y + (32 - active), gooOrNot, 64 + (32 - active), 32, active, 64, 96); // active
         }
     }

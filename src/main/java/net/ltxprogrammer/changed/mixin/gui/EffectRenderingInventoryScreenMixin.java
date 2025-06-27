@@ -46,14 +46,14 @@ public abstract class EffectRenderingInventoryScreenMixin<T extends AbstractCont
 
             for(MobEffectInstance effect : effects) {
                 // Background
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
                 if (wide)
                     graphics.blit(LATEX_INVENTORY_LOCATION, x, i, 512, 166, 120, 32, 768, 256);
                 else
                     graphics.blit(LATEX_INVENTORY_LOCATION, x, i, 512, 198, 32, 32, 768, 256);
 
                 // Foreground
-                RenderSystem.setShaderColor(colorPair.background().red(), colorPair.background().green(), colorPair.background().blue(), 1.0F);
+                graphics.setColor(colorPair.background().red(), colorPair.background().green(), colorPair.background().blue(), 1.0F);
                 if (wide)
                     graphics.blit(LATEX_INVENTORY_LOCATION, x, i, 0, 166, 120, 32, 768, 256);
                 else
@@ -62,7 +62,7 @@ public abstract class EffectRenderingInventoryScreenMixin<T extends AbstractCont
                 i += height;
             }
 
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             callback.cancel();
         });
     }

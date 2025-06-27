@@ -22,10 +22,10 @@ public class ChangedPackets {
     private final SimpleChannel packetHandler;
     private int messageID = 0;
 
-    private record DeferredPacket(Supplier<Boolean> canRun, Runnable handle, AtomicInteger tries) {
+    private record DeferredPacket(String name, Supplier<Boolean> canRun, Runnable handle, AtomicInteger tries) {
         static <T extends ChangedPacket> DeferredPacket of(T packet, BiConsumer<T, Supplier<NetworkEvent.Context>> handler, Supplier<NetworkEvent.Context> contextSupplier) {
             final var context = contextSupplier.get();
-            return new DeferredPacket(
+            return new DeferredPacket(packet.getClass().getSimpleName(),
                     () -> packet.canBeHandled(() -> context),
                     () -> handler.accept(packet, () -> context),
                     new AtomicInteger(0));
@@ -51,7 +51,7 @@ public class ChangedPackets {
                 final int nowTries = packet.tries().incrementAndGet();
                 if (nowTries > 5) {
                     deferredPackets.remove();
-                    Changed.LOGGER.warn("Dropped deferred packet after {} tries", nowTries);
+                    Changed.LOGGER.warn("Dropped deferred packet {} after {} tries", packet.name(), nowTries);
                     continue;
                 }
 
@@ -59,6 +59,7 @@ public class ChangedPackets {
             }
 
             deferredPackets.remove();
+            Changed.LOGGER.warn("Handling deferred packet {} after {} tries", packet.name(), packet.tries().incrementAndGet());
             packet.handle().run();
         }
     }

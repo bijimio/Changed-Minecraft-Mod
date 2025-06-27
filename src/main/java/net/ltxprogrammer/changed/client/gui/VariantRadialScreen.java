@@ -42,7 +42,7 @@ public abstract class VariantRadialScreen<T extends AbstractContainerMenu> exten
         var hovered = getSectionAt(mouseX, mouseY);
         boolean anyHovered = hovered.isPresent();
         boolean thisHovered = anyHovered && hovered.get() == section;
-        RenderSystem.setShaderColor(red, green, blue, 1);
+        graphics.setColor(red, green, blue, 1);
         graphics.blit(getTextureForSection(TransfurVariant.getEntityVariant((LivingEntity) Minecraft.getInstance().getCameraEntity()), section, thisHovered, anyHovered),
                 (int)x - 32 + this.leftPos, (int)y - 32 + this.topPos, 0, 0, 64, 64, 64, 64);
     }

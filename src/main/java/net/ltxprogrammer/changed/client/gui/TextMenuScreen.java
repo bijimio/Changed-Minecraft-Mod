@@ -239,7 +239,7 @@ public abstract class TextMenuScreen<T extends TextMenu> extends Screen implemen
     @Override
     public void render(GuiGraphics graphics, int cursorX, int cursorY, float partialTicks) {
         this.renderBackground(graphics);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        graphics.setColor(1, 1, 1, 1);
         graphics.blit(getBackground(), this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
 
         TextMenuScreen.DisplayCache displayCache = this.getDisplayCache();

@@ -57,7 +57,7 @@ public class KeypadScreen extends AbstractContainerScreen<KeypadMenu> {
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTicks, int x, int y) {
         this.renderBackground(graphics);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        graphics.setColor(1, 1, 1, 1);
         graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
 
         for (int idx = 0; idx < 8; ++idx) {

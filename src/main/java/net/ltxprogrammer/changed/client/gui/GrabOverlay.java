@@ -41,17 +41,17 @@ public class GrabOverlay {
     }
 
     public static void renderBackground(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, Color3 barColor) {
-        RenderSystem.setShaderColor(barColor.red(), barColor.green(), barColor.blue(), 1.0F);
+        graphics.setColor(barColor.red(), barColor.green(), barColor.blue(), 1.0F);
         blit(graphics, texture, x, y, 0, 0, width, height, width, height * 3);
     }
 
     public static void renderForeground(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, float progress, Color3 barColor) {
-        RenderSystem.setShaderColor(barColor.red(), barColor.green(), barColor.blue(), 1.0F);
+        graphics.setColor(barColor.red(), barColor.green(), barColor.blue(), 1.0F);
         blit(graphics, texture, x, y, 0, height, (int)(progress * width), height, width, height * 3);
     }
 
     public static void renderSuit(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, float progress, Color3 barColor) {
-        RenderSystem.setShaderColor(barColor.red(), barColor.green(), barColor.blue(), 1.0F);
+        graphics.setColor(barColor.red(), barColor.green(), barColor.blue(), 1.0F);
         float halfWidth = progress * width * 0.5f;
 
         if (progress >= 1.0f) {
@@ -116,7 +116,7 @@ public class GrabOverlay {
         if (alpha <= 0.05f)
             return;
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
+        graphics.setColor(1.0f, 1.0f, 1.0f, alpha);
         int keyX, keyY;
         switch (key) {
             case MOVE_FORWARD -> { keyX = 0; keyY = 0; }

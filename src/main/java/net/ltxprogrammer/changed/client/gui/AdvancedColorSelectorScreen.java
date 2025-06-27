@@ -68,13 +68,13 @@ public class AdvancedColorSelectorScreen extends Screen {
                 float b = baseColor.blue() * (1.0f - color.blue());
 
                 RenderSystem.setShaderTexture(0, GRADIENT);
-                RenderSystem.setShaderColor(r, g, b, 1.0F);
+                graphics.setColor(r, g, b, 1.0F);
                 graphics.blit(GRADIENT, this.getX(), this.getY(), 0, 20, 310, 20, 310,40);
                 RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
-                RenderSystem.setShaderColor(color.red(), color.green(), color.blue(), 1.0F);
+                graphics.setColor(color.red(), color.green(), color.blue(), 1.0F);
                 graphics.blit(GRADIENT, this.getX(), this.getY(), 0, 0, 310, 20, 310,40);
                 RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 
                 super.renderWidget(graphics, x, y, partialTicks);
             }

@@ -110,7 +110,7 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTicks, int gx, int gy) {
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        graphics.setColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 

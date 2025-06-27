@@ -47,6 +47,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
@@ -452,20 +453,23 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
 
     @SubscribeEvent
     public static void onPlayerJoin(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            BasicPlayerInfoPacket.Builder builderBPI = new BasicPlayerInfoPacket.Builder();
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            SyncTransfurPacket.Builder builderTf = new SyncTransfurPacket.Builder();
+            builderTf.addPlayer(serverPlayer, true);
+            if (builderTf.worthSending())
+                serverPlayer.connection.send(
+                        Changed.PACKET_HANDLER.toVanillaPacket(builderTf.build(), NetworkDirection.PLAY_TO_CLIENT)
+                );
+
             SyncMoversPacket.Builder builderMover = new SyncMoversPacket.Builder();
-            player.getServer().getPlayerList().getPlayers().forEach(serverPlayer -> {
-                if (serverPlayer != player) builderBPI.addPlayer(serverPlayer);
-                builderMover.addPlayer(serverPlayer, true);
-            });
+            builderMover.addPlayer(serverPlayer, true);
+            if (builderMover.worthSending())
+                serverPlayer.connection.send(
+                        Changed.PACKET_HANDLER.toVanillaPacket(builderMover.build(), NetworkDirection.PLAY_TO_CLIENT)
+                );
+        }
 
-            final PacketDistributor.PacketTarget playerTarget = PacketDistributor.PLAYER.with(() -> player);
-            if (builderBPI.worthSending()) Changed.PACKET_HANDLER.send(playerTarget, builderBPI.build());
-            if (builderMover.worthSending()) Changed.PACKET_HANDLER.send(playerTarget, builderMover.build());
-
-            Changed.PACKET_HANDLER.send(playerTarget, AccessoryEntities.INSTANCE.syncPacket(player));
-        } else if (event.getEntity() instanceof Player localPlayer && UniversalDist.isLocalPlayer(localPlayer)) {
+        /*else if (event.getEntity() instanceof Player localPlayer && UniversalDist.isLocalPlayer(localPlayer)) {
             Changed.PACKET_HANDLER.sendToServer(BasicPlayerInfoPacket.Builder.of(localPlayer));
 
             QueryTransfurPacket.Builder builderTf = new QueryTransfurPacket.Builder();
@@ -473,7 +477,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             localPlayer.level().players().forEach(builderTf::addPlayer);
 
             Changed.PACKET_HANDLER.sendToServer(builderTf.build());
-        }
+        }*/
     }
 
     public void setDead() {

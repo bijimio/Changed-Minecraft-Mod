@@ -103,7 +103,8 @@ public class ChangedClient {
         if (event.phase != TickEvent.Phase.END)
             return;
 
-        Changed.tryHandlePackets(LogicalSide.CLIENT);
+        if (clientTicks % 3 == 0)
+            Changed.tryHandlePackets(LogicalSide.CLIENT);
 
         if (minecraft.level != null && particleSystem.tick()) {
             var cameraPos = minecraft.gameRenderer.getMainCamera().getBlockPosition();

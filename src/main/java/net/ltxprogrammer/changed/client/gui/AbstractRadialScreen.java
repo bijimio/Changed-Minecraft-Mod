@@ -135,7 +135,7 @@ public abstract class AbstractRadialScreen<T extends AbstractContainerMenu> exte
         Changed.postModEvent(new ContainerScreenEvent.Render.Foreground(this, graphics, mouseX, mouseY));
         this.renderBg(graphics, partialTicks, mouseX, mouseY);
 
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        graphics.setColor(1, 1, 1, 1);
         getSectionAt(mouseX, mouseY).ifPresent(section -> {
             var toolTips = tooltipsFor(section);
             if (toolTips != null)
@@ -181,7 +181,7 @@ public abstract class AbstractRadialScreen<T extends AbstractContainerMenu> exte
             renderSectionForeground(graphics, sect, x, y, partialTicks, gx, gy, secondaryColor.red(), secondaryColor.green(), secondaryColor.blue(), (float)anim);
         }
 
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        graphics.setColor(1, 1, 1, 1);
         InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, this.leftPos, this.topPos + 50, 38, (float)(this.leftPos) - gx, (float)(this.topPos) - gy, centerEntity);
 
         RenderSystem.disableBlend();

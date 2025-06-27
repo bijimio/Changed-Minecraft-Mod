@@ -81,7 +81,7 @@ public class ComputerExploreScreen extends Screen implements MenuAccess<Computer
     @Override
     public void render(GuiGraphics graphics, int cursorX, int cursorY, float partialTicks) {
         this.renderBackground(graphics);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        graphics.setColor(1, 1, 1, 1);
         graphics.blit(getBackground(), this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
 
         super.render(graphics, cursorX, cursorY, partialTicks);

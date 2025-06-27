@@ -61,7 +61,7 @@ public class InfuserScreen extends AbstractContainerScreen<InfuserMenu> implemen
             RenderSystem.setShaderTexture(0, sheet);
             RenderSystem.enableDepthTest();
             Font font = minecraft.font;
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+            graphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -139,7 +139,7 @@ public class InfuserScreen extends AbstractContainerScreen<InfuserMenu> implemen
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTicks, int gx, int gy) {
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        graphics.setColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
