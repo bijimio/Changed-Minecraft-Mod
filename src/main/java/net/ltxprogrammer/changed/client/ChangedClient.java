@@ -28,6 +28,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.LogicalSide;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -101,6 +102,8 @@ public class ChangedClient {
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END)
             return;
+
+        Changed.tryHandlePackets(LogicalSide.CLIENT);
 
         if (minecraft.level != null && particleSystem.tick()) {
             var cameraPos = minecraft.gameRenderer.getMainCamera().getBlockPosition();

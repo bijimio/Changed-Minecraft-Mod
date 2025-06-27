@@ -280,7 +280,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerDataExte
 
         this.playerMover = playerMover;
         if (!level().isClientSide)
-            Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this), SyncMoversPacket.Builder.of((Player)(Object)this));
+            Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this), SyncMoversPacket.Builder.of((Player)(Object)this, false));
     }
 
     @Override

@@ -83,13 +83,13 @@ public class SyncMoversPacket implements ChangedPacket {
     public static class Builder {
         private final Map<UUID, Listing> movers = new HashMap<>();
 
-        public void addPlayer(Player player) {
+        public void addPlayer(Player player, boolean excludeNormal) {
             if (player instanceof PlayerDataExtension ext && ext.getPlayerMover() != null) {
                 CompoundTag tag = new CompoundTag();
                 ext.getPlayerMover().saveTo(tag);
                 movers.put(player.getUUID(),
                         new Listing(ChangedRegistry.PLAYER_MOVER.getID(ext.getPlayerMover().parent), tag));
-            } else {
+            } else if (!excludeNormal) {
                 movers.put(player.getUUID(),
                         new Listing(-1, new CompoundTag()));
             }
@@ -103,9 +103,9 @@ public class SyncMoversPacket implements ChangedPacket {
             return new SyncMoversPacket(movers);
         }
 
-        public static SyncMoversPacket of(Player player) {
+        public static SyncMoversPacket of(Player player, boolean excludeNormal) {
             Builder builder = new Builder();
-            builder.addPlayer(player);
+            builder.addPlayer(player, excludeNormal);
             return builder.build();
         }
     }

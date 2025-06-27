@@ -181,6 +181,11 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
                 context.setPacketHandled(true);
             }
         }
+
+        @Override
+        public boolean canBeHandled(Supplier<NetworkEvent.Context> contextSupplier) {
+            return receiverAccessories == null || receiverAccessories.canBeHandled(contextSupplier);
+        }
     }
 
     public SyncPacket syncPacket() {

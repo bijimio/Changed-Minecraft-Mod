@@ -34,6 +34,7 @@ import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -684,6 +685,8 @@ public class ProcessTransfur {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.side.isServer() && event.phase == TickEvent.Phase.END) {
+            Changed.tryHandlePackets(LogicalSide.SERVER);
+
             worldTickCount++;
 
             if (worldTickCount % 60 == 0) { // Discrete sync packet

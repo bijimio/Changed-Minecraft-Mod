@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
@@ -90,6 +91,18 @@ public class SyncTransfurPacket implements ChangedPacket {
             }
             context.setPacketHandled(true);
         }
+    }
+
+    @Override
+    public boolean canBeHandled(Supplier<NetworkEvent.Context> contextSupplier) {
+        if (!ChangedPacket.super.canBeHandled(contextSupplier))
+            return false;
+
+        if (contextSupplier.get().getDirection().getReceptionSide().isServer())
+            return true;
+
+        final var level = UniversalDist.getLevel();
+        return changedForms.keySet().stream().map(level::getPlayerByUUID).allMatch(Objects::nonNull);
     }
 
     public static class Builder {

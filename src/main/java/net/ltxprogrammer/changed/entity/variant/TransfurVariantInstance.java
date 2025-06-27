@@ -456,8 +456,8 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             BasicPlayerInfoPacket.Builder builderBPI = new BasicPlayerInfoPacket.Builder();
             SyncMoversPacket.Builder builderMover = new SyncMoversPacket.Builder();
             player.getServer().getPlayerList().getPlayers().forEach(serverPlayer -> {
-                builderBPI.addPlayer(serverPlayer);
-                builderMover.addPlayer(serverPlayer);
+                if (serverPlayer != player) builderBPI.addPlayer(serverPlayer);
+                builderMover.addPlayer(serverPlayer, true);
             });
 
             final PacketDistributor.PacketTarget playerTarget = PacketDistributor.PLAYER.with(() -> player);
@@ -469,6 +469,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             Changed.PACKET_HANDLER.sendToServer(BasicPlayerInfoPacket.Builder.of(localPlayer));
 
             QueryTransfurPacket.Builder builderTf = new QueryTransfurPacket.Builder();
+            builderTf.addPlayer(localPlayer);
             localPlayer.level().players().forEach(builderTf::addPlayer);
 
             Changed.PACKET_HANDLER.sendToServer(builderTf.build());

@@ -77,7 +77,7 @@ public class BasicPlayerInfoPacket implements ChangedPacket {
             if (sender != null) {
                 if (sender instanceof PlayerDataExtension ext && playerInfos.containsKey(sender.getUUID()))
                     ext.getBasicPlayerInfo().copyFrom(playerInfos.get(sender.getUUID()).info); // Keep player info state
-                Changed.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), this);
+                Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> sender), BasicPlayerInfoPacket.Builder.of(sender));
             }
             context.setPacketHandled(true);
         }

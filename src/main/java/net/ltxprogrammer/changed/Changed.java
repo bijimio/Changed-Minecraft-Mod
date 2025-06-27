@@ -26,6 +26,7 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.IEventBusInvokeDispatcher;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.IModBusEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -59,6 +60,10 @@ public class Changed {
             PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
     private static final ChangedPackets PACKETS = new ChangedPackets(PACKET_HANDLER);
     private static int messageID = 0;
+
+    public static void tryHandlePackets(LogicalSide side) {
+        PACKETS.tryHandlePackets(side);
+    }
 
     /**
      * This function is split out of the main function as a request by mod extension devs

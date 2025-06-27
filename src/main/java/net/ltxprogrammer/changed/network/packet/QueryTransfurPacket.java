@@ -40,7 +40,7 @@ public class QueryTransfurPacket implements ChangedPacket {
                     if (player != null)
                         builder.addPlayer(player, false);
                 });
-                Changed.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(context::getSender), builder.build());
+                if (builder.worthSending()) Changed.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(context::getSender), builder.build());
             }
             context.setPacketHandled(true);
         }
