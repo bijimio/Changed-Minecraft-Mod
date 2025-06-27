@@ -96,6 +96,7 @@ public class ChangedTags {
         public static final TagKey<TransfurVariant<?>> CAN_SLEEP_ON_PILLOWS = create("can_sleep_on_pillows");
         public static final TagKey<TransfurVariant<?>> BREAK_ITEMS_ON_TF = create("break_items_on_tf");
         public static final TagKey<TransfurVariant<?>> TEMPORARY_ONLY = create("temporary_only");
+        public static final TagKey<TransfurVariant<?>> MASKED = create("masked");
 
         private static TagKey<TransfurVariant<?>> create(String name) {
             return TagKey.create(ChangedRegistry.TRANSFUR_VARIANT.key, Changed.modResource(name));

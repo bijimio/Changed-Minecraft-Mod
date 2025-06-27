@@ -4,10 +4,7 @@ import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
-import net.ltxprogrammer.changed.init.ChangedRegistry;
-import net.ltxprogrammer.changed.init.ChangedSounds;
-import net.ltxprogrammer.changed.init.ChangedTabs;
-import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
+import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.core.NonNullList;
@@ -29,14 +26,6 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class DarkLatexMask extends Item implements ExtendedItemProperties {
-    public static final List<ResourceLocation> MASKED_LATEXES = new ArrayList<>(List.of(
-            ChangedTransfurVariants.DARK_LATEX_WOLF_MALE.getId(),
-            ChangedTransfurVariants.DARK_LATEX_WOLF_FEMALE.getId(),
-            ChangedTransfurVariants.DARK_LATEX_YUFENG.getId(),
-            ChangedTransfurVariants.DARK_LATEX_DOUBLE_YUFENG.getId(),
-            ChangedTransfurVariants.DARK_LATEX_WOLF_PUP.getId()
-    ));
-
     public DarkLatexMask() {
         super(new Item.Properties());
     }
@@ -47,13 +36,13 @@ public class DarkLatexMask extends Item implements ExtendedItemProperties {
     }
 
     public void fillItemList(Predicate<TransfurVariant<?>> predicate, CreativeModeTab.ItemDisplayParameters parameters, CreativeModeTab.Output output) {
-        MASKED_LATEXES.stream().map(ChangedRegistry.TRANSFUR_VARIANT::getValue).filter(predicate).forEach(variant -> {
-            output.accept(
-                    Syringe.setOwner(
-                            Syringe.setPureVariant(new ItemStack(this),
-                                    variant.getFormId()),
+        TransfurVariant.getPublicTransfurVariants()
+                .filter(variant -> variant.is(ChangedTags.TransfurVariants.MASKED))
+                .filter(predicate).forEach(variant -> {
+                    output.accept(Syringe.setOwner(
+                            Syringe.setPureVariant(new ItemStack(this), variant.getFormId()),
                             UniversalDist.getLocalPlayer()));
-        });
+                });
     }
 
     @Override
