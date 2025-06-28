@@ -2,8 +2,9 @@ package net.ltxprogrammer.changed.mixin.compatibility.Personality;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.teamabnormals.personality.common.CommonEvents;
 import com.teamabnormals.personality.core.Personality;
+import com.teamabnormals.personality.core.other.PersonalityClientEvents;
+import com.teamabnormals.personality.core.other.PersonalityEvents;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.PlayerDataExtension;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
@@ -26,7 +27,7 @@ public class TransfurVariantInstanceMixin<T extends ChangedEntity> {
         Entity entity = event.getEntity();
         if (event.getEntity() instanceof Player) {
             Player player = (Player) entity;
-            if ((Personality.SITTING_PLAYERS.contains(player.getUUID()) || Personality.SYNCED_SITTING_PLAYERS.contains(player.getUUID())) && CommonEvents.testSit(player)) {
+            if (PersonalityClientEvents.sitting && !PersonalityClientEvents.crawling && !PersonalityEvents.testSit(player)) {
                 return; // Allow personality to handle event size
             }
 

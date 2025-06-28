@@ -208,7 +208,7 @@ dependencies {
 
     compileOnly fg.deobf("curse.maven:parcool-482378:6652972") // Forge 1.20.1 v3.4.0.7
 
-    compileOnly fg.deobf("curse.maven:personality-415974:3881529") // Forge 1.18.2 v2.0.0
+    compileOnly fg.deobf("curse.maven:personality-415974:6248892") // Forge 1.20.1 v4.1.0
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
