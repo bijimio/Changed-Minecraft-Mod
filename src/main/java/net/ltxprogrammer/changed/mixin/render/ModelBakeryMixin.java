@@ -1,5 +1,7 @@
 package net.ltxprogrammer.changed.mixin.render;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.math.Transformation;
 import net.ltxprogrammer.changed.client.AbilityRenderer;
 import net.ltxprogrammer.changed.client.BakeryExtender;
@@ -39,6 +41,18 @@ public abstract class ModelBakeryMixin implements BakeryExtender {
 
     @Shadow public abstract UnbakedModel getModel(ResourceLocation p_119342_);
     @Shadow protected abstract BlockModel loadBlockModel(ResourceLocation p_119365_) throws IOException;
+
+    @WrapMethod(method = "loadModel")
+    public void orLoadAbilityModel(ResourceLocation modelName, Operation<Void> original) throws Exception {
+        if (modelName instanceof ModelResourceLocation modelLocation && Objects.equals(modelLocation.getVariant(), "ability")) {
+            ResourceLocation resourcelocation = modelName.withPrefix("ability/");
+            BlockModel blockmodel = this.loadBlockModel(resourcelocation);
+            this.cacheAndQueueDependencies(modelLocation, blockmodel);
+            this.unbakedCache.put(resourcelocation, blockmodel);
+        } else {
+            original.call(modelName);
+        }
+    }
 
     @Override
     @Unique

@@ -50,7 +50,7 @@ public class AbilityColors {
     }
 
     public Optional<Integer> getColor(AbstractAbilityInstance abilityInstance, int layer) {
-        AbilityColor color = this.abilityColors.get(ChangedRegistry.ABILITY.get().getDelegateOrThrow(abilityInstance.getAbility()));
+        AbilityColor color = this.abilityColors.get(ChangedRegistry.ABILITY.getKey(abilityInstance.getAbility()));
         return color == null ? Optional.of(DEFAULT) : color.getColor(abilityInstance, layer);
     }
 

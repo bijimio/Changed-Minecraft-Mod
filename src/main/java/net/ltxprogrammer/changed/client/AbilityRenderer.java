@@ -179,23 +179,23 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
         this.render(abilityInstance, transformType, leftHand, poseStack, bufferSource, packedLight, packedOverlay, model);
     }
 
-    public void renderGuiAbility(AbstractAbilityInstance abilityInstance, int x, int y) {
-        this.renderGuiAbility(abilityInstance, x, y, 16,1.0f, false, this.getModel(abilityInstance, null, null, 0));
+    public void renderGuiAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y) {
+        this.renderGuiAbility(graphics, abilityInstance, x, y, 16,1.0f, false, this.getModel(abilityInstance, null, null, 0));
     }
 
-    public void renderGuiAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale) {
-        this.renderGuiAbility(abilityInstance, x, y, scale, 1.0f, false, this.getModel(abilityInstance, null, null, 0));
+    public void renderGuiAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale) {
+        this.renderGuiAbility(graphics, abilityInstance, x, y, scale, 1.0f, false, this.getModel(abilityInstance, null, null, 0));
     }
 
-    public void renderGuiAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha) {
-        this.renderGuiAbility(abilityInstance, x, y, scale, alpha, false, this.getModel(abilityInstance, null, null, 0));
+    public void renderGuiAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha) {
+        this.renderGuiAbility(graphics, abilityInstance, x, y, scale, alpha, false, this.getModel(abilityInstance, null, null, 0));
     }
 
-    public void renderGuiAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow) {
-        this.renderGuiAbility(abilityInstance, x, y, scale, alpha, shadow, this.getModel(abilityInstance, null, null, 0));
+    public void renderGuiAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow) {
+        this.renderGuiAbility(graphics, abilityInstance, x, y, scale, alpha, shadow, this.getModel(abilityInstance, null, null, 0));
     }
 
-    protected void renderGuiAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, BakedModel model) {
+    protected void renderGuiAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, BakedModel model) {
         this.textureManager.getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
         RenderSystem.enableBlend();
@@ -204,7 +204,6 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
         modelViewStack.pushPose();
         modelViewStack.translate((double)x, (double)y, (double)(100.0F + this.blitOffset));
         modelViewStack.translate(scale * 0.5D, scale * 0.5D, 0.0D);
-        PoseStack poseStack = new PoseStack();
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         boolean flatLight = !model.usesBlockLight();
         if (flatLight) {
@@ -218,8 +217,8 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
             modelViewStack.scale(1.0F, -1.0F, 1.0F);
             modelViewStack.scale(scale, scale, scale);
             RenderSystem.applyModelViewMatrix();
-            RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, alpha * 0.5F);
-            this.render(abilityInstance, ItemDisplayContext.GUI, false, poseStack, bufferSource, 15728880, OverlayTexture.NO_OVERLAY, model);
+            graphics.setColor(0.0F, 0.0F, 0.0F, alpha * 0.5F);
+            this.render(abilityInstance, ItemDisplayContext.GUI, false, graphics.pose(), bufferSource, 15728880, OverlayTexture.NO_OVERLAY, model);
 
             modelViewStack.popPose();
         }
@@ -227,8 +226,8 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
         modelViewStack.scale(1.0F, -1.0F, 1.0F);
         modelViewStack.scale(scale, scale, scale);
         RenderSystem.applyModelViewMatrix();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
-        this.render(abilityInstance, ItemDisplayContext.GUI, false, poseStack, bufferSource, 15728880, OverlayTexture.NO_OVERLAY, model);
+        graphics.setColor(1.0F, 1.0F, 1.0F, alpha);
+        this.render(abilityInstance, ItemDisplayContext.GUI, false, graphics.pose(), bufferSource, 15728880, OverlayTexture.NO_OVERLAY, model);
 
         bufferSource.endBatch();
         RenderSystem.enableDepthTest();
@@ -240,60 +239,60 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
         RenderSystem.applyModelViewMatrix();
     }
 
-    public void renderAndDecorateAbility(AbstractAbilityInstance abilityInstance, int x, int y) {
-        this.tryRenderGuiAbility(Minecraft.getInstance().player, abilityInstance, x, y, 16, 1.0f, false, 0);
+    public void renderAndDecorateAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y) {
+        this.tryRenderGuiAbility(graphics, Minecraft.getInstance().player, abilityInstance, x, y, 16, 1.0f, false, 0);
     }
 
-    public void renderAndDecorateAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale) {
-        this.tryRenderGuiAbility(Minecraft.getInstance().player, abilityInstance, x, y, scale, 1.0f, false, 0);
+    public void renderAndDecorateAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale) {
+        this.tryRenderGuiAbility(graphics, Minecraft.getInstance().player, abilityInstance, x, y, scale, 1.0f, false, 0);
     }
 
-    public void renderAndDecorateAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha) {
-        this.tryRenderGuiAbility(Minecraft.getInstance().player, abilityInstance, x, y, scale, 1.0f, false, 0);
+    public void renderAndDecorateAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha) {
+        this.tryRenderGuiAbility(graphics, Minecraft.getInstance().player, abilityInstance, x, y, scale, 1.0f, false, 0);
     }
 
-    public void renderAndDecorateAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow) {
-        this.tryRenderGuiAbility(Minecraft.getInstance().player, abilityInstance, x, y, scale, alpha, shadow, 0);
+    public void renderAndDecorateAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow) {
+        this.tryRenderGuiAbility(graphics, Minecraft.getInstance().player, abilityInstance, x, y, scale, alpha, shadow, 0);
     }
 
-    public void renderAndDecorateAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, int id) {
-        this.tryRenderGuiAbility(Minecraft.getInstance().player, abilityInstance, x, y, scale, alpha, shadow, id);
+    public void renderAndDecorateAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, int id) {
+        this.tryRenderGuiAbility(graphics, Minecraft.getInstance().player, abilityInstance, x, y, scale, alpha, shadow, id);
     }
 
-    public void renderAndDecorateAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, int id, int zOffset) {
-        this.tryRenderGuiAbility(Minecraft.getInstance().player, abilityInstance, x, y, scale, alpha, shadow, id, zOffset);
+    public void renderAndDecorateAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, int id, int zOffset) {
+        this.tryRenderGuiAbility(graphics, Minecraft.getInstance().player, abilityInstance, x, y, scale, alpha, shadow, id, zOffset);
     }
 
-    public void renderAndDecorateFakeAbility(AbstractAbilityInstance abilityInstance, int x, int y) {
-        this.tryRenderGuiAbility(null, abilityInstance, x, y, 16, 1.0f, false, 0);
+    public void renderAndDecorateFakeAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y) {
+        this.tryRenderGuiAbility(graphics, null, abilityInstance, x, y, 16, 1.0f, false, 0);
     }
 
-    public void renderAndDecorateFakeAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale) {
-        this.tryRenderGuiAbility(null, abilityInstance, x, y, scale, 1.0f, false, 0);
+    public void renderAndDecorateFakeAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale) {
+        this.tryRenderGuiAbility(graphics, null, abilityInstance, x, y, scale, 1.0f, false, 0);
     }
 
-    public void renderAndDecorateFakeAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha) {
-        this.tryRenderGuiAbility(null, abilityInstance, x, y, scale, alpha, false, 0);
+    public void renderAndDecorateFakeAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha) {
+        this.tryRenderGuiAbility(graphics, null, abilityInstance, x, y, scale, alpha, false, 0);
     }
 
-    public void renderAndDecorateFakeAbility(AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow) {
-        this.tryRenderGuiAbility(null, abilityInstance, x, y, scale, alpha, shadow, 0);
+    public void renderAndDecorateFakeAbility(GuiGraphics graphics, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow) {
+        this.tryRenderGuiAbility(graphics, null, abilityInstance, x, y, scale, alpha, shadow, 0);
     }
 
-    public void renderAndDecorateAbility(LivingEntity entity, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, int id) {
-        this.tryRenderGuiAbility(entity, abilityInstance, x, y, scale, alpha, shadow, id);
+    public void renderAndDecorateAbility(GuiGraphics graphics, LivingEntity entity, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, int id) {
+        this.tryRenderGuiAbility(graphics, entity, abilityInstance, x, y, scale, alpha, shadow, id);
     }
 
-    private void tryRenderGuiAbility(@Nullable LivingEntity entity, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, int id) {
-        this.tryRenderGuiAbility(entity, abilityInstance, x, y, scale, alpha, shadow, id, 0);
+    private void tryRenderGuiAbility(GuiGraphics graphics, @Nullable LivingEntity entity, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, int id) {
+        this.tryRenderGuiAbility(graphics, entity, abilityInstance, x, y, scale, alpha, shadow, id, 0);
     }
 
-    private void tryRenderGuiAbility(@Nullable LivingEntity entity, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, int id, int zOffset) {
+    private void tryRenderGuiAbility(GuiGraphics graphics, @Nullable LivingEntity entity, AbstractAbilityInstance abilityInstance, int x, int y, int scale, float alpha, boolean shadow, int id, int zOffset) {
         BakedModel model = this.getModel(abilityInstance, null, entity, id);
         this.blitOffset = model.isGui3d() ? this.blitOffset + 50.0F + (float)zOffset : this.blitOffset + 50.0F;
 
         try {
-            this.renderGuiAbility(abilityInstance, x, y, scale, alpha, shadow, model);
+            this.renderGuiAbility(graphics, abilityInstance, x, y, scale, alpha, shadow, model);
         } catch (Throwable throwable) {
             CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering ability");
             CrashReportCategory crashreportcategory = crashreport.addCategory("Ability being rendered");
