@@ -1,4 +1,5 @@
 {
+  "render_type": "minecraft:cutout",
   "parent": "changed:custom/beaker_filled",
   "textures": {
     "all": "changed:block/beaker/beaker",

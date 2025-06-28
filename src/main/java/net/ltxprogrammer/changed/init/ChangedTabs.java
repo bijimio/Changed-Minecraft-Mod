@@ -26,7 +26,7 @@ public class ChangedTabs {
 
     public static DeferredRegister<CreativeModeTab> REGISTRY = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Changed.MODID);
 
-    private static Predicate<TransfurVariant<?>> CHANGED_ONLY = variant -> variant.getFormId().getNamespace().equals(Changed.MODID);
+    private static final Predicate<TransfurVariant<?>> CHANGED_ONLY = variant -> variant.getFormId().getNamespace().equals(Changed.MODID);
 
     private static RegistryObject<CreativeModeTab> register(String id, Function<CreativeModeTab.Builder, CreativeModeTab> finalizer) {
         return REGISTRY.register(id, () -> finalizer.apply(
@@ -165,11 +165,9 @@ public class ChangedTabs {
                         output.accept(ChangedBlocks.SKUNK_GAS_CANISTER.get());
 
                         output.accept(ChangedBlocks.DARK_LATEX_BLOCK.get());
-                        output.accept(ChangedBlocks.DARK_LATEX_WALL_SPLOTCH.get());
                         output.accept(ChangedBlocks.DARK_LATEX_ICE.get());
                         output.accept(ChangedBlocks.WOLF_CRYSTAL_BLOCK.get());
                         output.accept(ChangedBlocks.WHITE_LATEX_BLOCK.get());
-                        output.accept(ChangedBlocks.WHITE_LATEX_WALL_SPLOTCH.get());
                         output.accept(ChangedBlocks.WHITE_LATEX_PILLAR.get());
 
                         ChangedBlocks.PILLOWS.values().stream().map(RegistryObject::get).forEach(output::accept);

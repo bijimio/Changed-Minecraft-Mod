@@ -1,4 +1,5 @@
 {
+  "render_type": "minecraft:cutout",
   "parent": "minecraft:block/cross",
   "textures": {
     "cross": "changed:block/dark_latex_crystal_large_top"
