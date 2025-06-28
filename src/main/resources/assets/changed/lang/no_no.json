@@ -76,7 +76,10 @@
   "subtitles.changed.paralyze3": "Intercom annonserer",
   "subtitles.changed.blow1": "Spiller infiserte",
   "subtitles.changed.vacuum": "Støvsuger snurrer",
+
   "subtitles.changed.exoskeleton_step": "Eksoskjelett trår",
+  "subtitles.changed.exoskeleton_chime": "Digital kime",
+  "subtitles.changed.exoskeleton_lock": "Eksoskjelett utstyrt",
 
   "item.changed.benign_shorts": "Lateks bukser",
   "item.changed.black_tshirt": "Svart t-skjorte",
@@ -747,5 +750,11 @@
   "changed.stasis.modify.arms": "Armer: %s",
   "changed.stasis.modify.arms.tooltip": "Oppsett: Modifiserer lateksdyrets armer",
   "changed.stasis.modify.scale": "Skala: %s",
-  "changed.stasis.modify.scale.tooltip": "Oppsett: Modifiserer lateksdyrets skala"
+  "changed.stasis.modify.scale.tooltip": "Oppsett: Modifiserer lateksdyrets skala",
+
+  "changed.accessory.slot_disabled_by": "Slot deaktivert av:",
+
+
+  "changed.exoskeleton.battery_low": "Batterinivå lavt",
+  "changed.exoskeleton.battery_critical": "Batterinivå kritisk"
 }

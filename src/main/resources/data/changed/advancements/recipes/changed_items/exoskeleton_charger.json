@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "changed:exoskeleton_charger"
+    ]
+  },
+  "criteria": {
+    "has_armor_stand": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:armor_stand"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "changed:exoskeleton_charger"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_armor_stand",
+      "has_the_recipe"
+    ]
+  ]
+}
