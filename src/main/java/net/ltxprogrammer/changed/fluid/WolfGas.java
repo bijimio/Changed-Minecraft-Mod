@@ -1,23 +1,55 @@
 package net.ltxprogrammer.changed.fluid;
 
+import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.init.ChangedFluids;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.ltxprogrammer.changed.util.Color3;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
+
+import java.util.function.Consumer;
 
 public abstract class WolfGas extends TransfurGas {
     public static final ForgeFlowingFluid.Properties PROPERTIES = new ForgeFlowingFluid.Properties(
-            ChangedFluids.TRANSFUR_GAS, ChangedFluids.WOLF_GAS, ChangedFluids.WOLF_GAS_FLOWING)
+            ChangedFluids.WOLF_TRANSFUR_GAS, ChangedFluids.WOLF_GAS, ChangedFluids.WOLF_GAS_FLOWING)
             .tickRate(4)
             .levelDecreasePerBlock(1)
             .explosionResistance(100f)
             .block(ChangedBlocks.WOLF_GAS);
+
+    public static FluidType createFluidType() {
+        return new FluidType(FluidType.Properties.create().descriptionId("wolf_transfur_gas")
+                .density(200)
+                .viscosity(200)) {
+            @Override
+            public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
+                consumer.accept(new IClientFluidTypeExtensions() {
+                    private static final ResourceLocation GAS_STILL = Changed.modResource("block/wolf_gas");
+                    private static final ResourceLocation GAS_FLOW = Changed.modResource("block/wolf_gas");
+
+                    public ResourceLocation getStillTexture() {
+                        return GAS_STILL;
+                    }
+
+                    public ResourceLocation getFlowingTexture() {
+                        return GAS_FLOW;
+                    }
+
+                    public int getTintColor() {
+                        return 0x7FFFFFFF;
+                    }
+                });
+            }
+        };
+    }
 
     protected WolfGas() {
         super(PROPERTIES, ChangedTransfurVariants.GAS_WOLF);

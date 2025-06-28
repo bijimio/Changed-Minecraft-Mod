@@ -18,8 +18,12 @@ public class ChangedFluids {
     public static final DeferredRegister<FluidType> REGISTRY_TYPES = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, Changed.MODID);
     public static final DeferredRegister<Fluid> REGISTRY_FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, Changed.MODID);
 
-    public static final RegistryObject<FluidType> LATEX_FLUID = REGISTRY_TYPES.register("latex", AbstractLatexFluid::createFluidType);
-    public static final RegistryObject<FluidType> TRANSFUR_GAS = REGISTRY_TYPES.register("gas", TransfurGas::createFluidType);
+    public static final RegistryObject<FluidType> DARK_LATEX_FLUID = REGISTRY_TYPES.register("dark_latex", DarkLatexFluid::createFluidType);
+    public static final RegistryObject<FluidType> WHITE_LATEX_FLUID = REGISTRY_TYPES.register("white_latex", WhiteLatexFluid::createFluidType);
+
+    public static final RegistryObject<FluidType> WOLF_TRANSFUR_GAS = REGISTRY_TYPES.register("wolf_transfur_gas", WolfGas::createFluidType);
+    public static final RegistryObject<FluidType> TIGER_TRANSFUR_GAS = REGISTRY_TYPES.register("tiger_transfur_gas", TigerGas::createFluidType);
+    public static final RegistryObject<FluidType> SKUNK_TRANSFUR_GAS = REGISTRY_TYPES.register("skunk_transfur_gas", SkunkGas::createFluidType);
 
     public static final RegistryObject<AbstractLatexFluid> DARK_LATEX = REGISTRY_FLUIDS.register("dark_latex", DarkLatexFluid.Source::new);
     public static final RegistryObject<AbstractLatexFluid> DARK_LATEX_FLOWING = REGISTRY_FLUIDS.register("dark_latex_flowing", DarkLatexFluid.Flowing::new);

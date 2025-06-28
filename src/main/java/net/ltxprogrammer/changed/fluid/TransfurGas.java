@@ -28,12 +28,6 @@ import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber
 public abstract class TransfurGas extends Gas {
-    public static FluidType createFluidType() {
-        return new FluidType(FluidType.Properties.create().descriptionId("transfur_gas")
-                .density(200)
-                .viscosity(200));
-    }
-
     public final ImmutableList<Supplier<? extends TransfurVariant<?>>> variants;
 
     protected TransfurGas(Properties properties, Supplier<? extends TransfurVariant<?>> variant) {

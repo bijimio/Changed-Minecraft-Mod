@@ -8,6 +8,7 @@ import net.ltxprogrammer.changed.init.ChangedFluids;
 import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -16,18 +17,43 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class DarkLatexFluid extends AbstractLatexFluid {
     public static final ForgeFlowingFluid.Properties PROPERTIES = new ForgeFlowingFluid.Properties(
-            ChangedFluids.LATEX_FLUID, ChangedFluids.DARK_LATEX, ChangedFluids.DARK_LATEX_FLOWING)
+            ChangedFluids.DARK_LATEX_FLUID, ChangedFluids.DARK_LATEX, ChangedFluids.DARK_LATEX_FLOWING)
             .tickRate(50)
             .levelDecreasePerBlock(3)
             .explosionResistance(100f)
             .bucket(ChangedItems.DARK_LATEX_BUCKET)
             .block(ChangedBlocks.DARK_LATEX_FLUID);
+
+    public static FluidType createFluidType() {
+        return new FluidType(FluidType.Properties.create().descriptionId("dark_latex")
+                .density(6000)
+                .viscosity(6000)) {
+            @Override
+            public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
+                consumer.accept(new IClientFluidTypeExtensions() {
+                    private static final ResourceLocation DARK_LATEX_STILL = Changed.modResource("block/dark_latex_block_top");
+                    private static final ResourceLocation DARK_LATEX_FLOW = Changed.modResource("block/dark_latex_block_top");
+
+                    public ResourceLocation getStillTexture() {
+                        return DARK_LATEX_STILL;
+                    }
+
+                    public ResourceLocation getFlowingTexture() {
+                        return DARK_LATEX_FLOW;
+                    }
+                });
+            }
+        };
+    }
 
     protected DarkLatexFluid() {
         super(PROPERTIES, LatexType.DARK_LATEX, List.of(ChangedTransfurVariants.DARK_LATEX_WOLF_MALE, ChangedTransfurVariants.DARK_LATEX_WOLF_FEMALE, ChangedTransfurVariants.DARK_LATEX_YUFENG));

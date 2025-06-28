@@ -195,7 +195,7 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
             var fluidState = fluid.defaultFluidState();
             var sprites = ForgeHooksClient.getFluidSprites(blockEntity.getLevel(), blockEntity.getBlockPos(), fluidState);
 
-            var color = 0xFFFFFFFF;//fluid.getAttributes().getColor(blockEntity.getLevel(), blockEntity.getBlockPos());
+            var color = net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions.of(fluid).getTintColor(fluidState, blockEntity.getLevel(), blockEntity.getBlockPos());
             var rgb = Color3.fromInt(color);
             float alpha = ((float)((color >> 24) & 0xFF)) / 255f;
             if (fluid.isSame(Fluids.WATER))

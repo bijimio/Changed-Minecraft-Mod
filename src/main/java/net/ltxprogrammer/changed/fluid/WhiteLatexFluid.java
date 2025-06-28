@@ -1,5 +1,6 @@
 package net.ltxprogrammer.changed.fluid;
 
+import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
@@ -7,6 +8,7 @@ import net.ltxprogrammer.changed.init.ChangedFluids;
 import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -15,18 +17,43 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class WhiteLatexFluid extends AbstractLatexFluid {
     public static final ForgeFlowingFluid.Properties PROPERTIES = new ForgeFlowingFluid.Properties(
-            ChangedFluids.LATEX_FLUID, ChangedFluids.WHITE_LATEX, ChangedFluids.WHITE_LATEX_FLOWING)
+            ChangedFluids.WHITE_LATEX_FLUID, ChangedFluids.WHITE_LATEX, ChangedFluids.WHITE_LATEX_FLOWING)
             .tickRate(50)
             .levelDecreasePerBlock(3)
             .explosionResistance(100f)
             .bucket(ChangedItems.WHITE_LATEX_BUCKET)
             .block(ChangedBlocks.WHITE_LATEX_FLUID);
+
+    public static FluidType createFluidType() {
+        return new FluidType(FluidType.Properties.create().descriptionId("white_latex")
+                .density(6000)
+                .viscosity(6000)) {
+            @Override
+            public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
+                consumer.accept(new IClientFluidTypeExtensions() {
+                    private static final ResourceLocation WHITE_LATEX_STILL = Changed.modResource("block/white_latex_block");
+                    private static final ResourceLocation WHITE_LATEX_FLOW = Changed.modResource("block/white_latex_block");
+
+                    public ResourceLocation getStillTexture() {
+                        return WHITE_LATEX_STILL;
+                    }
+
+                    public ResourceLocation getFlowingTexture() {
+                        return WHITE_LATEX_FLOW;
+                    }
+                });
+            }
+        };
+    }
 
     public WhiteLatexFluid() {
         super(PROPERTIES, LatexType.WHITE_LATEX, List.of(ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF));

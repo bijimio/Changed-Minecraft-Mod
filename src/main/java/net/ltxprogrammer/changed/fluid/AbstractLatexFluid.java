@@ -36,12 +36,6 @@ public abstract class AbstractLatexFluid extends ForgeFlowingFluid {
     private final List<Supplier<? extends TransfurVariant<?>>> form;
     private final LatexType gooType;
 
-    public static FluidType createFluidType() {
-        return new FluidType(FluidType.Properties.create().descriptionId("latex")
-                .density(6000)
-                .viscosity(6000));
-    }
-
     protected AbstractLatexFluid(Properties properties, LatexType gooType, List<Supplier<? extends TransfurVariant<?>>> form) {
         super(properties);
         this.gooType = gooType;
