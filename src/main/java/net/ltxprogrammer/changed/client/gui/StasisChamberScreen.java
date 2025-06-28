@@ -356,4 +356,9 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
         else
             return this.getFocused() != null && this.isDragging() && button == 0 ? this.getFocused().mouseDragged(x, y, button, p_97755_, p_97756_) : false;
     }
+
+    @Override
+    protected void renderLabels(GuiGraphics p_281635_, int p_282681_, int p_283686_) {
+
+    }
 }

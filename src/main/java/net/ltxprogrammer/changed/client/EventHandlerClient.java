@@ -9,7 +9,6 @@ import net.ltxprogrammer.changed.client.gui.ContentWarningScreen;
 import net.ltxprogrammer.changed.client.renderer.layers.DarkLatexMaskLayer;
 import net.ltxprogrammer.changed.client.renderer.layers.GasMaskLayer;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
-import net.ltxprogrammer.changed.data.BiListener;
 import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.fluid.AbstractLatexFluid;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
@@ -34,22 +33,9 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.UUID;
-
 @OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class EventHandlerClient {
-    @OnlyIn(Dist.CLIENT)
-    public static final BiListener<UUID, Float> PROGRESS_LISTENER = SyncTransfurProgressPacket.SIGNAL.addListener((uuid, progress) -> {
-        var player = Minecraft.getInstance().level.getPlayerByUUID(uuid);
-        if (player == null)
-            return;
-        var oldProgress = ProcessTransfur.getPlayerTransfurProgress(player);
-        if (Math.abs(oldProgress - progress) < 0.02f) // Prevent sync shudder
-            return;
-        ProcessTransfur.setPlayerTransfurProgress(player, progress);
-    });
-
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void onRenderEntityPre(RenderLivingEvent.Pre<?, ?> event) {

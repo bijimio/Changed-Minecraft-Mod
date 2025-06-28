@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed;
 
 import net.ltxprogrammer.changed.client.ChangedClient;
+import net.ltxprogrammer.changed.client.ChangedOverlays;
 import net.ltxprogrammer.changed.client.EventHandlerClient;
 import net.ltxprogrammer.changed.client.RecipeCategories;
 import net.ltxprogrammer.changed.client.latexparticles.LatexParticleType;
@@ -22,11 +23,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.eventbus.EventBus;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.IEventBusInvokeDispatcher;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.IModBusEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -54,6 +57,7 @@ public class Changed {
     public static EventHandlerClient eventHandlerClient;
     public static ChangedConfig config;
     public static ChangedDataFixer dataFixer;
+    //private static IEventBus modEventBus;
 
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel PACKET_HANDLER = NetworkRegistry.newSimpleChannel(modResource(MODID), () -> PROTOCOL_VERSION,
@@ -75,6 +79,7 @@ public class Changed {
     }
 
     public Changed(FMLJavaModLoadingContext context) {
+        //modEventBus = context.getModEventBus();
         config = new ChangedConfig(context);
 
         registerLoadingEventListeners(context.getModEventBus());
@@ -148,6 +153,7 @@ public class Changed {
     private void registerClientEventListeners() {
         MinecraftForge.EVENT_BUS.register(eventHandlerClient = new EventHandlerClient());
         Changed.addLoadingEventListener(RecipeCategories::registerCategories);
+        Changed.addLoadingEventListener(ChangedOverlays::registerOverlays);
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {

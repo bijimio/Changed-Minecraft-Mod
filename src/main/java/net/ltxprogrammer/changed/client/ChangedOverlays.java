@@ -24,7 +24,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ChangedOverlays {
     protected static final ResourceLocation VIGNETTE_LOCATION = ResourceLocation.parse("textures/misc/vignette.png");
 
@@ -34,7 +33,6 @@ public class ChangedOverlays {
     public static final ResourceLocation GAS_VFX_OVERLAY = Changed.modResource("gas_vfx");
     public static final ResourceLocation VARIANT_BLINDNESS_OVERLAY = Changed.modResource("variant_blindness");
 
-    @SubscribeEvent
     public static void registerOverlays(RegisterGuiOverlaysEvent event) {
         event.registerAboveAll(DANGER_OVERLAY.getPath(), (gui, graphics, partialTick, screenWidth, screenHeight) -> {
             gui.setupOverlayRenderState(true, false);
