@@ -76,7 +76,10 @@
   "subtitles.changed.paralyze3": "Intercom meddelar",
   "subtitles.changed.blow1": "Spelare latexad",
   "subtitles.changed.vacuum": "Dammsugare snurrar",
+
   "subtitles.changed.exoskeleton_step": "Exoskelett går",
+  "subtitles.changed.exoskeleton_chime": "Digital klämta",
+  "subtitles.changed.exoskeleton_lock": "Exoskelett utrustad",
 
   "item.changed.benign_shorts": "Latex byxor",
   "item.changed.black_tshirt": "Svart t-shirt",
@@ -747,5 +750,11 @@
   "changed.stasis.modify.arms": "Armar: %s",
   "changed.stasis.modify.arms.tooltip": "Konfig: Modifierar latexbestens armar",
   "changed.stasis.modify.scale": "Skala: %s",
-  "changed.stasis.modify.scale.tooltip": "Konfig: Modifierar latexbestens skala"
+  "changed.stasis.modify.scale.tooltip": "Konfig: Modifierar latexbestens skala",
+
+  "changed.accessory.slot_disabled_by": "Slot inaktiverad av:",
+
+
+  "changed.exoskeleton.battery_low": "Batterinivå låg",
+  "changed.exoskeleton.battery_critical": "Batterinivå kritisk"
 }

@@ -379,6 +379,22 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
                 });
     }
 
+    public EntityDimensions getTransfurDimensions(Pose pose) {
+        ChangedEntity changedEntity = getChangedEntity();
+        final float morphProgress = getMorphProgression();
+
+        if (morphProgress < 1f) {
+            final var playerDim = host.getDimensions(pose);
+            final var latexDim = changedEntity.getDimensions(pose);
+            float width = Mth.lerp(morphProgress, playerDim.width, latexDim.width);
+            float height = Mth.lerp(morphProgress, playerDim.height, latexDim.height);
+
+            return new EntityDimensions(width, height, latexDim.fixed);
+        } else {
+            return changedEntity.getDimensions(pose);
+        }
+    }
+
     @SubscribeEvent
     public static void onSizeEvent(EntityEvent.Size event) {
         if (event.getEntity() instanceof Player player) {
@@ -386,17 +402,13 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
                 ProcessTransfur.ifPlayerTransfurred(player, variant -> {
                     ChangedEntity changedEntity = variant.getChangedEntity();
                     final float morphProgress = variant.getMorphProgression();
+                    final EntityDimensions morphDimensions = variant.getTransfurDimensions(event.getPose());
 
                     if (morphProgress < 1f) {
-                        final var playerDim = player.getDimensions(event.getPose());
-                        final var latexDim = changedEntity.getDimensions(event.getPose());
-                        float width = Mth.lerp(morphProgress, playerDim.width, latexDim.width);
-                        float height = Mth.lerp(morphProgress, playerDim.height, latexDim.height);
-
-                        event.setNewSize(new EntityDimensions(width, height, latexDim.fixed));
+                        event.setNewSize(morphDimensions);
                         event.setNewEyeHeight(Mth.lerp(morphProgress, player.getEyeHeight(event.getPose()), changedEntity.getEyeHeight(event.getPose())));
                     } else {
-                        event.setNewSize(changedEntity.getDimensions(event.getPose()));
+                        event.setNewSize(morphDimensions);
                         event.setNewEyeHeight(changedEntity.getEyeHeight(event.getPose()));
                     }
                 });
