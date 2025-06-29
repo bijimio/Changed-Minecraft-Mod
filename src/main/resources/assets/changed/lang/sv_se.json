@@ -1,9 +1,9 @@
 {
-  "itemGroup.tab_changed_blocks": "Changed Blocks",
-  "itemGroup.tab_changed_items": "Changed Föremål",
-  "itemGroup.tab_changed_entities": "Changed Enheter",
-  "itemGroup.tab_changed_combat": "Changed Strid",
-  "itemGroup.tab_changed_music": "Changed Musik",
+  "itemGroup.tab_changed_blocks": "Changed blocker",
+  "itemGroup.tab_changed_items": "Changed föremål",
+  "itemGroup.tab_changed_entities": "Changed enheter",
+  "itemGroup.tab_changed_combat": "Changed strid",
+  "itemGroup.tab_changed_music": "Changed musik",
 
   "ability.changed.access_saddle": "Tillgång sadel",
   "ability.changed.switch_transfur_mode": "Växla förpälsvandla läge",
@@ -100,11 +100,13 @@
   "item.changed.latex_syringe": "Latexspruta",
   "item.changed.wolf_crystal_fragment": "Varg kristallskärva",
   "item.changed.latex_tipped_arrow": "Latexpil",
+  "item.changed.nitrile_gloves": "Nitrilhandskar",
   "item.changed.orange": "Apelsin",
   "item.changed.pink_shorts": "Rosa byxor",
   "item.changed.roomba": "Svepande robot",
   "item.changed.sports_bra": "Sportbehå",
   "item.changed.syringe": "Spruta",
+  "item.changed.wetsuit": "Våtdräkt",
   "item.changed.white_latex_goo": "Vit latex goo",
   "item.changed.white_latex_bucket": "Vit latexhink",
 
