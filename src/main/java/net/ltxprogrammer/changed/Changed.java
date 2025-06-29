@@ -121,6 +121,7 @@ public class Changed {
         ChangedBlocks.REGISTRY.register(modEventBus);
         ChangedTransfurVariants.REGISTRY.register(modEventBus);
         ChangedEntities.REGISTRY.register(modEventBus);
+        ChangedBiomeModifiers.BIOME_MODIFIERS.register(modEventBus);
         ChangedAnimationEvents.REGISTRY.register(modEventBus);
         ChangedAccessorySlots.REGISTRY.register(modEventBus);
 
