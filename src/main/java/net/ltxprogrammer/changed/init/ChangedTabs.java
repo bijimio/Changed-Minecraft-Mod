@@ -5,15 +5,20 @@ import net.ltxprogrammer.changed.block.*;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.item.LatexRecordItem;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -171,6 +176,16 @@ public class ChangedTabs {
                         output.accept(ChangedBlocks.WHITE_LATEX_PILLAR.get());
 
                         ChangedBlocks.PILLOWS.values().stream().map(RegistryObject::get).forEach(output::accept);
+
+                        ForgeRegistries.PAINTING_VARIANTS.getKeys().stream()
+                                .filter(name -> name.getNamespace().equals(Changed.MODID))
+                                .map(ForgeRegistries.PAINTING_VARIANTS::getHolder).filter(Optional::isPresent).map(Optional::get)
+                                .forEach(variant -> {
+                                    ItemStack stack = new ItemStack(Items.PAINTING);
+                                    CompoundTag compoundtag = stack.getOrCreateTagElement("EntityTag");
+                                    Painting.storeVariant(compoundtag, variant);
+                                    output.accept(stack);
+                                });
                     }).build());
 
     public static RegistryObject<CreativeModeTab> TAB_CHANGED_ITEMS = register("items", builder ->
