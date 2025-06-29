@@ -11,10 +11,14 @@ public class ChangedPaintings {
         return REGISTRY.register(name, () -> new PaintingVariant(width, height));
     }
 
-    public static final RegistryObject<PaintingVariant> DARK_LATEX_MASK = register(16, 16, "dark_latex_mask");
-    public static final RegistryObject<PaintingVariant> PURO_PLACE = register(32, 32, "puro_place");
-    public static final RegistryObject<PaintingVariant> SHARKS_GAZE = register(64, 64, "sharks_gaze");
-    public static final RegistryObject<PaintingVariant> DR_K = register(32, 32, "dr_k");
-    public static final RegistryObject<PaintingVariant> A_LAZY_FOX_ON_THE_PAPER = register(32, 32, "a_lazy_fox_on_the_paper");
+    public static final RegistryObject<PaintingVariant> A_LAZY_FOX_ON_THE_PAPER = register(48, 48, "a_lazy_fox_on_the_paper");
     public static final RegistryObject<PaintingVariant> CREATION_OF_LIN = register(64, 32, "creation_of_lin");
+    public static final RegistryObject<PaintingVariant> DARK_LATEX_MASK = register(16, 16, "dark_latex_mask");
+    public static final RegistryObject<PaintingVariant> DR_K = register(32, 32, "dr_k");
+    public static final RegistryObject<PaintingVariant> EARTH_AND_MOON = register(48, 32, "earth_and_moon");
+    public static final RegistryObject<PaintingVariant> KADE_TAIL = register(32, 32, "kade_tail");
+    public static final RegistryObject<PaintingVariant> PURO_PLACE = register(32, 32, "puro_place");
+    public static final RegistryObject<PaintingVariant> PURO_POINT = register(48, 32, "puropoint");
+    public static final RegistryObject<PaintingVariant> SHARKS_GAZE = register(64, 64, "sharks_gaze");
+    public static final RegistryObject<PaintingVariant> TSC_BUILDING = register(64, 48, "thunder_science_building");
 }
