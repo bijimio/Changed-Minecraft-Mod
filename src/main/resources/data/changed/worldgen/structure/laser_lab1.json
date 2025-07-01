@@ -1,6 +1,6 @@
 {
   "type": "changed:decayed_lab",
-  "biomes": "#changed:worldgen/biome/has_structure/decayed_labs",
+  "biomes": "#changed:has_structure/decayed_labs",
   "step": "surface_structures",
   "spawn_overrides": {},
   "piece": "changed:laser_lab1",

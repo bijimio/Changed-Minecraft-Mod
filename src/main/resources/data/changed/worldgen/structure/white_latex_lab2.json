@@ -1,6 +1,6 @@
 {
   "type": "changed:decayed_lab",
-  "biomes": "#changed:worldgen/biome/has_structure/white_decayed_labs",
+  "biomes": "#changed:has_structure/white_decayed_labs",
   "step": "surface_structures",
   "spawn_overrides": {},
   "piece": "changed:white_latex_lab2",
