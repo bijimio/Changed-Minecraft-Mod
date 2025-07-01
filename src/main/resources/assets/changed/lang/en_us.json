@@ -128,6 +128,12 @@
   "item.changed.netherite_upper_abdomen_armor": "Netherite Upper Abdomen Armor",
   "item.changed.netherite_lower_abdomen_armor": "Netherite Lower Abdomen Armor",
 
+  "conversion.changed.abdomen_conversion": "Abdomen Armor Conversion",
+  "item.changed.smithing_template.abdomen_conversion.applies_to": "Leggings, Boots",
+  "item.changed.smithing_template.abdomen_conversion.ingredients": "Armor Ingredient",
+  "item.changed.smithing_template.abdomen_conversion.base_slot_description": "Add leggings or boots",
+  "item.changed.smithing_template.abdomen_conversion.additions_slot_description": "Add armor ingredient",
+
   "item.changed.leather_quadrupedal_leggings": "Leather Quadrupedal Leggings",
   "item.changed.leather_quadrupedal_boots": "Leather Quadrupedal Boots",
   "item.changed.chainmail_quadrupedal_leggings": "Chainmail Quadrupedal Leggings",
@@ -140,6 +146,12 @@
   "item.changed.diamond_quadrupedal_boots": "Diamond Quadrupedal Boots",
   "item.changed.netherite_quadrupedal_leggings": "Netherite Quadrupedal Leggings",
   "item.changed.netherite_quadrupedal_boots": "Netherite Quadrupedal Boots",
+
+  "conversion.changed.quadrupedal_conversion": "Quadrupedal Armor Conversion",
+  "item.changed.smithing_template.quadrupedal_conversion.applies_to": "Leggings, Boots",
+  "item.changed.smithing_template.quadrupedal_conversion.ingredients": "Armor Ingredient",
+  "item.changed.smithing_template.quadrupedal_conversion.base_slot_description": "Add leggings or boots",
+  "item.changed.smithing_template.quadrupedal_conversion.additions_slot_description": "Add armor ingredient",
 
   "item.changed.owo_record": "Latex Music Disc",
   "item.changed.owo_record.desc": "Artemka2009 - ÒwÓ",

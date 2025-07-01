@@ -7,9 +7,9 @@
     "item": "minecraft:chain"
   },
   "template": {
-    "item": "changed:abdomen_conversion_smithing_template"
+    "item": "changed:quadrupedal_conversion_smithing_template"
   },
   "result": {
-    "item": "changed:chainmail_lower_abdomen_armor"
+    "item": "changed:chainmail_quadrupedal_boots"
   }
 }

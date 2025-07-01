@@ -262,6 +262,9 @@ public class ChangedTabs {
                         output.accept(ChangedItems.NETHERITE_LOWER_ABDOMEN_ARMOR.get());
                         output.accept(ChangedItems.NETHERITE_QUADRUPEDAL_LEGGINGS.get());
                         output.accept(ChangedItems.NETHERITE_QUADRUPEDAL_BOOTS.get());
+
+                        output.accept(ChangedItems.ABDOMEN_ARMOR_CONVERSION.get());
+                        output.accept(ChangedItems.QUADRUPEDAL_ARMOR_CONVERSION.get());
                     })
                     .build());
 

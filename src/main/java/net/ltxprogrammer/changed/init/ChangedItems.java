@@ -5,22 +5,53 @@ import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.entity.robot.Roomba;
 import net.ltxprogrammer.changed.item.*;
-import net.minecraft.core.Registry;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChangedItems {
+    private static final ChatFormatting TITLE_FORMAT = ChatFormatting.GRAY;
+    private static final ChatFormatting DESCRIPTION_FORMAT = ChatFormatting.BLUE;
+    private static final Component ABDOMEN_CONVERSION = Component.translatable(Util.makeDescriptionId("conversion", Changed.modResource("abdomen_conversion"))).withStyle(TITLE_FORMAT);
+    private static final Component ABDOMEN_CONVERSION_APPLIES_TO = Component.translatable(Util.makeDescriptionId("item", Changed.modResource("smithing_template.abdomen_conversion.applies_to"))).withStyle(DESCRIPTION_FORMAT);
+    private static final Component ABDOMEN_CONVERSION_INGREDIENTS = Component.translatable(Util.makeDescriptionId("item", Changed.modResource("smithing_template.abdomen_conversion.ingredients"))).withStyle(DESCRIPTION_FORMAT);
+    private static final Component ABDOMEN_CONVERSION_BASE_SLOT_DESCRIPTION = Component.translatable(Util.makeDescriptionId("item", Changed.modResource("smithing_template.abdomen_conversion.base_slot_description")));
+    private static final Component ABDOMEN_CONVERSION_ADDITIONS_SLOT_DESCRIPTION = Component.translatable(Util.makeDescriptionId("item", Changed.modResource("smithing_template.abdomen_conversion.additions_slot_description")));
+    private static final Component QUADRUPEDAL_CONVERSION = Component.translatable(Util.makeDescriptionId("conversion", Changed.modResource("quadrupedal_conversion"))).withStyle(TITLE_FORMAT);
+    private static final Component QUADRUPEDAL_CONVERSION_APPLIES_TO = Component.translatable(Util.makeDescriptionId("item", Changed.modResource("smithing_template.quadrupedal_conversion.applies_to"))).withStyle(DESCRIPTION_FORMAT);
+    private static final Component QUADRUPEDAL_CONVERSION_INGREDIENTS = Component.translatable(Util.makeDescriptionId("item", Changed.modResource("smithing_template.quadrupedal_conversion.ingredients"))).withStyle(DESCRIPTION_FORMAT);
+    private static final Component QUADRUPEDAL_CONVERSION_BASE_SLOT_DESCRIPTION = Component.translatable(Util.makeDescriptionId("item", Changed.modResource("smithing_template.quadrupedal_conversion.base_slot_description")));
+    private static final Component QUADRUPEDAL_CONVERSION_ADDITIONS_SLOT_DESCRIPTION = Component.translatable(Util.makeDescriptionId("item", Changed.modResource("smithing_template.quadrupedal_conversion.additions_slot_description")));
+    private static final ResourceLocation EMPTY_SLOT_LEGGINGS = ResourceLocation.parse("item/empty_armor_slot_leggings");
+    private static final ResourceLocation EMPTY_SLOT_BOOTS = ResourceLocation.parse("item/empty_armor_slot_boots");
+    private static final ResourceLocation EMPTY_SLOT_INGOT = ResourceLocation.parse("item/empty_slot_ingot");
+    private static final ResourceLocation EMPTY_SLOT_DIAMOND = ResourceLocation.parse("item/empty_slot_diamond");
+    
+    private static List<ResourceLocation> createAbdomenConversionIconList() {
+        return List.of(EMPTY_SLOT_LEGGINGS, EMPTY_SLOT_BOOTS);
+    }
+
+    private static List<ResourceLocation> createQuadrupedalConversionIconList() {
+        return List.of(EMPTY_SLOT_LEGGINGS, EMPTY_SLOT_BOOTS);
+    }
+
+    private static List<ResourceLocation> createConversionMaterialList() {
+        return List.of(EMPTY_SLOT_INGOT, EMPTY_SLOT_DIAMOND);
+    }
+    
     public static final DeferredRegister<Item> REGISTRY = DeferredRegister.create(ForgeRegistries.ITEMS, Changed.MODID);
     public static final RegistryObject<BenignShorts> BENIGN_SHORTS = register("benign_shorts", BenignShorts::new);
     public static final RegistryObject<PinkShorts> PINK_SHORTS = register("pink_shorts", PinkShorts::new);
@@ -92,6 +123,15 @@ public class ChangedItems {
             () -> new AbdomenArmor(ArmorMaterials.NETHERITE, ArmorItem.Type.LEGGINGS, new Item.Properties().fireResistant()));
     public static final RegistryObject<AbdomenArmor> NETHERITE_LOWER_ABDOMEN_ARMOR = register("netherite_lower_abdomen_armor",
             () -> new AbdomenArmor(ArmorMaterials.NETHERITE, ArmorItem.Type.BOOTS, new Item.Properties().fireResistant()));
+    public static final RegistryObject<SmithingTemplateItem> ABDOMEN_ARMOR_CONVERSION = register("abdomen_conversion_smithing_template",
+            () -> new SmithingTemplateItem(
+                    ABDOMEN_CONVERSION_APPLIES_TO,
+                    ABDOMEN_CONVERSION_INGREDIENTS,
+                    ABDOMEN_CONVERSION,
+                    ABDOMEN_CONVERSION_BASE_SLOT_DESCRIPTION,
+                    ABDOMEN_CONVERSION_ADDITIONS_SLOT_DESCRIPTION,
+                    createAbdomenConversionIconList(),
+                    createConversionMaterialList()));
 
     public static final RegistryObject<QuadrupedalArmor> LEATHER_QUADRUPEDAL_LEGGINGS = register("leather_quadrupedal_leggings",
             () -> new DyeableQuadrupedalArmor(ArmorMaterials.LEATHER, ArmorItem.Type.LEGGINGS));
@@ -117,6 +157,15 @@ public class ChangedItems {
             () -> new QuadrupedalArmor(ArmorMaterials.NETHERITE, ArmorItem.Type.LEGGINGS, new Item.Properties().fireResistant()));
     public static final RegistryObject<QuadrupedalArmor> NETHERITE_QUADRUPEDAL_BOOTS = register("netherite_quadrupedal_boots",
             () -> new QuadrupedalArmor(ArmorMaterials.NETHERITE, ArmorItem.Type.BOOTS, new Item.Properties().fireResistant()));
+    public static final RegistryObject<SmithingTemplateItem> QUADRUPEDAL_ARMOR_CONVERSION = register("quadrupedal_conversion_smithing_template",
+            () -> new SmithingTemplateItem(
+                    QUADRUPEDAL_CONVERSION_APPLIES_TO,
+                    QUADRUPEDAL_CONVERSION_INGREDIENTS,
+                    QUADRUPEDAL_CONVERSION,
+                    QUADRUPEDAL_CONVERSION_BASE_SLOT_DESCRIPTION,
+                    QUADRUPEDAL_CONVERSION_ADDITIONS_SLOT_DESCRIPTION,
+                    createQuadrupedalConversionIconList(),
+                    createConversionMaterialList()));
 
     public static final RegistryObject<PlaceableEntity<Roomba>> ROOMBA = register("roomba",
             () -> new RoombaItem<>(new Item.Properties().stacksTo(4), ChangedEntities.ROOMBA));

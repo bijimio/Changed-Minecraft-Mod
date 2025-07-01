@@ -1,15 +1,15 @@
 {
   "type": "minecraft:smithing_transform",
   "base": {
-    "item": "minecraft:chainmail_boots"
+    "item": "minecraft:netherite_boots"
   },
   "addition": {
-    "item": "minecraft:chain"
+    "item": "minecraft:diamond"
   },
   "template": {
     "item": "changed:abdomen_conversion_smithing_template"
   },
   "result": {
-    "item": "changed:chainmail_lower_abdomen_armor"
+    "item": "changed:netherite_lower_abdomen_armor"
   }
 }
