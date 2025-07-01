@@ -1,0 +1,9 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "minecraft:beach",
+  "spawners": [
+    { "type": "changed:latex_otter", "weight": 100, "minCount": 1, "maxCount": 3 },
+
+    { "type": "changed:pooltoy_wolf", "weight": 1, "minCount": 1, "maxCount": 2 }
+  ]
+}
