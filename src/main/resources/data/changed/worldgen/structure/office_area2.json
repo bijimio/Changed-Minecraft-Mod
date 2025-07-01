@@ -1,6 +1,6 @@
 {
   "type": "changed:decayed_lab",
-  "biomes": "#changed:worldgen/biome/has_structure/dark_decayed_labs",
+  "biomes": "#changed:has_structure/dark_decayed_labs",
   "step": "surface_structures",
   "spawn_overrides": {},
   "piece": "changed:office_area2",

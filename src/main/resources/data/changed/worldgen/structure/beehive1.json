@@ -1,6 +1,6 @@
 {
   "type": "changed:beehive",
-  "biomes": "#changed:worldgen/biome/has_structure/beehives",
+  "biomes": "#changed:has_structure/beehives",
   "step": "surface_structures",
   "spawn_overrides": {
     "changed:changed": {

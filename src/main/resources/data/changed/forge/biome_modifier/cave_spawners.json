@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#minecraft:is_overworld",
+  "spawners": [
+    { "type": "changed:latex_stiger", "weight": 80, "minCount": 1, "maxCount": 3 },
+    { "type": "changed:latex_traffic_cone_dragon", "weight": 100, "minCount": 1, "maxCount": 3 },
+    { "type": "changed:latex_translucent_lizard", "weight": 60, "minCount": 1, "maxCount": 3 },
+    { "type": "changed:latex_kobold", "weight": 50, "minCount": 1, "maxCount": 3 },
+
+    { "type": "changed:beifeng", "weight": 10, "minCount": 1, "maxCount": 1 }
+  ]
+}

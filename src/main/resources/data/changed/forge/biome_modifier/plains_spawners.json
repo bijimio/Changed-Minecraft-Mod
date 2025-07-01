@@ -1,0 +1,26 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#forge:is_plains",
+  "spawners": [
+    { "type": "changed:white_latex_wolf_male", "weight": 100, "minCount": 1, "maxCount": 3 },
+    { "type": "changed:white_latex_wolf_female", "weight": 100, "minCount": 1, "maxCount": 3 },
+    { "type": "changed:white_latex_knight", "weight": 50, "minCount": 1, "maxCount": 1 },
+    { "type": "changed:white_latex_centaur", "weight": 20, "minCount": 1, "maxCount": 1 },
+    { "type": "changed:headless_knight", "weight": 40, "minCount": 1, "maxCount": 1 },
+    { "type": "changed:white_latex_knight_fusion", "weight": 20, "minCount": 1, "maxCount": 1 },
+    { "type": "changed:latex_keon_wolf", "weight": 10, "minCount": 1, "maxCount": 1 },
+    { "type": "changed:latex_ming_cat", "weight": 15, "minCount": 1, "maxCount": 1 },
+    { "type": "changed:latex_siamese_cat", "weight": 15, "minCount": 1, "maxCount": 1 },
+    { "type": "changed:milk_pudding", "weight": 80, "minCount": 1, "maxCount": 1 },
+    { "type": "changed:dark_latex_wolf_male", "weight": 10, "minCount": 1, "maxCount": 1 },
+    { "type": "changed:dark_latex_wolf_female", "weight": 10, "minCount": 1, "maxCount": 1 },
+
+    { "type": "changed:white_wolf_male", "weight": 10, "minCount": 1, "maxCount": 2 },
+    { "type": "changed:white_wolf_female", "weight": 10, "minCount": 1, "maxCount": 2 },
+    { "type": "changed:crystal_wolf", "weight": 10, "minCount": 1, "maxCount": 2 },
+    { "type": "changed:crystal_wolf_horned", "weight": 10, "minCount": 1, "maxCount": 2 },
+    { "type": "changed:gas_skunk", "weight": 10, "minCount": 1, "maxCount": 2 },
+    { "type": "changed:gas_wolf", "weight": 10, "minCount": 1, "maxCount": 2 },
+    { "type": "changed:sniper_dog", "weight": 10, "minCount": 1, "maxCount": 2 }
+  ]
+}
