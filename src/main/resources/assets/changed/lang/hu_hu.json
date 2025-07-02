@@ -128,6 +128,12 @@
   "item.changed.netherite_upper_abdomen_armor": "Netherit felhaspáncél",
   "item.changed.netherite_lower_abdomen_armor": "Netherit alhaspáncél",
 
+  "conversion.changed.abdomen_conversion": "Haspáncélra konvertálás",
+  "item.changed.smithing_template.abdomen_conversion.applies_to": "Lábszárvédő, Csizma",
+  "item.changed.smithing_template.abdomen_conversion.ingredients": "Páncél összetevője",
+  "item.changed.smithing_template.abdomen_conversion.base_slot_description": "Helyezz ide lábszárvédőt vagy csizmát",
+  "item.changed.smithing_template.abdomen_conversion.additions_slot_description": "Helyezz ide a páncél összetevőjét",
+
   "item.changed.leather_quadrupedal_leggings": "Négylábú bőrnadrág",
   "item.changed.leather_quadrupedal_boots": "Négylábú bőrcsizma",
   "item.changed.chainmail_quadrupedal_leggings": "Négylábú lánc lábszárvédő",
@@ -140,6 +146,12 @@
   "item.changed.diamond_quadrupedal_boots": "Négylábú gyémántcsizma",
   "item.changed.netherite_quadrupedal_leggings": "Négylábú netherit lábszárvédő",
   "item.changed.netherite_quadrupedal_boots": "Négylábú netheritcsizma",
+
+  "conversion.changed.quadrupedal_conversion": "Négylábú páncélra konvertálás",
+  "item.changed.smithing_template.quadrupedal_conversion.applies_to": "Lábszárvédő, Csizma",
+  "item.changed.smithing_template.quadrupedal_conversion.ingredients": "Páncél összetevője",
+  "item.changed.smithing_template.quadrupedal_conversion.base_slot_description": "Helyezz ide lábszárvédőt vagy csizmát",
+  "item.changed.smithing_template.quadrupedal_conversion.additions_slot_description": "Helyezz ide a páncél összetevőjét",
 
   "item.changed.owo_record": "Latex hanglemez",
   "item.changed.owo_record.desc": "Artemka2009 - ÒwÓ",
