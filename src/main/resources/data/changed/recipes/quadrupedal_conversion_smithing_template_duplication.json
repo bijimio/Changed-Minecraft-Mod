@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "changed:dark_latex_goo"
+    },
+    "W": {
+      "item": "changed:white_latex_block"
+    },
+    "#": {
+      "item": "changed:quadrupedal_conversion_smithing_template"
+    }
+  },
+  "pattern": [
+    "D#D",
+    "DWD",
+    "DDD"
+  ],
+  "result": {
+    "count": 2,
+    "item": "changed:quadrupedal_conversion_smithing_template"
+  },
+  "show_notification": true
+}
