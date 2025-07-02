@@ -4,6 +4,7 @@
   "itemGroup.tab_changed_entities": "Changed enheter",
   "itemGroup.tab_changed_combat": "Changed kamputstyr",
   "itemGroup.tab_changed_music": "Changed musikk",
+  "itemGroup.tab_changed_clothing": "Changed klær",
 
   "ability.changed.access_saddle": "Tilgang sal",
   "ability.changed.switch_transfur_mode": "Endre forvandpelsmodus",
@@ -127,6 +128,12 @@
   "item.changed.netherite_upper_abdomen_armor": "Netheritt øvre bukrustning",
   "item.changed.netherite_lower_abdomen_armor": "Netheritt nedre bukrustning",
 
+  "conversion.changed.abdomen_conversion": "Bukrustningskonvertering",
+  "item.changed.smithing_template.abdomen_conversion.applies_to": "Benplater og støvler",
+  "item.changed.smithing_template.abdomen_conversion.ingredients": "Rustningingrediens",
+  "item.changed.smithing_template.abdomen_conversion.base_slot_description": "Legg til benplater eller støvler",
+  "item.changed.smithing_template.abdomen_conversion.additions_slot_description": "Legg til rustningingrediens",
+
   "item.changed.leather_quadrupedal_leggings": "Lær firbentebukser",
   "item.changed.leather_quadrupedal_boots": "Lær firbentestøvler",
   "item.changed.chainmail_quadrupedal_leggings": "Brynje firbenteplater",
@@ -139,6 +146,12 @@
   "item.changed.diamond_quadrupedal_boots": "Diamant firbentestøvler",
   "item.changed.netherite_quadrupedal_leggings": "Netheritt firbenteplater",
   "item.changed.netherite_quadrupedal_boots": "Netheritt firbentestøvler",
+
+  "conversion.changed.quadrupedal_conversion": "Firbenterustningskonvertering",
+  "item.changed.smithing_template.quadrupedal_conversion.applies_to": "Benplater og støvler",
+  "item.changed.smithing_template.quadrupedal_conversion.ingredients": "Rustningingrediens",
+  "item.changed.smithing_template.quadrupedal_conversion.base_slot_description": "Legg til benplater eller støvler",
+  "item.changed.smithing_template.quadrupedal_conversion.additions_slot_description": "Legg til rustningingrediens",
 
   "item.changed.owo_record": "Lateksmusikkplate",
   "item.changed.owo_record.desc": "Artemka2009 - ÒwÓ",
@@ -160,6 +173,27 @@
   "item.changed.the_white_tail_chase_part_1_record.desc": "Shizi - The White Tail Chase Part 1",
   "item.changed.the_white_tail_chase_part_2_record.desc": "Shizi - The White Tail Chase Part 2",
   "item.changed.vent_pipe_record.desc": "Shizi - Vent Pipe",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   "syringe.changed:form_special": "Beskytter egendefinert form sprøyte",
 
