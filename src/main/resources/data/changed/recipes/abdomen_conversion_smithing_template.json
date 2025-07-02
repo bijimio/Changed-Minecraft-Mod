@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "changed:dark_latex_goo"
+    },
+    "W": {
+      "item": "changed:white_latex_block"
+    },
+    "#": {
+      "item": "minecraft:tropical_fish"
+    }
+  },
+  "pattern": [
+    "D#D",
+    "DWD",
+    "DDD"
+  ],
+  "result": {
+    "item": "changed:abdomen_conversion_smithing_template"
+  },
+  "show_notification": true
+}
