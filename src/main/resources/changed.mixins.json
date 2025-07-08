@@ -40,6 +40,7 @@
     "item.ItemStackMixin",
     "item.ShovelItemMixin",
     "network.ClientboundSetEntityLinkPacketMixin",
+    "server.ChunkHolderMixin",
     "server.ChunkSerializerMixin",
     "server.LevelChunkSectionMixin",
     "server.MinecraftServerMixin",

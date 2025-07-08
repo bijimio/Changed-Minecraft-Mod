@@ -94,6 +94,8 @@ public class ChangedPackets {
         addNetworkMessage(AccessoryEntities.SyncPacket.class, AccessoryEntities.SyncPacket::new);
         addNetworkMessage(AccessorySyncPacket.class, AccessorySyncPacket::new);
         addNetworkMessage(AccessoryEventPacket.class, AccessoryEventPacket::new);
+        addNetworkMessage(LatexCoverUpdatePacket.class, LatexCoverUpdatePacket::new);
+        addNetworkMessage(SectionLatexCoversUpdatePacket.class, SectionLatexCoversUpdatePacket::new);
     }
 
     private <T> BiConsumer<T, FriendlyByteBuf> wrapEncoder(Class<T> messageType, BiConsumer<T, FriendlyByteBuf> encoder) {

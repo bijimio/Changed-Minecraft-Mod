@@ -35,7 +35,7 @@ import java.util.Arrays;
 public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
     protected static final Direction[] UPDATE_SHAPE_ORDER = new Direction[]{Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH, Direction.DOWN, Direction.UP};
 
-    public static final IntegerProperty SATURATION = IntegerProperty.create("saturation", 0, 16);
+    public static final IntegerProperty SATURATION = IntegerProperty.create("saturation", 0, 15);
     public static final Codec<LatexCoverState> CODEC = codec(ChangedRegistry.LATEX_TYPE.get().getCodec(), LatexType::defaultCoverState).stable();
 
     public LatexCoverState(LatexType type, ImmutableMap<Property<?>, Comparable<?>> properties, MapCodec<LatexCoverState> codec) {
@@ -60,6 +60,10 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
 
     public LatexCoverState spreadState() {
         return this.setValue(SATURATION, getSaturation() + 1);
+    }
+
+    public boolean canSpread() {
+        return this.getSaturation() < 15;
     }
 
     public static LatexCoverState getAt(LevelAccessor level, BlockPos blockPos) {
@@ -193,6 +197,11 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
         }
     }
 
+    public static void setServerVerifiedAt(Level level, BlockPos blockPos, LatexCoverState latexCoverState, int flags) {
+        if (level.isClientSide)
+            setAt(level, blockPos, latexCoverState, flags);
+    }
+
     private boolean is(LatexType type) {
         return getType() == type;
     }
@@ -269,6 +278,7 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
     }
 
     public void randomTick(Level level, BlockPos position, RandomSource random) {
+        if (!this.canSpread()) return;
         if (level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE) == 0) return;
         if (!level.isAreaLoaded(position, 3)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light and spreading
         if (random.nextInt(10 * level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE)) < 600) return;

@@ -225,6 +225,11 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
                     ModelData.EMPTY, RenderType.solid());
         }
 
+        if (modelSet.extra != null) {
+            modelRenderer.tesselateWithAO(level, modelSet.extra, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
+                    ModelData.EMPTY, RenderType.solid());
+        }
+
         /*LatexCoverState coverUp = latexCoverGetter.getLatexCover(posUp);
         LatexCoverState coverDown = latexCoverGetter.getLatexCover(posDown);
         LatexCoverState coverNorth = latexCoverGetter.getLatexCover(posNorth);
