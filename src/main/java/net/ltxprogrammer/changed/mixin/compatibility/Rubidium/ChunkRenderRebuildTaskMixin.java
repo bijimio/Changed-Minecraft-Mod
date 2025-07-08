@@ -19,6 +19,7 @@ import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,6 +35,8 @@ import java.util.Map;
 @RequiredMods("rubidium")
 public abstract class ChunkRenderRebuildTaskMixin {
     @Shadow @Final private RenderSection render;
+
+    @Shadow @Final private XoroshiroRandomSource random;
 
     @Unique
     public LatexCoverState getLatexCoverState(WorldSlice slice, BlockPos blockPos) {
@@ -83,7 +86,8 @@ public abstract class ChunkRenderRebuildTaskMixin {
                             blockPos,
                             builderCache.computeIfAbsent(rendertype, type -> new OptimizedVertexBuilder(vertices, buffers.get(rendertype))),
                             blockState,
-                            latexCoverState);
+                            latexCoverState,
+                            this.random);
 
                     if (rendered)
                         bounds.addBlock(x & 15, y & 15, z & 15);

@@ -12,6 +12,7 @@ import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.FullChunkStatus;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
@@ -302,6 +303,10 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
 
     public boolean isRandomlyTicking() {
         return !isAir();
+    }
+
+    public long getSeed(BlockPos blockPos) {
+        return this.getType().getSeed(this.asState(), blockPos);
     }
 
     public LatexCoverState updateShape(Direction direction, LatexCoverState neighborState, LevelAccessor level, BlockPos blockPos, BlockPos neighborPos) {

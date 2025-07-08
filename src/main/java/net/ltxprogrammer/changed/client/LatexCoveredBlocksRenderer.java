@@ -1,47 +1,158 @@
 package net.ltxprogrammer.changed.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.logging.LogUtils;
 import net.ltxprogrammer.changed.Changed;
+import net.ltxprogrammer.changed.entity.latex.IClientLatexTypeExtensions;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
-import net.ltxprogrammer.changed.world.LevelChunkSectionExtension;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraftforge.client.NamedRenderTypeManager;
+import net.minecraftforge.client.model.IModelBuilder;
+import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.geometry.UnbakedGeometryHelper;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
-import java.util.Arrays;
-import java.util.List;
+import java.io.Reader;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
-    private final Minecraft minecraft;
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final ResourceLocation BLOCK_ATLAS = InventoryMenu.BLOCK_ATLAS;
-    private static final ResourceLocation DARK_LATEX_TEXTURE = Changed.modResource("block/dark_latex_block_top");
+    public static final FileToIdConverter MODEL_LISTER = FileToIdConverter.json("latex_cover_models");
+    private static final ResourceLocation RENDERTYPE_SOLID = ResourceLocation.fromNamespaceAndPath(ResourceLocation.DEFAULT_NAMESPACE, "solid");
+
+    public static class ModelSet {
+        @Nullable
+        private final BakedModel surfaceTop;
+        @Nullable
+        private final BakedModel surfaceBottom;
+        @Nullable
+        private final BakedModel surfaceNorth;
+        @Nullable
+        private final BakedModel surfaceSouth;
+        @Nullable
+        private final BakedModel surfaceEast;
+        @Nullable
+        private final BakedModel surfaceWest;
+        @Nullable
+        private final BakedModel extra;
+
+        public ModelSet(@Nullable BakedModel surfaceTop,
+                        @Nullable BakedModel surfaceBottom,
+                        @Nullable BakedModel surfaceNorth,
+                        @Nullable BakedModel surfaceSouth,
+                        @Nullable BakedModel surfaceEast,
+                        @Nullable BakedModel surfaceWest,
+                        @Nullable BakedModel extra) {
+            this.surfaceTop = surfaceTop;
+            this.surfaceBottom = surfaceBottom;
+            this.surfaceNorth = surfaceNorth;
+            this.surfaceSouth = surfaceSouth;
+            this.surfaceEast = surfaceEast;
+            this.surfaceWest = surfaceWest;
+            this.extra = extra;
+        }
+
+        @Nullable
+        public BakedModel getModel(Direction surface) {
+            return switch (surface) {
+                case UP -> surfaceTop;
+                case DOWN -> surfaceBottom;
+                case NORTH -> surfaceNorth;
+                case SOUTH -> surfaceSouth;
+                case EAST -> surfaceEast;
+                case WEST -> surfaceWest;
+            };
+        }
+
+        @Nullable
+        public TextureAtlasSprite getParticleIcon() {
+            return surfaceTop == null ? null : surfaceTop.getParticleIcon(ModelData.EMPTY);
+        }
+
+        @Nullable
+        public BakedModel getExtraModel() {
+            return extra;
+        }
+    }
+
+    private final Minecraft minecraft;
+    private final BlockRenderDispatcher dispatcher;
+    private final ModelBlockRenderer modelRenderer;
+    private Map<LatexCoverState, ModelSet> defaultModelSets;
+    private Map<BlockState, Map<LatexCoverState, ModelSet>> specialModelSets = new HashMap<>();
 
     public LatexCoveredBlocksRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;
+        this.dispatcher = minecraft.getBlockRenderer();
+        this.modelRenderer = dispatcher.getModelRenderer();
     }
 
-    private boolean wrappedTesselate(BlockAndTintGetter level, LatexCoverGetter latexCoverGetter, BlockPos blockPos, VertexConsumer bufferBuilder, BlockState blockState, LatexCoverState coverState) {
-        TextureAtlasSprite sprite = minecraft.getTextureAtlas(BLOCK_ATLAS).apply(DARK_LATEX_TEXTURE);
+    private ModelSet getModelSet(BlockState blockState, LatexCoverState coverState) {
+        return specialModelSets.getOrDefault(blockState, defaultModelSets).get(coverState);
+    }
+
+    private boolean wrappedTesselate(
+            BlockAndTintGetter level, LatexCoverGetter latexCoverGetter,
+            BlockPos blockPos, VertexConsumer bufferBuilder,
+            BlockState blockState, LatexCoverState coverState,
+            RandomSource random) {
+        final ModelSet modelSet = getModelSet(blockState, coverState);
+
+        final var atlas = minecraft.getTextureAtlas(BLOCK_ATLAS);
+        final var properties = IClientLatexTypeExtensions.of(coverState);
+        TextureAtlasSprite spriteTop = atlas.apply(properties.getTextureForFace(coverState, Direction.UP));
+        TextureAtlasSprite spriteBottom = atlas.apply(properties.getTextureForFace(coverState, Direction.DOWN));
+        TextureAtlasSprite spriteNorth = atlas.apply(properties.getTextureForFace(coverState, Direction.NORTH));
+        TextureAtlasSprite spriteSouth = atlas.apply(properties.getTextureForFace(coverState, Direction.SOUTH));
+        TextureAtlasSprite spriteEast = atlas.apply(properties.getTextureForFace(coverState, Direction.EAST));
+        TextureAtlasSprite spriteWest = atlas.apply(properties.getTextureForFace(coverState, Direction.WEST));
         float alpha = 1.0f;// = (float)(i >> 24 & 255) / 255.0F;
         float red = 1.0f;// = (float)(i >> 16 & 255) / 255.0F;
         float green = 1.0f;// = (float)(i >> 8 & 255) / 255.0F;
@@ -79,53 +190,39 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
         BlockState blockWest = level.getBlockState(posWest);
         boolean surfaceWest = blockWest.isFaceSturdy(level, posWest, Direction.EAST, SupportType.FULL);
 
-        float u0 = sprite.getU0();
-        float u1 = sprite.getU1();
-        float v0 = sprite.getV0();
-        float v1 = sprite.getV1();
-        
-        double height = 2.0d / 16.0d;
+        PoseStack poseStack = new PoseStack();
+        poseStack.translate(blockX0, blockY0, blockZ0);
 
-        if (surfaceTop) {
-            vertex(bufferBuilder, blockX1, blockY1 - height, blockZ0, red, green, blue, alpha, u0, v0, lightColor);
-            vertex(bufferBuilder, blockX1, blockY1 - height, blockZ1, red, green, blue, alpha, u0, v1, lightColor);
-            vertex(bufferBuilder, blockX0, blockY1 - height, blockZ1, red, green, blue, alpha, u1, v1, lightColor);
-            vertex(bufferBuilder, blockX0, blockY1 - height, blockZ0, red, green, blue, alpha, u1, v0, lightColor);
+        long seed = coverState.getSeed(blockPos);
+
+        if (surfaceTop && modelSet.surfaceTop != null) {
+            modelRenderer.tesselateWithAO(level, modelSet.surfaceTop, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
+                    ModelData.EMPTY, RenderType.solid());
         }
 
-        if (surfaceBottom) {
-            vertex(bufferBuilder, blockX0, blockY0 + height, blockZ0, red, green, blue, alpha, u0, v0, lightColor);
-            vertex(bufferBuilder, blockX0, blockY0 + height, blockZ1, red, green, blue, alpha, u0, v1, lightColor);
-            vertex(bufferBuilder, blockX1, blockY0 + height, blockZ1, red, green, blue, alpha, u1, v1, lightColor);
-            vertex(bufferBuilder, blockX1, blockY0 + height, blockZ0, red, green, blue, alpha, u1, v0, lightColor);
+        if (surfaceBottom && modelSet.surfaceBottom != null) {
+            modelRenderer.tesselateWithAO(level, modelSet.surfaceBottom, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
+                    ModelData.EMPTY, RenderType.solid());
         }
 
-        if (surfaceNorth) {
-            vertex(bufferBuilder, blockX0, blockY1, blockZ0 + height, red, green, blue, alpha, u0, v1, lightColor);
-            vertex(bufferBuilder, blockX0, blockY0, blockZ0 + height, red, green, blue, alpha, u0, v0, lightColor);
-            vertex(bufferBuilder, blockX1, blockY0, blockZ0 + height, red, green, blue, alpha, u1, v0, lightColor);
-            vertex(bufferBuilder, blockX1, blockY1, blockZ0 + height, red, green, blue, alpha, u1, v1, lightColor);
+        if (surfaceNorth && modelSet.surfaceNorth != null) {
+            modelRenderer.tesselateWithAO(level, modelSet.surfaceNorth, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
+                    ModelData.EMPTY, RenderType.solid());
         }
 
-        if (surfaceSouth) {
-            vertex(bufferBuilder, blockX0, blockY0, blockZ1 - height, red, green, blue, alpha, u0, v0, lightColor);
-            vertex(bufferBuilder, blockX0, blockY1, blockZ1 - height, red, green, blue, alpha, u0, v1, lightColor);
-            vertex(bufferBuilder, blockX1, blockY1, blockZ1 - height, red, green, blue, alpha, u1, v1, lightColor);
-            vertex(bufferBuilder, blockX1, blockY0, blockZ1 - height, red, green, blue, alpha, u1, v0, lightColor);
+        if (surfaceSouth && modelSet.surfaceSouth != null) {
+            modelRenderer.tesselateWithAO(level, modelSet.surfaceSouth, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
+                    ModelData.EMPTY, RenderType.solid());
         }
 
-        if (surfaceEast) {
-            vertex(bufferBuilder, blockX1 - height, blockY1, blockZ0, red, green, blue, alpha, u0, v1, lightColor);
-            vertex(bufferBuilder, blockX1 - height, blockY0, blockZ0, red, green, blue, alpha, u0, v0, lightColor);
-            vertex(bufferBuilder, blockX1 - height, blockY0, blockZ1, red, green, blue, alpha, u1, v0, lightColor);
-            vertex(bufferBuilder, blockX1 - height, blockY1, blockZ1, red, green, blue, alpha, u1, v1, lightColor);
+        if (surfaceEast && modelSet.surfaceEast != null) {
+            modelRenderer.tesselateWithAO(level, modelSet.surfaceEast, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
+                    ModelData.EMPTY, RenderType.solid());
         }
 
-        if (surfaceWest) {
-            vertex(bufferBuilder, blockX0 + height, blockY0, blockZ0, red, green, blue, alpha, u0, v0, lightColor);
-            vertex(bufferBuilder, blockX0 + height, blockY1, blockZ0, red, green, blue, alpha, u0, v1, lightColor);
-            vertex(bufferBuilder, blockX0 + height, blockY1, blockZ1, red, green, blue, alpha, u1, v1, lightColor);
-            vertex(bufferBuilder, blockX0 + height, blockY0, blockZ1, red, green, blue, alpha, u1, v0, lightColor);
+        if (surfaceWest && modelSet.surfaceWest != null) {
+            modelRenderer.tesselateWithAO(level, modelSet.surfaceWest, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
+                    ModelData.EMPTY, RenderType.solid());
         }
 
         /*LatexCoverState coverUp = latexCoverGetter.getLatexCover(posUp);
@@ -149,13 +246,17 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
         return (Math.max(k, l)) | (Math.max(i1, j1)) << 16;*/
     }
 
-    private void vertex(VertexConsumer consumer, double x, double y, double z, float red, float green, float blue, float alpha, float texCoordU, float texCoordV, int packedLight) {
+    private static void vertex(VertexConsumer consumer, double x, double y, double z, float red, float green, float blue, float alpha, float texCoordU, float texCoordV, int packedLight) {
         consumer.vertex(x, y, z).color(red, green, blue, alpha).uv(texCoordU, texCoordV).uv2(packedLight).normal(0.0F, 1.0F, 0.0F).endVertex();
     }
 
-    public boolean tesselate(BlockAndTintGetter level, LatexCoverGetter latexCoverGetter, BlockPos blockPos, VertexConsumer bufferBuilder, BlockState blockState, LatexCoverState coverState) {
+    public boolean tesselate(
+            BlockAndTintGetter level, LatexCoverGetter latexCoverGetter,
+            BlockPos blockPos, VertexConsumer bufferBuilder,
+            BlockState blockState, LatexCoverState coverState,
+            RandomSource random) {
         try {
-            return this.wrappedTesselate(level, latexCoverGetter, blockPos, bufferBuilder, blockState, coverState);
+            return this.wrappedTesselate(level, latexCoverGetter, blockPos, bufferBuilder, blockState, coverState, random);
         } catch (Throwable throwable) {
             CrashReport crashreport = CrashReport.forThrowable(throwable, "Tesselating latex cover in world");
             CrashReportCategory crashreportcategory = crashreport.addCategory("Block being tesselated");
@@ -164,11 +265,109 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
         }
     }
 
+    private static IModelBuilder<?> modelBuilderFor(TextureAtlasSprite particle) {
+        return IModelBuilder.of(true, true, true,
+                ItemTransforms.NO_TRANSFORMS, ItemOverrides.EMPTY,
+                particle,
+                NamedRenderTypeManager.get(RENDERTYPE_SOLID));
+    }
+
+    private static CompletableFuture<Map<ResourceLocation, BlockModel>> loadBlockModels(ResourceManager resources, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> {
+            return MODEL_LISTER.listMatchingResources(resources);
+        }, executor).thenCompose((namedResources) -> {
+            List<CompletableFuture<Pair<ResourceLocation, BlockModel>>> list = new ArrayList<>(namedResources.size());
+
+            for (Map.Entry<ResourceLocation, Resource> entry : namedResources.entrySet()) {
+                list.add(CompletableFuture.supplyAsync(() -> {
+                    try (Reader reader = entry.getValue().openAsReader()) {
+                        return Pair.of(MODEL_LISTER.fileToId(entry.getKey()), BlockModel.fromStream(reader));
+                    } catch (Exception exception) {
+                        LOGGER.error("Failed to load model {}", entry.getKey(), exception);
+                        return null;
+                    }
+                }, executor));
+            }
+
+            return Util.sequence(list).thenApply((result) -> {
+                return result.stream().filter(Objects::nonNull).collect(Collectors.toUnmodifiableMap(Pair::getFirst, Pair::getSecond));
+            });
+        });
+    }
+
+    private static Stream<LatexCoverState> getCoverStates() {
+        return StreamSupport.stream(ChangedLatexTypes.getLatexCoverStateIDMap().spliterator(), true)
+                .filter(LatexCoverState::isPresent);
+    }
+
+    private static CompletableFuture<Map<ResourceLocation, Map<LatexCoverState, BakedModel>>> bakeModels(Function<ResourceLocation, TextureAtlasSprite> getSprite,
+                                                                                   Map<ResourceLocation, BlockModel> unbakedModels,
+                                                                                   Executor executor) {
+        final var modelBakes = unbakedModels.entrySet().stream().map(entry -> {
+            final var stateBake = getCoverStates()
+                    .map(state -> {
+                        final var properties = IClientLatexTypeExtensions.of(state);
+
+                        return CompletableFuture.supplyAsync(() -> modelBuilderFor(getSprite.apply(properties.getTextureForParticle(state))), executor)
+                                .thenApply(builder -> {
+                                    entry.getValue().getElements().forEach(blockElement -> {
+                                        blockElement.faces.forEach((side, face) -> {
+                                            var sprite = getSprite.apply(properties.getTextureForFace(state, side));
+                                            var quad = UnbakedGeometryHelper.bakeElementFace(blockElement, face, sprite, side, BlockModelRotation.X0_Y0, entry.getKey());
+                                            if (face.cullForDirection == null)
+                                                builder.addUnculledFace(quad);
+                                            else
+                                                builder.addCulledFace(face.cullForDirection, quad);
+
+                                        });
+                                    });
+
+                                    return Pair.of(state, builder.build());
+                                });
+                    }).toList();
+
+            return Util.sequence(stateBake).thenApply((result) -> {
+                return Pair.of(entry.getKey(), result.stream().filter(Objects::nonNull).collect(Collectors.toUnmodifiableMap(Pair::getFirst, Pair::getSecond)));
+            });
+        }).toList();
+
+        return Util.sequence(modelBakes).thenApply((result) -> {
+            return result.stream().filter(Objects::nonNull).collect(Collectors.toUnmodifiableMap(Pair::getFirst, Pair::getSecond));
+        });
+    }
+
+    private static final ResourceLocation DEFAULT_TOP = Changed.modResource("default_top");
+    private static final ResourceLocation DEFAULT_BOTTOM = Changed.modResource("default_bottom");
+    private static final ResourceLocation DEFAULT_NORTH = Changed.modResource("default_north");
+    private static final ResourceLocation DEFAULT_SOUTH = Changed.modResource("default_south");
+    private static final ResourceLocation DEFAULT_EAST = Changed.modResource("default_east");
+    private static final ResourceLocation DEFAULT_WEST = Changed.modResource("default_west");
+    private static final ResourceLocation DEFAULT_EXTRA = Changed.modResource("default_extra");
+
     @Override
     public CompletableFuture<Void> reload(PreparationBarrier barrier, ResourceManager resources, ProfilerFiller profilerA, ProfilerFiller profilerB, Executor backgroundExecutor, Executor minecraftExecutor) {
-        // TODO load general and specialized models.
-        return CompletableFuture.supplyAsync(() -> null, backgroundExecutor)
+        return loadBlockModels(resources, backgroundExecutor)
                 .thenCompose(barrier::wait)
-                .thenAcceptAsync(object -> {}, minecraftExecutor);
+                .thenCompose(unbakedModels -> {
+                    return bakeModels(minecraft.getTextureAtlas(BLOCK_ATLAS),
+                            unbakedModels, minecraftExecutor);
+                })
+                .thenApply(bakedModels -> {
+                    this.defaultModelSets = getCoverStates().collect(Collectors.toUnmodifiableMap(Function.identity(),
+                            state -> new ModelSet(
+                                    bakedModels.getOrDefault(DEFAULT_TOP, Map.of()).get(state),
+                                    bakedModels.getOrDefault(DEFAULT_BOTTOM, Map.of()).get(state),
+                                    bakedModels.getOrDefault(DEFAULT_NORTH, Map.of()).get(state),
+                                    bakedModels.getOrDefault(DEFAULT_SOUTH, Map.of()).get(state),
+                                    bakedModels.getOrDefault(DEFAULT_EAST, Map.of()).get(state),
+                                    bakedModels.getOrDefault(DEFAULT_WEST, Map.of()).get(state),
+                                    bakedModels.getOrDefault(DEFAULT_EXTRA, Map.of()).get(state)
+                            )));
+
+                    return bakedModels;
+                })
+                .thenAcceptAsync(bakedModels -> {
+                    // TODO load special models to attach to blockstates
+                }, minecraftExecutor);
     }
 }

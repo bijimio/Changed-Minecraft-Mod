@@ -75,7 +75,8 @@ public abstract class ChunkRenderDispatcherMixin {
                     blockPos,
                     bufferbuilder,
                     blockState,
-                    latexCoverState);
+                    latexCoverState,
+                    random);
         }
     }
 }
