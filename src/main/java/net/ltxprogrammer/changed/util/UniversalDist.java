@@ -1,16 +1,21 @@
 package net.ltxprogrammer.changed.util;
 
 import net.ltxprogrammer.changed.block.entity.GluBlockEntity;
+import net.ltxprogrammer.changed.client.ClientLevelExtension;
 import net.ltxprogrammer.changed.client.LocalTransfurVariantInstance;
 import net.ltxprogrammer.changed.client.RemoteTransfurVariantInstance;
 import net.ltxprogrammer.changed.client.gui.GluBlockEditScreen;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.server.ServerTransfurVariantInstance;
+import net.ltxprogrammer.changed.world.LevelExtension;
+import net.ltxprogrammer.changed.world.ServerLevelExtension;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -54,6 +59,14 @@ public class UniversalDist {
             else
                 return null;
         }
+
+        public static LevelExtension getLevelExtension(Level level) {
+            if (level instanceof ClientLevel)
+                return ClientLevelExtension.INSTANCE;
+            if (level instanceof ServerLevel)
+                return ServerLevelExtension.INSTANCE;
+            return LevelExtension.INSTANCE;
+        }
     }
 
     public static class ServerDist {
@@ -66,12 +79,24 @@ public class UniversalDist {
                 return new ServerTransfurVariantInstance<>(variant, serverPlayer);
             return null;
         }
+
+        public static LevelExtension getLevelExtension(Level level) {
+            if (level instanceof ServerLevel)
+                return ServerLevelExtension.INSTANCE;
+            return LevelExtension.INSTANCE;
+        }
     }
 
     public static Level getLevel() {
         Level level = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientDist::getLevel);
         return level != null ? level :
                 DistExecutor.unsafeCallWhenOn(Dist.DEDICATED_SERVER, () -> ServerDist::getLevel);
+    }
+
+    public static LevelExtension getLevelExtension(Level level) {
+        LevelExtension levelExtension = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> ClientDist.getLevelExtension(level));
+        return levelExtension != null ? levelExtension :
+                DistExecutor.unsafeCallWhenOn(Dist.DEDICATED_SERVER, () -> () -> ServerDist.getLevelExtension(level));
     }
 
     public static void displayClientMessage(Component component, boolean notInChat) {

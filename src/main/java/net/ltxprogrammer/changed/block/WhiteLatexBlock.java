@@ -7,6 +7,7 @@ import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.process.LatexCoveredBlocks;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -38,7 +39,6 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -46,6 +46,11 @@ import java.util.function.Supplier;
 public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTransportInterface {
     public WhiteLatexBlock(Properties p_49795_) {
         super(p_49795_.noOcclusion(), LatexType.WHITE_LATEX, ChangedItems.WHITE_LATEX_GOO);
+    }
+
+    @Override
+    public LatexCoverState getLatexCoverState(BlockState blockState, BlockPos blockPos) {
+        return ChangedLatexTypes.WHITE_LATEX.get().sourceCoverState();
     }
 
     public boolean skipRendering(BlockState thisState, BlockState otherState, Direction direction) {

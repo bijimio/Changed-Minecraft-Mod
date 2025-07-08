@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
+@Deprecated
 public enum LatexType implements StringRepresentable, IExtensibleEnum {
     NEUTRAL("neutral"),
     DARK_LATEX("dark_latex", ChangedItems.DARK_LATEX_GOO, ChangedItems.DARK_LATEX_BUCKET, ChangedBlocks.DARK_LATEX_BLOCK, ChangedEntities.DARK_LATEX_WOLF_PUP, Color3.DARK, MapColor.TERRACOTTA_BLACK),

@@ -4,10 +4,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.serialization.Codec;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.ltxprogrammer.changed.world.LevelChunkSectionExtension;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
@@ -30,20 +32,28 @@ public abstract class ChunkSerializerMixin {
     private static void logErrors(ChunkPos p_188240_, int p_188241_, String p_188242_) {}
 
     @Unique
-    private static final Codec<PalettedContainer<LatexCoverState>> LATEX_STATE_CODEC = PalettedContainer.codecRW(LatexCoverState.PERMUTATIONS, LatexCoverState.CODEC, PalettedContainer.Strategy.SECTION_STATES, LatexCoverState.defaultState());
+    private static final Codec<PalettedContainer<LatexCoverState>> LATEX_STATE_CODEC = PalettedContainer.codecRW(ChangedLatexTypes.getLatexCoverStateIDMap(), LatexCoverState.CODEC, PalettedContainer.Strategy.SECTION_STATES, ChangedLatexTypes.NONE.get().defaultCoverState());
+
+    @Unique
+    private static CompoundTag cachedSectionTag = null;
+
+    @WrapOperation(method = "read", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/ListTag;getCompound(I)Lnet/minecraft/nbt/CompoundTag;", ordinal = 0))
+    private static CompoundTag captureNextSectionTag(ListTag instance, int index, Operation<CompoundTag> original) {
+        cachedSectionTag = original.call(instance, index);
+        return cachedSectionTag;
+    }
 
     @WrapOperation(method = "read", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/village/poi/PoiManager;checkConsistencyWithBlocks(Lnet/minecraft/core/SectionPos;Lnet/minecraft/world/level/chunk/LevelChunkSection;)V"))
     private static void readChangedChunkLayers(PoiManager instance, SectionPos position, LevelChunkSection section,
                                                Operation<Void> original,
-                                               @Local(argsOnly = true) CompoundTag compoundtag,
                                                @Local(argsOnly = true) ChunkPos chunkpos) {
         PalettedContainer<LatexCoverState> container;
-        if (compoundtag.contains("latex_cover_states", 10)) {
-            container = LATEX_STATE_CODEC.parse(NbtOps.INSTANCE, compoundtag.getCompound("latex_cover_states")).promotePartial((error) -> {
-                logErrors(chunkpos, compoundtag.getByte("Y"), error);
+        if (cachedSectionTag != null && cachedSectionTag.contains("latex_cover_states", 10)) {
+            container = LATEX_STATE_CODEC.parse(NbtOps.INSTANCE, cachedSectionTag.getCompound("latex_cover_states")).promotePartial((error) -> {
+                logErrors(chunkpos, cachedSectionTag.getByte("Y"), error);
             }).getOrThrow(false, LOGGER::error);
         } else {
-            container = new PalettedContainer<>(LatexCoverState.PERMUTATIONS, LatexCoverState.defaultState(), PalettedContainer.Strategy.SECTION_STATES);
+            container = new PalettedContainer<>(ChangedLatexTypes.getLatexCoverStateIDMap(), ChangedLatexTypes.NONE.get().defaultCoverState(), PalettedContainer.Strategy.SECTION_STATES);
         }
 
         ((LevelChunkSectionExtension)section).acceptLatexStates(container);

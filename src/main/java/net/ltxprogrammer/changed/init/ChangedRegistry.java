@@ -7,12 +7,18 @@ import net.ltxprogrammer.changed.client.latexparticles.LatexParticleType;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.entity.HairStyle;
 import net.ltxprogrammer.changed.entity.PlayerMover;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.animation.AnimationEvent;
+import net.ltxprogrammer.changed.world.LatexCoverState;
+import net.minecraft.core.IdMapper;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.DebugLevelSource;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.*;
@@ -93,6 +99,26 @@ public abstract class ChangedRegistry<T> implements Registry<T> {
     public static final RegistryHolder<LatexParticleType<?>> LATEX_PARTICLE_TYPE = new RegistryHolder<LatexParticleType<?>>(registryKey("latex_particle_type"));
     public static final RegistryHolder<AnimationEvent<?>> ANIMATION_EVENTS = new RegistryHolder<AnimationEvent<?>>(registryKey("animation_events"));
     public static final RegistryHolder<AccessorySlotType> ACCESSORY_SLOTS = new RegistryHolder<AccessorySlotType>(registryKey("accessory_slots"));
+    public static final RegistryHolder<LatexType> LATEX_TYPE = new RegistryHolder<>(registryKey("latex_type"));
+
+    private static class ClearableObjectIntIdentityMap<I> extends IdMapper<I> {
+        void clear()
+        {
+            this.tToId.clear();
+            this.idToT.clear();
+            this.nextId = 0;
+        }
+
+        @SuppressWarnings("unused")
+        void remove(I key)
+        {
+            boolean hadId = this.tToId.containsKey(key);
+            int prev = this.tToId.removeInt(key);
+            if (hadId) {
+                this.idToT.set(prev, null);
+            }
+        }
+    }
 
     @SubscribeEvent
     public static void onCreateRegistries(NewRegistryEvent event) {
@@ -110,6 +136,34 @@ public abstract class ChangedRegistry<T> implements Registry<T> {
         createRegistry(event, LATEX_PARTICLE_TYPE.key);
         createRegistry(event, ANIMATION_EVENTS.key);
         createRegistry(event, ACCESSORY_SLOTS.key);
+        createRegistry(event, LATEX_TYPE.key, builder -> {
+            builder.hasTags();
+            builder.missing((key, network) -> ChangedLatexTypes.NONE.get());
+            builder.onClear((owner, stage) -> {
+                owner.getSlaveMap(ChangedLatexTypes.LATEXCOVERSTATE_TO_ID, ClearableObjectIntIdentityMap.class).clear();
+            });
+            builder.onCreate((owner, stage) -> {
+                final ClearableObjectIntIdentityMap<LatexCoverState> idMap = new ClearableObjectIntIdentityMap<>() {
+                    @SuppressWarnings("deprecation")
+                    @Override
+                    public int getId(LatexCoverState key) {
+                        return this.tToId.containsKey(key) ? this.tToId.getInt(key) : -1;
+                    }
+                };
+                owner.setSlaveMap(ChangedLatexTypes.LATEXCOVERSTATE_TO_ID, idMap);
+            });
+            builder.onBake((owner, stage) -> {
+                ClearableObjectIntIdentityMap<LatexCoverState> blockstateMap = owner.getSlaveMap(ChangedLatexTypes.LATEXCOVERSTATE_TO_ID, ClearableObjectIntIdentityMap.class);
+
+                for (LatexType type : owner) {
+                    for (LatexCoverState state : type.getStateDefinition().getPossibleStates()) {
+                        blockstateMap.add(state);
+                        state.initCache();
+                    }
+                }
+                DebugLevelSource.initValidStates();
+            });
+        }, null);
     }
 
     private static <T> void createRegistry(NewRegistryEvent event, ResourceKey<? extends Registry<T>> key) {

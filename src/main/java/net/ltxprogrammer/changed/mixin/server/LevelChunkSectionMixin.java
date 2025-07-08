@@ -1,25 +1,45 @@
 package net.ltxprogrammer.changed.mixin.server;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import net.ltxprogrammer.changed.block.LatexCoveringSource;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
+import net.ltxprogrammer.changed.world.LatexCoverCounter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.ltxprogrammer.changed.world.LevelChunkSectionExtension;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.level.material.FluidState;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LevelChunkSection.class)
 public abstract class LevelChunkSectionMixin implements LevelChunkSectionExtension {
+    @Shadow @Final private PalettedContainer<BlockState> states;
+    @Shadow private short nonEmptyBlockCount;
+    @Unique private short tickingLatexCoverCount;
     @Unique private PalettedContainer<LatexCoverState> coverStates
-            = new PalettedContainer<>(LatexCoverState.PERMUTATIONS, LatexCoverState.defaultState(), PalettedContainer.Strategy.SECTION_STATES);
+            = new PalettedContainer<>(ChangedLatexTypes.getLatexCoverStateIDMap(), ChangedLatexTypes.NONE.get().defaultCoverState(), PalettedContainer.Strategy.SECTION_STATES);
 
     @Override
     public LatexCoverState getLatexCoverState(int x, int y, int z) {
+        BlockState blockState = this.states.get(x, y, z);
+        if (blockState.getBlock() instanceof LatexCoveringSource source)
+            return source.getLatexCoverState(blockState, new BlockPos(x, y, z));
         return coverStates.get(x, y, z);
     }
 
     @Override
-    public LatexCoverState setLatexCoverState(int x, int y, int z, LatexCoverState state) {
+    public LatexCoverState setLatexCoverState(int x, int y, int z, LatexCoverState state, boolean unchecked) {
         return coverStates.getAndSet(x, y, z, state);
     }
 
@@ -31,5 +51,33 @@ public abstract class LevelChunkSectionMixin implements LevelChunkSectionExtensi
     @Override
     public PalettedContainer<LatexCoverState> getLatexStates() {
         return coverStates;
+    }
+
+    @WrapMethod(method = "isRandomlyTicking")
+    public boolean isLatexCoverRandomlyTicking(Operation<Boolean> original) {
+        return this.tickingLatexCoverCount > 0 || original.call();
+    }
+
+    @Inject(method = "recalcBlockCounts", at = @At("TAIL"))
+    public void recalcLatexCoverCounts(CallbackInfo ci) {
+        LatexCoverCounter coverCounter = new LatexCoverCounter();
+        this.coverStates.count(coverCounter);
+        this.nonEmptyBlockCount += (short)coverCounter.nonEmptyBlockCount;
+        this.tickingLatexCoverCount = (short)coverCounter.tickingLatexCoverCount;
+    }
+
+    @Inject(method = "write", at = @At("TAIL"))
+    public void writeChangedData(FriendlyByteBuf buffer, CallbackInfo ci) {
+        coverStates.write(buffer);
+    }
+
+    @Inject(method = "read", at = @At("TAIL"))
+    public void readChangedData(FriendlyByteBuf buffer, CallbackInfo ci) {
+        coverStates.read(buffer);
+    }
+
+    @WrapMethod(method = "getSerializedSize")
+    public int appendChangedData(Operation<Integer> original) {
+        return original.call() + coverStates.getSerializedSize();
     }
 }

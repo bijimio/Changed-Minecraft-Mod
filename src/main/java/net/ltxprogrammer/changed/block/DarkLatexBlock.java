@@ -1,11 +1,9 @@
 package net.ltxprogrammer.changed.block;
 
 import net.ltxprogrammer.changed.entity.LatexType;
-import net.ltxprogrammer.changed.init.ChangedBlocks;
-import net.ltxprogrammer.changed.init.ChangedGameRules;
-import net.ltxprogrammer.changed.init.ChangedItems;
-import net.ltxprogrammer.changed.init.ChangedTags;
+import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.process.LatexCoveredBlocks;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -21,13 +19,17 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class DarkLatexBlock extends AbstractLatexBlock {
     public DarkLatexBlock(Properties p_49795_) {
         super(p_49795_, LatexType.DARK_LATEX, ChangedItems.DARK_LATEX_GOO);
+    }
+
+    @Override
+    public LatexCoverState getLatexCoverState(BlockState blockState, BlockPos blockPos) {
+        return ChangedLatexTypes.DARK_LATEX.get().sourceCoverState();
     }
 
     private static final List<Supplier<? extends TransfurCrystalBlock>> SMALL_CRYSTALS = List.of(

@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
-public abstract class AbstractLatexBlock extends Block implements NonLatexCoverableBlock {
+public abstract class AbstractLatexBlock extends Block implements LatexCoveringSource {
     // TODO replace with its own chunk data layer, instead of per-blockstate
     @Deprecated
     public static final EnumProperty<LatexType> COVERED = EnumProperty.create("covered_with", LatexType.class, LatexType.values());

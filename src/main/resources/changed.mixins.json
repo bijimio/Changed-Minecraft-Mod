@@ -22,8 +22,6 @@
     "block.PowderSnowBlockMixin",
     "block.SimpleBlockFeatureMixin",
     "block.SpreadingSnowyDirtBlockMixin",
-    "block.StateDefinitionMixin",
-    "block.WallBlockMixin",
     "entity.ArrowMixin",
     "entity.EntityMixin",
     "entity.IronGolemMixin",
@@ -51,6 +49,7 @@
   ],
   "client": [
     "block.BlockColorsMixin",
+    "client.ChunkRenderDispatcherMixin",
     "client.ClientLevelMixin",
     "client.ClientLivingEntityMixin",
     "client.MinecraftMixin",

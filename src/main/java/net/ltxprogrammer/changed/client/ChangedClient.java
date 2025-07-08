@@ -45,6 +45,7 @@ public class ChangedClient {
             new ChangedBlockEntityWithoutLevelRenderer(minecraft.getBlockEntityRenderDispatcher(), minecraft.getEntityModels());
     public static final Cacheable<AbilityColors> abilityColors = Cacheable.of(AbilityColors::createDefault);
     public static final Cacheable<AbilityRenderer> abilityRenderer = Cacheable.of(() -> new AbilityRenderer(minecraft.textureManager, minecraft.getModelManager(), abilityColors.getOrThrow()));
+    public static final Cacheable<LatexCoveredBlocksRenderer> latexCoveredBlocksRenderer = Cacheable.of(() -> new LatexCoveredBlocksRenderer(minecraft));
 
     public static void registerEventListeners() {
         Changed.addEventListener(ChangedClient::afterRenderStage);
@@ -55,6 +56,7 @@ public class ChangedClient {
     public static void registerReloadListeners(Consumer<PreparableReloadListener> resourceManager) {
         resourceManager.accept(particleSystem);
         resourceManager.accept(abilityRenderer.getOrThrow());
+        resourceManager.accept(latexCoveredBlocksRenderer.getOrThrow());
         resourceManager.accept(AnimationDefinitions.INSTANCE);
         resourceManager.accept(AnimationAssociations.INSTANCE);
     }

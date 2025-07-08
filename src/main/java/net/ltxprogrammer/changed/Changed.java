@@ -95,6 +95,7 @@ public class Changed {
         ChangedAbilities.REGISTRY.register(modEventBus);
         PlayerMover.REGISTRY.register(modEventBus);
         LatexParticleType.REGISTRY.register(modEventBus);
+        ChangedLatexTypes.REGISTRY.register(modEventBus);
 
         ChangedAttributes.REGISTRY.register(modEventBus);
         ChangedEnchantments.REGISTRY.register(modEventBus);
