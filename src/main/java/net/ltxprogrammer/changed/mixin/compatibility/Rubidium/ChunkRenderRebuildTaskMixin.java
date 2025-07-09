@@ -15,6 +15,7 @@ import net.ltxprogrammer.changed.client.ChangedClient;
 import net.ltxprogrammer.changed.extension.RequiredMods;
 import net.ltxprogrammer.changed.extension.rubidium.OptimizedVertexBuilder;
 import net.ltxprogrammer.changed.extension.rubidium.WorldSliceExtension;
+import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
@@ -82,7 +83,7 @@ public abstract class ChunkRenderRebuildTaskMixin {
 
                     boolean rendered = ChangedClient.latexCoveredBlocksRenderer.get().tesselate(
                             slice,
-                            fetchPos -> this.getLatexCoverState(slice, fetchPos),
+                            LatexCoverGetter.extend(slice, fetchPos -> this.getLatexCoverState(slice, fetchPos)),
                             blockPos,
                             builderCache.computeIfAbsent(rendertype, type -> new OptimizedVertexBuilder(vertices, buffers.get(rendertype))),
                             blockState,

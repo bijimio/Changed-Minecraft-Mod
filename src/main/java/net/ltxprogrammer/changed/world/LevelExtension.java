@@ -35,6 +35,10 @@ public class LevelExtension {
 
     }
 
+    public boolean destroyLatexCover(LevelAccessor level, BlockPos blockPos, boolean doDrops, @Nullable Entity cause) {
+        return destroyLatexCover(level, blockPos, doDrops, cause, 512);
+    }
+
     public boolean destroyLatexCover(LevelAccessor level, BlockPos blockPos, boolean doDrops, @Nullable Entity cause, int timeToLive) {
         LatexCoverState coverState = LatexCoverState.getAt(level, blockPos);
         if (coverState.isAir()) {

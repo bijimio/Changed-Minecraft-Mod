@@ -57,6 +57,7 @@ public abstract class ChunkSerializerMixin {
         }
 
         ((LevelChunkSectionExtension)section).acceptLatexStates(container);
+        ((LevelChunkSectionExtension)section).recalcLatexCoverCounts();
 
         original.call(instance, position, section);
     }

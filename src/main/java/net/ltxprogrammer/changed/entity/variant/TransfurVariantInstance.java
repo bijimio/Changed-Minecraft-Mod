@@ -20,6 +20,8 @@ import net.ltxprogrammer.changed.network.packet.SyncTransfurPacket;
 import net.ltxprogrammer.changed.process.Pale;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.*;
+import net.ltxprogrammer.changed.world.LatexCoverHitResult;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.ltxprogrammer.changed.world.enchantments.FormFittingEnchantment;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
@@ -351,6 +353,11 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             if (!variant.getItemUseMode().interactWithBlocks)
                 event.setCanceled(true);
         });
+
+        if (event.getHitVec() instanceof LatexCoverHitResult) {
+            event.setCancellationResult(LatexCoverState.handleInteractionEvent(event));
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent

@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.ltxprogrammer.changed.client.ChangedClient;
 import net.ltxprogrammer.changed.client.LatexCoveredBlocksRenderer;
+import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
@@ -71,7 +72,7 @@ public abstract class ChunkRenderDispatcherMixin {
 
             ChangedClient.latexCoveredBlocksRenderer.get().tesselate(
                     region,
-                    fetchPos -> this.getLatexCoverState(region, fetchPos),
+                    LatexCoverGetter.extend(region, fetchPos -> this.getLatexCoverState(region, fetchPos)),
                     blockPos,
                     bufferbuilder,
                     blockState,

@@ -40,7 +40,28 @@ public abstract class LevelChunkSectionMixin implements LevelChunkSectionExtensi
 
     @Override
     public LatexCoverState setLatexCoverState(int x, int y, int z, LatexCoverState state, boolean unchecked) {
-        return coverStates.getAndSet(x, y, z, state);
+        LatexCoverState oldState;
+        if (unchecked) {
+            oldState = this.coverStates.getAndSet(x, y, z, state);
+        } else {
+            oldState = this.coverStates.getAndSetUnchecked(x, y, z, state);
+        }
+
+        if (!oldState.isAir()) {
+            --this.nonEmptyBlockCount;
+            if (oldState.isRandomlyTicking()) {
+                --this.tickingLatexCoverCount;
+            }
+        }
+
+        if (!state.isAir()) {
+            ++this.nonEmptyBlockCount;
+            if (state.isRandomlyTicking()) {
+                ++this.tickingLatexCoverCount;
+            }
+        }
+
+        return oldState;
     }
 
     @Override
@@ -53,17 +74,17 @@ public abstract class LevelChunkSectionMixin implements LevelChunkSectionExtensi
         return coverStates;
     }
 
-    @WrapMethod(method = "isRandomlyTicking")
-    public boolean isLatexCoverRandomlyTicking(Operation<Boolean> original) {
-        return this.tickingLatexCoverCount > 0 || original.call();
-    }
-
-    @Inject(method = "recalcBlockCounts", at = @At("TAIL"))
-    public void recalcLatexCoverCounts(CallbackInfo ci) {
+    @Override
+    public void recalcLatexCoverCounts() {
         LatexCoverCounter coverCounter = new LatexCoverCounter();
         this.coverStates.count(coverCounter);
         this.nonEmptyBlockCount += (short)coverCounter.nonEmptyBlockCount;
         this.tickingLatexCoverCount = (short)coverCounter.tickingLatexCoverCount;
+    }
+
+    @WrapMethod(method = "isRandomlyTicking")
+    public boolean isLatexCoverRandomlyTicking(Operation<Boolean> original) {
+        return this.tickingLatexCoverCount > 0 || original.call();
     }
 
     @Inject(method = "write", at = @At("TAIL"))

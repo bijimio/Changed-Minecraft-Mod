@@ -14,4 +14,6 @@ public interface LevelChunkSectionExtension {
     void acceptLatexStates(PalettedContainer<LatexCoverState> container);
 
     PalettedContainer<LatexCoverState> getLatexStates();
+
+    void recalcLatexCoverCounts();
 }

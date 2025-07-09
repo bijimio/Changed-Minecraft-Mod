@@ -15,14 +15,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelWriter;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.*;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,8 +35,15 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -60,6 +70,12 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
 
     public LatexType getType() {
         return this.owner;
+    }
+
+    public static LatexCoverState getAt(BlockGetter blockGetter, BlockPos blockPos) {
+        if (blockGetter instanceof LevelAccessor levelAccessor)
+            return getAt(levelAccessor, blockPos);
+        return ChangedLatexTypes.NONE.get().defaultCoverState();
     }
 
     public static LatexCoverState getAt(LevelAccessor level, BlockPos blockPos) {
@@ -198,7 +214,7 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
             setAt(level, blockPos, latexCoverState, flags);
     }
 
-    private boolean is(LatexType type) {
+    public boolean is(LatexType type) {
         return getType() == type;
     }
 
@@ -310,6 +326,38 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
         return this.getType().updateInPlace(this.asState(), oldState, newState, level, pos);
     }
 
+    public VoxelShape getShape(LatexCoverGetter level, BlockPos blockPos) {
+        return this.getShape(level, blockPos, CollisionContext.empty());
+    }
+
+    public VoxelShape getShape(LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
+        return this.getType().getShape(this.asState(), level, blockPos, context);
+    }
+
+    public VoxelShape getCollisionShape(LatexCoverGetter level, BlockPos blockPos) {
+        return /*this.cache != null ? this.cache.collisionShape : */this.getCollisionShape(level, blockPos, CollisionContext.empty());
+    }
+
+    public VoxelShape getCollisionShape(LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
+        return this.getType().getCollisionShape(this.asState(), level, blockPos, context);
+    }
+
+    public VoxelShape getVisualShape(LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
+        return this.getType().getVisualShape(this.asState(), level, blockPos, context);
+    }
+
+    public VoxelShape getInteractionShape(LatexCoverGetter level, BlockPos blockPos) {
+        return this.getType().getInteractionShape(this.asState(), level, blockPos);
+    }
+
+    public final boolean entityCanStandOn(LatexCoverGetter level, BlockPos blockPos, Entity entity) {
+        return this.entityCanStandOnFace(level, blockPos, entity, Direction.UP);
+    }
+
+    public final boolean entityCanStandOnFace(LatexCoverGetter level, BlockPos blockPos, Entity entity, Direction face) {
+        return Block.isFaceFull(this.getCollisionShape(level, blockPos, CollisionContext.of(entity)), face);
+    }
+
     public void initCache() {
         /*this.fluidState = this.owner.getFluidState(this.asState());
         this.isRandomlyTicking = this.owner.isRandomlyTicking(this.asState());
@@ -318,5 +366,90 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
         }
 
         this.legacySolid = this.calculateSolid();*/
+    }
+
+    public interface ShapeGetter {
+        VoxelShape get(LatexCoverState state, LatexCoverGetter p_45741_, BlockPos p_45742_, CollisionContext p_45743_);
+    }
+
+    public static enum LatexCoverShapeGetter implements ShapeGetter {
+        COLLIDER(LatexCoverState::getCollisionShape),
+        OUTLINE(LatexCoverState::getShape),
+        VISUAL(LatexCoverState::getVisualShape),
+        FALLDAMAGE_RESETTING((state, level, blockPos, context) -> {
+            return Shapes.empty();// TODO: return state.is(BlockTags.FALL_DAMAGE_RESETTING) ? Shapes.block() : Shapes.empty();
+        });
+
+        private final ShapeGetter shapeGetter;
+
+        private LatexCoverShapeGetter(ShapeGetter p_45712_) {
+            this.shapeGetter = p_45712_;
+        }
+
+        public VoxelShape get(LatexCoverState state, LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
+            return this.shapeGetter.get(state, level, blockPos, context);
+        }
+
+        public static LatexCoverShapeGetter wrap(ClipContext.Block block) {
+            return switch (block) {
+                case COLLIDER -> LatexCoverShapeGetter.COLLIDER;
+                case OUTLINE -> LatexCoverShapeGetter.OUTLINE;
+                case VISUAL -> LatexCoverShapeGetter.VISUAL;
+                case FALLDAMAGE_RESETTING -> LatexCoverShapeGetter.FALLDAMAGE_RESETTING;
+                default -> LatexCoverShapeGetter.COLLIDER; // In-case another mod mixins a type
+            };
+        }
+    }
+
+    public static InteractionResult handleInteractionEvent(PlayerInteractEvent.RightClickBlock event) {
+        final var player = event.getEntity();
+        final var hand = event.getHand();
+        final var hitVec = event.getHitVec();
+        final var itemStack = event.getItemStack();
+        final var blockPos = event.getPos();
+
+        if (player.isSpectator()) {
+            return InteractionResult.SUCCESS;
+        } else {
+            UseOnContext useoncontext = new UseOnContext(player, hand, hitVec);
+            if (event.getUseItem() != net.minecraftforge.eventbus.api.Event.Result.DENY) {
+                InteractionResult result = itemStack.onItemUseFirst(useoncontext);
+                if (result != InteractionResult.PASS) {
+                    return result;
+                }
+            }
+            boolean flag = !player.getMainHandItem().doesSneakBypassUse(player.level(), blockPos, player) || !player.getOffhandItem().doesSneakBypassUse(player.level(), blockPos, player);
+            boolean flag1 = player.isSecondaryUseActive() && flag;
+            LatexCoverState state = LatexCoverState.getAt(player.level(), blockPos);
+
+            if (event.getUseBlock() == net.minecraftforge.eventbus.api.Event.Result.ALLOW || (event.getUseBlock() != net.minecraftforge.eventbus.api.Event.Result.DENY && !flag1)) {
+                InteractionResult interactionresult = state.use(player.level(), player, hand, hitVec);
+                if (interactionresult.consumesAction()) {
+                    return interactionresult;
+                }
+            }
+
+            if (event.getUseItem() == net.minecraftforge.eventbus.api.Event.Result.DENY) {
+                return InteractionResult.PASS;
+            }
+            if (event.getUseItem() == net.minecraftforge.eventbus.api.Event.Result.ALLOW || (!itemStack.isEmpty() && !player.getCooldowns().isOnCooldown(itemStack.getItem()))) {
+                InteractionResult interactionresult1;
+                if (player.isCreative()) {
+                    int i = itemStack.getCount();
+                    interactionresult1 = itemStack.useOn(useoncontext);
+                    itemStack.setCount(i);
+                } else {
+                    interactionresult1 = itemStack.useOn(useoncontext);
+                }
+
+                return interactionresult1;
+            } else {
+                return InteractionResult.PASS;
+            }
+        }
+    }
+
+    private InteractionResult use(Level level, Player player, InteractionHand hand, BlockHitResult hitVec) {
+        return this.getType().use(this.asState(), level, player, hand, hitVec);
     }
 }

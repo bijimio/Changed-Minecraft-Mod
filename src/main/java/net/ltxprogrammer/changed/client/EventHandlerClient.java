@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.client;
 
 import com.mojang.blaze3d.platform.GlUtil;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
@@ -12,20 +13,25 @@ import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.fluid.AbstractLatexFluid;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
-import net.ltxprogrammer.changed.init.ChangedDamageSources;
 import net.ltxprogrammer.changed.init.ChangedGameRules;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.network.packet.QueryTransfurPacket;
-import net.ltxprogrammer.changed.network.packet.SyncTransfurProgressPacket;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.PatreonBenefits;
+import net.ltxprogrammer.changed.world.LatexCoverGetter;
+import net.ltxprogrammer.changed.world.LatexCoverHitResult;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
@@ -74,7 +80,7 @@ public class EventHandlerClient {
             }
         }
 
-        if (player instanceof PlayerDataExtension ext && ext.isPlayerMover(PlayerMover.WHITE_LATEX_MOVER.get())) {
+        if (player instanceof PlayerDataExtension ext && ext.isPlayerMover(PlayerMover.LATEX_SWIM.get())) {
             event.setCanceled(true);
             return;
         }
@@ -243,6 +249,28 @@ public class EventHandlerClient {
                 return; // Only do blindness if variant is goo
 
             event.livingEntity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, duration, 1, false, false));
+        }
+
+        @SubscribeEvent
+        public static void onRenderBlockHighlight(RenderHighlightEvent.Block event) {
+            if (event.getTarget() instanceof LatexCoverHitResult)
+                event.setCanceled(true);
+
+            final var level = Minecraft.getInstance().level;
+            final var getter = LatexCoverGetter.wrap(level);
+            final var blockPos = event.getTarget().getBlockPos();
+
+            LatexCoverState state = LatexCoverState.getAt(level, blockPos);
+            if (!state.isAir() && level.getWorldBorder().isWithinBounds(blockPos)) {
+                VertexConsumer bufferBuilder = event.getMultiBufferSource().getBuffer(RenderType.lines());
+                Vec3 vec3 = event.getCamera().getPosition();
+                double d0 = vec3.x();
+                double d1 = vec3.y();
+                double d2 = vec3.z();
+
+                LevelRenderer.renderVoxelShape(event.getPoseStack(), bufferBuilder, state.getShape(getter, blockPos, CollisionContext.of(event.getCamera().getEntity())),
+                        (double)blockPos.getX() - d0, (double)blockPos.getY() - d1, (double)blockPos.getZ() - d2, 0.0F, 0.0F, 0.0F, 0.4F, false);
+            }
         }
     }
 }

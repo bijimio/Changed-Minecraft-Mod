@@ -2,13 +2,13 @@ package net.ltxprogrammer.changed.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.entity.latex.IClientLatexTypeExtensions;
 import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.init.ChangedLatexTypes;
+import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.CrashReport;
@@ -23,11 +23,9 @@ import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
-import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.FileToIdConverter;
@@ -39,11 +37,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraftforge.client.NamedRenderTypeManager;
 import net.minecraftforge.client.model.IModelBuilder;
 import net.minecraftforge.client.model.data.ModelData;
@@ -55,7 +50,6 @@ import java.io.Reader;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -125,8 +119,8 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
     private final Minecraft minecraft;
     private final BlockRenderDispatcher dispatcher;
     private final ModelBlockRenderer modelRenderer;
-    private Map<LatexCoverState, ModelSet> defaultModelSets;
-    private Map<BlockState, Map<LatexCoverState, ModelSet>> specialModelSets = new HashMap<>();
+    private Map<LatexType, ModelSet> defaultModelSets;
+    private Map<BlockState, Map<LatexType, ModelSet>> specialModelSets = new HashMap<>();
 
     public LatexCoveredBlocksRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;
@@ -135,7 +129,7 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
     }
 
     private ModelSet getModelSet(BlockState blockState, LatexCoverState coverState) {
-        return specialModelSets.getOrDefault(blockState, defaultModelSets).get(coverState);
+        return specialModelSets.getOrDefault(blockState, defaultModelSets).get(coverState.getType());
     }
 
     private boolean wrappedTesselate(
@@ -147,12 +141,12 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
 
         final var atlas = minecraft.getTextureAtlas(BLOCK_ATLAS);
         final var properties = IClientLatexTypeExtensions.of(coverState);
-        TextureAtlasSprite spriteTop = atlas.apply(properties.getTextureForFace(coverState, Direction.UP));
-        TextureAtlasSprite spriteBottom = atlas.apply(properties.getTextureForFace(coverState, Direction.DOWN));
-        TextureAtlasSprite spriteNorth = atlas.apply(properties.getTextureForFace(coverState, Direction.NORTH));
-        TextureAtlasSprite spriteSouth = atlas.apply(properties.getTextureForFace(coverState, Direction.SOUTH));
-        TextureAtlasSprite spriteEast = atlas.apply(properties.getTextureForFace(coverState, Direction.EAST));
-        TextureAtlasSprite spriteWest = atlas.apply(properties.getTextureForFace(coverState, Direction.WEST));
+        TextureAtlasSprite spriteTop = atlas.apply(properties.getTextureForFace(Direction.UP));
+        TextureAtlasSprite spriteBottom = atlas.apply(properties.getTextureForFace(Direction.DOWN));
+        TextureAtlasSprite spriteNorth = atlas.apply(properties.getTextureForFace(Direction.NORTH));
+        TextureAtlasSprite spriteSouth = atlas.apply(properties.getTextureForFace(Direction.SOUTH));
+        TextureAtlasSprite spriteEast = atlas.apply(properties.getTextureForFace(Direction.EAST));
+        TextureAtlasSprite spriteWest = atlas.apply(properties.getTextureForFace(Direction.WEST));
         float alpha = 1.0f;// = (float)(i >> 24 & 255) / 255.0F;
         float red = 1.0f;// = (float)(i >> 16 & 255) / 255.0F;
         float green = 1.0f;// = (float)(i >> 8 & 255) / 255.0F;
@@ -300,24 +294,24 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
         });
     }
 
-    private static Stream<LatexCoverState> getCoverStates() {
-        return StreamSupport.stream(ChangedLatexTypes.getLatexCoverStateIDMap().spliterator(), true)
-                .filter(LatexCoverState::isPresent);
+    private static Stream<LatexType> getCoverTypes() {
+        return ChangedRegistry.LATEX_TYPE.get().getValues().stream()
+                .filter(type -> type != ChangedLatexTypes.NONE.get());
     }
 
-    private static CompletableFuture<Map<ResourceLocation, Map<LatexCoverState, BakedModel>>> bakeModels(Function<ResourceLocation, TextureAtlasSprite> getSprite,
+    private static CompletableFuture<Map<ResourceLocation, Map<LatexType, BakedModel>>> bakeModels(Function<ResourceLocation, TextureAtlasSprite> getSprite,
                                                                                    Map<ResourceLocation, BlockModel> unbakedModels,
                                                                                    Executor executor) {
         final var modelBakes = unbakedModels.entrySet().stream().map(entry -> {
-            final var stateBake = getCoverStates()
-                    .map(state -> {
-                        final var properties = IClientLatexTypeExtensions.of(state);
+            final var stateBake = getCoverTypes()
+                    .map(type -> {
+                        final var properties = IClientLatexTypeExtensions.of(type);
 
-                        return CompletableFuture.supplyAsync(() -> modelBuilderFor(getSprite.apply(properties.getTextureForParticle(state))), executor)
+                        return CompletableFuture.supplyAsync(() -> modelBuilderFor(getSprite.apply(properties.getTextureForParticle())), executor)
                                 .thenApply(builder -> {
                                     entry.getValue().getElements().forEach(blockElement -> {
                                         blockElement.faces.forEach((side, face) -> {
-                                            var sprite = getSprite.apply(properties.getTextureForFace(state, side));
+                                            var sprite = getSprite.apply(properties.getTextureForFace(side));
                                             var quad = UnbakedGeometryHelper.bakeElementFace(blockElement, face, sprite, side, BlockModelRotation.X0_Y0, entry.getKey());
                                             if (face.cullForDirection == null)
                                                 builder.addUnculledFace(quad);
@@ -327,7 +321,7 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
                                         });
                                     });
 
-                                    return Pair.of(state, builder.build());
+                                    return Pair.of(type, builder.build());
                                 });
                     }).toList();
 
@@ -358,7 +352,7 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
                             unbakedModels, minecraftExecutor);
                 })
                 .thenApply(bakedModels -> {
-                    this.defaultModelSets = getCoverStates().collect(Collectors.toUnmodifiableMap(Function.identity(),
+                    this.defaultModelSets = getCoverTypes().collect(Collectors.toUnmodifiableMap(Function.identity(),
                             state -> new ModelSet(
                                     bakedModels.getOrDefault(DEFAULT_TOP, Map.of()).get(state),
                                     bakedModels.getOrDefault(DEFAULT_BOTTOM, Map.of()).get(state),
