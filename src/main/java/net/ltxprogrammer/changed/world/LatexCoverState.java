@@ -3,18 +3,22 @@ package net.ltxprogrammer.changed.world;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.block.LatexCoveringSource;
 import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.init.ChangedGameRules;
 import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
+import net.ltxprogrammer.changed.util.Cacheable;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.FullChunkStatus;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -28,15 +32,19 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.List;
 
 public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
     protected static final Direction[] UPDATE_SHAPE_ORDER = new Direction[]{Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH, Direction.DOWN, Direction.UP};
 
-    public static final IntegerProperty SATURATION = IntegerProperty.create("saturation", 0, 15);
-    public static final Codec<LatexCoverState> CODEC = codec(ChangedRegistry.LATEX_TYPE.get().getCodec(), LatexType::defaultCoverState).stable();
+    public static final LootContextParam<LatexCoverState> LOOT_CONTEXT_PARAM = new LootContextParam<>(Changed.modResource("latex_cover_state"));
+
+    public static final Cacheable<Codec<LatexCoverState>> CODEC = Cacheable.of(() -> codec(ChangedRegistry.LATEX_TYPE.get().getCodec(), LatexType::defaultCoverState).stable());
 
     public LatexCoverState(LatexType type, ImmutableMap<Property<?>, Comparable<?>> properties, MapCodec<LatexCoverState> codec) {
         super(type, properties, codec);
@@ -52,18 +60,6 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
 
     public LatexType getType() {
         return this.owner;
-    }
-
-    public int getSaturation() {
-        return getValue(SATURATION);
-    }
-
-    public LatexCoverState spreadState() {
-        return this.setValue(SATURATION, getSaturation() + 1);
-    }
-
-    public boolean canSpread() {
-        return this.getSaturation() < 15;
     }
 
     public static LatexCoverState getAt(LevelAccessor level, BlockPos blockPos) {
@@ -218,7 +214,7 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
         if (nextState != prevState) {
             if (nextState.isAir()) {
                 if (!level.isClientSide()) {
-                    level.destroyBlock(blockPos, (flags & 32) == 0, (Entity)null, timeToLive);
+                    UniversalDist.getLevelExtension(level).destroyLatexCover(level, blockPos, (flags & 32) == 0, (Entity)null, timeToLive);
                 }
             } else {
                 setAt(level, blockPos, nextState, flags & -33, timeToLive);
@@ -227,9 +223,15 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
 
     }
 
-    static void executeShapeUpdate(LevelAccessor level, Direction direction, LatexCoverState neighborState, BlockPos blockPos, BlockPos neighborPos, int flags, int timeToLive) {
+    public static void executeShapeUpdate(LevelAccessor level, Direction direction, LatexCoverState neighborState, BlockPos blockPos, BlockPos neighborPos, int flags, int timeToLive) {
         LatexCoverState prevState = getAt(level, blockPos);
         LatexCoverState nextState = prevState.updateShape(direction, neighborState, level, blockPos, neighborPos);
+        LatexCoverState.updateOrDestroy(prevState, nextState, level, blockPos, flags, timeToLive);
+    }
+
+    public static void executeInPlaceUpdate(LevelAccessor level, BlockState oldState, BlockState newState, BlockPos blockPos, int flags, int timeToLive) {
+        LatexCoverState prevState = getAt(level, blockPos);
+        LatexCoverState nextState = prevState.updateInPlace(oldState, newState, level, blockPos);
         LatexCoverState.updateOrDestroy(prevState, nextState, level, blockPos, flags, timeToLive);
     }
 
@@ -272,39 +274,20 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
                 .setLatexCoverState(x & 15, y & 15, z & 15, state);
     }
 
-    private static boolean isValidSurface(BlockGetter level, BlockPos toCover, BlockPos neighbor, Direction coverNormal) {
-        BlockState state = level.getBlockState(neighbor);
-        return state.isFaceSturdy(level, neighbor, coverNormal.getOpposite(), SupportType.FULL);
+    public void randomTick(ServerLevel level, BlockPos position, RandomSource random) {
+        this.getType().randomTick(this.asState(), level, position, random);
     }
 
-    public void randomTick(Level level, BlockPos position, RandomSource random) {
-        if (!this.canSpread()) return;
-        if (level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE) == 0) return;
-        if (!level.isAreaLoaded(position, 3)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light and spreading
-        if (random.nextInt(10 * level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE)) < 600) return;
+    public void entityInside(Level level, BlockPos blockPos, Entity entity) {
+        this.getType().entityInside(this.asState(), level, blockPos, entity);
+    }
 
-        Direction checkDir = Direction.getRandom(random);
-        BlockPos.MutableBlockPos checkPos = position.relative(checkDir).mutable();
+    public void spawnAfterBreak(ServerLevel level, BlockPos blockPos, ItemStack itemStack, boolean dropXp) {
+        this.getType().spawnAfterBreak(this.asState(), level, blockPos, itemStack, dropXp);
+    }
 
-        BlockState checkState = level.getBlockState(checkPos);
-        LatexCoverState checkCoverState = getAt(level, checkPos);
-
-        if (!checkState.isCollisionShapeFullBlock(level, checkPos) && checkCoverState.isAir()) {
-            if (checkPos.subtract(position).getY() > 0 && random.nextInt(3) > 0) // Reduced chance of spreading up
-                return;
-
-            if (Arrays.stream(Direction.values()).noneMatch(direction -> isValidSurface(level, checkPos, checkPos.relative(direction), direction)))
-                return;
-
-            LatexCoverState.setAtAndUpdate(level, checkPos, this.spreadState());
-
-            /*var event = new LatexCoveredBlocks.CoveringBlockEvent(latexType, checkState, checkPos, level);
-            if (Changed.postModEvent(event))
-                return;
-            if (event.originalState == event.plannedState)
-                return;
-            level.setBlockAndUpdate(event.blockPos, event.plannedState);*/
-        }
+    public List<ItemStack> getDrops(LootParams.Builder builder) {
+        return this.getType().getDrops(this.asState(), builder);
     }
 
     public void animateTick(Level level, BlockPos pos, RandomSource random) {
@@ -320,22 +303,11 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
     }
 
     public LatexCoverState updateShape(Direction direction, LatexCoverState neighborState, LevelAccessor level, BlockPos blockPos, BlockPos neighborPos) {
-        if (neighborState.getType() != this.getType())
-            return this;
-        if (neighborState.getSaturation() < this.getSaturation())
-            return neighborState.spreadState();
-        return this;
+        return this.getType().updateShape(this.asState(), direction, neighborState, level, blockPos, neighborPos);
     }
 
-    public LatexCoverState updateInPlace(BlockState blockState, LevelAccessor level, BlockPos pos) {
-        if (blockState.isAir())
-            return this;
-        if (blockState.getBlock() instanceof LatexCoveringSource source)
-            return source.getLatexCoverState(blockState, pos);
-        if (blockState.isCollisionShapeFullBlock(level, pos))
-            return ChangedLatexTypes.NONE.get().defaultCoverState();
-
-        return this;
+    public LatexCoverState updateInPlace(BlockState oldState, BlockState newState, LevelAccessor level, BlockPos pos) {
+        return this.getType().updateInPlace(this.asState(), oldState, newState, level, pos);
     }
 
     public void initCache() {

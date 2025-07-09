@@ -32,7 +32,7 @@ public abstract class ChunkSerializerMixin {
     private static void logErrors(ChunkPos p_188240_, int p_188241_, String p_188242_) {}
 
     @Unique
-    private static final Codec<PalettedContainer<LatexCoverState>> LATEX_STATE_CODEC = PalettedContainer.codecRW(ChangedLatexTypes.getLatexCoverStateIDMap(), LatexCoverState.CODEC, PalettedContainer.Strategy.SECTION_STATES, ChangedLatexTypes.NONE.get().defaultCoverState());
+    private static final Codec<PalettedContainer<LatexCoverState>> LATEX_STATE_CODEC = PalettedContainer.codecRW(ChangedLatexTypes.getLatexCoverStateIDMap(), LatexCoverState.CODEC.getOrThrow(), PalettedContainer.Strategy.SECTION_STATES, ChangedLatexTypes.NONE.get().defaultCoverState());
 
     @Unique
     private static CompoundTag cachedSectionTag = null;

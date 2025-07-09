@@ -9,6 +9,7 @@
     "EnchantmentHelperMixin",
     "GameDataMixin",
     "InventoryMenuMixin",
+    "LevelMixin",
     "NbtUtilsMixin",
     "PackMixin",
     "PrimaryLevelDataMixin",

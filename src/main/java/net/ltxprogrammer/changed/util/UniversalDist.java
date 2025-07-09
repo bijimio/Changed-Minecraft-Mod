@@ -10,6 +10,7 @@ import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.server.ServerTransfurVariantInstance;
 import net.ltxprogrammer.changed.world.LevelExtension;
 import net.ltxprogrammer.changed.world.ServerLevelExtension;
+import net.ltxprogrammer.changed.world.WorldGenRegionLevelExtension;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -17,10 +18,12 @@ import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -60,7 +63,7 @@ public class UniversalDist {
                 return null;
         }
 
-        public static LevelExtension getLevelExtension(Level level) {
+        public static LevelExtension getLevelExtension(LevelAccessor level) {
             if (level instanceof ClientLevel)
                 return ClientLevelExtension.INSTANCE;
             if (level instanceof ServerLevel)
@@ -80,9 +83,11 @@ public class UniversalDist {
             return null;
         }
 
-        public static LevelExtension getLevelExtension(Level level) {
+        public static LevelExtension getLevelExtension(LevelAccessor level) {
             if (level instanceof ServerLevel)
                 return ServerLevelExtension.INSTANCE;
+            if (level instanceof WorldGenRegion)
+                return WorldGenRegionLevelExtension.INSTANCE;
             return LevelExtension.INSTANCE;
         }
     }
@@ -93,10 +98,14 @@ public class UniversalDist {
                 DistExecutor.unsafeCallWhenOn(Dist.DEDICATED_SERVER, () -> ServerDist::getLevel);
     }
 
-    public static LevelExtension getLevelExtension(Level level) {
+    /**
+     * Gets the Changed logical extension for a level. Created to run side dependant code that may vary for a level type.
+     * @param level level to extend logically
+     * @return level extension instance to apply logic to
+     */
+    public static LevelExtension getLevelExtension(LevelAccessor level) {
         LevelExtension levelExtension = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> ClientDist.getLevelExtension(level));
-        return levelExtension != null ? levelExtension :
-                DistExecutor.unsafeCallWhenOn(Dist.DEDICATED_SERVER, () -> () -> ServerDist.getLevelExtension(level));
+        return levelExtension != null ? levelExtension : ServerDist.getLevelExtension(level);
     }
 
     public static void displayClientMessage(Component component, boolean notInChat) {

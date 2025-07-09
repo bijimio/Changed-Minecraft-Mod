@@ -1,8 +1,20 @@
 package net.ltxprogrammer.changed.world;
 
 import net.ltxprogrammer.changed.entity.latex.LatexType;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.FluidState;
+
+import javax.annotation.Nullable;
 
 public class LevelExtension {
     public static final LevelExtension INSTANCE = new LevelExtension();
@@ -21,5 +33,27 @@ public class LevelExtension {
 
     public void onLatexCoverStateChange(Level level, BlockPos blockPos, LatexCoverState oldState, LatexCoverState newState) {
 
+    }
+
+    public boolean destroyLatexCover(LevelAccessor level, BlockPos blockPos, boolean doDrops, @Nullable Entity cause, int timeToLive) {
+        LatexCoverState coverState = LatexCoverState.getAt(level, blockPos);
+        if (coverState.isAir()) {
+            return false;
+        } else {
+            /*if (!(coverState.getBlock() instanceof BaseFireBlock)) {
+                this.levelEvent(2001, blockPos, Block.getId(coverState));
+            }*/
+
+            if (doDrops) {
+                LatexType.dropResources(coverState, (Level)level, blockPos, cause, ItemStack.EMPTY);
+            }
+
+            boolean flag = LatexCoverState.setAt(level, blockPos, ChangedLatexTypes.NONE.get().defaultCoverState(), 3, timeToLive);
+            if (flag) {
+                //this.gameEvent(GameEvent.BLOCK_DESTROY, blockPos, GameEvent.Context.of(cause, coverState));
+            }
+
+            return flag;
+        }
     }
 }

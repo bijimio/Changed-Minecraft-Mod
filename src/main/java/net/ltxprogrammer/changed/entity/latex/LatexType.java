@@ -1,22 +1,42 @@
 package net.ltxprogrammer.changed.entity.latex;
 
 import net.ltxprogrammer.changed.Changed;
+import net.ltxprogrammer.changed.block.LatexCoveringSource;
+import net.ltxprogrammer.changed.init.ChangedGameRules;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
+import net.ltxprogrammer.changed.init.ChangedLootContextParamSets;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SupportType;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class LatexType {
@@ -62,22 +82,60 @@ public abstract class LatexType {
 
     public void updateIndirectNeighbourShapes(LatexCoverState state, LevelAccessor level, BlockPos blockPos, int flags, int timeToLive) {}
 
-    public void onPlace(LatexCoverState state, Level level, BlockPos blockPos, LatexCoverState oldState, boolean flag) {
+    public void onPlace(LatexCoverState state, Level level, BlockPos blockPos, LatexCoverState oldState, boolean flag) {}
 
-    }
+    public void onRemove(LatexCoverState state, Level level, BlockPos blockPos, LatexCoverState oldState, boolean flag) {}
 
-    public void onRemove(LatexCoverState state, Level level, BlockPos blockPos, LatexCoverState oldState, boolean flag) {
-
-    }
-
-    public void animateTick(LatexCoverState state, Level level, BlockPos pos, RandomSource random) {
-
-    }
+    public void animateTick(LatexCoverState state, Level level, BlockPos pos, RandomSource random) {}
 
     public abstract ResourceLocation getLootTable();
 
     public long getSeed(LatexCoverState state, BlockPos blockPos) {
         return Mth.getSeed(blockPos);
+    }
+
+    public static List<ItemStack> getDrops(LatexCoverState state, ServerLevel level, BlockPos blockPos) {
+        LootParams.Builder builder = (new LootParams.Builder(level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(blockPos)).withParameter(LootContextParams.TOOL, ItemStack.EMPTY).withOptionalParameter(LootContextParams.BLOCK_ENTITY, null);
+        return state.getDrops(builder);
+    }
+
+    public static List<ItemStack> getDrops(LatexCoverState state, ServerLevel level, BlockPos blockPos, @Nullable Entity source, ItemStack tool) {
+        LootParams.Builder builder = (new LootParams.Builder(level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(blockPos)).withParameter(LootContextParams.TOOL, tool).withOptionalParameter(LootContextParams.THIS_ENTITY, source).withOptionalParameter(LootContextParams.BLOCK_ENTITY, null);
+        return state.getDrops(builder);
+    }
+
+    public static void dropResources(LatexCoverState state, Level level, BlockPos blockPos) {
+        if (level instanceof ServerLevel) {
+            getDrops(state, (ServerLevel)level, blockPos).forEach((p_152406_) -> {
+                Block.popResource(level, blockPos, p_152406_);
+            });
+            state.spawnAfterBreak((ServerLevel)level, blockPos, ItemStack.EMPTY, true);
+        }
+
+    }
+
+    public static void dropResources(LatexCoverState state, LevelAccessor level, BlockPos blockPos) {
+        if (level instanceof ServerLevel) {
+            getDrops(state, (ServerLevel)level, blockPos).forEach((p_49859_) -> {
+                Block.popResource((ServerLevel)level, blockPos, p_49859_);
+            });
+            state.spawnAfterBreak((ServerLevel)level, blockPos, ItemStack.EMPTY, true);
+        }
+
+    }
+
+    public static void dropResources(LatexCoverState state, Level level, BlockPos blockPos, @Nullable Entity source, ItemStack tool) {
+        dropResources(state, level, blockPos, source, tool, true);
+    }
+
+    public static void dropResources(LatexCoverState state, Level level, BlockPos blockPos, @Nullable Entity source, ItemStack tool, boolean dropXp) {
+        if (level instanceof ServerLevel) {
+            getDrops(state, (ServerLevel)level, blockPos, source, tool).forEach((p_49944_) -> {
+                Block.popResource(level, blockPos, p_49944_);
+            });
+            state.spawnAfterBreak((ServerLevel)level, blockPos, tool, dropXp);
+        }
+
     }
 
     private void initClient() {
@@ -91,74 +149,42 @@ public abstract class LatexType {
         }
     }
 
+    public LatexCoverState updateShape(LatexCoverState state, Direction direction, LatexCoverState neighborState, LevelAccessor level, BlockPos blockPos, BlockPos neighborPos) {
+        return state;
+    }
+
+    public LatexCoverState updateInPlace(LatexCoverState state, BlockState oldState, BlockState newState, LevelAccessor level, BlockPos pos) {
+        return state;
+    }
+
     public Object getRenderPropertiesInternal() {
         return renderProperties;
     }
 
     public void initializeClient(Consumer<IClientLatexTypeExtensions> consumer) {}
 
+    public void randomTick(LatexCoverState state, ServerLevel level, BlockPos blockPos, RandomSource random) {}
+    
+    public void entityInside(LatexCoverState state, Level level, BlockPos blockPos, Entity entity) {}
+
+    public void spawnAfterBreak(LatexCoverState state, ServerLevel level, BlockPos blockPos, ItemStack itemStack, boolean dropXp) {}
+    
+    public List<ItemStack> getDrops(LatexCoverState coverState, LootParams.Builder builder) {
+        ResourceLocation resourcelocation = this.getLootTable();
+        if (resourcelocation == BuiltInLootTables.EMPTY) {
+            return Collections.emptyList();
+        } else {
+            LootParams lootparams = builder.withParameter(LatexCoverState.LOOT_CONTEXT_PARAM, coverState).create(ChangedLootContextParamSets.LATEX_COVER);
+            ServerLevel serverlevel = lootparams.getLevel();
+            LootTable loottable = serverlevel.getServer().getLootData().getLootTable(resourcelocation);
+            return loottable.getRandomItems(lootparams);
+        }
+    }
+
     public static class None extends LatexType {
         @Override
         public ResourceLocation getLootTable() {
             return BuiltInLootTables.EMPTY;
-        }
-    }
-
-    public static class DarkLatex extends LatexType {
-        public DarkLatex() {
-            super();
-            this.registerDefaultCoverState(this.coverStateDefinition.any().setValue(LatexCoverState.SATURATION, 0));
-        }
-
-        @Override
-        protected void buildStateDefinition(StateDefinition.Builder<LatexType, LatexCoverState> builder) {
-            builder.add(LatexCoverState.SATURATION);
-        }
-
-        @Override
-        public ResourceLocation getLootTable() {
-            return BuiltInLootTables.EMPTY;
-        }
-
-        @Override
-        public void initializeClient(Consumer<IClientLatexTypeExtensions> consumer) {
-            consumer.accept(new IClientLatexTypeExtensions() {
-                private static final ResourceLocation DARK_LATEX_TEXTURE = Changed.modResource("block/dark_latex_block_top");
-
-                @Override
-                public ResourceLocation getTextureForFace(LatexCoverState state, Direction face) {
-                    return DARK_LATEX_TEXTURE;
-                }
-            });
-        }
-    }
-
-    public static class WhiteLatex extends LatexType {
-        public WhiteLatex() {
-            super();
-            this.registerDefaultCoverState(this.coverStateDefinition.any().setValue(LatexCoverState.SATURATION, 0));
-        }
-
-        @Override
-        protected void buildStateDefinition(StateDefinition.Builder<LatexType, LatexCoverState> builder) {
-            builder.add(LatexCoverState.SATURATION);
-        }
-
-        @Override
-        public ResourceLocation getLootTable() {
-            return BuiltInLootTables.EMPTY;
-        }
-
-        @Override
-        public void initializeClient(Consumer<IClientLatexTypeExtensions> consumer) {
-            consumer.accept(new IClientLatexTypeExtensions() {
-                private static final ResourceLocation WHITE_LATEX_TEXTURE = Changed.modResource("block/white_latex_block");
-
-                @Override
-                public ResourceLocation getTextureForFace(LatexCoverState state, Direction face) {
-                    return WHITE_LATEX_TEXTURE;
-                }
-            });
         }
     }
 }

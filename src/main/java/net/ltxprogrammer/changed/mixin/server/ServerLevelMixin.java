@@ -66,7 +66,7 @@ public abstract class ServerLevelMixin extends Level {
                         LatexCoverState coverState = LatexCoverState.getAt(levelchunksection, blockPos.getX() - i, blockPos.getY() - k1, blockPos.getZ() - j);
 
                         if (coverState.isRandomlyTicking())
-                            coverState.randomTick(this, blockPos, this.random);
+                            coverState.randomTick((ServerLevel)(Object)this, blockPos, this.random);
 
                         profilerFiller.pop();
                     }
