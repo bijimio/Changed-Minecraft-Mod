@@ -5,8 +5,10 @@ import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedDamageSources;
 import net.ltxprogrammer.changed.init.ChangedFluids;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -17,10 +19,16 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
 
 public class WhiteLatexFluidBlock extends AbstractLatexFluidBlock implements WhiteLatexTransportInterface {
     public WhiteLatexFluidBlock() {
-        super(() -> (FlowingFluid)ChangedFluids.WHITE_LATEX.get(), BlockBehaviour.Properties.of().strength(100f));
+        super(ChangedFluids.WHITE_LATEX, BlockBehaviour.Properties.of().strength(100f));
+    }
+
+    @Override
+    public @NotNull LatexCoverState getLatexCoverState(BlockState blockState, BlockPos blockPos) {
+        return blockState.getValue(GROUNDED) ? ChangedLatexTypes.WHITE_LATEX.get().sourceCoverState() : ChangedLatexTypes.NONE.get().defaultCoverState();
     }
 
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {

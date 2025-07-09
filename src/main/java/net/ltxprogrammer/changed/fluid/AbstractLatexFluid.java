@@ -42,6 +42,11 @@ public abstract class AbstractLatexFluid extends ForgeFlowingFluid {
         this.form = form;
     }
 
+    @Override
+    protected boolean isRandomlyTicking() {
+        return true;
+    }
+
     public LatexType getLatexType() {
         return gooType;
     }

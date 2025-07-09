@@ -49,7 +49,7 @@ public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTra
     }
 
     @Override
-    public LatexCoverState getLatexCoverState(BlockState blockState, BlockPos blockPos) {
+    public @NotNull LatexCoverState getLatexCoverState(BlockState blockState, BlockPos blockPos) {
         return ChangedLatexTypes.WHITE_LATEX.get().sourceCoverState();
     }
 

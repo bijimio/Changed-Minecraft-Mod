@@ -28,7 +28,7 @@ public class DarkLatexBlock extends AbstractLatexBlock {
     }
 
     @Override
-    public LatexCoverState getLatexCoverState(BlockState blockState, BlockPos blockPos) {
+    public @NotNull LatexCoverState getLatexCoverState(BlockState blockState, BlockPos blockPos) {
         return ChangedLatexTypes.DARK_LATEX.get().sourceCoverState();
     }
 
