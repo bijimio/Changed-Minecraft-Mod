@@ -6,9 +6,8 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.VisionType;
-import net.ltxprogrammer.changed.entity.beast.DarkLatexEntity;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.client.Minecraft;
@@ -41,7 +40,7 @@ public class VariantBlindnessOverlay {
         var eyePosition = player.getEyePosition(partialTicks);
         float darkness = (15 - player.level().getRawBrightness(new BlockPos(Mth.floor(eyePosition.x), Mth.floor(eyePosition.y), Mth.floor(eyePosition.z)), 0)) / 15.0f;
         float alpha;
-        if (variant.getLatexType() == LatexType.DARK_LATEX)
+        if (variant.getLatexType() == ChangedLatexTypes.DARK_LATEX.get())
             alpha = Mth.lerp(0.65F, alphaO, darkness * ALPHA);
         else
             alpha = ALPHA * Minecraft.getInstance().options.screenEffectScale().get().floatValue();

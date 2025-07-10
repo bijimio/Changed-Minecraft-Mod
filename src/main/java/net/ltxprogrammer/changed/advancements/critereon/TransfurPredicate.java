@@ -2,7 +2,7 @@ package net.ltxprogrammer.changed.advancements.critereon;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.*;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
@@ -76,7 +76,7 @@ public class TransfurPredicate {
         if (json != null && !json.isJsonNull()) {
             JsonObject jsonObject = GsonHelper.convertToJsonObject(json, "form");
             if (jsonObject.has("type")) {
-                final LatexType type = LatexType.valueOf(GsonHelper.getAsString(jsonObject, "type"));
+                final LatexType type = ChangedRegistry.LATEX_TYPE.getValue(ResourceLocation.parse(GsonHelper.getAsString(jsonObject, "type")));
                 return new TransfurPredicate(type);
             }
             if (jsonObject.has("forms")) {

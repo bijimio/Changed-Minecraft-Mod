@@ -1,8 +1,9 @@
 package net.ltxprogrammer.changed.item;
 
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.fluid.AbstractLatexFluid;
-import net.ltxprogrammer.changed.init.ChangedTabs;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
+import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.*;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -13,24 +14,20 @@ import java.util.function.Supplier;
 
 public class AbstractLatexBucket extends BucketItem {
     public final Supplier<? extends AbstractLatexFluid> fluid;
+    public final Supplier<? extends LatexType> latexType;
 
-    public AbstractLatexBucket(Supplier<? extends AbstractLatexFluid> supplier) {
+    public AbstractLatexBucket(Supplier<? extends AbstractLatexFluid> supplier, Supplier<? extends LatexType> latexType) {
         super(supplier, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1).rarity(Rarity.COMMON));
         this.fluid = supplier;
+        this.latexType = latexType;
     }
 
-    public static Supplier<AbstractLatexBucket> from(Supplier<? extends AbstractLatexFluid> fluid) {
-        return () -> new AbstractLatexBucket(fluid);
+    public static Supplier<AbstractLatexBucket> from(Supplier<? extends AbstractLatexFluid> fluid, Supplier<? extends LatexType> latexType) {
+        return () -> new AbstractLatexBucket(fluid, latexType);
     }
 
-    @Nullable
     public LatexType getLatexType() {
-        for (LatexType t : LatexType.values()) {
-            if (this == t.gooBucket.get())
-                return t;
-        }
-
-        return LatexType.NEUTRAL;
+        return latexType.get();
     }
 
     @Override

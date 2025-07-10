@@ -2,6 +2,7 @@ package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
@@ -198,12 +199,12 @@ public class DarkLatexWolfPup extends AbstractDarkLatexEntity {
                 }
 
                 ProcessTransfur.ifPlayerTransfurred(player, variant -> {
-                    if (variant.getLatexType() == LatexType.DARK_LATEX && this.random.nextInt(3) == 0) { // One in 3 chance
+                    if (ChangedLatexTypes.DARK_LATEX.get().isFriendlyTo(variant.getLatexType()) && this.random.nextInt(3) == 0) { // One in 3 chance
                         this.tame(player);
                         this.navigation.stop();
                         this.setTarget(null);
                         this.level().broadcastEntityEvent(this, (byte)7);
-                    } else if (!variant.getLatexType().isHostileTo(LatexType.DARK_LATEX) && this.random.nextInt(10) == 0) {
+                    } else if (!ChangedLatexTypes.DARK_LATEX.get().isHostileTo(variant.getLatexType()) && this.random.nextInt(10) == 0) {
                         this.tame(player);
                         this.navigation.stop();
                         this.setTarget(null);

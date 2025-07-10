@@ -1,5 +1,7 @@
 package net.ltxprogrammer.changed.mixin.entity;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.GrabEntityAbility;
@@ -14,13 +16,11 @@ import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
-import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.fluid.AbstractLatexFluid;
 import net.ltxprogrammer.changed.fluid.Gas;
 import net.ltxprogrammer.changed.fluid.TransfurGas;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.item.AccessoryItem;
-import net.ltxprogrammer.changed.item.ExoskeletonItem;
 import net.ltxprogrammer.changed.item.ExtendedItemProperties;
 import net.ltxprogrammer.changed.item.SpecializedAnimations;
 import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
@@ -32,7 +32,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -153,7 +152,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
                 callback.setReturnValue(true);
 
             if (effect.equals(MobEffects.NIGHT_VISION)) {
-                if (variant.getChangedEntity().getLatexType() == LatexType.WHITE_LATEX && WhiteLatexTransportInterface.isEntityInWhiteLatex(player))
+                if (WhiteLatexTransportInterface.isEntityInWhiteLatex(player))
                     callback.setReturnValue(true);
             }
             if (variant.breatheMode.canBreatheWater() && effect.equals(MobEffects.CONDUIT_POWER) && isEyeInFluid(FluidTags.WATER))
@@ -171,7 +170,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
                 callback.setReturnValue(new MobEffectInstance(effect, 300, 1, false, false));
 
             if (effect.equals(MobEffects.NIGHT_VISION)) {
-                if (variant.getChangedEntity().getLatexType() == LatexType.WHITE_LATEX && WhiteLatexTransportInterface.isEntityInWhiteLatex(player))
+                if (WhiteLatexTransportInterface.isEntityInWhiteLatex(player))
                     callback.setReturnValue(new MobEffectInstance(MobEffects.NIGHT_VISION, 300, 1, false, false));
             }
             if (variant.breatheMode.canBreatheWater() && effect.equals(MobEffects.CONDUIT_POWER) && isEyeInFluid(FluidTags.WATER))
@@ -325,28 +324,24 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
         AccessorySlots.getForEntity((LivingEntity)(Object)this).ifPresent(AccessorySlots::tick);
     }
 
-    @Inject(method = "canStandOnFluid", at = @At("HEAD"), cancellable = true)
-    public void canStandOnFluid(FluidState state, CallbackInfoReturnable<Boolean> callback) {
-        var variant = TransfurVariant.getEntityVariant((LivingEntity)(Object)this);
-        if (variant == null) return;
-        if (variant.getLatexType() == LatexType.NEUTRAL) return;
-
-        if (state.getType() instanceof AbstractLatexFluid latexFluid && latexFluid.canEntityStandOn((LivingEntity)(Object)this))
-            callback.setReturnValue(true);
+    @WrapMethod(method = "canStandOnFluid")
+    public boolean canStandOnFluid(FluidState state, Operation<Boolean> original) {
+        return state.getType() instanceof AbstractLatexFluid latexFluid && latexFluid.canEntityStandOn((LivingEntity)(Object)this) ||
+                original.call(state);
     }
 
-    @Inject(method = "breakItem", at = @At("HEAD"), cancellable = true)
-    public void useDifferentBreakSound(ItemStack itemStack, CallbackInfo ci) {
-        if (!(itemStack.getItem() instanceof ExtendedItemProperties extended) || itemStack.isEmpty())
+    @WrapMethod(method = "breakItem")
+    public void useDifferentBreakSound(ItemStack itemStack, Operation<Void> original) {
+        if (!(itemStack.getItem() instanceof ExtendedItemProperties extended) || itemStack.isEmpty()) {
+            original.call(itemStack);
             return;
+        }
 
         if (!this.isSilent()) {
             this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), extended.getBreakSound(itemStack), this.getSoundSource(), 0.8F, 0.8F + this.level().random.nextFloat() * 0.4F, false);
         }
 
         this.spawnItemParticles(itemStack, 5);
-
-        ci.cancel();
     }
 
     @Shadow public abstract boolean canStandOnFluid(FluidState state);

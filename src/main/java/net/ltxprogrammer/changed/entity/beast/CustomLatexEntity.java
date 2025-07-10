@@ -2,6 +2,7 @@ package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedEntities;
@@ -423,11 +424,6 @@ public class CustomLatexEntity extends ChangedEntity implements LatexTaur<Custom
     @Override
     public Color3 getHairColor(int layer) {
         return null;
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

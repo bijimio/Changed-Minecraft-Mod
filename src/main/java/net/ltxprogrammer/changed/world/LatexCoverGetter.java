@@ -1,11 +1,9 @@
 package net.ltxprogrammer.changed.world;
 
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -76,7 +74,7 @@ public interface LatexCoverGetter extends BlockGetter {
         return regularResult;
     }
 
-    public static LatexCoverGetter wrap(LevelAccessor level) {
+    public static LatexCoverGetter wrap(LevelReader level) {
         return new LatexCoverGetter() {
             @Override
             public LatexCoverState getLatexCover(BlockPos blockPos) {
@@ -176,5 +174,12 @@ public interface LatexCoverGetter extends BlockGetter {
                 return level.getMinBuildHeight();
             }
         };
+    }
+
+    public static LatexCoverGetter extendDefault(BlockGetter level) {
+        if (level instanceof LevelReader reader)
+            return wrap(reader);
+        else
+            return extend(level, blockPos -> ChangedLatexTypes.NONE.get().defaultCoverState());
     }
 }

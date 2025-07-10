@@ -2,7 +2,7 @@ package net.ltxprogrammer.changed.block;
 
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.block.entity.LatexContainerBlockEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
 import net.ltxprogrammer.changed.init.ChangedBlockEntities;
@@ -39,6 +39,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -79,7 +80,7 @@ public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock impl
 
     private int processBreak(Level level, BlockPos blockPos, LatexType type, int remaining, AtomicBoolean placedFluid) {
         if (remaining == 16) {
-            var pupType = type.pup.get();
+            var pupType = type.getPupEntityType(level.random);
             if (pupType != null) {
                 var pup = pupType.create(level);
                 if (pup != null) {
@@ -95,14 +96,14 @@ public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock impl
                 return 1; // Destroy goo
             case 1:
                 if (remaining >= 4 && !placedFluid.get()) {
-                    level.setBlockAndUpdate(blockPos, type.gooBucket.get().fluid.get().defaultFluidState().createLegacyBlock());
+                    level.setBlockAndUpdate(blockPos, Objects.requireNonNull(type.getBucketItem()).fluid.get().defaultFluidState().createLegacyBlock());
                     popResource(level, blockPos, new ItemStack(this));
                     placedFluid.set(true);
                     return 4; // Put goo fluid
                 }
 
                 else {
-                    popResource(level, blockPos, new ItemStack(type.goo.get()));
+                    popResource(level, blockPos, new ItemStack(Objects.requireNonNull(type.getGooItem())));
                     return 1; // Drop goo item
                 }
             case 2:
@@ -119,7 +120,7 @@ public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock impl
                     attempts--;
                 }
             default:
-                popResource(level, blockPos, new ItemStack(type.goo.get()));
+                popResource(level, blockPos, new ItemStack(Objects.requireNonNull(type.getGooItem())));
                 return 1; // Drop goo item
         }
     }
@@ -129,7 +130,7 @@ public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock impl
         var blockEntity = getBlockEntity(state, level, blockPos);
         super.onRemove(state, level, blockPos, newState, noSimulate);
 
-        if (state.getValue(HALF) == DoubleBlockHalf.LOWER && blockEntity != null && blockEntity.getFillType() != LatexType.NEUTRAL &&
+        if (state.getValue(HALF) == DoubleBlockHalf.LOWER && blockEntity != null && !blockEntity.getFillType().isAir() &&
                 blockEntity.getFillLevel() > 0 && !noSimulate) {
             int fill = blockEntity.getFillLevel();
             AtomicBoolean atomic = new AtomicBoolean(false);
@@ -199,17 +200,13 @@ public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock impl
         blockEntity.ifPresent(container -> {
             if (container.getFillLevel() == 0)
                 return;
-            final var variant = switch (container.getFillType()) {
-                case DARK_LATEX -> ChangedTransfurVariants.DARK_LATEX_WOLF_PARTIAL.get();
-                case WHITE_LATEX -> ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get();
-                default -> null;
-            };
+            final var variant = container.getFillType().getTransfurVariant(TransfurCause.LATEX_CONTAINER_FELL, level.random);
 
             if (variant == null)
                 return;
 
             level.getEntitiesOfClass(LivingEntity.class, new AABB(pos)).forEach(livingEntity -> {
-                ProcessTransfur.progressTransfur(livingEntity, 15.0f, variant, TransfurContext.hazard(TransfurCause.CEILING_HAZARD));
+                ProcessTransfur.progressTransfur(livingEntity, 15.0f, variant, TransfurContext.hazard(TransfurCause.LATEX_CONTAINER_FELL));
             });
         });
 

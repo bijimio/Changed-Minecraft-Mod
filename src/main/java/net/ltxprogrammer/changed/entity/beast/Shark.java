@@ -1,7 +1,8 @@
 package net.ltxprogrammer.changed.entity.beast;
 
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.minecraft.core.particles.ParticleTypes;
@@ -91,10 +92,5 @@ public class Shark extends AbstractAquaticEntity {
             }
 
         }
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 }

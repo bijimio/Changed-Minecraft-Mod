@@ -1,13 +1,13 @@
 package net.ltxprogrammer.changed.entity.beast;
 
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.TamableLatexEntity;
 import net.ltxprogrammer.changed.entity.ai.LatexFollowOwnerGoal;
 import net.ltxprogrammer.changed.entity.ai.LatexOwnerHurtByTargetGoal;
 import net.ltxprogrammer.changed.entity.ai.LatexOwnerHurtTargetGoal;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.init.ChangedCriteriaTriggers;
 import net.ltxprogrammer.changed.init.ChangedItems;
-import net.minecraft.Util;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -29,7 +29,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.scores.Team;
 import org.jetbrains.annotations.Nullable;
@@ -102,7 +101,7 @@ public abstract class AbstractDarkLatexEntity extends AbstractLatexWolf implemen
 
     @Override
     public LatexType getLatexType() {
-        return LatexType.DARK_LATEX;
+        return ChangedLatexTypes.DARK_LATEX.get();
     }
 
     @Override

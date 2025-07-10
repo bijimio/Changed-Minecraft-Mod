@@ -8,13 +8,12 @@ import net.ltxprogrammer.changed.ability.GrabEntityAbility;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.entity.AccessoryEntities;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.item.ExtendedItemProperties;
-import net.ltxprogrammer.changed.network.packet.BasicPlayerInfoPacket;
-import net.ltxprogrammer.changed.network.packet.QueryTransfurPacket;
 import net.ltxprogrammer.changed.network.packet.SyncMoversPacket;
 import net.ltxprogrammer.changed.network.packet.SyncTransfurPacket;
 import net.ltxprogrammer.changed.process.Pale;
@@ -30,7 +29,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -50,7 +48,6 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
@@ -973,7 +970,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     }
 
     public LatexType getLatexType() {
-        return parent.getLatexType();
+        return entity.getLatexType();
     }
 
     public boolean is(TransfurVariant<?> variant) {

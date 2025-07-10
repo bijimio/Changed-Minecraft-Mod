@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -24,11 +25,6 @@ public abstract class AbstractPooltoy extends ChangedEntity implements PowderSno
 
     @Override
     public int getTicksRequiredToFreeze() { return 240; }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
-    }
 
     @Override
     public TransfurMode getTransfurMode() { return TransfurMode.NONE; }

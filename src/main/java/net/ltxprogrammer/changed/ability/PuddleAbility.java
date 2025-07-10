@@ -1,9 +1,9 @@
 package net.ltxprogrammer.changed.ability;
 
-import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.beast.DarkLatexWolfPup;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -30,8 +30,7 @@ public class PuddleAbility extends SimpleAbility {
         entity.getLevel().getEntitiesOfClass(LivingEntity.class, entity.getChangedEntity().getBoundingBox().inflate(0.25, 0, 0.25)).forEach(caught -> {
             if (caught == entity.getEntity())
                 return;
-            TransfurVariant<?> variant = TransfurVariant.getEntityVariant(caught);
-            if (variant != null && variant.getLatexType() == LatexType.DARK_LATEX)
+            if (LatexType.getEntityLatexType(caught) == ChangedLatexTypes.DARK_LATEX.get())
                 return;
             caught.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 2, false, false, false));
         });

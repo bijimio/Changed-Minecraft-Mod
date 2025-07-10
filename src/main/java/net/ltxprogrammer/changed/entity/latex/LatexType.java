@@ -1,11 +1,12 @@
 package net.ltxprogrammer.changed.entity.latex;
 
-import net.ltxprogrammer.changed.Changed;
-import net.ltxprogrammer.changed.block.LatexCoveringSource;
-import net.ltxprogrammer.changed.init.ChangedGameRules;
-import net.ltxprogrammer.changed.init.ChangedLatexTypes;
+import net.ltxprogrammer.changed.entity.ChangedEntity;
+import net.ltxprogrammer.changed.entity.TransfurCause;
+import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedLootContextParamSets;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
+import net.ltxprogrammer.changed.item.AbstractLatexBucket;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.Util;
@@ -18,31 +19,27 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SupportType;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -209,6 +206,57 @@ public abstract class LatexType {
         return InteractionResult.CONSUME;
     }
 
+    public boolean isAir() {
+        return false;
+    }
+
+    @Nullable
+    public Item getGooItem() {
+        return null;
+    }
+
+    @Nullable
+    public AbstractLatexBucket getBucketItem() {
+        return null;
+    }
+
+    @Nullable
+    public Block getBlock() {
+        return null;
+    }
+
+
+    @Nullable
+    public Block getWallSplotch() {
+        return null;
+    }
+
+    @Nullable
+    public EntityType<?> getPupEntityType(RandomSource random) {
+        return null;
+    }
+
+    @Nullable
+    public TransfurVariant<?> getTransfurVariant(TransfurCause cause, RandomSource random) {
+        return null;
+    }
+
+    @Nullable
+    public static LatexType getEntityLatexType(@Nullable Entity entity) {
+        if (entity instanceof LivingEntity livingEntity &&
+                EntityUtil.maybeGetOverlaying(livingEntity) instanceof ChangedEntity changedEntity)
+            return changedEntity.getLatexType();
+        return null;
+    }
+
+    public boolean isHostileTo(LatexType otherType) {
+        return false;
+    }
+
+    public boolean isFriendlyTo(LatexType otherType) {
+        return false;
+    }
+
     public static class None extends LatexType {
         @Override
         public ResourceLocation getLootTable() {
@@ -223,6 +271,11 @@ public abstract class LatexType {
         @Override
         public InteractionResult use(LatexCoverState state, Level level, Player player, InteractionHand hand, BlockHitResult hitVec) {
             return InteractionResult.PASS;
+        }
+
+        @Override
+        public boolean isAir() {
+            return true;
         }
     }
 }

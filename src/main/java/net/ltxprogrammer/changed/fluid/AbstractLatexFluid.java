@@ -2,7 +2,7 @@ package net.ltxprogrammer.changed.fluid;
 
 import net.ltxprogrammer.changed.block.AbstractLatexBlock;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
@@ -34,9 +34,9 @@ import java.util.function.Supplier;
 @Mod.EventBusSubscriber
 public abstract class AbstractLatexFluid extends ForgeFlowingFluid {
     private final List<Supplier<? extends TransfurVariant<?>>> form;
-    private final LatexType gooType;
+    private final Supplier<? extends LatexType> gooType;
 
-    protected AbstractLatexFluid(Properties properties, LatexType gooType, List<Supplier<? extends TransfurVariant<?>>> form) {
+    protected AbstractLatexFluid(Properties properties, Supplier<? extends LatexType> gooType, List<Supplier<? extends TransfurVariant<?>>> form) {
         super(properties);
         this.gooType = gooType;
         this.form = form;
@@ -48,7 +48,7 @@ public abstract class AbstractLatexFluid extends ForgeFlowingFluid {
     }
 
     public LatexType getLatexType() {
-        return gooType;
+        return gooType.get();
     }
 
     public abstract boolean canEntityStandOn(LivingEntity entity);
@@ -78,11 +78,11 @@ public abstract class AbstractLatexFluid extends ForgeFlowingFluid {
         }
 
         if (event.getEntity().isAlive() && !event.getEntity().isDeadOrDying() && fluid != null) {
-            TransfurVariant<?> variant = TransfurVariant.getEntityVariant(event.getEntity());
-            if (variant == null)
+            LatexType latexType = LatexType.getEntityLatexType(event.getEntity());
+            if (latexType == null)
                 ProcessTransfur.progressTransfur(event.getEntity(), 5.0f, fluid.form.get(level.random.nextInt(fluid.form.size())).get(),
                         TransfurContext.hazard(TransfurCause.LATEX_PUDDLE));
-            else if (variant.getLatexType().isHostileTo(fluid.gooType))
+            else if (fluid.getLatexType().isHostileTo(latexType))
                 event.getEntity().hurt(ChangedDamageSources.LATEX_FLUID.source(event.getEntity().level().registryAccess()), 2.0f);
         }
     }
@@ -98,7 +98,7 @@ public abstract class AbstractLatexFluid extends ForgeFlowingFluid {
             if (this.is(ChangedTags.Fluids.LATEX) && otherState.is(FluidTags.LAVA)) {
                 if (blockState.getBlock() instanceof LiquidBlock) {
                     level.setBlock(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos,
-                            Blocks.SOUL_SOIL.defaultBlockState().setValue(AbstractLatexBlock.COVERED, this.gooType)), 3);
+                            Blocks.SOUL_SOIL.defaultBlockState()), 3);
                 }
 
                 this.fizz(level, pos);

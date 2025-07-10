@@ -1,6 +1,8 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -23,7 +25,7 @@ public class DarkDragon extends ChangedEntity implements DarkLatexEntity, Patron
 
     @Override
     public LatexType getLatexType() {
-        return LatexType.DARK_LATEX;
+        return ChangedLatexTypes.DARK_LATEX.get();
     }
 
     @Override

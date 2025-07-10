@@ -3,9 +3,12 @@ package net.ltxprogrammer.changed.entity.latex;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.block.LatexCoveringSource;
 import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
-import net.ltxprogrammer.changed.init.ChangedGameRules;
-import net.ltxprogrammer.changed.init.ChangedLatexTypes;
+import net.ltxprogrammer.changed.entity.TransfurCause;
+import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
+import net.ltxprogrammer.changed.init.*;
+import net.ltxprogrammer.changed.item.AbstractLatexBucket;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.util.Color3;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
@@ -18,11 +21,11 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,11 +35,11 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class SpreadingLatexType extends LatexType {
     public static final IntegerProperty SATURATION = IntegerProperty.create("saturation", 0, 15);
@@ -71,7 +74,7 @@ public abstract class SpreadingLatexType extends LatexType {
         return state.getValue(SATURATION) < 15;
     }
 
-    public boolean shouldDecay(LatexCoverState state, ServerLevel level, BlockPos blockPos) {
+    public boolean shouldDecay(LatexCoverState state, LevelReader level, BlockPos blockPos) {
         final var thisSaturation = state.getValue(SATURATION);
         if (level.getBlockState(blockPos).getBlock() instanceof LatexCoveringSource)
             return false;
@@ -168,6 +171,11 @@ public abstract class SpreadingLatexType extends LatexType {
     }
 
     public static class DarkLatex extends SpreadingLatexType {
+        private static final List<Supplier<? extends TransfurVariant<?>>> VARIANTS = Util.make(new ArrayList<>(), list -> {
+            list.add(ChangedTransfurVariants.DARK_LATEX_WOLF_MALE);
+            list.add(ChangedTransfurVariants.DARK_LATEX_WOLF_FEMALE);
+        });
+
         @Override
         public ResourceLocation getLootTable() {
             return BuiltInLootTables.EMPTY;
@@ -182,11 +190,62 @@ public abstract class SpreadingLatexType extends LatexType {
                 public ResourceLocation getTextureForFace(Direction face) {
                     return DARK_LATEX_TEXTURE;
                 }
+
+                @Override
+                public Color3 getColor() {
+                    return Color3.DARK;
+                }
             });
+        }
+
+        @Override
+        public Item getGooItem() {
+            return ChangedItems.DARK_LATEX_GOO.get();
+        }
+
+        @Override
+        public AbstractLatexBucket getBucketItem() {
+            return ChangedItems.DARK_LATEX_BUCKET.get();
+        }
+
+        @Override
+        public @Nullable Block getBlock() {
+            return ChangedBlocks.DARK_LATEX_BLOCK.get();
+        }
+
+        @Override
+        public @Nullable Block getWallSplotch() {
+            return ChangedBlocks.DARK_LATEX_WALL_SPLOTCH.get();
+        }
+
+        @Override
+        public @Nullable EntityType<?> getPupEntityType(RandomSource random) {
+            return ChangedEntities.DARK_LATEX_WOLF_PUP.get();
+        }
+
+        @Override
+        public @Nullable TransfurVariant<?> getTransfurVariant(TransfurCause cause, RandomSource random) {
+            return cause == TransfurCause.LATEX_CONTAINER_FELL ?
+                    ChangedTransfurVariants.DARK_LATEX_WOLF_PARTIAL.get() : Util.getRandom(VARIANTS, random).get();
+        }
+
+        @Override
+        public boolean isHostileTo(LatexType otherType) {
+            return super.isHostileTo(otherType) || otherType == ChangedLatexTypes.WHITE_LATEX.get();
+        }
+
+        @Override
+        public boolean isFriendlyTo(LatexType otherType) {
+            return super.isFriendlyTo(otherType) || otherType == this;
         }
     }
 
     public static class WhiteLatex extends SpreadingLatexType {
+        private static final List<Supplier<? extends TransfurVariant<?>>> VARIANTS = Util.make(new ArrayList<>(), list -> {
+            list.add(ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF);
+            list.add(ChangedTransfurVariants.LATEX_MUTANT_BLODDCELL_WOLF);
+        });
+
         @Override
         public ResourceLocation getLootTable() {
             return BuiltInLootTables.EMPTY;
@@ -201,19 +260,64 @@ public abstract class SpreadingLatexType extends LatexType {
                 public ResourceLocation getTextureForFace(Direction face) {
                     return WHITE_LATEX_TEXTURE;
                 }
+
+                @Override
+                public Color3 getColor() {
+                    return Color3.WHITE;
+                }
             });
         }
 
         @Override
         public InteractionResult use(LatexCoverState state, Level level, Player player, InteractionHand hand, BlockHitResult hitVec) {
             if (player.getItemInHand(hand).isEmpty() && ProcessTransfur.getPlayerTransfurVariantSafe(player)
-                    .map(variant -> variant.getLatexType() == net.ltxprogrammer.changed.entity.LatexType.WHITE_LATEX)
+                    .map(variant -> variant.getLatexType() == ChangedLatexTypes.WHITE_LATEX.get())
                     .orElse(false)) {
                 WhiteLatexTransportInterface.entityEnterLatex(player, hitVec.getBlockPos());
                 return InteractionResult.sidedSuccess(level.isClientSide);
             }
 
             return super.use(state, level, player, hand, hitVec);
+        }
+
+        @Override
+        public Item getGooItem() {
+            return ChangedItems.WHITE_LATEX_GOO.get();
+        }
+
+        @Override
+        public AbstractLatexBucket getBucketItem() {
+            return ChangedItems.WHITE_LATEX_BUCKET.get();
+        }
+
+        @Override
+        public @Nullable Block getBlock() {
+            return ChangedBlocks.WHITE_LATEX_BLOCK.get();
+        }
+
+        @Override
+        public @Nullable Block getWallSplotch() {
+            return ChangedBlocks.WHITE_LATEX_WALL_SPLOTCH.get();
+        }
+
+        @Override
+        public @Nullable EntityType<?> getPupEntityType(RandomSource random) {
+            return ChangedEntities.PURE_WHITE_LATEX_WOLF_PUP.get();
+        }
+
+        @Override
+        public @Nullable TransfurVariant<?> getTransfurVariant(TransfurCause cause, RandomSource random) {
+            return Util.getRandom(VARIANTS, random).get();
+        }
+
+        @Override
+        public boolean isHostileTo(LatexType otherType) {
+            return super.isHostileTo(otherType) || otherType == ChangedLatexTypes.DARK_LATEX.get();
+        }
+
+        @Override
+        public boolean isFriendlyTo(LatexType otherType) {
+            return super.isFriendlyTo(otherType) || otherType == this;
         }
     }
 }

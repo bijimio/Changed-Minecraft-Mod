@@ -2,8 +2,9 @@ package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.AttributePresets;
 import net.ltxprogrammer.changed.entity.GenderedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurCause;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -16,11 +17,6 @@ public abstract class AbstractDarkLatexWolf extends AbstractDarkLatexEntity impl
 
     @Override
     public int getTicksRequiredToFreeze() { return 240; }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.DARK_LATEX;
-    }
 
     @Override
     public Color3 getTransfurColor(TransfurCause cause) {

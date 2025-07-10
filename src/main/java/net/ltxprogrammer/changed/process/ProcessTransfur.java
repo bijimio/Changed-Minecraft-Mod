@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
@@ -665,9 +666,9 @@ public class ProcessTransfur {
             return;
         }
         // Check for faction immunity
-        LatexType factionD = LatexType.getEntityFactionLatexType(event.getEntity());
-        LatexType factionS = LatexType.getEntityFactionLatexType(sourceEntity);
-        if (factionD == factionS && factionS != null) {
+        LatexType factionD = LatexType.getEntityLatexType(event.getEntity());
+        LatexType factionS = LatexType.getEntityLatexType(sourceEntity);
+        if (factionD != null && factionS != null && factionS.isFriendlyTo(factionD)) {
             event.setCanceled(true);
         }
     }
@@ -763,7 +764,7 @@ public class ProcessTransfur {
             }
         };
 
-        if (!LatexType.hasLatexType(entity)) {
+        if (!(EntityUtil.maybeGetOverlaying(entity) instanceof ChangedEntity changedEntity)) {
             ChangedSounds.broadcastSound(entity, variant.sound, 1.0f, 1.0f);
             if ((keepConscious || doAnimation) && entity instanceof ServerPlayer player) {
                 var instance = setPlayerTransfurVariant(player, variant, context, doAnimation ? 0.0f : 1.0f);

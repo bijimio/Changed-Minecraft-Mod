@@ -78,7 +78,7 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
         return ChangedLatexTypes.NONE.get().defaultCoverState();
     }
 
-    public static LatexCoverState getAt(LevelAccessor level, BlockPos blockPos) {
+    public static LatexCoverState getAt(LevelReader level, BlockPos blockPos) {
         return getAt(level.getChunk(blockPos).getSection(level.getSectionIndex(blockPos.getY())), blockPos);
     }
 

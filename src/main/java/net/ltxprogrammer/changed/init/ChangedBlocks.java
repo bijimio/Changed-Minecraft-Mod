@@ -4,15 +4,12 @@ import com.google.common.collect.ImmutableList;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.block.PipeBlock;
 import net.ltxprogrammer.changed.block.*;
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.beast.DarkLatexEntity;
 import net.ltxprogrammer.changed.item.BlockEntityRenderedBlockItem;
 import net.ltxprogrammer.changed.item.FluidCanister;
 import net.ltxprogrammer.changed.item.GasCanister;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.BiomeColors;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -33,7 +30,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -227,13 +223,13 @@ public class ChangedBlocks {
     public static final RegistryObject<Purifier> PURIFIER = register("purifier", () -> new Purifier(BlockBehaviour.Properties.of().sound(SoundType.METAL).requiresCorrectToolForDrops().strength(4.5F, 3.0F)));
 
     public static final RegistryObject<DarkLatexBlock> DARK_LATEX_BLOCK = register("dark_latex_block", () -> new DarkLatexBlock(BlockBehaviour.Properties.of().sound(SoundType.SLIME_BLOCK).strength(1.0F, 4.0F)));
-    public static final RegistryObject<LatexWallSplotch> DARK_LATEX_WALL_SPLOTCH = registerNoItem("dark_latex_wall_splotch", () -> new LatexWallSplotch(LatexType.DARK_LATEX, List.of()));
+    public static final RegistryObject<LatexWallSplotch> DARK_LATEX_WALL_SPLOTCH = registerNoItem("dark_latex_wall_splotch", () -> new LatexWallSplotch(ChangedLatexTypes.DARK_LATEX, List.of()));
     public static final RegistryObject<AbstractLatexIceBlock> DARK_LATEX_ICE = register("dark_latex_ice", () -> new AbstractLatexIceBlock(BlockBehaviour.Properties.of().friction(0.98F).sound(SoundType.GLASS).strength(1.5F, 1.0F)));
     public static final RegistryObject<WolfCrystalBlock> WOLF_CRYSTAL_BLOCK = register("wolf_crystal_block", () -> new WolfCrystalBlock(
             BlockBehaviour.Properties.of().friction(0.98F).sound(SoundType.AMETHYST).strength(2.0F, 2.0F)));
     public static final RegistryObject<WhiteLatexBlock> WHITE_LATEX_BLOCK = register("white_latex_block", () -> new WhiteLatexBlock(BlockBehaviour.Properties.copy(DARK_LATEX_BLOCK.get()).noOcclusion()
             .isViewBlocking(ChangedBlocks::never).isSuffocating(ChangedBlocks::never)));
-    public static final RegistryObject<LatexWallSplotch> WHITE_LATEX_WALL_SPLOTCH = registerNoItem("white_latex_wall_splotch", () -> new LatexWallSplotch(LatexType.WHITE_LATEX, List.of(ChangedTransfurVariants.LATEX_HUMAN)));
+    public static final RegistryObject<LatexWallSplotch> WHITE_LATEX_WALL_SPLOTCH = registerNoItem("white_latex_wall_splotch", () -> new LatexWallSplotch(ChangedLatexTypes.WHITE_LATEX, List.of(ChangedTransfurVariants.LATEX_HUMAN)));
     public static final RegistryObject<SaplingBlock> ORANGE_TREE_SAPLING = register("orange_tree_sapling", () -> new SaplingBlock(new AbstractTreeGrower() {
         @Override
         protected ResourceKey<ConfiguredFeature<?, ?>> getConfiguredFeature(RandomSource random, boolean p_204308_) {

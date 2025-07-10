@@ -109,7 +109,9 @@ public enum TransfurCause implements StringRepresentable {
     PINK_SHORTS("pink_shorts", WAIST_HAZARD),
     BENIGN_SHORTS("benign_shorts", WAIST_HAZARD),
     WHITE_LATEX("white_latex", GRAB_REPLICATE),
-    STASIS_CHAMBER("stasis_chamber", GRAB_REPLICATE, 30.0f);
+    STASIS_CHAMBER("stasis_chamber", GRAB_REPLICATE, 30.0f),
+    ATE_LATEX("ate_latex", FACE_HAZARD),
+    LATEX_CONTAINER_FELL("latex_container_fell", CEILING_HAZARD);
 
     public static final TransfurCause DEFAULT = ATTACK_REPLICATE_LEFT;
 

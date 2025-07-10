@@ -1,7 +1,6 @@
 package net.ltxprogrammer.changed.init;
 
 import net.ltxprogrammer.changed.Changed;
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.entity.robot.Roomba;
 import net.ltxprogrammer.changed.item.*;
@@ -62,9 +61,9 @@ public class ChangedItems {
     public static final RegistryObject<NitrileGloves> NITRILE_GLOVES = register("nitrile_gloves", NitrileGloves::new);
     public static final RegistryObject<GasMaskItem> GAS_MASK = register("gas_mask", GasMaskItem::new);
     public static final RegistryObject<AbstractChangedItem> DARK_LATEX_CRYSTAL_FRAGMENT = register("dark_latex_crystal_fragment", AbstractChangedItem::new);
-    public static final RegistryObject<AbstractLatexItem> DARK_LATEX_GOO = register("dark_latex_goo", () -> new AbstractLatexItem(LatexType.DARK_LATEX));
+    public static final RegistryObject<AbstractLatexItem> DARK_LATEX_GOO = register("dark_latex_goo", () -> new AbstractLatexItem(ChangedBlocks.DARK_LATEX_WALL_SPLOTCH.get(), ChangedLatexTypes.DARK_LATEX));
     public static final RegistryObject<DarkLatexMask> DARK_LATEX_MASK = register("dark_latex_mask", DarkLatexMask::new);
-    public static final RegistryObject<AbstractLatexBucket> DARK_LATEX_BUCKET = register("dark_latex_bucket", AbstractLatexBucket.from(ChangedFluids.DARK_LATEX));
+    public static final RegistryObject<AbstractLatexBucket> DARK_LATEX_BUCKET = register("dark_latex_bucket", AbstractLatexBucket.from(ChangedFluids.DARK_LATEX, ChangedLatexTypes.DARK_LATEX));
     public static final RegistryObject<CompactDisc> COMPACT_DISC = register("compact_disc", CompactDisc::new);
     public static final RegistryObject<LabBook> LAB_BOOK = register("lab_book", LabBook::new);
     public static final RegistryObject<Item> LATEX_BASE = register("latex_base", () -> new Item(new Item.Properties()));
@@ -90,8 +89,8 @@ public class ChangedItems {
             () -> new TransfurCrystalItem(ChangedTransfurVariants.CRYSTAL_WOLF));
     public static final RegistryObject<TransfurCrystalItem> DARK_DRAGON_CRYSTAL_FRAGMENT = register("dark_dragon_crystal_fragment",
             () -> new TransfurCrystalItem(ChangedTransfurVariants.DARK_DRAGON));
-    public static final RegistryObject<AbstractLatexItem> WHITE_LATEX_GOO = register("white_latex_goo", () -> new AbstractLatexItem(LatexType.WHITE_LATEX));
-    public static final RegistryObject<AbstractLatexBucket> WHITE_LATEX_BUCKET = register("white_latex_bucket", AbstractLatexBucket.from(ChangedFluids.WHITE_LATEX));
+    public static final RegistryObject<AbstractLatexItem> WHITE_LATEX_GOO = register("white_latex_goo", () -> new AbstractLatexItem(ChangedBlocks.WHITE_LATEX_WALL_SPLOTCH.get(), ChangedLatexTypes.WHITE_LATEX));
+    public static final RegistryObject<AbstractLatexBucket> WHITE_LATEX_BUCKET = register("white_latex_bucket", AbstractLatexBucket.from(ChangedFluids.WHITE_LATEX, ChangedLatexTypes.WHITE_LATEX));
 
     public static final RegistryObject<GameMasterBlockItem> GLU = register("glu", () -> new GameMasterBlockItem(ChangedBlocks.GLU_BLOCK.get(), (new Item.Properties()).rarity(Rarity.EPIC)));
 

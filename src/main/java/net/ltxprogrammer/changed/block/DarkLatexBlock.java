@@ -1,14 +1,15 @@
 package net.ltxprogrammer.changed.block;
 
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.process.LatexCoveredBlocks;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -23,8 +24,8 @@ import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class DarkLatexBlock extends AbstractLatexBlock {
-    public DarkLatexBlock(Properties p_49795_) {
-        super(p_49795_, LatexType.DARK_LATEX, ChangedItems.DARK_LATEX_GOO);
+    public DarkLatexBlock(Properties properties) {
+        super(properties, ChangedLatexTypes.DARK_LATEX, ChangedItems.DARK_LATEX_GOO);
     }
 
     @Override
@@ -72,9 +73,18 @@ public class DarkLatexBlock extends AbstractLatexBlock {
         }
     }
 
+    @Override
+    public boolean canSustainPlant(BlockState state, BlockGetter world, BlockPos pos, Direction facing, net.minecraftforge.common.IPlantable plantable) {
+        BlockState plant = plantable.getPlant(world, pos.relative(facing));
+        if (plant.getBlock() instanceof TransfurCrystalBlock)
+            return true;
+        else
+            return false;
+    }
+
     @SubscribeEvent
     public static void onLatexCover(LatexCoveredBlocks.CoveringBlockEvent event) {
-        if (event.latexType != LatexType.DARK_LATEX)
+        if (event.latexType != ChangedLatexTypes.DARK_LATEX.get())
             return;
 
         if (event.originalState.is(Blocks.GRASS) || event.originalState.is(BlockTags.SMALL_FLOWERS) || event.originalState.is(Blocks.FERN) || event.originalState.is(BlockTags.SAPLINGS)) {

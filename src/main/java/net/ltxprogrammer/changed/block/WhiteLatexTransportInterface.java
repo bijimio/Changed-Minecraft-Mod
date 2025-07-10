@@ -3,31 +3,20 @@ package net.ltxprogrammer.changed.block;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
-import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
-import net.ltxprogrammer.changed.util.InputWrapper;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.Foods;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-
-import static net.ltxprogrammer.changed.block.AbstractLatexBlock.COVERED;
 
 public interface WhiteLatexTransportInterface extends NonLatexCoverableBlock {
     static boolean isEntityInWhiteLatex(LivingEntity entity) {
@@ -73,10 +62,6 @@ public interface WhiteLatexTransportInterface extends NonLatexCoverableBlock {
             final BlockState blockState = entity.level().getBlockState(blockPos);
             if (blockState.getBlock() instanceof WhiteLatexTransportInterface transportInterface)
                 return transportInterface.allowTransport(blockState);
-            if (blockState.getProperties().contains(COVERED) && blockState.getValue(COVERED) == LatexType.WHITE_LATEX) {
-                var shape = blockState.getCollisionShape(entity.level(), blockPos, CollisionContext.empty()).move((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ());
-                return Shapes.joinIsNotEmpty(shape, Shapes.create(testHitbox), BooleanOp.AND);
-            }
 
             return false;
         });
@@ -91,9 +76,9 @@ public interface WhiteLatexTransportInterface extends NonLatexCoverableBlock {
 
             if (!isEntityInWhiteLatex(event.player) && isBoundingBoxInWhiteLatex(event.player)) {
                 ProcessTransfur.ifPlayerTransfurred(event.player, variant -> {
-                    if (variant.getLatexType() == LatexType.WHITE_LATEX)
+                    if (variant.getLatexType() == ChangedLatexTypes.WHITE_LATEX.get())
                         entityEnterLatex(event.player, new BlockPos(event.player.getBlockX(), event.player.getBlockY(), event.player.getBlockZ()));
-                    else if (variant.getLatexType().isHostileTo(LatexType.WHITE_LATEX))
+                    else if (ChangedLatexTypes.WHITE_LATEX.get().isHostileTo(variant.getLatexType()))
                         event.player.hurt(ChangedDamageSources.WHITE_LATEX.source(event.player.level().registryAccess()), 2.0f);
                 }, () -> {
                     if (ProcessTransfur.progressTransfur(event.player, 4.8f, ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), TransfurContext.hazard(TransfurCause.WHITE_LATEX)))

@@ -3,7 +3,7 @@ package net.ltxprogrammer.changed.process;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.block.AbstractLatexBlock;
 import net.ltxprogrammer.changed.data.RegistryElementPredicate;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -123,7 +123,9 @@ public abstract class LatexCoveredBlocks {
             this.blockPos = blockPos;
             this.originalState = originalState;
             this.level = level;
-            if (originalState.getProperties().contains(COVERED) && originalState.getValue(COVERED) == LatexType.NEUTRAL)
+            plannedState = originalState;
+            // TODO replace with new system
+            /*if (originalState.getProperties().contains(COVERED) && originalState.getValue(COVERED) == LatexType.NEUTRAL)
                 plannedState = originalState.setValue(COVERED, latexType);
             else
                 plannedState = originalState;
@@ -137,7 +139,7 @@ public abstract class LatexCoveredBlocks {
             else if (originalState.is(BlockTags.SAPLINGS))
                 plannedState = Blocks.DEAD_BUSH.defaultBlockState().setValue(COVERED, latexType);
             else if (originalState.is(Blocks.FERN))
-                plannedState = Blocks.DEAD_BUSH.defaultBlockState().setValue(COVERED, latexType);
+                plannedState = Blocks.DEAD_BUSH.defaultBlockState().setValue(COVERED, latexType);*/
         }
 
         @Override public boolean isCancelable() {

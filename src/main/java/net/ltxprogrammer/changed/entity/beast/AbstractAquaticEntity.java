@@ -1,8 +1,10 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -88,11 +90,6 @@ public abstract class AbstractAquaticEntity extends ChangedEntity implements Aqu
 
     @Override
     public int getTicksRequiredToFreeze() { return 100; }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
-    }
 
     @Override
     public TransfurMode getTransfurMode() { return TransfurMode.REPLICATION; }

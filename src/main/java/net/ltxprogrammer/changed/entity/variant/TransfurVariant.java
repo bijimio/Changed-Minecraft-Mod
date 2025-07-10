@@ -1,24 +1,18 @@
 package net.ltxprogrammer.changed.entity.variant;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
-import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.*;
-import net.ltxprogrammer.changed.entity.beast.*;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Color3;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
@@ -26,21 +20,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.event.IModBusEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TransfurVariant<T extends ChangedEntity> {
@@ -163,7 +153,6 @@ public class TransfurVariant<T extends ChangedEntity> {
 
     // Variant properties
     public final Supplier<EntityType<T>> ctor;
-    public final LatexType type;
     public final float jumpStrength;
     public final BreatheMode breatheMode;
     public final float stepSize;
@@ -180,13 +169,12 @@ public class TransfurVariant<T extends ChangedEntity> {
     public final float cameraZOffset;
     public final ResourceLocation sound;
 
-    public TransfurVariant(Supplier<EntityType<T>> ctor, LatexType type,
+    public TransfurVariant(Supplier<EntityType<T>> ctor,
                            float jumpStrength, BreatheMode breatheMode, float stepSize, boolean canGlide, int extraJumpCharges,
                            boolean reducedFall, boolean canClimb,
                            VisionType visionType, MiningStrength miningStrength, UseItemMode itemUseMode, List<Class<? extends PathfinderMob>> scares, TransfurMode transfurMode,
                            List<Function<EntityType<?>, ? extends AbstractAbility<?>>> abilities, float cameraZOffset, ResourceLocation sound) {
         this.ctor = ctor;
-        this.type = type;
         this.jumpStrength = jumpStrength;
         this.breatheMode = breatheMode;
         this.stepSize = stepSize;
@@ -204,8 +192,9 @@ public class TransfurVariant<T extends ChangedEntity> {
         this.sound = sound;
     }
 
-    public LatexType getLatexType() {
-        return type;
+    @Deprecated
+    public LatexTypeOld getLatexType() {
+        return LatexTypeOld.NEUTRAL;
     }
 
     private T createChangedEntity(Level level) {
@@ -344,7 +333,7 @@ public class TransfurVariant<T extends ChangedEntity> {
 
     public static class Builder<T extends ChangedEntity> {
         final Supplier<EntityType<T>> entityType;
-        LatexType type = LatexType.NEUTRAL;
+        LatexTypeOld type = LatexTypeOld.NEUTRAL;
         float jumpStrength = 1.0F;
         BreatheMode breatheMode = BreatheMode.NORMAL;
         float stepSize = 0.6F;
@@ -379,10 +368,6 @@ public class TransfurVariant<T extends ChangedEntity> {
 
         public static <T extends ChangedEntity> Builder<T> of(Supplier<EntityType<T>> entityType) {
             return new Builder<T>(entityType);
-        }
-
-        public Builder<T> faction(LatexType type) {
-            this.type = type; return this;
         }
 
         public Builder<T> jumpStrength(float factor) {
@@ -552,7 +537,7 @@ public class TransfurVariant<T extends ChangedEntity> {
         }
 
         public TransfurVariant<T> build() {
-            return new TransfurVariant<>(entityType, type, jumpStrength, breatheMode, stepSize, canGlide, extraJumpCharges,
+            return new TransfurVariant<>(entityType, jumpStrength, breatheMode, stepSize, canGlide, extraJumpCharges,
                     reducedFall, canClimb, visionType, miningStrength, itemUseMode, scares, transfurMode, abilities, cameraZOffset, sound);
         }
     }

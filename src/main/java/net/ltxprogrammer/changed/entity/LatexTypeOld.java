@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 @Deprecated
-public enum LatexType implements StringRepresentable, IExtensibleEnum {
+public enum LatexTypeOld implements StringRepresentable, IExtensibleEnum {
     NEUTRAL("neutral"),
     DARK_LATEX("dark_latex", ChangedItems.DARK_LATEX_GOO, ChangedItems.DARK_LATEX_BUCKET, ChangedBlocks.DARK_LATEX_BLOCK, ChangedEntities.DARK_LATEX_WOLF_PUP, Color3.DARK, MapColor.TERRACOTTA_BLACK),
     WHITE_LATEX("white_latex", ChangedItems.WHITE_LATEX_GOO, ChangedItems.WHITE_LATEX_BUCKET, ChangedBlocks.WHITE_LATEX_BLOCK, () -> null /* null for now */, Color3.WHITE, MapColor.TERRACOTTA_WHITE);
@@ -34,7 +34,7 @@ public enum LatexType implements StringRepresentable, IExtensibleEnum {
     public final Color3 color;
     public final MapColor mapColor;
 
-    LatexType(String serialName) {
+    LatexTypeOld(String serialName) {
         this.serialName = serialName;
         this.goo = () -> null;
         this.gooBucket = () -> null;
@@ -43,7 +43,7 @@ public enum LatexType implements StringRepresentable, IExtensibleEnum {
         this.color = Color3.WHITE;
         this.mapColor = MapColor.NONE;
     }
-    LatexType(String serialName, Supplier<? extends AbstractLatexItem> goo, Supplier<? extends AbstractLatexBucket> gooBucket, Supplier<? extends Block> block, Supplier<? extends EntityType<?>> pup, Color3 color, MapColor mapColor) {
+    LatexTypeOld(String serialName, Supplier<? extends AbstractLatexItem> goo, Supplier<? extends AbstractLatexBucket> gooBucket, Supplier<? extends Block> block, Supplier<? extends EntityType<?>> pup, Color3 color, MapColor mapColor) {
         this.serialName = serialName;
         this.goo = goo;
         this.gooBucket = gooBucket;
@@ -53,47 +53,12 @@ public enum LatexType implements StringRepresentable, IExtensibleEnum {
         this.mapColor = mapColor;
     }
 
-    public static LatexType getEntityLatexType(@NotNull Entity entity) {
-        if (entity instanceof ChangedEntity ChangedEntity) {
-            return ChangedEntity.getLatexType();
-        }
-
-        else
-            return ProcessTransfur.ifPlayerTransfurred(EntityUtil.playerOrNull(entity), TransfurVariantInstance::getLatexType, () -> null);
-    }
-
-    public static boolean hasLatexType(@NotNull Entity entity) {
-        return getEntityLatexType(entity) != null;
-    }
-
-    public static boolean hasFactionLatexType(@NotNull Entity entity) {
-        return isFaction(getEntityLatexType(entity));
-    }
-
-    public static boolean isFaction(LatexType type) {
-        if (type == NEUTRAL || type == null) return false;
-        return true;
-    }
-
-    public static LatexType factionOrNull(LatexType type) {
-        if (type == NEUTRAL) return null;
-        return type;
-    }
-
-    public static LatexType getEntityFactionLatexType(@NotNull Entity entity) {
-        return factionOrNull(getEntityLatexType(entity));
-    }
-
-    public boolean isHostileTo(LatexType other) {
-        return (isFaction(this) && isFaction(other) && this != other) || other == null;
-    }
-
     @Override
     public String getSerializedName() {
         return serialName;
     }
 
-    public static LatexType create(String name, String serialName, Supplier<? extends Item> goo, Supplier<? extends Item> gooBucket, Supplier<Block> block, Supplier<? extends EntityType<?>> pup, Color3 color, MapColor mapColor)
+    public static LatexTypeOld create(String name, String serialName, Supplier<? extends Item> goo, Supplier<? extends Item> gooBucket, Supplier<Block> block, Supplier<? extends EntityType<?>> pup, Color3 color, MapColor mapColor)
     {
         throw new IllegalStateException("Enum not extended");
     }

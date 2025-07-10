@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
@@ -29,11 +30,6 @@ public class LatexGnollTaur extends WhiteLatexKnight implements LatexTaur<LatexG
         attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(1.2);
         attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(0.9);
         attributes.getInstance(Attributes.MAX_HEALTH).setBaseValue(30);
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

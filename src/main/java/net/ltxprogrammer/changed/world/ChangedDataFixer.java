@@ -1,7 +1,6 @@
 package net.ltxprogrammer.changed.world;
 
 import net.ltxprogrammer.changed.Changed;
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.init.ChangedEntities;
 import net.ltxprogrammer.changed.init.ChangedItems;
@@ -103,11 +102,8 @@ public class ChangedDataFixer {
         map.put(Changed.modResource("form_white_latex_wolf"), ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.getId());
     });
 
-    //TODO: add remap for latex syringes and arrows
-
     private final HashMap<String, String> ENUM_REMAP = Util.make(new HashMap<>(), map -> {
-        map.put("DARK_LATEX", LatexType.DARK_LATEX.name());
-        map.put("WHITE_LATEX", LatexType.WHITE_LATEX.name());
+
     });
 
     private final HashMap<String, String> TAG_REMAP = Util.make(new HashMap<>(), map -> {

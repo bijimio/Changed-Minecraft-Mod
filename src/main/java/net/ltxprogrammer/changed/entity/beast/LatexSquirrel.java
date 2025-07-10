@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -23,11 +24,6 @@ public class LatexSquirrel extends ChangedEntity {
     @Override
     public TransfurMode getTransfurMode() {
         return TransfurMode.REPLICATION;
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     public Color3 getTransfurColor(TransfurCause cause) {

@@ -1,7 +1,8 @@
 package net.ltxprogrammer.changed.entity.beast;
 
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.minecraft.world.entity.EntityType;
@@ -21,11 +22,6 @@ public class WhiteLatexKnightFusion extends WhiteLatexKnight {
         attributes.getInstance(Attributes.MAX_HEALTH).setBaseValue(28.0);
         attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(1.075f);
         attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(0.95);
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

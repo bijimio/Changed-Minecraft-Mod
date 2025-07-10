@@ -1,12 +1,8 @@
 package net.ltxprogrammer.changed.fluid;
 
 import net.ltxprogrammer.changed.Changed;
-import net.ltxprogrammer.changed.entity.LatexType;
-import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
-import net.ltxprogrammer.changed.init.ChangedBlocks;
-import net.ltxprogrammer.changed.init.ChangedFluids;
-import net.ltxprogrammer.changed.init.ChangedItems;
-import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
+import net.ltxprogrammer.changed.init.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -56,7 +52,7 @@ public abstract class DarkLatexFluid extends AbstractLatexFluid {
     }
 
     protected DarkLatexFluid() {
-        super(PROPERTIES, LatexType.DARK_LATEX, List.of(ChangedTransfurVariants.DARK_LATEX_WOLF_MALE, ChangedTransfurVariants.DARK_LATEX_WOLF_FEMALE, ChangedTransfurVariants.DARK_LATEX_YUFENG));
+        super(PROPERTIES, ChangedLatexTypes.DARK_LATEX, List.of(ChangedTransfurVariants.DARK_LATEX_WOLF_MALE, ChangedTransfurVariants.DARK_LATEX_WOLF_FEMALE, ChangedTransfurVariants.DARK_LATEX_YUFENG));
     }
 
     @Override
@@ -71,8 +67,7 @@ public abstract class DarkLatexFluid extends AbstractLatexFluid {
 
     @Override
     public boolean canEntityStandOn(LivingEntity entity) {
-        var variant = TransfurVariant.getEntityVariant(entity);
-        return variant != null && variant.getLatexType() == LatexType.DARK_LATEX;
+        return this.getLatexType().isFriendlyTo(LatexType.getEntityLatexType(entity));
     }
 
     public static class Source extends DarkLatexFluid {

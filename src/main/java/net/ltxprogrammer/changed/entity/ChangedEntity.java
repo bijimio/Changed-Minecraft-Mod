@@ -9,6 +9,7 @@ import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
 import net.ltxprogrammer.changed.entity.ai.LookAtPlayerButNotHostGoal;
 import net.ltxprogrammer.changed.entity.ai.UseAbilityGoal;
 import net.ltxprogrammer.changed.entity.beast.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
@@ -390,7 +391,10 @@ public abstract class ChangedEntity extends Monster {
         }).scale(getBasicPlayerInfo().getSize() * this.getScale());
     }
 
-    public abstract LatexType getLatexType();
+    public LatexType getLatexType() {
+        return ChangedLatexTypes.NONE.get();
+    }
+
     public abstract TransfurMode getTransfurMode();
 
     public boolean isPreventingPlayerRest(Player player) {

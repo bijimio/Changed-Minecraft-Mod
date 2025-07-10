@@ -1,7 +1,8 @@
 package net.ltxprogrammer.changed.entity.beast;
 
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -26,11 +27,6 @@ public class WhiteLatexCentaur extends WhiteLatexKnight implements LatexTaur<Whi
         attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(1.2);
         attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(0.9);
         attributes.getInstance(Attributes.MAX_HEALTH).setBaseValue(30);
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

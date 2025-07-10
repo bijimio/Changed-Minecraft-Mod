@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.tags.FluidTags;
@@ -27,11 +28,6 @@ public class LatexMermaidShark extends AbstractAquaticGenderedEntity {
     @Override
     public Gender getGender() {
         return Gender.MALE;
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

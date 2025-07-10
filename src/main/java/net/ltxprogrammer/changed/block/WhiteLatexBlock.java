@@ -1,7 +1,7 @@
 package net.ltxprogrammer.changed.block;
 
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.beast.WhiteLatexEntity;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
@@ -45,7 +45,7 @@ import java.util.function.Supplier;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTransportInterface {
     public WhiteLatexBlock(Properties p_49795_) {
-        super(p_49795_.noOcclusion(), LatexType.WHITE_LATEX, ChangedItems.WHITE_LATEX_GOO);
+        super(p_49795_.noOcclusion(), ChangedLatexTypes.WHITE_LATEX, ChangedItems.WHITE_LATEX_GOO);
     }
 
     @Override
@@ -86,8 +86,7 @@ public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTra
             return;
         }
 
-        TransfurVariant<?> variant = TransfurVariant.getEntityVariant(livingEntity);
-        if (variant != null && variant.getLatexType() == LatexType.WHITE_LATEX && distance > 3.0f) {
+        if (LatexType.getEntityLatexType(livingEntity) == ChangedLatexTypes.WHITE_LATEX.get() && distance > 3.0f) {
             if (livingEntity instanceof Player player)
                 WhiteLatexTransportInterface.entityEnterLatex(player, blockPos);
         } else {
@@ -96,8 +95,7 @@ public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTra
     }
 
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        TransfurVariantInstance<?> variant = ProcessTransfur.getPlayerTransfurVariant(player);
-        if (variant != null && variant.getLatexType() == LatexType.WHITE_LATEX &&
+        if (LatexType.getEntityLatexType(player) == ChangedLatexTypes.WHITE_LATEX.get() &&
                 /*player.isShiftKeyDown() && */player.getItemInHand(player.getUsedItemHand()).isEmpty() && !WhiteLatexTransportInterface.isEntityInWhiteLatex(player)) { // Empty-handed RMB
             if (pos.distSqr(new BlockPos(player.getBlockX(), player.getBlockY(), player.getBlockZ())) > 4.0)
                 return super.use(state, level, pos, player, hand, hitResult);
@@ -116,7 +114,7 @@ public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTra
                 return AbortableIterationConsumer.Continuation.ABORT;
 
             var latexType = LatexType.getEntityLatexType(livingEntity);
-            if (latexType != null && latexType.isHostileTo(LatexType.WHITE_LATEX)) {
+            if (latexType != null && latexType.isHostileTo(ChangedLatexTypes.WHITE_LATEX.get())) {
                 isTargetNearby.set(true);
                 return AbortableIterationConsumer.Continuation.ABORT;
             }
@@ -164,7 +162,7 @@ public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTra
 
     @SubscribeEvent
     public static void onLatexCover(LatexCoveredBlocks.CoveringBlockEvent event) {
-        if (event.latexType != LatexType.WHITE_LATEX)
+        if (event.latexType != ChangedLatexTypes.WHITE_LATEX.get())
             return;
 
         if (event.originalState.is(Blocks.TALL_GRASS) || event.originalState.is(Blocks.LARGE_FERN) || event.originalState.is(BlockTags.TALL_FLOWERS)) {

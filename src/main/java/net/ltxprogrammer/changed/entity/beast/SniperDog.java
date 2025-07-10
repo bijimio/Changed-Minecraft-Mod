@@ -1,8 +1,9 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.AttributePresets;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurCause;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -17,11 +18,6 @@ public class SniperDog extends AbstractLatexWolf {
     protected void setAttributes(AttributeMap attributes) {
         super.setAttributes(attributes);
         AttributePresets.wolfLike(attributes);
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     public Color3 getTransfurColor(TransfurCause cause) {

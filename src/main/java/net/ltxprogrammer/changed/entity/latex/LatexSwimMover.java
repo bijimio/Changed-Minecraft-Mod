@@ -2,12 +2,10 @@ package net.ltxprogrammer.changed.entity.latex;
 
 import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
 import net.ltxprogrammer.changed.entity.*;
-import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.InputWrapper;
-import net.ltxprogrammer.changed.util.TagUtil;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
@@ -27,7 +25,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.fml.LogicalSide;
-import org.jetbrains.annotations.Nullable;
 
 public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
     @Override
@@ -72,7 +69,7 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
                 lastPos = player.getPosition(1.0f);
 
             ProcessTransfur.ifPlayerTransfurred(player, variant -> {
-                if (variant.getLatexType().isHostileTo(net.ltxprogrammer.changed.entity.LatexType.WHITE_LATEX))
+                if (ChangedLatexTypes.WHITE_LATEX.get().isHostileTo(variant.getLatexType()))
                     player.hurt(ChangedDamageSources.WHITE_LATEX.source(player.level().registryAccess()), 2.0f);
             }, () -> {
                 ProcessTransfur.progressTransfur(player, 4.8f, ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), TransfurContext.hazard(TransfurCause.WHITE_LATEX));
@@ -137,7 +134,7 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
         public boolean shouldRemoveMover(Player player, InputWrapper input, LogicalSide side) {
             return !isInsideSwimableMaterial(player) || player.isSpectator() ||
                     ProcessTransfur.getPlayerTransfurVariantSafe(player)
-                            .map(variant -> variant.getLatexType() != net.ltxprogrammer.changed.entity.LatexType.WHITE_LATEX).orElse(false);
+                            .map(variant -> variant.getLatexType() != ChangedLatexTypes.WHITE_LATEX.get()).orElse(false);
         }
 
         @Override

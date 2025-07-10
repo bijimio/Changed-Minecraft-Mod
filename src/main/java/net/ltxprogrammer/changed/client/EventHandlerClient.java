@@ -11,6 +11,7 @@ import net.ltxprogrammer.changed.client.renderer.layers.DarkLatexMaskLayer;
 import net.ltxprogrammer.changed.client.renderer.layers.GasMaskLayer;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.IClientLatexTypeExtensions;
 import net.ltxprogrammer.changed.fluid.AbstractLatexFluid;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.init.ChangedGameRules;
@@ -128,7 +129,7 @@ public class EventHandlerClient {
     public void onFogColors(ViewportEvent.ComputeFogColor event) {
         if (!(event.getCamera().getBlockAtCamera().getFluidState().getType() instanceof AbstractLatexFluid abstractLatexFluid)) return;
 
-        var color = abstractLatexFluid.getLatexType().color;
+        var color = IClientLatexTypeExtensions.of(abstractLatexFluid.getLatexType()).getColor();
         event.setRed(color.red());
         event.setGreen(color.green());
         event.setBlue(color.blue());
