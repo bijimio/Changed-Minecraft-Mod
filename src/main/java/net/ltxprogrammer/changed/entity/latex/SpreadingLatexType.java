@@ -1,7 +1,9 @@
 package net.ltxprogrammer.changed.entity.latex;
 
 import net.ltxprogrammer.changed.Changed;
+import net.ltxprogrammer.changed.block.DarkLatexBlock;
 import net.ltxprogrammer.changed.block.LatexCoveringSource;
+import net.ltxprogrammer.changed.block.WhiteLatexBlock;
 import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
@@ -17,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -27,17 +30,22 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.eventbus.api.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -64,6 +72,17 @@ public abstract class SpreadingLatexType extends LatexType {
     @Override
     protected void buildStateDefinition(StateDefinition.Builder<LatexType, LatexCoverState> builder) {
         builder.add(SATURATION);
+    }
+
+    public void defaultCoverBehavior(CoveringBlockEvent event) {
+        if (event.originalState.is(Blocks.GRASS))
+            event.setPlannedState(Blocks.DEAD_BUSH.defaultBlockState());
+        else if (event.originalState.is(BlockTags.SMALL_FLOWERS))
+            event.setPlannedState(Blocks.DEAD_BUSH.defaultBlockState());
+        else if (event.originalState.is(BlockTags.SAPLINGS))
+            event.setPlannedState(Blocks.DEAD_BUSH.defaultBlockState());
+        else if (event.originalState.is(Blocks.FERN))
+            event.setPlannedState(Blocks.DEAD_BUSH.defaultBlockState());
     }
 
     public LatexCoverState spreadState(LatexCoverState state) {
@@ -117,14 +136,17 @@ public abstract class SpreadingLatexType extends LatexType {
             if (Arrays.stream(Direction.values()).noneMatch(direction -> isValidSurface(level, checkPos, checkPos.relative(direction), direction)))
                 return;
 
-            LatexCoverState.setAtAndUpdate(level, checkPos, this.spreadState(state));
 
-            /*var event = new LatexCoveredBlocks.CoveringBlockEvent(latexType, checkState, checkPos, level);
+            var event = new CoveringBlockEvent(this,
+                    checkState, checkState, this.spreadState(state), checkPos, level);
+            this.defaultCoverBehavior(event);
             if (Changed.postModEvent(event))
                 return;
-            if (event.originalState == event.plannedState)
-                return;
-            level.setBlockAndUpdate(event.blockPos, event.plannedState);*/
+
+            level.setBlockAndUpdate(checkPos, event.getPlannedState());
+            LatexCoverState.setAtAndUpdate(level, checkPos, event.plannedCoverState);
+
+            event.getPostProcess().accept(level, checkPos);
         }
     }
 
@@ -214,11 +236,6 @@ public abstract class SpreadingLatexType extends LatexType {
         }
 
         @Override
-        public @Nullable Block getWallSplotch() {
-            return ChangedBlocks.DARK_LATEX_WALL_SPLOTCH.get();
-        }
-
-        @Override
         public @Nullable EntityType<?> getPupEntityType(RandomSource random) {
             return ChangedEntities.DARK_LATEX_WOLF_PUP.get();
         }
@@ -237,6 +254,34 @@ public abstract class SpreadingLatexType extends LatexType {
         @Override
         public boolean isFriendlyTo(LatexType otherType) {
             return super.isFriendlyTo(otherType) || otherType == this;
+        }
+
+        @Override
+        public void defaultCoverBehavior(CoveringBlockEvent event) {
+            super.defaultCoverBehavior(event);
+            if (event.originalState.is(Blocks.GRASS) || event.originalState.is(BlockTags.SMALL_FLOWERS) || event.originalState.is(Blocks.FERN) || event.originalState.is(BlockTags.SAPLINGS)) {
+                event.setPlannedState(Util.getRandom(DarkLatexBlock.SMALL_CRYSTALS, event.level.getRandom()).get().defaultBlockState());
+            }
+
+            if (event.originalState.getProperties().contains(BlockStateProperties.DOUBLE_BLOCK_HALF) &&
+                    (event.originalState.is(Blocks.TALL_GRASS) || event.originalState.is(Blocks.LARGE_FERN) || event.originalState.is(BlockTags.TALL_FLOWERS))) {
+                var crystal = Util.getRandom(DarkLatexBlock.CRYSTALS, event.level.getRandom()).get().defaultBlockState();
+                switch (event.originalState.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
+                    case UPPER -> {
+                        event.setPlannedState(crystal.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER), (level, where) -> {
+                            level.setBlockAndUpdate(where.below(), crystal
+                                    .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
+                        });
+                    }
+
+                    case LOWER -> {
+                        event.setPlannedState(crystal.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER), (level, where) -> {
+                            level.setBlockAndUpdate(where.above(), crystal
+                                    .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
+                        });
+                    }
+                }
+            }
         }
     }
 
@@ -296,11 +341,6 @@ public abstract class SpreadingLatexType extends LatexType {
         }
 
         @Override
-        public @Nullable Block getWallSplotch() {
-            return ChangedBlocks.WHITE_LATEX_WALL_SPLOTCH.get();
-        }
-
-        @Override
         public @Nullable EntityType<?> getPupEntityType(RandomSource random) {
             return ChangedEntities.PURE_WHITE_LATEX_WOLF_PUP.get();
         }
@@ -318,6 +358,78 @@ public abstract class SpreadingLatexType extends LatexType {
         @Override
         public boolean isFriendlyTo(LatexType otherType) {
             return super.isFriendlyTo(otherType) || otherType == this;
+        }
+
+        @Override
+        public void defaultCoverBehavior(CoveringBlockEvent event) {
+            super.defaultCoverBehavior(event);
+
+            if (event.originalState.getProperties().contains(BlockStateProperties.DOUBLE_BLOCK_HALF) &&
+                    (event.originalState.is(Blocks.TALL_GRASS) || event.originalState.is(Blocks.LARGE_FERN) || event.originalState.is(BlockTags.TALL_FLOWERS))) {
+                var pillar = Util.getRandom(WhiteLatexBlock.PILLAR, event.level.getRandom()).get().defaultBlockState();
+                switch (event.originalState.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
+                    case UPPER -> {
+                        event.setPlannedState(pillar.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER), (level, where) -> {
+                            level.setBlockAndUpdate(event.blockPos.below(), pillar
+                                    .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
+                        });
+                    }
+
+                    case LOWER -> {
+                        event.setPlannedState(pillar.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER), (level, where) -> {
+                            level.setBlockAndUpdate(event.blockPos.above(), pillar
+                                    .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    public static class CoveringBlockEvent extends Event {
+        public final SpreadingLatexType latexType;
+        public final BlockPos blockPos;
+        public final BlockState originalState;
+        public LatexCoverState plannedCoverState;
+        public final LevelAccessor level;
+
+        private BlockState plannedState;
+        private BiConsumer<Level, BlockPos> postProcess;
+
+        private static void defaultPostProcess(Level level, BlockPos blockPos) {
+
+        }
+
+        public CoveringBlockEvent(SpreadingLatexType latexType, BlockState originalState, BlockState coveredState, LatexCoverState coverState, BlockPos blockPos, LevelAccessor level) {
+            this.latexType = latexType;
+            this.blockPos = blockPos;
+            this.originalState = originalState;
+            this.level = level;
+            plannedState = coveredState;
+            plannedCoverState = coverState;
+            postProcess = CoveringBlockEvent::defaultPostProcess;
+        }
+
+        @Override
+        public boolean isCancelable() {
+            return true;
+        }
+
+        public void setPlannedState(BlockState blockState) {
+            this.setPlannedState(blockState, CoveringBlockEvent::defaultPostProcess);
+        }
+
+        public void setPlannedState(BlockState blockState, BiConsumer<Level, BlockPos> postProcess) {
+            this.plannedState = blockState;
+            this.postProcess = postProcess;
+        }
+
+        public BlockState getPlannedState() {
+            return plannedState;
+        }
+
+        public BiConsumer<Level, BlockPos> getPostProcess() {
+            return postProcess;
         }
     }
 }

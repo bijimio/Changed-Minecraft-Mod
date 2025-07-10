@@ -16,6 +16,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -216,6 +217,10 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
 
     public boolean is(LatexType type) {
         return getType() == type;
+    }
+
+    public boolean is(TagKey<LatexType> tag) {
+        return getType().is(tag);
     }
 
     public LatexCoverState asState() {

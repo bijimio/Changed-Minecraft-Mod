@@ -3,16 +3,13 @@ package net.ltxprogrammer.changed.block;
 import net.ltxprogrammer.changed.entity.beast.WhiteLatexEntity;
 import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
-import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
-import net.ltxprogrammer.changed.process.LatexCoveredBlocks;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -25,8 +22,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -34,15 +29,12 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTransportInterface {
     public WhiteLatexBlock(Properties p_49795_) {
         super(p_49795_.noOcclusion(), ChangedLatexTypes.WHITE_LATEX, ChangedItems.WHITE_LATEX_GOO);
@@ -156,30 +148,7 @@ public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTra
         }
     }
 
-    private static final List<Supplier<? extends WhiteLatexPillar>> PILLAR = List.of(
+    public static final List<Supplier<? extends WhiteLatexPillar>> PILLAR = List.of(
             ChangedBlocks.WHITE_LATEX_PILLAR
     );
-
-    @SubscribeEvent
-    public static void onLatexCover(LatexCoveredBlocks.CoveringBlockEvent event) {
-        if (event.latexType != ChangedLatexTypes.WHITE_LATEX.get())
-            return;
-
-        if (event.originalState.is(Blocks.TALL_GRASS) || event.originalState.is(Blocks.LARGE_FERN) || event.originalState.is(BlockTags.TALL_FLOWERS)) {
-            var pillar = PILLAR.get(event.level.random.nextInt(PILLAR.size()));
-            switch (event.originalState.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
-                case UPPER -> {
-                    event.level.setBlockAndUpdate(event.blockPos.below(), pillar.get().defaultBlockState()
-                            .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
-                    event.setPlannedState(pillar.get().defaultBlockState().setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
-                }
-
-                case LOWER -> {
-                    event.level.setBlockAndUpdate(event.blockPos.above(), pillar.get().defaultBlockState()
-                            .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
-                    event.setPlannedState(pillar.get().defaultBlockState().setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
-                }
-            }
-        }
-    }
 }

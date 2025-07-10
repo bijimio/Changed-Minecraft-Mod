@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -77,7 +78,7 @@ public abstract class LatexType {
         return this.coverStateDefinition;
     }
 
-    public LatexCoverState defaultCoverState() {
+    public final LatexCoverState defaultCoverState() {
         return defaultCoverState;
     }
 
@@ -210,6 +211,13 @@ public abstract class LatexType {
         return false;
     }
 
+    public boolean is(TagKey<LatexType> tag) {
+        final var tagManager = ChangedRegistry.LATEX_TYPE.get().tags();
+        if (tagManager == null)
+            return false;
+        return tagManager.getTag(tag).contains(this);
+    }
+
     @Nullable
     public Item getGooItem() {
         return null;
@@ -222,12 +230,6 @@ public abstract class LatexType {
 
     @Nullable
     public Block getBlock() {
-        return null;
-    }
-
-
-    @Nullable
-    public Block getWallSplotch() {
         return null;
     }
 

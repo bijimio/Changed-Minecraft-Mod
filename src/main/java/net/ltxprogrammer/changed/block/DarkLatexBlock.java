@@ -1,28 +1,22 @@
 package net.ltxprogrammer.changed.block;
 
 import net.ltxprogrammer.changed.init.*;
-import net.ltxprogrammer.changed.process.LatexCoveredBlocks;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class DarkLatexBlock extends AbstractLatexBlock {
     public DarkLatexBlock(Properties properties) {
         super(properties, ChangedLatexTypes.DARK_LATEX, ChangedItems.DARK_LATEX_GOO);
@@ -33,14 +27,14 @@ public class DarkLatexBlock extends AbstractLatexBlock {
         return ChangedLatexTypes.DARK_LATEX.get().sourceCoverState();
     }
 
-    private static final List<Supplier<? extends TransfurCrystalBlock>> SMALL_CRYSTALS = List.of(
+    public static final List<Supplier<? extends TransfurCrystalBlock>> SMALL_CRYSTALS = List.of(
             ChangedBlocks.LATEX_CRYSTAL,
             ChangedBlocks.DARK_DRAGON_CRYSTAL,
             ChangedBlocks.BEIFENG_CRYSTAL_SMALL,
             ChangedBlocks.WOLF_CRYSTAL_SMALL
     );
 
-    private static final List<Supplier<? extends TransfurCrystalBlock>> CRYSTALS = List.of(
+    public static final List<Supplier<? extends TransfurCrystalBlock>> CRYSTALS = List.of(
             ChangedBlocks.DARK_LATEX_CRYSTAL_LARGE,
             ChangedBlocks.BEIFENG_CRYSTAL,
             ChangedBlocks.WOLF_CRYSTAL
@@ -80,33 +74,5 @@ public class DarkLatexBlock extends AbstractLatexBlock {
             return true;
         else
             return false;
-    }
-
-    @SubscribeEvent
-    public static void onLatexCover(LatexCoveredBlocks.CoveringBlockEvent event) {
-        if (event.latexType != ChangedLatexTypes.DARK_LATEX.get())
-            return;
-
-        if (event.originalState.is(Blocks.GRASS) || event.originalState.is(BlockTags.SMALL_FLOWERS) || event.originalState.is(Blocks.FERN) || event.originalState.is(BlockTags.SAPLINGS)) {
-            event.setPlannedState(SMALL_CRYSTALS.get(event.level.random.nextInt(SMALL_CRYSTALS.size())).get().defaultBlockState());
-            return;
-        }
-
-        if (event.originalState.is(Blocks.TALL_GRASS) || event.originalState.is(Blocks.LARGE_FERN) || event.originalState.is(BlockTags.TALL_FLOWERS)) {
-            var crystal = CRYSTALS.get(event.level.random.nextInt(CRYSTALS.size()));
-            switch (event.originalState.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
-                case UPPER -> {
-                    event.level.setBlockAndUpdate(event.blockPos.below(), crystal.get().defaultBlockState()
-                            .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
-                    event.setPlannedState(crystal.get().defaultBlockState().setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
-                }
-
-                case LOWER -> {
-                    event.level.setBlockAndUpdate(event.blockPos.above(), crystal.get().defaultBlockState()
-                            .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
-                    event.setPlannedState(crystal.get().defaultBlockState().setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
-                }
-            }
-        }
     }
 }

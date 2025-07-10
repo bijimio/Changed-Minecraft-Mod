@@ -12,7 +12,6 @@ import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.data.MixedTexture;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.init.ChangedTextures;
-import net.ltxprogrammer.changed.process.LatexCoveredBlocks;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

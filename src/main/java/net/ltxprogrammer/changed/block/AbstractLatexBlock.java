@@ -1,5 +1,6 @@
 package net.ltxprogrammer.changed.block;
 
+import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.latex.LatexType;
@@ -13,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -36,10 +38,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class AbstractLatexBlock extends Block implements LatexCoveringSource {
-    // TODO replace with its own chunk data layer, instead of per-blockstate
-    @Deprecated
-    public static final EnumProperty<LatexTypeOld> COVERED = EnumProperty.create("covered_with", LatexTypeOld.class, LatexTypeOld.values());
-
     private final Supplier<? extends LatexType> latexType;
     private final Supplier<? extends Item> goo;
 
@@ -100,13 +98,30 @@ public abstract class AbstractLatexBlock extends Block implements LatexCoveringS
     public static boolean tryCover(Level level, BlockPos relative, LatexType type) {
         if (!(type instanceof SpreadingLatexType spreadingLatexType))
             return false;
-        if (!LatexCoverState.getAt(level, relative).isAir())
+        LatexCoverState originalCover = LatexCoverState.getAt(level, relative);
+        if (!originalCover.isAir())
             return false;
-        if (spreadingLatexType.shouldDecay(type.defaultCoverState(), level, relative))
-            return false;
+        /*if (spreadingLatexType.shouldDecay(type.defaultCoverState(), level, relative))
+            return false;*/
         BlockState old = level.getBlockState(relative);
         if (old.isCollisionShapeFullBlock(level, relative))
             return false;
+
+        var event = new SpreadingLatexType.CoveringBlockEvent(spreadingLatexType, old, old,
+                spreadingLatexType.defaultCoverState(), relative, level);
+        spreadingLatexType.defaultCoverBehavior(event);
+        if (Changed.postModEvent(event))
+            return false;
+        if (event.originalState == event.getPlannedState() && event.plannedCoverState == originalCover)
+            return false;
+        /*if (!Changed.config.server.canBlockBeCovered(event.plannedState.getBlock()))
+            return InteractionResult.FAIL;*/
+
+        level.setBlockAndUpdate(event.blockPos, event.getPlannedState());
+        LatexCoverState.setAtAndUpdate(level, event.blockPos, event.plannedCoverState);
+
+        event.getPostProcess().accept(level, event.blockPos);
+
         LatexCoverState.setAtAndUpdate(level, relative, type.defaultCoverState());
         return true;
     }
