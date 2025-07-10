@@ -7,6 +7,7 @@ import com.mojang.logging.LogUtils;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.entity.latex.IClientLatexTypeExtensions;
 import net.ltxprogrammer.changed.entity.latex.LatexType;
+import net.ltxprogrammer.changed.entity.latex.SpreadingLatexType;
 import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
@@ -139,50 +140,21 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
             RandomSource random) {
         final ModelSet modelSet = getModelSet(blockState, coverState);
 
-        final var atlas = minecraft.getTextureAtlas(BLOCK_ATLAS);
-        final var properties = IClientLatexTypeExtensions.of(coverState);
-        TextureAtlasSprite spriteTop = atlas.apply(properties.getTextureForFace(Direction.UP));
-        TextureAtlasSprite spriteBottom = atlas.apply(properties.getTextureForFace(Direction.DOWN));
-        TextureAtlasSprite spriteNorth = atlas.apply(properties.getTextureForFace(Direction.NORTH));
-        TextureAtlasSprite spriteSouth = atlas.apply(properties.getTextureForFace(Direction.SOUTH));
-        TextureAtlasSprite spriteEast = atlas.apply(properties.getTextureForFace(Direction.EAST));
-        TextureAtlasSprite spriteWest = atlas.apply(properties.getTextureForFace(Direction.WEST));
-        float alpha = 1.0f;// = (float)(i >> 24 & 255) / 255.0F;
-        float red = 1.0f;// = (float)(i >> 16 & 255) / 255.0F;
-        float green = 1.0f;// = (float)(i >> 8 & 255) / 255.0F;
-        float blue = 1.0f;// = (float)(i & 255) / 255.0F;
-
         if (blockState.isCollisionShapeFullBlock(level, blockPos))
             return false;
 
         int blockX0 = blockPos.getX() & 15;
         int blockY0 = blockPos.getY() & 15;
         int blockZ0 = blockPos.getZ() & 15;
-        int blockX1 = blockX0 + 1;
-        int blockY1 = blockY0 + 1;
-        int blockZ1 = blockZ0 + 1;
 
         int lightColor = this.getLightColor(level, blockPos);
 
-        BlockPos posUp = blockPos.relative(Direction.UP);
-        BlockPos posDown = blockPos.relative(Direction.DOWN);
-        BlockPos posNorth = blockPos.relative(Direction.NORTH);
-        BlockPos posSouth = blockPos.relative(Direction.SOUTH);
-        BlockPos posEast = blockPos.relative(Direction.EAST);
-        BlockPos posWest = blockPos.relative(Direction.WEST);
-
-        BlockState blockUp = level.getBlockState(posUp);
-        boolean surfaceTop = blockUp.isFaceSturdy(level, posUp, Direction.DOWN, SupportType.FULL);
-        BlockState blockDown = level.getBlockState(posDown);
-        boolean surfaceBottom = blockDown.isFaceSturdy(level, posDown, Direction.UP, SupportType.FULL);
-        BlockState blockNorth = level.getBlockState(posNorth);
-        boolean surfaceNorth = blockNorth.isFaceSturdy(level, posNorth, Direction.SOUTH, SupportType.FULL);
-        BlockState blockSouth = level.getBlockState(posSouth);
-        boolean surfaceSouth = blockSouth.isFaceSturdy(level, posSouth, Direction.NORTH, SupportType.FULL);
-        BlockState blockEast = level.getBlockState(posEast);
-        boolean surfaceEast = blockEast.isFaceSturdy(level, posEast, Direction.WEST, SupportType.FULL);
-        BlockState blockWest = level.getBlockState(posWest);
-        boolean surfaceWest = blockWest.isFaceSturdy(level, posWest, Direction.EAST, SupportType.FULL);
+        boolean surfaceTop = coverState.getProperties().contains(SpreadingLatexType.UP) && coverState.getValue(SpreadingLatexType.UP);
+        boolean surfaceBottom = coverState.getProperties().contains(SpreadingLatexType.DOWN) && coverState.getValue(SpreadingLatexType.DOWN);
+        boolean surfaceNorth = coverState.getProperties().contains(SpreadingLatexType.NORTH) && coverState.getValue(SpreadingLatexType.NORTH);
+        boolean surfaceSouth = coverState.getProperties().contains(SpreadingLatexType.SOUTH) && coverState.getValue(SpreadingLatexType.SOUTH);
+        boolean surfaceEast = coverState.getProperties().contains(SpreadingLatexType.EAST) && coverState.getValue(SpreadingLatexType.EAST);
+        boolean surfaceWest = coverState.getProperties().contains(SpreadingLatexType.WEST) && coverState.getValue(SpreadingLatexType.WEST);
 
         PoseStack poseStack = new PoseStack();
         poseStack.translate(blockX0, blockY0, blockZ0);
@@ -223,13 +195,6 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
             modelRenderer.tesselateWithAO(level, modelSet.extra, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
                     ModelData.EMPTY, RenderType.solid());
         }
-
-        /*LatexCoverState coverUp = latexCoverGetter.getLatexCover(posUp);
-        LatexCoverState coverDown = latexCoverGetter.getLatexCover(posDown);
-        LatexCoverState coverNorth = latexCoverGetter.getLatexCover(posNorth);
-        LatexCoverState coverSouth = latexCoverGetter.getLatexCover(posSouth);
-        LatexCoverState coverEast = latexCoverGetter.getLatexCover(posEast);
-        LatexCoverState coverWest = latexCoverGetter.getLatexCover(posWest);*/
 
         return true;
     }

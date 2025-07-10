@@ -244,6 +244,12 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
 
     }
 
+    public static void executeShapeUpdate(LevelAccessor level, Direction direction, BlockState neighborState, BlockPos blockPos, BlockPos neighborPos, int flags, int timeToLive) {
+        LatexCoverState prevState = getAt(level, blockPos);
+        LatexCoverState nextState = prevState.updateShape(direction, neighborState, level, blockPos, neighborPos);
+        LatexCoverState.updateOrDestroy(prevState, nextState, level, blockPos, flags, timeToLive);
+    }
+
     public static void executeShapeUpdate(LevelAccessor level, Direction direction, LatexCoverState neighborState, BlockPos blockPos, BlockPos neighborPos, int flags, int timeToLive) {
         LatexCoverState prevState = getAt(level, blockPos);
         LatexCoverState nextState = prevState.updateShape(direction, neighborState, level, blockPos, neighborPos);
@@ -321,6 +327,10 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
 
     public long getSeed(BlockPos blockPos) {
         return this.getType().getSeed(this.asState(), blockPos);
+    }
+
+    public LatexCoverState updateShape(Direction direction, BlockState neighborState, LevelAccessor level, BlockPos blockPos, BlockPos neighborPos) {
+        return this.getType().updateShape(this.asState(), direction, neighborState, level, blockPos, neighborPos);
     }
 
     public LatexCoverState updateShape(Direction direction, LatexCoverState neighborState, LevelAccessor level, BlockPos blockPos, BlockPos neighborPos) {

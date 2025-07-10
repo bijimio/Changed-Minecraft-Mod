@@ -1,8 +1,14 @@
 package net.ltxprogrammer.changed.mixin.block;
 
 import com.google.common.collect.ImmutableMap;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.serialization.MapCodec;
 import net.ltxprogrammer.changed.block.PartialEntityBlock;
+import net.ltxprogrammer.changed.world.LatexCoverState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,5 +34,12 @@ public abstract class BlockStateBaseMixin extends StateHolder<Block, BlockState>
 
         if (callback.getReturnValue() && this.getBlock() instanceof PartialEntityBlock partial && base instanceof BlockState blockState)
             callback.setReturnValue(partial.stateHasBlockEntity(blockState));
+    }
+
+    @WrapOperation(method = "updateNeighbourShapes(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;II)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelAccessor;neighborShapeChanged(Lnet/minecraft/core/Direction;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;II)V"))
+    public void updateLatexCoverNeighbor(LevelAccessor instance, Direction direction, BlockState neighborState, BlockPos blockPos, BlockPos neighborPos, int flags, int timeToLive, Operation<Void> original) {
+        original.call(instance, direction, neighborState, blockPos, neighborPos, flags, timeToLive - 1);
+        LatexCoverState.executeShapeUpdate(instance, direction, neighborState, blockPos, neighborPos, flags, timeToLive - 1);
     }
 }

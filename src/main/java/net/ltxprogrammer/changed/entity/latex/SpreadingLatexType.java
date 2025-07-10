@@ -35,11 +35,13 @@ import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.eventbus.api.Event;
 import org.jetbrains.annotations.Nullable;
@@ -51,27 +53,60 @@ import java.util.function.Supplier;
 
 public abstract class SpreadingLatexType extends LatexType {
     public static final IntegerProperty SATURATION = IntegerProperty.create("saturation", 0, 15);
-    // TODO surface properties to cache collision shape
+    public static final BooleanProperty UP = BlockStateProperties.UP;
+    public static final BooleanProperty DOWN = BlockStateProperties.DOWN;
+    public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
+    public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
+    public static final BooleanProperty EAST = BlockStateProperties.EAST;
+    public static final BooleanProperty WEST = BlockStateProperties.WEST;
+
+    public static final EnumMap<Direction, BooleanProperty> FACES = Util.make(new EnumMap<>(Direction.class), map -> {
+        map.put(Direction.UP, UP);
+        map.put(Direction.DOWN, DOWN);
+        map.put(Direction.NORTH, NORTH);
+        map.put(Direction.SOUTH, SOUTH);
+        map.put(Direction.EAST, EAST);
+        map.put(Direction.WEST, WEST);
+    });
 
     private final Map<LatexCoverState, VoxelShape> cachedShapes;
 
     public SpreadingLatexType() {
         super();
-        this.registerDefaultCoverState(this.coverStateDefinition.any().setValue(SATURATION, 0));
+        this.registerDefaultCoverState(this.coverStateDefinition.any().setValue(SATURATION, 0)
+                .setValue(UP, false)
+                .setValue(DOWN, false)
+                .setValue(NORTH, false)
+                .setValue(SOUTH, false)
+                .setValue(EAST, false)
+                .setValue(WEST, false));
         this.cachedShapes = Util.make(new HashMap<>(), map -> {
             this.coverStateDefinition.getPossibleStates().forEach(state -> {
-                map.put(state, this.computeShapeForState(state));
+                map.computeIfAbsent(getVisualState(state), this::computeShapeForState);
             });
         });
     }
 
+    // Used to more efficiently cache duplicate shapes
+    protected LatexCoverState getVisualState(LatexCoverState state) {
+        return state.setValue(SATURATION, 0);
+    }
+
     protected VoxelShape computeShapeForState(LatexCoverState state) {
-        return Block.box(0.0, 0.0, 0.0, 16.0, 2.0, 16.0);
+        return Shapes.or(
+                state.getValue(UP) ? Block.box(0, 14, 0, 16, 16, 16) : Shapes.empty(),
+                state.getValue(DOWN) ? Block.box(0, 0, 0, 16, 2, 16) : Shapes.empty(),
+                state.getValue(NORTH) ? Block.box(0, 0, 0, 16, 16, 2) : Shapes.empty(),
+                state.getValue(SOUTH) ? Block.box(0, 0, 14, 16, 16, 16) : Shapes.empty(),
+                state.getValue(EAST) ? Block.box(14, 0, 0, 16, 16, 16) : Shapes.empty(),
+                state.getValue(WEST) ? Block.box(0, 0, 0, 2, 16, 16) : Shapes.empty()
+        );
     }
 
     @Override
     protected void buildStateDefinition(StateDefinition.Builder<LatexType, LatexCoverState> builder) {
-        builder.add(SATURATION);
+        builder.add(SATURATION,
+                UP, DOWN, NORTH, SOUTH, EAST, WEST);
     }
 
     public void defaultCoverBehavior(CoveringBlockEvent event) {
@@ -85,10 +120,6 @@ public abstract class SpreadingLatexType extends LatexType {
             event.setPlannedState(Blocks.DEAD_BUSH.defaultBlockState());
     }
 
-    public LatexCoverState spreadState(LatexCoverState state) {
-        return state.setValue(SATURATION, state.getValue(SATURATION) + 1);
-    }
-
     public boolean canSpread(LatexCoverState state) {
         return state.getValue(SATURATION) < 15;
     }
@@ -97,6 +128,8 @@ public abstract class SpreadingLatexType extends LatexType {
         final var thisSaturation = state.getValue(SATURATION);
         if (level.getBlockState(blockPos).getBlock() instanceof LatexCoveringSource)
             return false;
+        if (Arrays.stream(Direction.values()).map(FACES::get).noneMatch(state::getValue))
+            return true;
         return Arrays.stream(Direction.values())
                 .map(blockPos::relative)
                 .map(checkPos -> LatexCoverState.getAt(level, checkPos))
@@ -107,6 +140,16 @@ public abstract class SpreadingLatexType extends LatexType {
     private static boolean isValidSurface(BlockGetter level, BlockPos toCover, BlockPos neighbor, Direction coverNormal) {
         BlockState state = level.getBlockState(neighbor);
         return state.isFaceSturdy(level, neighbor, coverNormal.getOpposite(), SupportType.FULL);
+    }
+
+    public LatexCoverState spreadState(LevelReader level, BlockPos blockPos, LatexCoverState state) {
+        state = state.setValue(SATURATION, state.getValue(SATURATION) + 1);
+        for (Direction direction : Direction.values()) {
+            var face = FACES.get(direction);
+            var checkPos = blockPos.relative(direction);
+            state = state.setValue(face, level.getBlockState(checkPos).isFaceSturdy(level, checkPos, direction.getOpposite(), SupportType.FULL));
+        }
+        return state;
     }
 
     @Override
@@ -136,9 +179,8 @@ public abstract class SpreadingLatexType extends LatexType {
             if (Arrays.stream(Direction.values()).noneMatch(direction -> isValidSurface(level, checkPos, checkPos.relative(direction), direction)))
                 return;
 
-
             var event = new CoveringBlockEvent(this,
-                    checkState, checkState, this.spreadState(state), checkPos, level);
+                    checkState, checkState, this.spreadState(level, checkPos, state), checkPos, level);
             this.defaultCoverBehavior(event);
             if (Changed.postModEvent(event))
                 return;
@@ -151,11 +193,16 @@ public abstract class SpreadingLatexType extends LatexType {
     }
 
     @Override
+    public LatexCoverState updateShape(LatexCoverState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos blockPos, BlockPos neighborPos) {
+        return state.setValue(FACES.get(direction), level.getBlockState(neighborPos).isFaceSturdy(level, neighborPos, direction.getOpposite(), SupportType.FULL));
+    }
+
+    @Override
     public LatexCoverState updateShape(LatexCoverState state, Direction direction, LatexCoverState neighborState, LevelAccessor level, BlockPos blockPos, BlockPos neighborPos) {
         if (neighborState.getType() != this)
             return state;
         if (neighborState.getValue(SATURATION) < state.getValue(SATURATION))
-            return neighborState.setValue(SATURATION, neighborState.getValue(SATURATION) + 1);
+            return this.spreadState(level, blockPos, neighborState);
         return state;
     }
 
@@ -173,7 +220,7 @@ public abstract class SpreadingLatexType extends LatexType {
 
     @Override
     public VoxelShape getShape(LatexCoverState state, LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
-        return cachedShapes.get(state);
+        return cachedShapes.get(getVisualState(state));
     }
 
     @Override
