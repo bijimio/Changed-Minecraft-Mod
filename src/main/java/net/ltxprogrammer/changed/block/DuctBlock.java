@@ -10,7 +10,6 @@ import net.ltxprogrammer.changed.util.InputWrapper;
 import net.ltxprogrammer.changed.util.TagUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -377,12 +376,12 @@ public class DuctBlock extends ChangedBlock implements SimpleWaterloggedBlock
             }
 
             @Override
-            public EntityDimensions getDimensions(Pose pose, EntityDimensions currentDimensions) {
+            public EntityDimensions getDimensions(LivingEntity entity, Pose pose, EntityDimensions currentDimensions) {
                 return EntityDimensions.scalable(0.5f, 0.5f);
             }
 
             @Override
-            public float getEyeHeight(Pose pose, float eyeHeight) {
+            public float getEyeHeight(LivingEntity entity, Pose pose, float eyeHeight) {
                 return 0.25f;
             }
         }

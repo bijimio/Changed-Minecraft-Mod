@@ -175,12 +175,20 @@ public abstract class LatexType {
         return this.getShape(state, level, blockPos, context);
     }
 
+    public VoxelShape getSwimShape(LatexCoverState state, LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
+        return this.getShape(state, level, blockPos, context);
+    }
+
     public VoxelShape getVisualShape(LatexCoverState state, LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
         return this.getCollisionShape(state, level, blockPos, context);
     }
 
     public VoxelShape getInteractionShape(LatexCoverState state, LatexCoverGetter level, BlockPos blockPos) {
         return Shapes.empty();
+    }
+
+    public boolean shouldResetFallDamage(LatexCoverState state, LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
+        return false;
     }
 
     public Object getRenderPropertiesInternal() {
@@ -261,6 +269,10 @@ public abstract class LatexType {
 
     public boolean isFriendlyTo(LatexType otherType) {
         return false;
+    }
+
+    public Vec3 findClosestSurface(LatexCoverState state, Vec3 position, @Nullable Direction.Axis axis) {
+        return position;
     }
 
     public static class None extends LatexType {

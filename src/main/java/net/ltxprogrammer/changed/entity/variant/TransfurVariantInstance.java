@@ -417,8 +417,8 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
                 });
 
                 if (player instanceof PlayerDataExtension extension && extension.getPlayerMover() != null) {
-                    event.setNewSize(extension.getPlayerMover().getDimensions(event.getPose(), event.getNewSize()));
-                    event.setNewEyeHeight(extension.getPlayerMover().getEyeHeight(event.getPose(), event.getNewEyeHeight()));
+                    event.setNewSize(extension.getPlayerMover().getDimensions(player, event.getPose(), event.getNewSize()));
+                    event.setNewEyeHeight(extension.getPlayerMover().getEyeHeight(player, event.getPose(), event.getNewEyeHeight()));
                 }
             }
         }

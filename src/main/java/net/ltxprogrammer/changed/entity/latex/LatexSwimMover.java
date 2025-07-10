@@ -5,12 +5,15 @@ import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.util.InputWrapper;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
@@ -35,6 +38,7 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
     public static class MoverInstance extends PlayerMoverInstance<LatexSwimMover> {
         private Vec3 lastPos = null;
         private int ticksInLatex = 0;
+        private Direction surfaceDirection = null;
         private static final double ACCELERATION = 0.2;
         private static final double DECAY = 0.65;
         private static final Vec3 UP = new Vec3(0.0, 1.0, 0.0);
@@ -63,6 +67,56 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
             ticksInLatex = tag.getInt("ticksInLatex");
         }
 
+        public void updateSurfaceDirection(Player player, InputWrapper input, LogicalSide side) {
+            final LatexType expectedLatexType = getExpectedLatexType(player);
+            final Vec3 center = player.getBoundingBox().getCenter();
+            final BlockPos blockPos = EntityUtil.getBlock(center);
+            final BlockState blockState = player.level().getBlockState(blockPos);
+            final LatexCoverState coverState = LatexCoverState.getAt(player.level(), blockPos);
+            surfaceDirection = null;
+            if (blockState.getBlock() instanceof WhiteLatexTransportInterface transportInterface && !transportInterface.allowTransport(blockState))
+                return;
+            if (!coverState.isAir() && coverState.getType() == expectedLatexType) {
+                double pX = center.x - blockPos.getX();
+                double pY = center.y - blockPos.getY();
+                double pZ = center.z - blockPos.getZ();
+                Vec3 localized = new Vec3(pX, pY, pZ);
+                Vec3 lookAngle = player.getLookAngle();
+                Vec3 surface = coverState.findClosestSurface(localized, Direction.getNearest(lookAngle.x, lookAngle.y, lookAngle.z).getAxis());
+                if (localized.equals(surface))
+                    return;
+                Vec3 delta = surface.subtract(localized);
+                surfaceDirection = Direction.getNearest(delta.x, delta.y, delta.z);
+                player.move(MoverType.SELF, surface.subtract(localized));
+            }
+        }
+
+        public void maybeAdhereToSurface(Player player, InputWrapper input, LogicalSide side) {
+            AABB testHitbox = player.getBoundingBox().inflate(0.05);
+            final LatexType expectedLatexType = getExpectedLatexType(player);
+            BlockPos.betweenClosedStream(testHitbox).forEach(blockPos -> {
+                final BlockState blockState = player.level().getBlockState(blockPos);
+                final LatexCoverState coverState = LatexCoverState.getAt(player.level(), blockPos);
+                if (blockState.getBlock() instanceof WhiteLatexTransportInterface transportInterface && !transportInterface.allowTransport(blockState))
+                    return;
+                if (!coverState.isAir() && coverState.getType() == expectedLatexType) {
+                    final Vec3 center = player.getBoundingBox().getCenter();
+                    AABB newHitbox = player.getBoundingBox().inflate(-0.05);
+                    var collision = coverState.getCollisionShape(LatexCoverGetter.wrap(player.level()), blockPos, CollisionContext.empty()).move((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ());
+                    if (!Shapes.joinIsNotEmpty(collision, Shapes.create(newHitbox), BooleanOp.AND)) {
+                        double pX = center.x - blockPos.getX();
+                        double pY = center.y - blockPos.getY();
+                        double pZ = center.z - blockPos.getZ();
+                        Vec3 localized = new Vec3(pX, pY, pZ);
+                        Vec3 surface = coverState.findClosestSurface(localized, surfaceDirection == null ? null : surfaceDirection.getAxis());
+                        if (localized.equals(surface))
+                            return;
+                        player.move(MoverType.SELF, surface.subtract(localized));
+                    }
+                }
+            });
+        }
+
         @Override
         public void aiStep(Player player, InputWrapper input, LogicalSide side) {
             if (lastPos == null)
@@ -87,9 +141,23 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
             if (velocity.distanceToSqr(Vec3.ZERO) < 0.00000625)
                 velocity = Vec3.ZERO;
 
+            this.updateSurfaceDirection(player, input, side);
+
             Vec3 lookAngle = player.getLookAngle();
             Vec3 upAngle = player.getUpVector(1.0f);
             Vec3 leftAngle = upAngle.cross(lookAngle);
+
+            if (surfaceDirection != null) {
+                lookAngle = switch (surfaceDirection) {
+                    case UP -> new Vec3(lookAngle.x, Mth.clamp(lookAngle.y, 0, 1), lookAngle.z);
+                    case DOWN -> new Vec3(lookAngle.x, Mth.clamp(lookAngle.y, -1, 0), lookAngle.z);
+                    case NORTH -> new Vec3(lookAngle.x, -lookAngle.z, lookAngle.z);
+                    case SOUTH -> new Vec3(lookAngle.x, lookAngle.z, lookAngle.z);
+                    case EAST -> new Vec3(lookAngle.x, lookAngle.x, lookAngle.z);
+                    case WEST -> new Vec3(lookAngle.x, -lookAngle.x, lookAngle.z);
+                    default -> lookAngle;
+                };
+            }
 
             Vec2 horizontal = input.getMoveVector();
             double vertical = (input.getJumping() ? 1.0 : 0.0) + (input.getShiftKeyDown() ? -1.0 : 0.0);
@@ -101,6 +169,8 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
                     .add(leftAngle.multiply(horizontal.x, horizontal.x, horizontal.x)).normalize().multiply(moveSpeed, moveSpeed, moveSpeed);
 
             player.move(MoverType.SELF, controlDir.add(velocity));
+            if (!input.getJumping())
+                this.maybeAdhereToSurface(player, input, side);
             lastPos = currentPos;
 
             ticksInLatex++;
@@ -114,7 +184,7 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
         }
 
         public boolean isInsideSwimableMaterial(LivingEntity entity) {
-            AABB testHitbox = entity.getBoundingBox().inflate(-0.05);
+            AABB testHitbox = entity.getBoundingBox().inflate(0.05);
             final LatexType expectedLatexType = getExpectedLatexType(entity);
             return BlockPos.betweenClosedStream(testHitbox).anyMatch(blockPos -> {
                 final BlockState blockState = entity.level().getBlockState(blockPos);
@@ -122,7 +192,7 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
                 if (blockState.getBlock() instanceof WhiteLatexTransportInterface transportInterface)
                     return transportInterface.allowTransport(blockState);
                 if (!coverState.isAir() && coverState.getType() == expectedLatexType) {
-                    var shape = coverState.getCollisionShape(LatexCoverGetter.wrap(entity.level()), blockPos, CollisionContext.empty()).move((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ());
+                    var shape = coverState.getSwimShape(LatexCoverGetter.wrap(entity.level()), blockPos, CollisionContext.of(entity)).move((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ());
                     return Shapes.joinIsNotEmpty(shape, Shapes.create(testHitbox), BooleanOp.AND);
                 }
 
@@ -138,8 +208,17 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
         }
 
         @Override
-        public EntityDimensions getDimensions(Pose pose, EntityDimensions currentDimensions) {
-            return EntityDimensions.fixed(2.0f / 16.0f, 2.0f / 16.0f);
+        public EntityDimensions getDimensions(LivingEntity entity, Pose pose, EntityDimensions currentDimensions) {
+            return EntityDimensions.fixed(4.0f / 16.0f, 4.0f / 16.0f);
+        }
+
+        @Override
+        public float getEyeHeight(LivingEntity entity, Pose pose, float eyeHeight) {
+            if (surfaceDirection == Direction.UP)
+                return -0.25f;
+            else if (surfaceDirection == null || surfaceDirection == Direction.DOWN)
+                return 0.5f;
+            return 2.0f / 16.0f;
         }
 
         @Override

@@ -21,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -40,7 +41,9 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.eventbus.api.Event;
@@ -70,6 +73,7 @@ public abstract class SpreadingLatexType extends LatexType {
     });
 
     private final Map<LatexCoverState, VoxelShape> cachedShapes;
+    private final Map<LatexCoverState, VoxelShape> cachedShapesSwim;
 
     public SpreadingLatexType() {
         super();
@@ -83,6 +87,11 @@ public abstract class SpreadingLatexType extends LatexType {
         this.cachedShapes = Util.make(new HashMap<>(), map -> {
             this.coverStateDefinition.getPossibleStates().forEach(state -> {
                 map.computeIfAbsent(getVisualState(state), this::computeShapeForState);
+            });
+        });
+        this.cachedShapesSwim = Util.make(new HashMap<>(), map -> {
+            this.coverStateDefinition.getPossibleStates().forEach(state -> {
+                map.computeIfAbsent(getVisualState(state), this::computeSwimShapeForState);
             });
         });
     }
@@ -100,6 +109,17 @@ public abstract class SpreadingLatexType extends LatexType {
                 state.getValue(SOUTH) ? Block.box(0, 0, 14, 16, 16, 16) : Shapes.empty(),
                 state.getValue(EAST) ? Block.box(14, 0, 0, 16, 16, 16) : Shapes.empty(),
                 state.getValue(WEST) ? Block.box(0, 0, 0, 2, 16, 16) : Shapes.empty()
+        );
+    }
+
+    protected VoxelShape computeSwimShapeForState(LatexCoverState state) {
+        return Shapes.or(
+                state.getValue(UP) ? Block.box(-2, 12, -2, 18, 18, 18) : Shapes.empty(),
+                state.getValue(DOWN) ? Block.box(-2, -2, -2, 18, 4, 18) : Shapes.empty(),
+                state.getValue(NORTH) ? Block.box(-2, -2, -2, 18, 18, 4) : Shapes.empty(),
+                state.getValue(SOUTH) ? Block.box(-2, -2, 12, 18, 18, 18) : Shapes.empty(),
+                state.getValue(EAST) ? Block.box(12, -2, -2, 18, 18, 18) : Shapes.empty(),
+                state.getValue(WEST) ? Block.box(-2, -2, -2, 4, 18, 18) : Shapes.empty()
         );
     }
 
@@ -224,6 +244,13 @@ public abstract class SpreadingLatexType extends LatexType {
     }
 
     @Override
+    public boolean shouldResetFallDamage(LatexCoverState state, LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
+        return super.shouldResetFallDamage(state, level, blockPos, context) ||
+                context instanceof EntityCollisionContext entityCollisionContext &&
+                LatexType.getEntityLatexType(entityCollisionContext.getEntity()) == this;
+    }
+
+    @Override
     public InteractionResult use(LatexCoverState state, Level level, Player player, InteractionHand hand, BlockHitResult hitVec) {
         final ItemStack itemStack = player.getItemInHand(hand);
         if (itemStack.is(ItemTags.SHOVELS)) {
@@ -237,6 +264,36 @@ public abstract class SpreadingLatexType extends LatexType {
         }
 
         return super.use(state, level, player, hand, hitVec);
+    }
+
+    @Override
+    public Vec3 findClosestSurface(LatexCoverState state, Vec3 position, @Nullable Direction.Axis axis) {
+        Vec3 normal = position.multiply(2, 2, 2).add(-1, -1, -1);
+
+        Direction closest = null;
+        double bestDot = Double.MIN_VALUE;
+
+        for(Direction checkDir : Direction.values()) {
+            if (!state.getValue(FACES.get(checkDir)))
+                continue;
+
+            double dotValue = normal.x * checkDir.getNormal().getX() + normal.y * checkDir.getNormal().getY() + normal.z * checkDir.getNormal().getZ();
+            if (checkDir.getAxis() == axis)
+                dotValue += 0.2; // Give preferred direction a boost
+            if (dotValue > bestDot) {
+                bestDot = dotValue;
+                closest = checkDir;
+            }
+        }
+
+        if (closest == null)
+            return position;
+
+        return new Vec3(
+                Mth.lerp(Mth.abs(closest.getNormal().getX()), position.x, Mth.clamp(position.x + closest.getNormal().getX(), 0, 1)),
+                Mth.lerp(Mth.abs(closest.getNormal().getY()), position.y, Mth.clamp(position.y + closest.getNormal().getY(), 0, 1)),
+                Mth.lerp(Mth.abs(closest.getNormal().getZ()), position.z, Mth.clamp(position.z + closest.getNormal().getZ(), 0, 1))
+        );
     }
 
     public static class DarkLatex extends SpreadingLatexType {

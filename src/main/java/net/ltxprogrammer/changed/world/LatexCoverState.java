@@ -4,9 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.ltxprogrammer.changed.Changed;
-import net.ltxprogrammer.changed.block.LatexCoveringSource;
 import net.ltxprogrammer.changed.entity.latex.LatexType;
-import net.ltxprogrammer.changed.init.ChangedGameRules;
 import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.util.Cacheable;
@@ -15,9 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -27,16 +23,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SupportType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateHolder;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.phys.BlockHitResult;
@@ -47,7 +39,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.List;
 
 public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
@@ -357,12 +348,20 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
         return this.getType().getCollisionShape(this.asState(), level, blockPos, context);
     }
 
+    public VoxelShape getSwimShape(LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
+        return this.getType().getSwimShape(this.asState(), level, blockPos, context);
+    }
+
     public VoxelShape getVisualShape(LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
         return this.getType().getVisualShape(this.asState(), level, blockPos, context);
     }
 
     public VoxelShape getInteractionShape(LatexCoverGetter level, BlockPos blockPos) {
         return this.getType().getInteractionShape(this.asState(), level, blockPos);
+    }
+
+    public boolean shouldResetFallDamage(LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
+        return this.getType().shouldResetFallDamage(this.asState(), level, blockPos, context);
     }
 
     public final boolean entityCanStandOn(LatexCoverGetter level, BlockPos blockPos, Entity entity) {
@@ -383,6 +382,10 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
         this.legacySolid = this.calculateSolid();*/
     }
 
+    public Vec3 findClosestSurface(Vec3 position, @Nullable Direction.Axis axis) {
+        return getType().findClosestSurface(this.asState(), position, axis);
+    }
+
     public interface ShapeGetter {
         VoxelShape get(LatexCoverState state, LatexCoverGetter p_45741_, BlockPos p_45742_, CollisionContext p_45743_);
     }
@@ -391,14 +394,15 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
         COLLIDER(LatexCoverState::getCollisionShape),
         OUTLINE(LatexCoverState::getShape),
         VISUAL(LatexCoverState::getVisualShape),
+        SWIM(LatexCoverState::getSwimShape),
         FALLDAMAGE_RESETTING((state, level, blockPos, context) -> {
-            return Shapes.empty();// TODO: return state.is(BlockTags.FALL_DAMAGE_RESETTING) ? Shapes.block() : Shapes.empty();
+            return state.shouldResetFallDamage(level, blockPos, context) ? Shapes.block() : Shapes.empty();
         });
 
         private final ShapeGetter shapeGetter;
 
-        private LatexCoverShapeGetter(ShapeGetter p_45712_) {
-            this.shapeGetter = p_45712_;
+        private LatexCoverShapeGetter(ShapeGetter shapeGetter) {
+            this.shapeGetter = shapeGetter;
         }
 
         public VoxelShape get(LatexCoverState state, LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {

@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.entity;
 import net.ltxprogrammer.changed.util.InputWrapper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.LogicalSide;
@@ -32,10 +33,10 @@ public abstract class PlayerMoverInstance<T extends PlayerMover<?>> {
      * @return true - if the mover should be removed.
      */
     public abstract boolean shouldRemoveMover(Player player, InputWrapper input, LogicalSide side);
-    public EntityDimensions getDimensions(Pose pose, EntityDimensions currentDimensions) {
+    public EntityDimensions getDimensions(LivingEntity entity, Pose pose, EntityDimensions currentDimensions) {
         return currentDimensions;
     }
-    public float getEyeHeight(Pose pose, float eyeHeight) {
+    public float getEyeHeight(LivingEntity entity, Pose pose, float eyeHeight) {
         return eyeHeight;
     }
 
