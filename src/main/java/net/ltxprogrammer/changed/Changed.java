@@ -153,6 +153,8 @@ public class Changed {
         MinecraftForge.EVENT_BUS.register(eventHandlerClient = new EventHandlerClient());
         Changed.addLoadingEventListener(RecipeCategories::registerCategories);
         Changed.addLoadingEventListener(ChangedOverlays::registerOverlays);
+        Changed.addLoadingEventListener(ChangedClient::onBlockColorsInit);
+        Changed.addLoadingEventListener(ChangedClient::onItemColorsInit);
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {

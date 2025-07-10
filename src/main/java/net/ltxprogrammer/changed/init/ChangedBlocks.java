@@ -9,7 +9,6 @@ import net.ltxprogrammer.changed.item.BlockEntityRenderedBlockItem;
 import net.ltxprogrammer.changed.item.FluidCanister;
 import net.ltxprogrammer.changed.item.GasCanister;
 import net.minecraft.Util;
-import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -19,18 +18,12 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.FoliageColor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.AbstractTreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -41,7 +34,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChangedBlocks {
     /*
     setBlock() flags:
@@ -280,31 +272,5 @@ public class ChangedBlocks {
 
     public static ResourceLocation textureOf(RegistryObject<? extends Block> block) {
         return Changed.modResource("block/" + block.getId().getPath());
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientInitializer {
-        @SubscribeEvent
-        public static void onBlockColorsInit(RegisterColorHandlersEvent.Block event) {
-            event.getBlockColors().register((state, level, pos, layer) ->
-                            switch (layer) {
-                                case 0 ->
-                                        level != null && pos != null ? BiomeColors.getAverageFoliageColor(level, pos) : FoliageColor.getDefaultColor();
-                                case 1 -> 0xFFFFFF;
-                                default -> -1;
-                            },
-                    ORANGE_TREE_LEAVES.get());
-        }
-        @SubscribeEvent
-        public static void onItemColorsInit(RegisterColorHandlersEvent.Item event) {
-            event.getItemColors().register((stack, layer) ->
-                            switch (layer) {
-                                case 0 -> FoliageColor.getDefaultColor();
-                                case 1 -> 0xFFFFFF;
-                                default -> -1;
-                            },
-                    ORANGE_TREE_LEAVES.get());
-        }
     }
 }

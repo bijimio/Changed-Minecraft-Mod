@@ -19,7 +19,7 @@ public class BlockEntityRenderedBlockItem extends BlockItem {
         consumer.accept(new IClientItemExtensions() {
             @Override
             public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return ChangedClient.itemRenderer;
+                return ChangedClient.itemRenderer.get();
             }
         });
     }

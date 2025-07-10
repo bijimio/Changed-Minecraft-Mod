@@ -26,14 +26,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -59,45 +52,6 @@ public class LatexSyringe extends ItemNameBlockItem implements SpecializedAnimat
                                     variant.getFormId()),
                             UniversalDist.getLocalPlayer()));
         });
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientInitializer {
-        @SubscribeEvent
-        public static void onItemColorsInit(RegisterColorHandlersEvent.Item event) {
-            event.getItemColors().register((stack, layer) ->
-                            switch (layer) {
-                                case 0 -> Syringe.getVariant(stack) != null ?
-                                        ChangedEntities.getEntityColorBack(ForgeRegistries.ENTITY_TYPES.getKey(Syringe.getVariant(stack).getEntityType()))
-                                        : 0xF0F0F0;
-                                case 1 -> Syringe.getVariant(stack) != null ?
-                                        ChangedEntities.getEntityColorFront(ForgeRegistries.ENTITY_TYPES.getKey(Syringe.getVariant(stack).getEntityType()))
-                                        : 0xF0F0F0;
-                                default -> -1;
-                            },
-                    ChangedItems.LATEX_SYRINGE.get());
-
-            event.getItemColors().register((stack, layer) ->
-                            switch (layer) {
-                                case 0 -> Syringe.getVariant(stack) != null ? ChangedEntities.getEntityColorBack(ForgeRegistries.ENTITY_TYPES.getKey(Syringe.getVariant(stack).getEntityType()))
-                                        : 0xF0F0F0;
-                                case 1 -> Syringe.getVariant(stack) != null ? ChangedEntities.getEntityColorFront(ForgeRegistries.ENTITY_TYPES.getKey(Syringe.getVariant(stack).getEntityType()))
-                                        : 0xF0F0F0;
-                                default -> -1;
-                            },
-                    ChangedItems.LATEX_TIPPED_ARROW.get());
-
-            event.getItemColors().register((stack, layer) ->
-                            switch (layer) {
-                                case 0 -> Syringe.getVariant(stack) != null ? ChangedEntities.getEntityColorBack(ForgeRegistries.ENTITY_TYPES.getKey(Syringe.getVariant(stack).getEntityType()))
-                                        : 0xF0F0F0;
-                                case 1 -> Syringe.getVariant(stack) != null ? ChangedEntities.getEntityColorFront(ForgeRegistries.ENTITY_TYPES.getKey(Syringe.getVariant(stack).getEntityType()))
-                                        : 0xF0F0F0;
-                                default -> -1;
-                            },
-                    ChangedItems.LATEX_FLASK.get());
-        }
     }
 
     public void appendHoverText(ItemStack p_43359_, @Nullable Level p_43360_, List<Component> p_43361_, TooltipFlag p_43362_) {
