@@ -11,8 +11,6 @@
     "CarryOn.HoldEntityAnimatorMixin",
     "CarryOn.PickupHandlerMixin",
 
-    "ChiselsAndBits.ChiselRenderTypeMixin",
-    "CTM.BlockRenderLayerMixin",
     "DoABarrelRoll.AdvancedHumanoidRendererMixin",
     "EMF.HumanoidAnimatorMixin",
     "FirstPerson.FirstPersonBaseMixin",
@@ -23,7 +21,6 @@
     "Moonlight.LatexItemInHandLayerMixin",
     "NotEnoughAnimations.HumanoidAnimatorMixin",
     "NotEnoughAnimations.PetAnimationMixin",
-    "Oculus.WorldRenderingPhaseMixin",
     "Parcool.AdvancedHumanoidRendererMixin",
     "Parcool.HumanoidAnimatorMixin",
     "Pehkui.ChangedEntityMixin",

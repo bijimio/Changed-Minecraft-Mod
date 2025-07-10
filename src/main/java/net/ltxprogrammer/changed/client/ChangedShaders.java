@@ -184,8 +184,11 @@ public class ChangedShaders {
     private static final RenderType LATEX_CUTOUT_MIPPED = RenderType.create("changed:latex_cutout_mipped", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 131072, true, false, RenderType.CompositeState.builder().setLightmapState(LIGHTMAP).setShaderState(RENDERTYPE_CUTOUT_MIPPED_SHADER).setTextureState(LATEX_SHEET_MIPPED).createCompositeState(true));
     private static final RenderType LATEX_CUTOUT = RenderType.create("changed:latex_cutout", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 131072, true, false, RenderType.CompositeState.builder().setLightmapState(LIGHTMAP).setShaderState(RENDERTYPE_CUTOUT_SHADER).setTextureState(LATEX_SHEET).createCompositeState(true));
 
+    @Deprecated
     public static RenderType latexSolid() { return LATEX_SOLID; }
+    @Deprecated
     public static RenderType latexCutoutMipped() { return LATEX_CUTOUT_MIPPED; }
+    @Deprecated
     public static RenderType latexCutout() { return LATEX_CUTOUT; }
 
     private static final Function<ResourceLocation, RenderType> WAVE_VISION = Util.memoize((texture) -> {
