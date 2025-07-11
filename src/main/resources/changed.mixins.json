@@ -72,6 +72,7 @@
     "gui.TitleScreenMixin",
     "item.ItemRendererMixin",
     "network.ClientPacketListenerMixin",
+    "render.BlockRenderDispatcherMixin",
     "render.CameraMixin",
     "render.CubeDefinitionMixin",
     "render.CubeListBuilderMixin",

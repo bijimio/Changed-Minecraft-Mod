@@ -23,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -468,7 +469,13 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
         }
     }
 
-    private InteractionResult use(Level level, Player player, InteractionHand hand, BlockHitResult hitVec) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand, BlockHitResult hitVec) {
         return this.getType().use(this.asState(), level, player, hand, hitVec);
+    }
+
+    // TODO: hook into appropriate places
+    @Nullable
+    public SoundType getSoundType(LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        return this.getType().getSoundType(this.asState(), level, pos, entity);
     }
 }

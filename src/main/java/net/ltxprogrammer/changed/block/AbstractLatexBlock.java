@@ -8,6 +8,7 @@ import net.ltxprogrammer.changed.entity.latex.SpreadingLatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.util.Cacheable;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
@@ -38,8 +39,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class AbstractLatexBlock extends Block implements LatexCoveringSource {
-    private final Supplier<? extends LatexType> latexType;
+    private final Supplier<? extends SpreadingLatexType> latexType;
     private final Supplier<? extends Item> goo;
+    private final Cacheable<LatexCoverState> simulatedCoverState;
 
     public static LatexType getSurfaceType(LevelReader level, BlockPos blockPos, Direction face, SupportType supportType) {
         final LatexCoverState coverState = LatexCoverState.getAt(level, blockPos);
@@ -89,10 +91,11 @@ public abstract class AbstractLatexBlock extends Block implements LatexCoveringS
         return getSurfaceType(level, blockPos, face, supportType) == type;
     }
 
-    public AbstractLatexBlock(Properties p_49795_, Supplier<? extends LatexType> latexType, Supplier<? extends Item> goo) {
+    public AbstractLatexBlock(Properties p_49795_, Supplier<? extends SpreadingLatexType> latexType, Supplier<? extends Item> goo) {
         super(p_49795_.randomTicks().dynamicShape());
         this.latexType = latexType;
         this.goo = goo;
+        this.simulatedCoverState = Cacheable.of(() -> latexType.get().sourceCoverState().setValue(SpreadingLatexType.DOWN, true));
     }
 
     public static boolean tryCover(Level level, BlockPos relative, LatexType type) {
@@ -129,54 +132,33 @@ public abstract class AbstractLatexBlock extends Block implements LatexCoveringS
         super.createBlockStateDefinition(builder);
     }
 
-    private static final float FACTION_BENEFIT = 1.1F;
-    private static final float FACTION_HINDER = 0.5F;
-    private static final float NEUTRAL_HINDER = 0.75F;
-
     @Override
     public boolean canSustainPlant(BlockState state, BlockGetter world, BlockPos pos, Direction facing, net.minecraftforge.common.IPlantable plantable) {
         return false;
     }
 
-    public static void stepOn(Level level, BlockPos blockPos, BlockState blockState, Entity entity, LatexType latexType) {
-        ChangedEntity ChangedEntity = null;
+    @Override
+    public void fallOn(Level level, BlockState blockState, BlockPos blockPos, Entity entity, float p_152430_) {
+        if (latexType.get().stepOn(level, blockPos.above(), simulatedCoverState.getOrThrow(), blockPos, blockState, entity))
+            return;
 
-        if (entity instanceof ChangedEntity) ChangedEntity = (ChangedEntity)entity;
+        super.stepOn(level, blockPos, blockState, entity);
+    }
 
-        if (entity instanceof Player player) {
-            TransfurVariantInstance<?> variant = ProcessTransfur.getPlayerTransfurVariant(player);
-            if (variant != null)
-                ChangedEntity = variant.getChangedEntity();
-        }
+    @Override
+    public void updateEntityAfterFallOn(BlockGetter level, Entity entity) {
+        if (latexType.get().updateEntityAfterFallOn(LatexCoverGetter.extendDefault(level), this, simulatedCoverState.getOrThrow(), entity))
+            return;
 
-        if (ChangedEntity != null) {
-            LatexType type = ChangedEntity.getLatexType();
-            if (latexType.isFriendlyTo(type)) {
-                if (!entity.isInWater())
-                    multiplyMotion(entity, FACTION_BENEFIT);
-            }
-
-            else if (latexType.isHostileTo(type)) {
-                multiplyMotion(entity, FACTION_HINDER);
-            }
-
-            else {
-                multiplyMotion(entity, NEUTRAL_HINDER);
-            }
-        }
-
-        else if (entity instanceof LivingEntity) {
-            multiplyMotion(entity, NEUTRAL_HINDER);
-        }
+        super.updateEntityAfterFallOn(level, entity);
     }
 
     @Override
     public void stepOn(Level level, BlockPos blockPos, BlockState blockState, Entity entity) {
-        stepOn(level, blockPos, blockState, entity, latexType.get());
-    }
+        if (latexType.get().stepOn(level, blockPos.above(), simulatedCoverState.getOrThrow(), blockPos, blockState, entity))
+            return;
 
-    private static void multiplyMotion(Entity entity, float mul) {
-        entity.setDeltaMovement(entity.getDeltaMovement().multiply(mul, mul, mul));
+        super.stepOn(level, blockPos, blockState, entity);
     }
 
     @Override

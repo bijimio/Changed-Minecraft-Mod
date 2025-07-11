@@ -79,7 +79,7 @@ public abstract class ChunkRenderRebuildTaskMixin {
                     if (!latexCoverState.isPresent())
                         continue;
 
-                    RenderType rendertype = RenderType.solid(); //ItemBlockRenderTypes.getRenderLayer(latexCoverState);
+                    RenderType rendertype = ChangedClient.latexCoveredBlocksRenderer.get().getRenderType(latexCoverState);
 
                     boolean rendered = ChangedClient.latexCoveredBlocksRenderer.get().tesselate(
                             slice,

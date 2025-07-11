@@ -109,18 +109,6 @@ public class ChangedShaders {
         return WAVE_VISION_RESONANT_CUTOUT_MIPPED.apply(BLOCK_SHEET_MIPPED_RESONANT, resonance);
     }
 
-    public static RenderType latexWaveVisionSolid() {
-        return WAVE_VISION_SOLID.apply(LATEX_SHEET_MIPPED);
-    }
-
-    public static RenderType latexWaveVisionCutout() {
-        return WAVE_VISION_CUTOUT.apply(LATEX_SHEET);
-    }
-
-    public static RenderType latexWaveVisionCutoutMipped() {
-        return WAVE_VISION_CUTOUT_MIPPED.apply(LATEX_SHEET_MIPPED);
-    }
-
     public static void reloadShaders(ResourceProvider resourceManager, Consumer<Pair<ShaderInstance, Consumer<ShaderInstance>>> loader) throws IOException {
         loader.accept(Pair.of(new ShaderInstance(resourceManager, Changed.modResource("rendertype_wave_vision_entity"), DefaultVertexFormat.NEW_ENTITY), (instance) -> {
             rendertypeWaveVisionEntity = instance;

@@ -17,33 +17,46 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
+import net.minecraftforge.client.model.BakedModelWrapper;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.stream.StreamSupport;
 
 public class WaveVisionRenderer {
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -58,6 +71,44 @@ public class WaveVisionRenderer {
     public static final ResourceLocation WAVE_RESONANCE_BLOCK_MASK = Changed.modResource("wave_resonance_block_mask");
 
     public static final Vector3f LATEX_RESONANCE_NEUTRAL = new Vector3f(1.0f, 1.0f, 1.0f);
+
+    public static class WrappedModel extends BakedModelWrapper<BakedModel> {
+        // Should only be called for a model of a block of #changed:crystalline
+        public WrappedModel(BakedModel wrapped) {
+            super(wrapped);
+        }
+
+        public RenderType convertRenderType(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data, RenderType renderType) {
+            if (renderType == RenderType.solid())
+                return ChangedShaders.waveVisionResonantSolid(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL);
+            if (renderType == RenderType.cutout())
+                return ChangedShaders.waveVisionResonantCutout(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL);
+            if (renderType == RenderType.cutoutMipped())
+                return ChangedShaders.waveVisionResonantCutoutMipped(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL);
+            return renderType;
+        }
+
+        public RenderType backConvertRenderType(@NotNull BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData data, RenderType renderType) {
+            if (renderType == ChangedShaders.waveVisionResonantSolid(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL))
+                return RenderType.solid();
+            if (renderType == ChangedShaders.waveVisionResonantCutout(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL))
+                return RenderType.cutout();
+            if (renderType == ChangedShaders.waveVisionResonantCutoutMipped(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL))
+                return RenderType.cutoutMipped();
+            return renderType;
+        }
+
+        @Override
+        public @NotNull ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
+            return ChunkRenderTypeSet.of(StreamSupport.stream(super.getRenderTypes(state, rand, data).spliterator(), false)
+                    .map(type -> this.convertRenderType(state, rand, data, type)).toList());
+        }
+
+        @Override
+        public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType) {
+            return super.getQuads(state, side, rand, extraData, this.backConvertRenderType(state, side, rand, extraData, renderType));
+        }
+    }
 
     public static class WaveVisionBufferSource extends RenderTypeOverride {
         public WaveVisionBufferSource(MultiBufferSource actualSource) {

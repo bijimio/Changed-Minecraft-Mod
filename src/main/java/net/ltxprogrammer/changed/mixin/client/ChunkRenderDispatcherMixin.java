@@ -64,7 +64,7 @@ public abstract class ChunkRenderDispatcherMixin {
             if (!latexCoverState.isPresent())
                 continue;
 
-            RenderType rendertype = RenderType.solid(); //ItemBlockRenderTypes.getRenderLayer(latexCoverState);
+            RenderType rendertype = ChangedClient.latexCoveredBlocksRenderer.get().getRenderType(latexCoverState);
             BufferBuilder bufferbuilder = bufferBuilderPack.builder(rendertype);
             if (renderTypes.add(rendertype)) {
                 beginLayer(bufferbuilder);

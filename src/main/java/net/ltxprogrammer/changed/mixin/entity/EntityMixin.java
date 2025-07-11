@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.GrabEntityAbility;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
+import net.ltxprogrammer.changed.block.AbstractLatexBlock;
 import net.ltxprogrammer.changed.block.StasisChamber;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
@@ -15,7 +16,10 @@ import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.commands.CommandSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -27,8 +31,12 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SupportType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
@@ -223,5 +231,26 @@ public abstract class EntityMixin extends net.minecraftforge.common.capabilities
     @WrapOperation(method = "pick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
     public BlockHitResult extendedPick(Level instance, ClipContext clipContext, Operation<BlockHitResult> original) {
         return LatexCoverGetter.wrap(instance).clip(clipContext, original.call(instance, clipContext));
+    }
+
+    @WrapOperation(method = "checkFallDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;fallOn(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;F)V"))
+    public void extendedFallOn(Block instance, Level level, BlockState state, BlockPos blockPos, Entity entity, float distance, Operation<Void> original) {
+        final LatexCoverState coverState = LatexCoverState.getAt(level, blockPos.above());
+        if (coverState.isAir() || !coverState.getType().fallOn(level, state, blockPos, coverState, blockPos.above(), entity, distance))
+            original.call(instance, level, state, blockPos, entity, distance);
+    }
+
+    @WrapOperation(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;updateEntityAfterFallOn(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;)V"))
+    public void extendedUpdateFallOn(Block instance, BlockGetter level, Entity entity, Operation<Void> original) {
+        final LatexCoverState coverState = LatexCoverState.getAt(entity.level(), entity.getOnPosLegacy());
+        if (coverState.isAir() || !coverState.getType().updateEntityAfterFallOn(LatexCoverGetter.extendDefault(level), instance, coverState, entity))
+            original.call(instance, level, entity);
+    }
+
+    @WrapOperation(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;stepOn(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/Entity;)V"))
+    public void extendedStepOn(Block instance, Level level, BlockPos blockPos, BlockState state, Entity entity, Operation<Void> original) {
+        final LatexCoverState coverState = LatexCoverState.getAt(level, blockPos.above());
+        if (coverState.isAir() || !coverState.getType().stepOn(level, blockPos.above(), coverState, blockPos, state, entity))
+            original.call(instance, level, blockPos, state, entity);
     }
 }

@@ -2,15 +2,19 @@ package net.ltxprogrammer.changed.block;
 
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexSwimMover;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.UniversalDist;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -52,8 +56,21 @@ public interface WhiteLatexTransportInterface extends NonLatexCoverableBlock {
         entity.setInvulnerable(true);
 
         entity.playSound(ChangedSounds.POISON.get(), 1.0f, 1.0f);
-        if (!UniversalDist.isClientRemotePlayer(entity))
-            entity.moveTo(pos, entity.getYRot(), entity.getXRot());
+        if (!UniversalDist.isClientRemotePlayer(entity)) {
+            final Vec3 center = new Vec3(0.5D, 0.5D, 0.5D);
+            Vec3 surface = LatexCoverState.getAt(entity.level(), pos).findClosestSurface(center, null);
+            Vec3 delta = surface.subtract(center);
+            final Direction closestDirection = center.equals(surface) ? null : Direction.getNearest(delta.x, delta.y, delta.z);
+            final Vec3 surfaceNormal = closestDirection == null ? null : new Vec3(closestDirection.getNormal().getX(), closestDirection.getNormal().getY(), closestDirection.getNormal().getZ())
+                    .multiply(-1, -1, -1);
+            surface = closestDirection == null ? surface : switch (closestDirection) {
+                case NORTH, SOUTH, EAST, WEST -> surface.add(surfaceNormal.multiply(LatexSwimMover.SIZE_RADIUS, LatexSwimMover.SIZE_RADIUS, LatexSwimMover.SIZE_RADIUS));
+                case UP -> surface.add(surfaceNormal.multiply(LatexSwimMover.SIZE_HEIGHT, LatexSwimMover.SIZE_HEIGHT, LatexSwimMover.SIZE_HEIGHT));
+                default -> surface;
+            };
+
+            entity.moveTo(pos.getX() + surface.x, pos.getY() + surface.y, pos.getZ() + surface.z, entity.getYRot(), entity.getXRot());
+        }
     }
 
     static boolean isBoundingBoxInWhiteLatex(LivingEntity entity) {

@@ -5,12 +5,15 @@ import net.ltxprogrammer.changed.block.DarkLatexBlock;
 import net.ltxprogrammer.changed.block.LatexCoveringSource;
 import net.ltxprogrammer.changed.block.WhiteLatexBlock;
 import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
+import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
+import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.item.AbstractLatexBucket;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Color3;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
@@ -25,7 +28,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -244,13 +249,6 @@ public abstract class SpreadingLatexType extends LatexType {
     }
 
     @Override
-    public boolean shouldResetFallDamage(LatexCoverState state, LatexCoverGetter level, BlockPos blockPos, CollisionContext context) {
-        return super.shouldResetFallDamage(state, level, blockPos, context) ||
-                context instanceof EntityCollisionContext entityCollisionContext &&
-                LatexType.getEntityLatexType(entityCollisionContext.getEntity()) == this;
-    }
-
-    @Override
     public InteractionResult use(LatexCoverState state, Level level, Player player, InteractionHand hand, BlockHitResult hitVec) {
         final ItemStack itemStack = player.getItemInHand(hand);
         if (itemStack.is(ItemTags.SHOVELS)) {
@@ -271,7 +269,7 @@ public abstract class SpreadingLatexType extends LatexType {
         Vec3 normal = position.multiply(2, 2, 2).add(-1, -1, -1);
 
         Direction closest = null;
-        double bestDot = Double.MIN_VALUE;
+        double bestDot = -1;
 
         for(Direction checkDir : Direction.values()) {
             if (!state.getValue(FACES.get(checkDir)))
@@ -279,7 +277,7 @@ public abstract class SpreadingLatexType extends LatexType {
 
             double dotValue = normal.x * checkDir.getNormal().getX() + normal.y * checkDir.getNormal().getY() + normal.z * checkDir.getNormal().getZ();
             if (checkDir.getAxis() == axis)
-                dotValue += 0.2; // Give preferred direction a boost
+                dotValue += 0.1; // Give preferred direction a boost
             if (dotValue > bestDot) {
                 bestDot = dotValue;
                 closest = checkDir;
@@ -294,6 +292,52 @@ public abstract class SpreadingLatexType extends LatexType {
                 Mth.lerp(Mth.abs(closest.getNormal().getY()), position.y, Mth.clamp(position.y + closest.getNormal().getY(), 0, 1)),
                 Mth.lerp(Mth.abs(closest.getNormal().getZ()), position.z, Mth.clamp(position.z + closest.getNormal().getZ(), 0, 1))
         );
+    }
+
+    @Override
+    public boolean fallOn(Level level, BlockState originalState, BlockPos originalPos, LatexCoverState coverState, BlockPos coverPos, Entity entity, float distance) {
+        if (coverState.getValue(DOWN) && this.isFriendlyTo(LatexType.getEntityLatexType(entity))) {
+            entity.resetFallDistance();
+            return true;
+        }
+
+        return super.fallOn(level, originalState, originalPos, coverState, coverPos, entity, distance);
+    }
+
+    private static final float FACTION_BENEFIT = 1.1F;
+    private static final float FACTION_HINDER = 0.5F;
+    private static final float NEUTRAL_HINDER = 0.75F;
+
+    private static void multiplyMotion(Entity entity, float mul) {
+        entity.setDeltaMovement(entity.getDeltaMovement().multiply(mul, mul, mul));
+    }
+
+    @Override
+    public boolean stepOn(Level level, BlockPos coverPos, LatexCoverState coverState, BlockPos originalPos, BlockState originalState, Entity entity) {
+        if (!coverState.getValue(DOWN))
+            return super.stepOn(level, coverPos, coverState, originalPos, originalState, entity);
+
+        if (entity instanceof LivingEntity livingEntity && EntityUtil.maybeGetOverlaying(livingEntity) instanceof ChangedEntity checkEntity) {
+            LatexType type = checkEntity.getLatexType();
+            if (this.isFriendlyTo(type)) {
+                if (!entity.isInWater())
+                    multiplyMotion(entity, FACTION_BENEFIT);
+            }
+
+            else if (this.isHostileTo(type)) {
+                multiplyMotion(entity, FACTION_HINDER);
+            }
+
+            else {
+                multiplyMotion(entity, NEUTRAL_HINDER);
+            }
+        }
+
+        else if (entity instanceof LivingEntity) {
+            multiplyMotion(entity, NEUTRAL_HINDER);
+        }
+
+        return super.stepOn(level, coverPos, coverState, originalPos, originalState, entity);
     }
 
     public static class DarkLatex extends SpreadingLatexType {

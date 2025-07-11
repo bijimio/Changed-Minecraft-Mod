@@ -25,9 +25,12 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -273,6 +276,26 @@ public abstract class LatexType {
 
     public Vec3 findClosestSurface(LatexCoverState state, Vec3 position, @Nullable Direction.Axis axis) {
         return position;
+    }
+
+    // Return true to cancel the call to Block.fallOn
+    public boolean fallOn(Level level, BlockState originalState, BlockPos originalPos, LatexCoverState coverState, BlockPos coverPos, Entity entity, float distance) {
+        return false;
+    }
+
+    // Return true to cancel the call to Block.updateEntityAfterFallOn
+    public boolean updateEntityAfterFallOn(LatexCoverGetter level, Block originalBlock, LatexCoverState state, Entity entity) {
+        return false;
+    }
+
+    // Return true to cancel the call to Block.stepOn
+    public boolean stepOn(Level level, BlockPos coverPos, LatexCoverState coverState, BlockPos originalPos, BlockState originalState, Entity entity) {
+        return false;
+    }
+
+    @Nullable
+    public SoundType getSoundType(LatexCoverState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        return null;
     }
 
     public static class None extends LatexType {

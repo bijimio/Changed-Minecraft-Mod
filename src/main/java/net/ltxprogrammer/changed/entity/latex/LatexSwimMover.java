@@ -29,7 +29,14 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.fml.LogicalSide;
 
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
+    public static final float SIZE_HEIGHT = 4.0f / 16.0f;
+    public static final float SIZE_RADIUS = 2.0f / 16.0f;
+
     @Override
     public LatexSwimMover.MoverInstance createInstance() {
         return new LatexSwimMover.MoverInstance(this);
@@ -94,11 +101,11 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
         public void maybeAdhereToSurface(Player player, InputWrapper input, LogicalSide side) {
             AABB testHitbox = player.getBoundingBox().inflate(0.05);
             final LatexType expectedLatexType = getExpectedLatexType(player);
-            BlockPos.betweenClosedStream(testHitbox).forEach(blockPos -> {
+            final Set<Vec3> surfaces = BlockPos.betweenClosedStream(testHitbox).map(blockPos -> {
                 final BlockState blockState = player.level().getBlockState(blockPos);
                 final LatexCoverState coverState = LatexCoverState.getAt(player.level(), blockPos);
                 if (blockState.getBlock() instanceof WhiteLatexTransportInterface transportInterface && !transportInterface.allowTransport(blockState))
-                    return;
+                    return null;
                 if (!coverState.isAir() && coverState.getType() == expectedLatexType) {
                     final Vec3 center = player.getBoundingBox().getCenter();
                     AABB newHitbox = player.getBoundingBox().inflate(-0.05);
@@ -110,11 +117,17 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
                         Vec3 localized = new Vec3(pX, pY, pZ);
                         Vec3 surface = coverState.findClosestSurface(localized, surfaceDirection == null ? null : surfaceDirection.getAxis());
                         if (localized.equals(surface))
-                            return;
-                        player.move(MoverType.SELF, surface.subtract(localized));
+                            return null;
+                        return surface.subtract(localized);
                     }
                 }
-            });
+
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toSet());
+
+            if (surfaces.size() == 1) {
+                player.move(MoverType.SELF, surfaces.iterator().next());
+            }
         }
 
         @Override
@@ -148,15 +161,18 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
             Vec3 leftAngle = upAngle.cross(lookAngle);
 
             if (surfaceDirection != null) {
+                double yAdjustedX = lookAngle.x + (lookAngle.y < 0f ? upAngle.x : -upAngle.x);
+                double yAdjustedZ = lookAngle.z + (lookAngle.y < 0f ? upAngle.z : -upAngle.z);
                 lookAngle = switch (surfaceDirection) {
-                    case UP -> new Vec3(lookAngle.x, Mth.clamp(lookAngle.y, 0, 1), lookAngle.z);
-                    case DOWN -> new Vec3(lookAngle.x, Mth.clamp(lookAngle.y, -1, 0), lookAngle.z);
-                    case NORTH -> new Vec3(lookAngle.x, -lookAngle.z, lookAngle.z);
-                    case SOUTH -> new Vec3(lookAngle.x, lookAngle.z, lookAngle.z);
-                    case EAST -> new Vec3(lookAngle.x, lookAngle.x, lookAngle.z);
-                    case WEST -> new Vec3(lookAngle.x, -lookAngle.x, lookAngle.z);
+                    case UP -> new Vec3(yAdjustedX, Mth.clamp(lookAngle.y, 0, 1), yAdjustedZ);
+                    case DOWN -> new Vec3(yAdjustedX, Mth.clamp(lookAngle.y, -1, 0), yAdjustedZ);
+                    case NORTH -> new Vec3(lookAngle.x, (-lookAngle.z * 0.5f) + lookAngle.y, lookAngle.z);
+                    case SOUTH -> new Vec3(lookAngle.x, (lookAngle.z * 0.5f) + lookAngle.y, lookAngle.z);
+                    case EAST -> new Vec3(lookAngle.x, (lookAngle.x * 0.5f) + lookAngle.y, lookAngle.z);
+                    case WEST -> new Vec3(lookAngle.x, (-lookAngle.x * 0.5f) + lookAngle.y, lookAngle.z);
                     default -> lookAngle;
                 };
+                lookAngle = lookAngle.normalize();
             }
 
             Vec2 horizontal = input.getMoveVector();
@@ -209,7 +225,7 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
 
         @Override
         public EntityDimensions getDimensions(LivingEntity entity, Pose pose, EntityDimensions currentDimensions) {
-            return EntityDimensions.fixed(4.0f / 16.0f, 4.0f / 16.0f);
+            return EntityDimensions.fixed(SIZE_RADIUS * 2f, SIZE_HEIGHT);
         }
 
         @Override
@@ -218,7 +234,7 @@ public class LatexSwimMover extends PlayerMover<LatexSwimMover.MoverInstance> {
                 return -0.25f;
             else if (surfaceDirection == null || surfaceDirection == Direction.DOWN)
                 return 0.5f;
-            return 2.0f / 16.0f;
+            return SIZE_HEIGHT * 0.5f;
         }
 
         @Override

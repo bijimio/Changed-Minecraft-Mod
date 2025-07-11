@@ -133,6 +133,13 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
         return specialModelSets.getOrDefault(blockState, defaultModelSets).get(coverState.getType());
     }
 
+    public RenderType getRenderType(LatexCoverState coverState) {
+        // Maybe use a tag
+        if (ChangedClient.shouldRenderingWaveVision() && ChangedLatexTypes.DARK_LATEX.get().isFriendlyTo(coverState.getType()))
+            return ChangedShaders.waveVisionResonantSolid(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL);
+        return RenderType.solid();
+    }
+
     private boolean wrappedTesselate(
             BlockAndTintGetter level, LatexCoverGetter latexCoverGetter,
             BlockPos blockPos, VertexConsumer bufferBuilder,
@@ -161,39 +168,41 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
 
         long seed = coverState.getSeed(blockPos);
 
+        final RenderType renderType = this.getRenderType(coverState);
+
         if (surfaceTop && modelSet.surfaceTop != null) {
             modelRenderer.tesselateWithAO(level, modelSet.surfaceTop, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
-                    ModelData.EMPTY, RenderType.solid());
+                    ModelData.EMPTY, renderType);
         }
 
         if (surfaceBottom && modelSet.surfaceBottom != null) {
             modelRenderer.tesselateWithAO(level, modelSet.surfaceBottom, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
-                    ModelData.EMPTY, RenderType.solid());
+                    ModelData.EMPTY, renderType);
         }
 
         if (surfaceNorth && modelSet.surfaceNorth != null) {
             modelRenderer.tesselateWithAO(level, modelSet.surfaceNorth, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
-                    ModelData.EMPTY, RenderType.solid());
+                    ModelData.EMPTY, renderType);
         }
 
         if (surfaceSouth && modelSet.surfaceSouth != null) {
             modelRenderer.tesselateWithAO(level, modelSet.surfaceSouth, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
-                    ModelData.EMPTY, RenderType.solid());
+                    ModelData.EMPTY, renderType);
         }
 
         if (surfaceEast && modelSet.surfaceEast != null) {
             modelRenderer.tesselateWithAO(level, modelSet.surfaceEast, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
-                    ModelData.EMPTY, RenderType.solid());
+                    ModelData.EMPTY, renderType);
         }
 
         if (surfaceWest && modelSet.surfaceWest != null) {
             modelRenderer.tesselateWithAO(level, modelSet.surfaceWest, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
-                    ModelData.EMPTY, RenderType.solid());
+                    ModelData.EMPTY, renderType);
         }
 
         if (modelSet.extra != null) {
             modelRenderer.tesselateWithAO(level, modelSet.extra, blockState, blockPos, poseStack, bufferBuilder, true, random, seed, lightColor,
-                    ModelData.EMPTY, RenderType.solid());
+                    ModelData.EMPTY, renderType);
         }
 
         return true;
