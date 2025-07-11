@@ -28,7 +28,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.List;
 
-public class DroppedOrange extends Block implements NonLatexCoverableBlock, SimpleWaterloggedBlock {
+public class DroppedOrange extends Block implements SimpleWaterloggedBlock {
     public static final IntegerProperty ORANGES = IntegerProperty.create("oranges", 1, 8);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 

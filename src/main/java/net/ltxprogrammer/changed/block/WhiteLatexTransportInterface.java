@@ -22,7 +22,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-public interface WhiteLatexTransportInterface extends NonLatexCoverableBlock {
+public interface WhiteLatexTransportInterface {
     static boolean isEntityInWhiteLatex(LivingEntity entity) {
         if (entity instanceof PlayerDataExtension ext)
             return ext.getPlayerMover() != null && ext.getPlayerMover().is(PlayerMover.LATEX_SWIM.get());

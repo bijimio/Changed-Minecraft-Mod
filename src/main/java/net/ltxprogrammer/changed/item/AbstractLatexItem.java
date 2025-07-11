@@ -5,6 +5,7 @@ import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
 import net.ltxprogrammer.changed.entity.latex.SpreadingLatexType;
+import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.world.LatexCoverState;
@@ -46,10 +47,16 @@ public class AbstractLatexItem extends ItemNameBlockItem {
             return super.useOn(context);
 
         BlockState clickedState = context.getLevel().getBlockState(context.getClickedPos());
+        if (clickedState.is(ChangedTags.Blocks.DENY_LATEX_COVER))
+            return InteractionResult.FAIL;
+
         BlockPos positionToCover = clickedState.isFaceSturdy(context.getLevel(), context.getClickedPos(), context.getClickedFace(), SupportType.FULL) ?
                 context.getClickedPos().relative(context.getClickedFace()) : context.getClickedPos();
 
         BlockState originalState = context.getLevel().getBlockState(positionToCover);
+        if (SpreadingLatexType.canExistOnSurface(context.getLevel(), positionToCover, originalState, context.getClickedFace()))
+            return InteractionResult.FAIL;
+
         LatexCoverState originalCover = LatexCoverState.getAt(context.getLevel(), positionToCover);
         final var spreadingLatexType = type.get();
 

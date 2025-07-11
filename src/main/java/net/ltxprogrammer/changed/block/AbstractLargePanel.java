@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class AbstractLargePanel extends HorizontalDirectionalBlock implements NonLatexCoverableBlock {
+public class AbstractLargePanel extends HorizontalDirectionalBlock {
     public static final EnumProperty<NineSection> SECTION = EnumProperty.create("section", NineSection.class);
     public static final VoxelShape SHAPE_FRAME = Block.box(-8.0D, 0.0D, 12.0D, 24.0D, 40.0D, 16.0D);
 

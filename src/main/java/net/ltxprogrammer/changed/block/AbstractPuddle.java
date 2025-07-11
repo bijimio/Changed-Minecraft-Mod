@@ -19,7 +19,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.function.Supplier;
 
-public class AbstractPuddle extends AbstractCustomShapeBlock implements NonLatexCoverableBlock {
+public class AbstractPuddle extends AbstractCustomShapeBlock {
     public static final VoxelShape SHAPE_WHOLE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 1.0D, 15.0D);
     protected final Supplier<? extends TransfurVariant<?>> variant;
 

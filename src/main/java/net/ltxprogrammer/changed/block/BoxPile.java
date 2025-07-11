@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class BoxPile extends HorizontalDirectionalBlock implements NonLatexCoverableBlock {
+public class BoxPile extends HorizontalDirectionalBlock {
     public static final EnumProperty<QuarterSection> SECTION = EnumProperty.create("section", QuarterSection.class);
 
     public static final VoxelShape BOX1 = Block.box(1.0D, 0.0D, 2.0D, 13.0D, 10.0D, 14.0D);

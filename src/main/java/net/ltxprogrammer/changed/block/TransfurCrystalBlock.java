@@ -38,7 +38,7 @@ import java.util.function.Supplier;
 
 import static net.ltxprogrammer.changed.block.AbstractDoubleTransfurCrystal.HALF;
 
-public abstract class TransfurCrystalBlock extends BushBlock implements NonLatexCoverableBlock {
+public abstract class TransfurCrystalBlock extends BushBlock {
     public static final VoxelShape SHAPE_WHOLE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
     private final Supplier<? extends TransfurVariant<?>> variant;
     private final Supplier<? extends Item> crystal;

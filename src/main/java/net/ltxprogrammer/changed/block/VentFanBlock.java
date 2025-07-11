@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class VentFanBlock extends DirectionalBlock implements NonLatexCoverableBlock {
+public class VentFanBlock extends DirectionalBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public VentFanBlock() {

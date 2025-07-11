@@ -49,7 +49,7 @@ import java.util.List;
 
 import static net.ltxprogrammer.changed.init.ChangedSounds.OPEN2;
 
-public class AbstractLabDoor extends HorizontalDirectionalBlock implements NonLatexCoverableBlock, PartialEntityBlock, OpenableDoor {
+public class AbstractLabDoor extends HorizontalDirectionalBlock implements PartialEntityBlock, OpenableDoor {
     public static final EnumProperty<QuarterSection> SECTION = EnumProperty.create("section", QuarterSection.class);
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;

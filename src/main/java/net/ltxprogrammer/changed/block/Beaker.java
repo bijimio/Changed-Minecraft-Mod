@@ -32,7 +32,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Beaker extends Block implements SimpleWaterloggedBlock, NonLatexCoverableBlock {
+public class Beaker extends Block implements SimpleWaterloggedBlock {
     public static final EnumProperty<LatexTypeOld> FILLED = EnumProperty.create("filled", LatexTypeOld.class);
     public static final VoxelShape AABB = Block.box(3.5D, 0.0D, 3.5D, 12.5D, 11.0D, 12.5D);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;

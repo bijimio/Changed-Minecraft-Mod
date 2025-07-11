@@ -60,7 +60,7 @@ import java.util.List;
 
 import static net.ltxprogrammer.changed.init.ChangedSounds.OPEN2;
 
-public class StasisChamber extends HorizontalDirectionalBlock implements NonLatexCoverableBlock, PartialEntityBlock, OpenableDoor, SeatableBlock {
+public class StasisChamber extends HorizontalDirectionalBlock implements PartialEntityBlock, OpenableDoor, SeatableBlock {
     public static final EnumProperty<ThreeXThreeSection> SECTION = EnumProperty.create("section", ThreeXThreeSection.class);
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
 

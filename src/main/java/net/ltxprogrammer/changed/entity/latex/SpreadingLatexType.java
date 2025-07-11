@@ -162,9 +162,9 @@ public abstract class SpreadingLatexType extends LatexType {
                 .noneMatch(otherState -> otherState.getValue(SATURATION) < thisSaturation);
     }
 
-    private static boolean isValidSurface(BlockGetter level, BlockPos toCover, BlockPos neighbor, Direction coverNormal) {
-        BlockState state = level.getBlockState(neighbor);
-        return state.isFaceSturdy(level, neighbor, coverNormal.getOpposite(), SupportType.FULL);
+    public static boolean canExistOnSurface(BlockGetter level, BlockPos neighborPos, BlockState neighbor, Direction surfaceNormal) {
+        return !neighbor.is(surfaceNormal == Direction.UP ? ChangedTags.Blocks.DENY_LATEX_COVER : ChangedTags.Blocks.DENY_LATEX_COVER_CLIMB) &&
+                neighbor.isFaceSturdy(level, neighborPos, surfaceNormal, SupportType.FULL);
     }
 
     public LatexCoverState spreadState(LevelReader level, BlockPos blockPos, LatexCoverState state) {
@@ -172,7 +172,8 @@ public abstract class SpreadingLatexType extends LatexType {
         for (Direction direction : Direction.values()) {
             var face = FACES.get(direction);
             var checkPos = blockPos.relative(direction);
-            state = state.setValue(face, level.getBlockState(checkPos).isFaceSturdy(level, checkPos, direction.getOpposite(), SupportType.FULL));
+            var checkState = level.getBlockState(checkPos);
+            state = state.setValue(face, canExistOnSurface(level, checkPos, checkState, direction.getOpposite()));
         }
         return state;
     }
@@ -197,11 +198,11 @@ public abstract class SpreadingLatexType extends LatexType {
         boolean isAirOrLessThanSpread = checkCoverState.isAir() ||
                 (checkCoverState.is(this) && checkCoverState.getValue(SATURATION) > state.getValue(SATURATION) + 1);
 
-        if (!checkState.isCollisionShapeFullBlock(level, checkPos) && isAirOrLessThanSpread) {
+        if (!checkState.is(ChangedTags.Blocks.DENY_LATEX_COVER) && !checkState.isCollisionShapeFullBlock(level, checkPos) && isAirOrLessThanSpread) {
             if (checkPos.subtract(blockPos).getY() > 0 && random.nextInt(3) > 0) // Reduced chance of spreading up
                 return;
 
-            if (Arrays.stream(Direction.values()).noneMatch(direction -> isValidSurface(level, checkPos, checkPos.relative(direction), direction)))
+            if (Arrays.stream(Direction.values()).noneMatch(direction -> canExistOnSurface(level, checkPos, level.getBlockState(checkPos.relative(direction)), direction.getOpposite())))
                 return;
 
             var event = new CoveringBlockEvent(this,
@@ -219,7 +220,7 @@ public abstract class SpreadingLatexType extends LatexType {
 
     @Override
     public LatexCoverState updateShape(LatexCoverState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos blockPos, BlockPos neighborPos) {
-        return state.setValue(FACES.get(direction), level.getBlockState(neighborPos).isFaceSturdy(level, neighborPos, direction.getOpposite(), SupportType.FULL));
+        return state.setValue(FACES.get(direction), canExistOnSurface(level, neighborPos, neighborState, direction.getOpposite()));
     }
 
     @Override
@@ -237,7 +238,7 @@ public abstract class SpreadingLatexType extends LatexType {
             return state;
         if (newState.getBlock() instanceof LatexCoveringSource source)
             return source.getLatexCoverState(newState, pos);
-        if (newState.isCollisionShapeFullBlock(level, pos))
+        if (newState.is(ChangedTags.Blocks.DENY_LATEX_COVER) || newState.isCollisionShapeFullBlock(level, pos))
             return ChangedLatexTypes.NONE.get().defaultCoverState();
 
         return state;

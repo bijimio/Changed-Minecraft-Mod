@@ -7,6 +7,7 @@ import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.latex.SpreadingLatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedLatexTypes;
+import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Cacheable;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
@@ -107,7 +108,7 @@ public abstract class AbstractLatexBlock extends Block implements LatexCoveringS
         /*if (spreadingLatexType.shouldDecay(type.defaultCoverState(), level, relative))
             return false;*/
         BlockState old = level.getBlockState(relative);
-        if (old.isCollisionShapeFullBlock(level, relative))
+        if (old.is(ChangedTags.Blocks.DENY_LATEX_COVER) || old.isCollisionShapeFullBlock(level, relative))
             return false;
 
         var event = new SpreadingLatexType.CoveringBlockEvent(spreadingLatexType, old, old,

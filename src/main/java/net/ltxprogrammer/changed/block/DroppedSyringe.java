@@ -32,7 +32,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class DroppedSyringe extends Block implements EntityBlock, NonLatexCoverableBlock, SimpleWaterloggedBlock {
+public class DroppedSyringe extends Block implements EntityBlock, SimpleWaterloggedBlock {
     public static final IntegerProperty ROTATION = BlockStateProperties.ROTATION_16;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     protected static final VoxelShape SHAPE = Block.box(3.0D, 0.0D, 3.0D, 13.0D, 2.0D, 13.0D);

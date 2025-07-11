@@ -43,6 +43,8 @@ public class ChangedTags {
         public static final TagKey<Block> LATEX_CRYSTAL = create("latex_crystal");
         public static final TagKey<Block> LATEX_SPAWNABLE_ON = create("latex_spawnable_on");
         public static final TagKey<Block> CRYSTALLINE = create("crystalline");
+        public static final TagKey<Block> DENY_LATEX_COVER = create("deny_latex_cover");
+        public static final TagKey<Block> DENY_LATEX_COVER_CLIMB = create("deny_latex_cover_climb");
 
         private static TagKey<Block> create(String name) {
             return TagKey.create(Registries.BLOCK, Changed.modResource(name));

@@ -43,7 +43,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock implements NonLatexCoverableBlock, CustomFallable {
+public class LatexContainerBlock extends AbstractCustomShapeTallEntityBlock implements CustomFallable {
     public static final VoxelShape SHAPE_WHOLE = Block.box(4.0D, 0.0D, 4.0D, 12.0D, 24, 12.0D);
 
     public LatexContainerBlock() {

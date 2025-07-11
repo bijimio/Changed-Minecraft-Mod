@@ -30,7 +30,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class LaserBeamBlock extends Block implements NonLatexCoverableBlock {
+public class LaserBeamBlock extends Block {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final IntegerProperty DISTANCE = IntegerProperty.create("distance", 0,LaserEmitterBlock.MAX_DISTANCE);
     private static final VoxelShape SHAPE_X = Shapes.box(0, 7, 7, 16, 9, 9);
