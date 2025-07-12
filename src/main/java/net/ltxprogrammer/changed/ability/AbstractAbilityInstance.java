@@ -47,14 +47,14 @@ public abstract class AbstractAbilityInstance {
         }
 
         public Component getName(Level level) {
-            if (level.isClientSide)
+            if (level != null && level.isClientSide)
                 return getName.get();
             else
                 return Component.empty();
         }
 
         public boolean isDown(Level level) {
-            if (level.isClientSide)
+            if (level != null && level.isClientSide)
                 return isDown.get();
             else
                 return false;

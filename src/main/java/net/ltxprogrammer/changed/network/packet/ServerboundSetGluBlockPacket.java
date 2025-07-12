@@ -4,8 +4,12 @@ import net.ltxprogrammer.changed.block.entity.GluBlockEntity;
 import net.ltxprogrammer.changed.world.features.structures.facility.Zone;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class ServerboundSetGluBlockPacket implements ChangedPacket {
@@ -45,21 +49,25 @@ public class ServerboundSetGluBlockPacket implements ChangedPacket {
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        var context = contextSupplier.get();
-        var level = context.getSender().level();
-        var blockState = level.getBlockState(pos);
-        var blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof GluBlockEntity gluBlockEntity) {
-            gluBlockEntity.setSize(size);
-            gluBlockEntity.setHasDoor(hasDoor);
-            gluBlockEntity.setZone(zone);
-            gluBlockEntity.setJointType(jointType);
-            gluBlockEntity.setFinalState(finalState);
-            gluBlockEntity.setChanged();
-            level.sendBlockUpdated(pos, blockState, blockState, 3);
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.SERVER) {
+            var level = context.getSender().level();
+            var blockState = level.getBlockState(pos);
+            var blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof GluBlockEntity gluBlockEntity) {
+                gluBlockEntity.setSize(size);
+                gluBlockEntity.setHasDoor(hasDoor);
+                gluBlockEntity.setZone(zone);
+                gluBlockEntity.setJointType(jointType);
+                gluBlockEntity.setFinalState(finalState);
+                gluBlockEntity.setChanged();
+                level.sendBlockUpdated(pos, blockState, blockState, 3);
+            }
+
+            context.setPacketHandled(true);
+            return CompletableFuture.completedFuture(null);
         }
 
-        context.setPacketHandled(true);
+        return CompletableFuture.failedFuture(makeIllegalSideException(context.getDirection().getReceptionSide(), LogicalSide.SERVER));
     }
 }

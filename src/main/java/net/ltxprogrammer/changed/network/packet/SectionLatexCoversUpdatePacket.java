@@ -7,12 +7,15 @@ import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class SectionLatexCoversUpdatePacket implements ChangedPacket {
@@ -62,16 +65,20 @@ public class SectionLatexCoversUpdatePacket implements ChangedPacket {
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        final var context = contextSupplier.get();
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
         if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
-            BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
+            context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 
-            for(int i = 0; i < this.positions.length; ++i) {
-                short short1 = this.positions[i];
-                blockpos$mutableblockpos.set(this.sectionPos.relativeToBlockX(short1), this.sectionPos.relativeToBlockY(short1), this.sectionPos.relativeToBlockZ(short1));
-                LatexCoverState.setServerVerifiedAt(UniversalDist.getLevel(), blockpos$mutableblockpos, this.states[i], 19);
-            }
+                for(int i = 0; i < this.positions.length; ++i) {
+                    short short1 = this.positions[i];
+                    blockpos$mutableblockpos.set(this.sectionPos.relativeToBlockX(short1), this.sectionPos.relativeToBlockY(short1), this.sectionPos.relativeToBlockZ(short1));
+                    LatexCoverState.setServerVerifiedAt(level, blockpos$mutableblockpos, this.states[i], 19);
+                }
+            });
         }
+
+        return CompletableFuture.failedFuture(makeIllegalSideException(context.getDirection().getReceptionSide(), LogicalSide.CLIENT));
     }
 }

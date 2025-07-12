@@ -130,7 +130,7 @@ public class GrabOverlay {
 
         graphics.blit(GRAB_ESCAPE_KEYS, x, y, keyX, keyY, 16, 16, 32, 32);
 
-        var keyName = key.getName(UniversalDist.getLevel()).getString().toUpperCase(Locale.ROOT);
+        var keyName = key.getName(Minecraft.getInstance().level).getString().toUpperCase(Locale.ROOT);
         var font = gui.getFont();
 
         var keyWidth = font.width(keyName);

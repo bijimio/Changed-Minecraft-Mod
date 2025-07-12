@@ -2,12 +2,17 @@ package net.ltxprogrammer.changed.network.packet;
 
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.ltxprogrammer.changed.world.inventory.UpdateableMenu;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class MenuUpdatePacket implements ChangedPacket {
@@ -40,26 +45,29 @@ public class MenuUpdatePacket implements ChangedPacket {
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        var context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isServer()) {
-            for (ServerPlayer player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+            context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                var player = UniversalDist.getLocalPlayer();
+                if (player == null)
+                    return;
+                if (player.containerMenu == null || player.containerMenu.containerId != containerId)
+                    return;
+                if (player.containerMenu instanceof UpdateableMenu updateableMenu) {
+                    updateableMenu.update(payload, context.getDirection().getReceptionSide(), null);
+                }
+            });
+        }
+
+        else {
+            context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                var player = context.getSender();
                 if (player.containerMenu instanceof UpdateableMenu updateableMenu && player.containerMenu.containerId == containerId) {
                     updateableMenu.update(payload, context.getDirection().getReceptionSide(), context.getSender());
-                    context.setPacketHandled(true);
-                    return;
                 }
-            }
-        } else {
-            var player = UniversalDist.getLocalPlayer();
-            if (player == null)
-                return;
-            if (player.containerMenu == null || player.containerMenu.containerId != containerId)
-                return;
-            if (player.containerMenu instanceof UpdateableMenu updateableMenu) {
-                updateableMenu.update(payload, context.getDirection().getReceptionSide(), null);
-                context.setPacketHandled(true);
-            }
+            });
         }
     }
 }

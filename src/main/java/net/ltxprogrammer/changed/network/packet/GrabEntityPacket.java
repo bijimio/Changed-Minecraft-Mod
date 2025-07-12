@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.network.packet;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.AbstractAbilityInstance;
+import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.init.ChangedSounds;
@@ -14,10 +15,13 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class GrabEntityPacket implements ChangedPacket {
@@ -60,82 +64,85 @@ public class GrabEntityPacket implements ChangedPacket {
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        var context = contextSupplier.get();
-        var sender = context.getSender();
-        if (context.getDirection().getReceptionSide().isServer() && sender != null) {
-            var level = sender.level();
-            var target = level.getEntity(targetEntity);
-            if (!(target instanceof LivingEntity livingTarget))
-                return;
-            if (!target.getType().is(ChangedTags.EntityTypes.HUMANOIDS) && !(target instanceof Player))
-                return;
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
             context.setPacketHandled(true);
-            if (sender.getId() == sourceEntity) {
-                if (ProcessTransfur.isPlayerNotLatex(sender))
-                    return; // Invalid, sender has to be latex
-            } else {
-                return; // Invalid, sender cannot dictate other entities grab action
-            }
+            return levelFuture.thenAccept(level -> {
+                var source = level.getEntity(sourceEntity);
+                var target = level.getEntity(targetEntity);
 
-            ProcessTransfur.ifPlayerTransfurred(sender, variant -> {
-                var ability = variant.getAbilityInstance(ChangedAbilities.GRAB_ENTITY_ABILITY.get());
-                if (ability == null)
-                    return;
+                if (!(source instanceof LivingEntity livingSource)) return;
+                if (!(target instanceof LivingEntity livingTarget)) return;
 
-                switch (type) {
-                    case RELEASE -> {
-                        boolean wasSuited = ability.suited;
-                        ability.releaseEntity();
-                        ChangedSounds.broadcastSound(sender, wasSuited ? ChangedSounds.POISON : ChangedSounds.BLOW1, 1.0f, 1.0f);
-                    }
-                    case SUIT -> {
-                        if (livingTarget instanceof Player && !Changed.config.server.isGrabEnabled.get())
-                            return;
+                ProcessTransfur.ifPlayerTransfurred(EntityUtil.playerOrNull(livingSource), variant -> {
+                    variant.ifHasAbility(ChangedAbilities.GRAB_ENTITY_ABILITY.get(), ability -> {
+                        switch (type) {
+                            case RELEASE -> ability.releaseEntity();
+                            case SUIT -> {
+                                if (livingTarget instanceof Player && !Changed.config.server.isGrabEnabled.get())
+                                    return;
 
-                        ChangedSounds.broadcastSound(sender, ChangedSounds.POISON, 1.0f, 1.0f);
-                        ability.suitEntity(livingTarget);
-                    }
-                    case ARMS -> {
-                        if (livingTarget instanceof Player && !Changed.config.server.isGrabEnabled.get())
-                            return;
+                                ability.suitEntity(livingTarget);
+                            }
+                            case ARMS -> {
+                                if (livingTarget instanceof Player && !Changed.config.server.isGrabEnabled.get())
+                                    return;
 
-                        boolean wasSuited = ability.suited;
-                        ability.grabEntity(livingTarget);
-                        ChangedSounds.broadcastSound(sender, wasSuited ? ChangedSounds.POISON : ChangedSounds.BLOW1, 1.0f, 1.0f);
-                    }
-                }
+                                ability.grabEntity(livingTarget);
+                            }
+                        }
+                    });
+                });
             });
-
-            Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> sender), this); // Echo
         }
 
         else {
-            Level localLevel = UniversalDist.getLevel();
-            var source = localLevel.getEntity(sourceEntity);
-            var target = localLevel.getEntity(targetEntity);
+            context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                var sender = context.getSender();
+                var target = level.getEntity(targetEntity);
+                if (!(target instanceof LivingEntity livingTarget))
+                    return;
+                if (!target.getType().is(ChangedTags.EntityTypes.HUMANOIDS) && !(target instanceof Player))
+                    return;
+                context.setPacketHandled(true);
+                if (sender.getId() == sourceEntity) {
+                    if (ProcessTransfur.isPlayerNotLatex(sender))
+                        return; // Invalid, sender has to be latex
+                } else {
+                    return; // Invalid, sender cannot dictate other entities grab action
+                }
 
-            if (!(source instanceof LivingEntity livingSource)) return;
-            if (!(target instanceof LivingEntity livingTarget)) return;
+                ProcessTransfur.ifPlayerTransfurred(sender, variant -> {
+                    var ability = variant.getAbilityInstance(ChangedAbilities.GRAB_ENTITY_ABILITY.get());
+                    if (ability == null)
+                        return;
 
-            ProcessTransfur.ifPlayerTransfurred(EntityUtil.playerOrNull(livingSource), variant -> {
-                variant.ifHasAbility(ChangedAbilities.GRAB_ENTITY_ABILITY.get(), ability -> {
                     switch (type) {
-                        case RELEASE -> ability.releaseEntity();
+                        case RELEASE -> {
+                            boolean wasSuited = ability.suited;
+                            ability.releaseEntity();
+                            ChangedSounds.broadcastSound(sender, wasSuited ? ChangedSounds.POISON : ChangedSounds.BLOW1, 1.0f, 1.0f);
+                        }
                         case SUIT -> {
                             if (livingTarget instanceof Player && !Changed.config.server.isGrabEnabled.get())
                                 return;
 
+                            ChangedSounds.broadcastSound(sender, ChangedSounds.POISON, 1.0f, 1.0f);
                             ability.suitEntity(livingTarget);
                         }
                         case ARMS -> {
                             if (livingTarget instanceof Player && !Changed.config.server.isGrabEnabled.get())
                                 return;
 
+                            boolean wasSuited = ability.suited;
                             ability.grabEntity(livingTarget);
+                            ChangedSounds.broadcastSound(sender, wasSuited ? ChangedSounds.POISON : ChangedSounds.BLOW1, 1.0f, 1.0f);
                         }
                     }
                 });
+
+                Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> sender), this); // Echo
             });
         }
     }
@@ -177,27 +184,32 @@ public class GrabEntityPacket implements ChangedPacket {
         }
 
         @Override
-        public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-            var sender = contextSupplier.get().getSender();
-            if (sender != null) {
-                ProcessTransfur.ifPlayerTransfurred(sender, variant -> {
-                    variant.ifHasAbility(ChangedAbilities.GRAB_ENTITY_ABILITY.get(), instance -> {
-                        instance.attackDown = this.attackKey;
-                        instance.useDown = this.useKey;
-                        contextSupplier.get().setPacketHandled(true);
-                        Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> sender), this);
+        public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+            if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+                context.setPacketHandled(true);
+                return levelFuture.thenAccept(level -> {
+                    Player player = level.getPlayerByUUID(this.uuid);
+                    if (player == null)
+                        throw new IllegalArgumentException("Cannot get player of uuid " + uuid);
+                    ProcessTransfur.ifPlayerTransfurred(player, variant -> {
+                        variant.ifHasAbility(ChangedAbilities.GRAB_ENTITY_ABILITY.get(), instance -> {
+                            instance.attackDown = this.attackKey;
+                            instance.useDown = this.useKey;
+                        });
                     });
                 });
-            } else {
-                var level = UniversalDist.getLevel();
-                Player player = level.getPlayerByUUID(this.uuid);
-                if (player == null)
-                    return;
-                ProcessTransfur.ifPlayerTransfurred(player, variant -> {
-                    variant.ifHasAbility(ChangedAbilities.GRAB_ENTITY_ABILITY.get(), instance -> {
-                        instance.attackDown = this.attackKey;
-                        instance.useDown = this.useKey;
-                        contextSupplier.get().setPacketHandled(true);
+            }
+
+            else {
+                context.setPacketHandled(true);
+                return levelFuture.thenAccept(level -> {
+                    var sender = context.getSender();
+                    ProcessTransfur.ifPlayerTransfurred(sender, variant -> {
+                        variant.ifHasAbility(ChangedAbilities.GRAB_ENTITY_ABILITY.get(), instance -> {
+                            instance.attackDown = this.attackKey;
+                            instance.useDown = this.useKey;
+                            Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> sender), this);
+                        });
                     });
                 });
             }
@@ -226,22 +238,23 @@ public class GrabEntityPacket implements ChangedPacket {
         }
 
         @Override
-        public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-            var sender = contextSupplier.get().getSender();
-            if (sender == null) { // Only clients should handle this
-                var level = UniversalDist.getLevel();
-                var player = level.getPlayerByUUID(this.uuid);
-                if (!(player instanceof LivingEntityDataExtension ext))
-                    return;
-                if (ext.getGrabbedBy() == null)
-                    return;
+        public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+            if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+                context.setPacketHandled(true);
+                return levelFuture.thenAccept(level -> {
+                    var player = level.getPlayerByUUID(this.uuid);
+                    if (!(player instanceof LivingEntityDataExtension ext) || ext.getGrabbedBy() == null)
+                        throw new IllegalStateException("Player is not grabbed");
 
-                var ability = AbstractAbility.getAbilityInstance(ext.getGrabbedBy(), ChangedAbilities.GRAB_ENTITY_ABILITY.get());
-                if (ability != null) {
-                    ability.currentEscapeKey = this.keyReference;
-                    contextSupplier.get().setPacketHandled(true);
-                }
+                    var ability = AbstractAbility.getAbilityInstance(ext.getGrabbedBy(), ChangedAbilities.GRAB_ENTITY_ABILITY.get());
+                    if (ability != null)
+                        ability.currentEscapeKey = this.keyReference;
+                    else
+                        throw new IllegalStateException("Grabber does not have grab ability");
+                });
             }
+
+            return CompletableFuture.failedFuture(makeIllegalSideException(context.getDirection().getReceptionSide(), LogicalSide.CLIENT));
         }
     }
 
@@ -279,38 +292,45 @@ public class GrabEntityPacket implements ChangedPacket {
         }
 
         @Override
-        public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-            var sender = contextSupplier.get().getSender();
-            if (sender != null) {
-                if (!(sender instanceof LivingEntityDataExtension ext))
-                    return;
-                if (ext.getGrabbedBy() == null)
-                    return;
+        public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+            if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+                context.setPacketHandled(true);
+                return levelFuture.thenAccept(level -> {
+                    if (!(level.getPlayerByUUID(this.uuid) instanceof LivingEntityDataExtension ext) || ext.getGrabbedBy() == null)
+                        throw new IllegalStateException("Player is not grabbed");
 
-                var ability = AbstractAbility.getAbilityInstance(ext.getGrabbedBy(), ChangedAbilities.GRAB_ENTITY_ABILITY.get());
-                if (ability != null) {
-                    ability.escapeKeyForward = this.keyForward;
-                    ability.escapeKeyBackward = this.keyBackward;
-                    ability.escapeKeyLeft = this.keyLeft;
-                    ability.escapeKeyRight = this.keyRight;
-                    contextSupplier.get().setPacketHandled(true);
-                    Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> sender), this);
-                }
-            } else {
-                var level = UniversalDist.getLevel();
-                if (!(level.getPlayerByUUID(this.uuid) instanceof LivingEntityDataExtension ext))
-                    return;
-                if (ext.getGrabbedBy() == null)
-                    return;
+                    var ability = AbstractAbility.getAbilityInstance(ext.getGrabbedBy(), ChangedAbilities.GRAB_ENTITY_ABILITY.get());
+                    if (ability != null) {
+                        ability.escapeKeyForward = this.keyForward;
+                        ability.escapeKeyBackward = this.keyBackward;
+                        ability.escapeKeyLeft = this.keyLeft;
+                        ability.escapeKeyRight = this.keyRight;
+                    }
 
-                var ability = AbstractAbility.getAbilityInstance(ext.getGrabbedBy(), ChangedAbilities.GRAB_ENTITY_ABILITY.get());
-                if (ability != null) {
-                    ability.escapeKeyForward = this.keyForward;
-                    ability.escapeKeyBackward = this.keyBackward;
-                    ability.escapeKeyLeft = this.keyLeft;
-                    ability.escapeKeyRight = this.keyRight;
-                    contextSupplier.get().setPacketHandled(true);
-                }
+                    else
+                        throw new IllegalStateException("Grabber does not have grab ability");
+                });
+            }
+
+            else {
+                context.setPacketHandled(true);
+                return levelFuture.thenAccept(level -> {
+                    final var entity = context.getSender();
+                    if (!(entity instanceof LivingEntityDataExtension ext) || ext.getGrabbedBy() == null)
+                        throw new IllegalStateException("Player is not grabbed");
+
+                    var ability = AbstractAbility.getAbilityInstance(ext.getGrabbedBy(), ChangedAbilities.GRAB_ENTITY_ABILITY.get());
+                    if (ability != null) {
+                        ability.escapeKeyForward = this.keyForward;
+                        ability.escapeKeyBackward = this.keyBackward;
+                        ability.escapeKeyLeft = this.keyLeft;
+                        ability.escapeKeyRight = this.keyRight;
+                        Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), this);
+                    }
+
+                    else
+                        throw new IllegalStateException("Grabber does not have grab ability");
+                });
             }
         }
     }

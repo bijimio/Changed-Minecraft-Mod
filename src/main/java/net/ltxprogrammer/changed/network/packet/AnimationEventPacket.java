@@ -17,12 +17,15 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.extensions.IForgeItemStack;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class AnimationEventPacket<T extends AnimationParameters> implements ChangedPacket {
@@ -68,24 +71,23 @@ public class AnimationEventPacket<T extends AnimationParameters> implements Chan
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        final var context = contextSupplier.get();
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+            context.setPacketHandled(true);
+            levelFuture.thenAccept(level -> {
+                final var entities = this.propEntityIds.intStream().mapToObj(level::getEntity).map(entity -> {
+                    if (entity instanceof LivingEntity livingEntity)
+                        return livingEntity;
+                    return null;
+                }).toList();
 
-        if (context.getDirection().getReceptionSide().isClient()) {
-            final Level level = UniversalDist.getLevel();
-            final var entities = this.propEntityIds.intStream().mapToObj(level::getEntity).map(entity -> {
-                if (entity instanceof LivingEntity livingEntity)
-                    return livingEntity;
-                return null;
-            }).toList();
-
-            if (level.getEntity(this.targetId) instanceof LivingEntity livingEntity) {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
-                        net.ltxprogrammer.changed.client.animations.AnimationAssociations.dispatchAnimation(livingEntity, this.event, this.category, this.parameters, entities, this.propItemStacks));
-
-                context.setPacketHandled(true);
-            }
+                if (level.getEntity(this.targetId) instanceof LivingEntity livingEntity) {
+                    net.ltxprogrammer.changed.client.animations.AnimationAssociations.dispatchAnimation(livingEntity, this.event, this.category, this.parameters, entities, this.propItemStacks);
+                }
+            });
         }
+
+        return CompletableFuture.failedFuture(makeIllegalSideException(context.getDirection().getReceptionSide(), LogicalSide.CLIENT));
     }
 
     public static class Builder<T extends AnimationParameters> {

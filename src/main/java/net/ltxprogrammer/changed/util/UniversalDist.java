@@ -27,15 +27,20 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.concurrent.Executor;
 
 public class UniversalDist {
     public static class ClientDist {
         public static Level getLevel() {
             return Minecraft.getInstance().level;
+        }
+        public static Executor getSidedExecutor() {
+            return Minecraft.getInstance();
         }
         public static Player getLocalPlayer() {
             return Minecraft.getInstance().player;
@@ -92,10 +97,18 @@ public class UniversalDist {
         }
     }
 
+    @Deprecated
     public static Level getLevel() {
         Level level = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientDist::getLevel);
         return level != null ? level :
                 DistExecutor.unsafeCallWhenOn(Dist.DEDICATED_SERVER, () -> ServerDist::getLevel);
+    }
+
+    public static Level getLevel(NetworkEvent.Context context) {
+        if (context.getSender() != null)
+            return context.getSender().level();
+        else
+            return DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientDist::getLevel);
     }
 
     /**

@@ -31,6 +31,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -49,6 +50,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -167,19 +170,19 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
         }
 
         @Override
-        public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-            var context = contextSupplier.get();
-
+        public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
             if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
                 AccessoryEntities.INSTANCE.validEntities.clear();
                 AccessoryEntities.INSTANCE.validEntities.putAll(this.map);
 
-                if (this.receiverAccessories != null) {
-                    this.receiverAccessories.handle(contextSupplier);
-                }
-
                 context.setPacketHandled(true);
+
+                if (this.receiverAccessories != null)
+                    return this.receiverAccessories.handle(context, levelFuture, sidedExecutor);
+                return CompletableFuture.completedFuture(null);
             }
+
+            return CompletableFuture.failedFuture(makeIllegalSideException(context.getDirection().getReceptionSide(), LogicalSide.CLIENT));
         }
 
         @Override

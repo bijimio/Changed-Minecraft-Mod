@@ -3,16 +3,20 @@ package net.ltxprogrammer.changed.network.packet;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.util.UniversalDist;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.ltxprogrammer.changed.world.inventory.AccessoryAccessMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 /**
@@ -54,20 +58,26 @@ public class AccessorySyncPacket implements ChangedPacket {
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        final var context = contextSupplier.get();
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+            context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                if (!(level.getEntity(entityId) instanceof LivingEntity livingEntity))
+                    throw new IllegalStateException("Entity is not a living entity");
 
-        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT && UniversalDist.getLevel().getEntity(entityId) instanceof LivingEntity entity) {
-            AccessorySlots.getForEntity(entity).ifPresent(accessorySlots -> accessorySlots.setAll(this.slots, !partial));
+                AccessorySlots.getForEntity(livingEntity).ifPresent(accessorySlots -> accessorySlots.setAll(this.slots, !partial));
+            });
+        }
+
+        else {
+            var sender = context.getSender();
+            if (sender == null)
+                return CompletableFuture.failedFuture(new IllegalStateException("Sender is null (Shouldn't be possible)"));
 
             context.setPacketHandled(true);
-        } else if (context.getDirection().getReceptionSide() == LogicalSide.SERVER) {
-            var sender = context.getSender();
-            if (sender == null) return;
-
             AccessoryAccessMenu.openForPlayer(sender);
 
-            context.setPacketHandled(true);
+            return CompletableFuture.completedFuture(null);
         }
     }
 }

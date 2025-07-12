@@ -37,6 +37,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -341,6 +342,14 @@ public abstract class SpreadingLatexType extends LatexType {
         return super.stepOn(level, coverPos, coverState, originalPos, originalState, entity);
     }
 
+    @Override
+    public @Nullable SoundType getSoundType(LatexCoverState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        final Block block = getBlock();
+        if (block == null)
+            return null;
+        return block.defaultBlockState().getSoundType(level, pos, entity);
+    }
+
     public static class DarkLatex extends SpreadingLatexType {
         private static final List<Supplier<? extends TransfurVariant<?>>> VARIANTS = Util.make(new ArrayList<>(), list -> {
             list.add(ChangedTransfurVariants.DARK_LATEX_WOLF_MALE);
@@ -380,17 +389,17 @@ public abstract class SpreadingLatexType extends LatexType {
         }
 
         @Override
-        public @Nullable Block getBlock() {
+        public Block getBlock() {
             return ChangedBlocks.DARK_LATEX_BLOCK.get();
         }
 
         @Override
-        public @Nullable EntityType<?> getPupEntityType(RandomSource random) {
+        public EntityType<?> getPupEntityType(RandomSource random) {
             return ChangedEntities.DARK_LATEX_WOLF_PUP.get();
         }
 
         @Override
-        public @Nullable TransfurVariant<?> getTransfurVariant(TransfurCause cause, RandomSource random) {
+        public TransfurVariant<?> getTransfurVariant(TransfurCause cause, RandomSource random) {
             return cause == TransfurCause.LATEX_CONTAINER_FELL ?
                     ChangedTransfurVariants.DARK_LATEX_WOLF_PARTIAL.get() : Util.getRandom(VARIANTS, random).get();
         }

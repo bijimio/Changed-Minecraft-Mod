@@ -10,6 +10,7 @@ import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.Foods;
@@ -73,6 +74,10 @@ public class AbstractLatexItem extends ItemNameBlockItem {
 
         context.getLevel().setBlockAndUpdate(event.blockPos, event.getPlannedState());
         LatexCoverState.setAtAndUpdate(context.getLevel(), event.blockPos, event.plannedCoverState);
+
+        final var soundType = event.plannedCoverState.getSoundType(context.getLevel(), event.blockPos, context.getPlayer());
+        if (soundType != null)
+            context.getLevel().playSound(context.getPlayer(), event.blockPos, soundType.getPlaceSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
 
         event.getPostProcess().accept(context.getLevel(), positionToCover);
 

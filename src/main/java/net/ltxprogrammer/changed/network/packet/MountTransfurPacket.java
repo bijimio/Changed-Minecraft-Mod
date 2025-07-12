@@ -3,10 +3,14 @@ package net.ltxprogrammer.changed.network.packet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class MountTransfurPacket implements ChangedPacket {
@@ -28,17 +32,18 @@ public class MountTransfurPacket implements ChangedPacket {
         buffer.writeUUID(mount);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isClient()) {
-            ClientLevel level = Minecraft.getInstance().level;
-            Objects.requireNonNull(level);
-
-            if (entity.equals(mount))
-                level.getPlayerByUUID(entity).stopRiding();
-            else
-                level.getPlayerByUUID(entity).startRiding(level.getPlayerByUUID(mount));
+    @Override
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
             context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                if (entity.equals(mount))
+                    level.getPlayerByUUID(entity).stopRiding();
+                else
+                    level.getPlayerByUUID(entity).startRiding(level.getPlayerByUUID(mount));
+            });
         }
+
+        return CompletableFuture.failedFuture(makeIllegalSideException(context.getDirection().getReceptionSide(), LogicalSide.CLIENT));
     }
 }

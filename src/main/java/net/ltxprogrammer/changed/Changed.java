@@ -179,15 +179,6 @@ public class Changed {
         }
     }
 
-    private static <T> void addNetworkMessage(Class<T> messageType, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder,
-                                             BiConsumer<T, Supplier<NetworkEvent.Context>> messageConsumer) {
-        PACKET_HANDLER.registerMessage(messageID++, messageType, encoder, decoder, messageConsumer);
-    }
-
-    private static <T extends ChangedPacket> void addNetworkMessage(Class<T> messageType, Function<FriendlyByteBuf, T> ctor) {
-        addNetworkMessage(messageType, T::write, ctor, T::handle);
-    }
-
     public static ResourceLocation modResource(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }

@@ -5,11 +5,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.GrabEntityAbility;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
-import net.ltxprogrammer.changed.block.AbstractLatexBlock;
 import net.ltxprogrammer.changed.block.StasisChamber;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.entity.SeatEntity;
+import net.ltxprogrammer.changed.entity.latex.SpreadingLatexType;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.init.ChangedTags;
@@ -19,7 +19,6 @@ import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -34,8 +33,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SupportType;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.material.Fluid;
@@ -252,5 +252,32 @@ public abstract class EntityMixin extends net.minecraftforge.common.capabilities
         final LatexCoverState coverState = LatexCoverState.getAt(level, blockPos.above());
         if (coverState.isAir() || !coverState.getType().stepOn(level, blockPos.above(), coverState, blockPos, state, entity))
             original.call(instance, level, blockPos, state, entity);
+    }
+
+    @WrapOperation(method = {"playCombinationStepSounds", "playMuffledStepSound"},
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/level/block/SoundType;",
+                    remap = true),
+            remap = false)
+    protected SoundType maybeGetLatexCoverSound(BlockState instance, LevelReader reader, BlockPos blockPos, Entity entity, Operation<SoundType> original) {
+        final LatexCoverState coverState = LatexCoverState.getAt(reader, blockPos.above());
+        if (coverState.isAir())
+            return original.call(instance, reader, blockPos, entity);
+        if (coverState.getProperties().contains(SpreadingLatexType.DOWN) && !coverState.getValue(SpreadingLatexType.DOWN))
+            return original.call(instance, reader, blockPos, entity);
+        final SoundType coveredSound = coverState.getSoundType(reader, blockPos.above(), entity);
+        return coveredSound != null ? coveredSound : original.call(instance, reader, blockPos, entity);
+    }
+
+    @WrapOperation(method = {"playStepSound"},
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/level/block/SoundType;"))
+    protected SoundType maybeGetLatexCoverSoundRemapped(BlockState instance, LevelReader reader, BlockPos blockPos, Entity entity, Operation<SoundType> original) {
+        final LatexCoverState coverState = LatexCoverState.getAt(reader, blockPos.above());
+        if (coverState.isAir())
+            return original.call(instance, reader, blockPos, entity);
+        if (coverState.getProperties().contains(SpreadingLatexType.DOWN) && !coverState.getValue(SpreadingLatexType.DOWN))
+            return original.call(instance, reader, blockPos, entity);
+        final SoundType coveredSound = coverState.getSoundType(reader, blockPos.above(), entity);
+        return coveredSound != null ? coveredSound : original.call(instance, reader, blockPos, entity);
     }
 }

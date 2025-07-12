@@ -10,6 +10,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -17,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class BasicPlayerInfoPacket implements ChangedPacket {
@@ -50,29 +53,30 @@ public class BasicPlayerInfoPacket implements ChangedPacket {
         buffer.writeCollection(playerInfos.entrySet(), (next, form) -> { next.writeUUID(form.getKey()); form.getValue().toStream(next); });
     }
 
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isClient()) {
-            Level level = UniversalDist.getLevel();
-            Player localPlayer = UniversalDist.getLocalPlayer();
+    @Override
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+            context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                Player localPlayer = UniversalDist.getLocalPlayer();
 
-            if (!playerInfos.isEmpty()) {
-                Objects.requireNonNull(level);
-                playerInfos.forEach((uuid, listing) -> {
-                    var player = level.getPlayerByUUID(uuid);
-                    if (player instanceof PlayerDataExtension ext && player != localPlayer) {
-                        ext.getBasicPlayerInfo().copyFrom(listing.info);
-                    }
-                });
-                context.setPacketHandled(true);
-            }
+                if (!playerInfos.isEmpty()) {
+                    Objects.requireNonNull(level);
+                    playerInfos.forEach((uuid, listing) -> {
+                        var player = level.getPlayerByUUID(uuid);
+                        if (player instanceof PlayerDataExtension ext && player != localPlayer) {
+                            ext.getBasicPlayerInfo().copyFrom(listing.info);
+                        }
+                    });
+                }
 
-            else {
-                Changed.PACKET_HANDLER.sendToServer(BasicPlayerInfoPacket.Builder.of(localPlayer));
-                context.setPacketHandled(true);
-            }
+                else {
+                    Changed.PACKET_HANDLER.sendToServer(BasicPlayerInfoPacket.Builder.of(localPlayer));
+                }
+            });
         }
-        else if (context.getDirection().getReceptionSide().isServer()) { // Mirror packet
+
+        else { // Mirror packet
             ServerPlayer sender = context.getSender();
             if (sender != null) {
                 if (sender instanceof PlayerDataExtension ext && playerInfos.containsKey(sender.getUUID()))
@@ -80,6 +84,7 @@ public class BasicPlayerInfoPacket implements ChangedPacket {
                 Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> sender), BasicPlayerInfoPacket.Builder.of(sender));
             }
             context.setPacketHandled(true);
+            return CompletableFuture.completedFuture(null);
         }
     }
 

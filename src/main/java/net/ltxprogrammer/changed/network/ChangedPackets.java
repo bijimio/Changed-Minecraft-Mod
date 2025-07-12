@@ -7,12 +7,14 @@ import net.ltxprogrammer.changed.entity.AccessoryEntities;
 import net.ltxprogrammer.changed.network.packet.*;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.common.util.LogicalSidedProvider;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -22,8 +24,8 @@ public class ChangedPackets {
     private final SimpleChannel packetHandler;
     private int messageID = 0;
 
-    private record DeferredPacket(String name, Supplier<Boolean> canRun, Runnable handle, AtomicInteger tries) {
-        static <T extends ChangedPacket> DeferredPacket of(T packet, BiConsumer<T, Supplier<NetworkEvent.Context>> handler, Supplier<NetworkEvent.Context> contextSupplier) {
+    /*private record DeferredPacket(String name, Supplier<Boolean> canRun, Runnable handle, AtomicInteger tries) {
+        static <T extends ChangedPacket> DeferredPacket of(T packet, ChangedPacket.Handler<T> handler, Supplier<NetworkEvent.Context> contextSupplier) {
             final var context = contextSupplier.get();
             return new DeferredPacket(packet.getClass().getSimpleName(),
                     () -> packet.canBeHandled(() -> context),
@@ -33,14 +35,14 @@ public class ChangedPackets {
     }
 
     private final Queue<DeferredPacket> deferredClientPackets = new ArrayDeque<>();
-    private final Queue<DeferredPacket> deferredServerPackets = new ArrayDeque<>();
+    private final Queue<DeferredPacket> deferredServerPackets = new ArrayDeque<>();*/
 
     public ChangedPackets(SimpleChannel packetHandler) {
         this.packetHandler = packetHandler;
     }
 
     public void tryHandlePackets(LogicalSide side) {
-        final var deferredPackets = switch (side) {
+        /*final var deferredPackets = switch (side) {
             case CLIENT -> deferredClientPackets;
             case SERVER -> deferredServerPackets;
         };
@@ -59,9 +61,9 @@ public class ChangedPackets {
             }
 
             deferredPackets.remove();
-            Changed.LOGGER.warn("Handling deferred packet {} after {} tries", packet.name(), packet.tries().incrementAndGet());
+            Changed.LOGGER.debug("Handling deferred packet {} after {} tries", packet.name(), packet.tries().incrementAndGet());
             packet.handle().run();
-        }
+        }*/
     }
 
     public void registerPackets() {
@@ -96,6 +98,7 @@ public class ChangedPackets {
         addNetworkMessage(AccessoryEventPacket.class, AccessoryEventPacket::new);
         addNetworkMessage(LatexCoverUpdatePacket.class, LatexCoverUpdatePacket::new);
         addNetworkMessage(SectionLatexCoversUpdatePacket.class, SectionLatexCoversUpdatePacket::new);
+        addNetworkMessage(CustomLevelEventPacket.class, CustomLevelEventPacket::new);
     }
 
     private <T> BiConsumer<T, FriendlyByteBuf> wrapEncoder(Class<T> messageType, BiConsumer<T, FriendlyByteBuf> encoder) {
@@ -118,21 +121,19 @@ public class ChangedPackets {
         };
     }
 
-    private <T extends ChangedPacket> BiConsumer<T, Supplier<NetworkEvent.Context>> wrapHandler(Class<T> messageType, BiConsumer<T, Supplier<NetworkEvent.Context>> handler) {
-        return (packet, context) -> {
-            try {
-                if (!packet.canBeHandled(context)) {
-                    Changed.LOGGER.info("Deferred packet that was handled too early: {}", messageType.getSimpleName());
-                    if (context.get().getDirection().getReceptionSide().isClient())
-                        deferredClientPackets.add(DeferredPacket.of(packet, handler, context));
-                    else
-                        deferredServerPackets.add(DeferredPacket.of(packet, handler, context));
-                    return;
-                }
-                handler.accept(packet, context);
-            } catch (Exception e) {
-                throw new RuntimeException("Exception while handling " + messageType.getSimpleName() + ": " + e, e);
-            }
+    private <T extends ChangedPacket> BiConsumer<T, Supplier<NetworkEvent.Context>> wrapHandler(Class<T> messageType, ChangedPacket.Handler<T> handler) {
+        return (packet, contextSupplier) -> {
+            final var context = contextSupplier.get();
+            final var executor = LogicalSidedProvider.WORKQUEUE.get(context.getDirection().getReceptionSide());
+            final var levelFuture = CompletableFuture.supplyAsync(() -> UniversalDist.getLevel(context), executor);
+            final var future = handler.accept(packet, context, levelFuture, executor)
+                    .exceptionally(error -> {
+                        Changed.LOGGER.error("Exception while handling {}: {}", messageType.getSimpleName(), error);
+                        return null;
+                    });
+
+            if (future.isDone())
+                levelFuture.cancel(false);
         };
     }
 

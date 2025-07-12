@@ -69,9 +69,9 @@ public class Syringe extends Item implements SpecializedAnimations {
         return itemStack;
     }
 
-    public static void addOwnerTooltip(ItemStack stack, List<Component> builder) {
+    public static void addOwnerTooltip(@Nullable Level level, ItemStack stack, List<Component> builder) {
         if (stack.getOrCreateTag().contains("owner")) {
-            Player player = UniversalDist.getLevel().getPlayerByUUID(stack.getOrCreateTag().getUUID("owner"));
+            Player player = level != null ? level.getPlayerByUUID(stack.getOrCreateTag().getUUID("owner")) : null;
             if (player != null)
                 builder.add(Component.translatable("text.changed.syringe.owner", player.getName()));
             else

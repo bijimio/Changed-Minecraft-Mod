@@ -1,12 +1,9 @@
 package net.ltxprogrammer.changed.network.packet;
 
-import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.util.UniversalDist;
-import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -14,24 +11,32 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
-public class LatexCoverUpdatePacket implements ChangedPacket {
+public class CustomLevelEventPacket implements ChangedPacket {
+    private final int type;
     private final BlockPos pos;
-    private final LatexCoverState latexCoverState;
+    private final int data;
+    private final boolean globalEvent;
 
-    public LatexCoverUpdatePacket(BlockPos pos, LatexCoverState state) {
+    public CustomLevelEventPacket(int type, BlockPos pos, int data, boolean globalEvent) {
+        this.type = type;
         this.pos = pos;
-        this.latexCoverState = state;
+        this.data = data;
+        this.globalEvent = globalEvent;
     }
 
-    public LatexCoverUpdatePacket(FriendlyByteBuf buffer) {
+    public CustomLevelEventPacket(FriendlyByteBuf buffer) {
+        this.type = buffer.readInt();
         this.pos = buffer.readBlockPos();
-        this.latexCoverState = buffer.readById(ChangedLatexTypes.getLatexCoverStateIDMap());
+        this.data = buffer.readInt();
+        this.globalEvent = buffer.readBoolean();
     }
 
     @Override
     public void write(FriendlyByteBuf buffer) {
+        buffer.writeInt(this.type);
         buffer.writeBlockPos(this.pos);
-        buffer.writeId(ChangedLatexTypes.getLatexCoverStateIDMap(), this.latexCoverState);
+        buffer.writeInt(this.data);
+        buffer.writeBoolean(this.globalEvent);
     }
 
     @Override
@@ -39,7 +44,8 @@ public class LatexCoverUpdatePacket implements ChangedPacket {
         if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
             context.setPacketHandled(true);
             return levelFuture.thenAccept(level -> {
-                LatexCoverState.setServerVerifiedAt(level, pos, latexCoverState, 19);
+                UniversalDist.getLevelExtension(level)
+                        .customLevelEvent(level, type, pos, data);
             });
         }
 

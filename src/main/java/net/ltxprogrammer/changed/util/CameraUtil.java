@@ -8,8 +8,10 @@ import net.minecraft.Util;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
@@ -18,21 +20,22 @@ import org.joml.Vector4f;
 
 public class CameraUtil {
     public static class TugData {
-        public final Either<Vec3, LivingEntity> lookAt;
+        public final Either<Vec3, Integer> lookAt;
         public final double strength;
         public int ticksExpire;
+        private LivingEntity cachedEntity = null;
 
-        public TugData(Either<Vec3, LivingEntity> lookAt, double strength, int ticksExpire) {
+        public TugData(Either<Vec3, Integer> lookAt, double strength, int ticksExpire) {
             this.lookAt = lookAt;
             this.strength = strength;
             this.ticksExpire = ticksExpire;
         }
 
         public static TugData readFromBuffer(FriendlyByteBuf buffer) {
-            Either<Vec3, LivingEntity> either;
+            Either<Vec3, Integer> either;
 
             if (buffer.readBoolean()) {
-                either = Either.right((LivingEntity) UniversalDist.getLevel().getEntity(buffer.readInt()));
+                either = Either.right(buffer.readInt());
             } else {
                 either = Either.left(new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble()));
             }
@@ -43,9 +46,9 @@ public class CameraUtil {
         }
 
         public void writeToBuffer(FriendlyByteBuf buffer) {
-            lookAt.ifRight(livingEntity -> {
+            lookAt.ifRight(id -> {
                 buffer.writeBoolean(true);
-                buffer.writeInt(livingEntity.getId());
+                buffer.writeInt(id);
             }).ifLeft(vec3 -> {
                 buffer.writeBoolean(false);
                 buffer.writeDouble(vec3.x);
@@ -57,15 +60,22 @@ public class CameraUtil {
             buffer.writeInt(ticksExpire);
         }
 
+        protected LivingEntity getEntity(Level level) {
+            if (cachedEntity == null)
+                cachedEntity = (LivingEntity)level.getEntity(lookAt.right().orElseThrow());
+            return cachedEntity;
+        }
+
         public Vec3 getDirection(LivingEntity source, float partialTicks) {
             if (lookAt.left().isPresent())
                 return lookAt.left().get();
-            else
-                return lookAt.right().get().getEyePosition().subtract(source.getEyePosition(partialTicks)).normalize();
+            else {
+                return getEntity(source.level()).getEyePosition().subtract(source.getEyePosition(partialTicks)).normalize();
+            }
         }
 
         public boolean shouldExpire(LivingEntity source) {
-            if (this.lookAt.right().isPresent() && this.lookAt.right().get().isDeadOrDying())
+            if (this.lookAt.right().isPresent() && getEntity(source.level()).isDeadOrDying())
                 return true;
             if (source instanceof Player player && (player.isCreative() || player.isSpectator()))
                 return true;
@@ -103,7 +113,7 @@ public class CameraUtil {
 
     public static void tugEntityLookDirection(LivingEntity livingEntity, LivingEntity lookAt, double strength) {
         if (livingEntity instanceof Player player && player instanceof PlayerDataExtension ext) {
-            var tug = new TugData(Either.right(lookAt), strength, 10);
+            var tug = new TugData(Either.right(lookAt.getId()), strength, 10);
             ext.setTugData(tug);
             if (player instanceof ServerPlayer serverPlayer)
                 Changed.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new TugCameraPacket(tug));

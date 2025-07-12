@@ -4,6 +4,7 @@ import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -39,14 +40,18 @@ public class LevelExtension {
         return destroyLatexCover(level, blockPos, doDrops, cause, 512);
     }
 
+    public void customLevelEvent(LevelAccessor level, @Nullable Player source, int id, BlockPos blockPos, int param) {}
+
+    public void customLevelEvent(LevelAccessor level, int id, BlockPos blockPos, int param) {
+        customLevelEvent(level, null, id, blockPos, param);
+    }
+
     public boolean destroyLatexCover(LevelAccessor level, BlockPos blockPos, boolean doDrops, @Nullable Entity cause, int timeToLive) {
         LatexCoverState coverState = LatexCoverState.getAt(level, blockPos);
         if (coverState.isAir()) {
             return false;
         } else {
-            /*if (!(coverState.getBlock() instanceof BaseFireBlock)) {
-                this.levelEvent(2001, blockPos, Block.getId(coverState));
-            }*/
+            this.customLevelEvent(level, 2001, blockPos, ChangedLatexTypes.getLatexCoverStateIDMap().getId(coverState));
 
             if (doDrops) {
                 LatexType.dropResources(coverState, (Level)level, blockPos, cause, ItemStack.EMPTY);

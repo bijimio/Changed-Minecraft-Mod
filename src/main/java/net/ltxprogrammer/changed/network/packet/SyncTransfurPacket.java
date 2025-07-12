@@ -13,11 +13,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class SyncTransfurPacket implements ChangedPacket {
@@ -61,26 +65,27 @@ public class SyncTransfurPacket implements ChangedPacket {
         buffer.writeCollection(changedForms.entrySet(), (next, form) -> { next.writeUUID(form.getKey()); form.getValue().toStream(next); });
     }
 
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isClient()) {
-            ClientLevel level = Minecraft.getInstance().level;
-            Objects.requireNonNull(level);
-            changedForms.forEach((uuid, listing) -> {
-                Player player = level.getPlayerByUUID(uuid);
-                if (player != null) {
-                    final var variant = ProcessTransfur.setPlayerTransfurVariant(player,
-                            ChangedRegistry.TRANSFUR_VARIANT.getValue(listing.form),
-                            TransfurContext.hazard(listing.cause),
-                            listing.progress,
-                            listing.temporaryFromSuit);
-                    if (variant != null)
-                        variant.load(listing.data);
-                }
-            });
+    @Override
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
             context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                changedForms.forEach((uuid, listing) -> {
+                    Player player = level.getPlayerByUUID(uuid);
+                    if (player != null) {
+                        final var variant = ProcessTransfur.setPlayerTransfurVariant(player,
+                                ChangedRegistry.TRANSFUR_VARIANT.getValue(listing.form),
+                                TransfurContext.hazard(listing.cause),
+                                listing.progress,
+                                listing.temporaryFromSuit);
+                        if (variant != null)
+                            variant.load(listing.data);
+                    }
+                });
+            });
         }
-        else if (context.getDirection().getReceptionSide().isServer()) { // Mirror packet
+
+        else {
             ServerPlayer sender = context.getSender();
             if (sender != null) {
                 final Listing senderListing = this.changedForms.get(sender.getUUID());
@@ -90,10 +95,11 @@ public class SyncTransfurPacket implements ChangedPacket {
                             new SyncTransfurPacket(Map.of(sender.getUUID(), senderListing)));
             }
             context.setPacketHandled(true);
+            return CompletableFuture.completedFuture(null);
         }
     }
 
-    @Override
+    /*@Override
     public boolean canBeHandled(Supplier<NetworkEvent.Context> contextSupplier) {
         if (!ChangedPacket.super.canBeHandled(contextSupplier))
             return false;
@@ -103,7 +109,7 @@ public class SyncTransfurPacket implements ChangedPacket {
 
         final var level = UniversalDist.getLevel();
         return changedForms.keySet().stream().map(level::getPlayerByUUID).allMatch(Objects::nonNull);
-    }
+    }*/
 
     public static class Builder {
         private final Map<UUID, Listing> changedForms = new HashMap<>();
