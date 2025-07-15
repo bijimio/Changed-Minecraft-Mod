@@ -72,11 +72,19 @@ public class LatexCoverState extends StateHolder<LatexType, LatexCoverState> {
     }
 
     public static LatexCoverState getAt(LevelReader level, BlockPos blockPos) {
-        return getAt(level.getChunk(blockPos).getSection(level.getSectionIndex(blockPos.getY())), blockPos);
+        if (level.isOutsideBuildHeight(blockPos)) {
+            return ChangedLatexTypes.NONE.get().defaultCoverState();
+        } else {
+            return getAt(level.getChunk(blockPos).getSection(level.getSectionIndex(blockPos.getY())), blockPos);
+        }
     }
 
     public static LatexCoverState getAt(ChunkAccess chunk, BlockPos blockPos) {
-        return getAt(chunk.getSection(chunk.getSectionIndex(blockPos.getY())), blockPos);
+        if (chunk.isOutsideBuildHeight(blockPos)) {
+            return ChangedLatexTypes.NONE.get().defaultCoverState();
+        } else {
+            return getAt(chunk.getSection(chunk.getSectionIndex(blockPos.getY())), blockPos);
+        }
     }
 
     public static LatexCoverState getAt(LevelChunkSection section, BlockPos blockPos) {
