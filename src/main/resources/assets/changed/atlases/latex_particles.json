@@ -2,7 +2,7 @@
   "sources": [
     {
       "type": "directory",
-      "source": "particle/latex",
+      "source": "latex_particle",
       "prefix": ""
     }
   ]
