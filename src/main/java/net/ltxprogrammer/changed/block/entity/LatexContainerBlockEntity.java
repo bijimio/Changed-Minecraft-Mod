@@ -38,7 +38,15 @@ public class LatexContainerBlockEntity extends BlockEntity {
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        if (tag.contains("LatexType")) currentType = ChangedRegistry.LATEX_TYPE.getValue(TagUtil.getResourceLocation(tag, "LatexType"));
+        if (tag.contains("LatexType")) currentType = ChangedRegistry.LATEX_TYPE.getValue(TagUtil.getResourceLocation(tag, "LatexType", old -> {
+            if ("NEUTRAL".equals(old))
+                return ChangedLatexTypes.NONE.getId().toString();
+            if ("DARK_LATEX".equals(old))
+                return ChangedLatexTypes.DARK_LATEX.getId().toString();
+            if ("WHITE_LATEX".equals(old))
+                return ChangedLatexTypes.WHITE_LATEX.getId().toString();
+            return old;
+        }));
         if (tag.contains("FillLevel")) fillLevel = tag.getByte("FillLevel");
     }
 
