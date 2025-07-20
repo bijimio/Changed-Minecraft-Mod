@@ -7,17 +7,11 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.Supplier;
 
 public interface ChangedPacket {
     void write(FriendlyByteBuf buffer);
 
     CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor);
-
-    @Deprecated
-    default boolean canBeHandled(Supplier<NetworkEvent.Context> contextSupplier) {
-        return true;
-    }
 
     default Exception makeIllegalSideException(LogicalSide receivedSide) {
         return new IllegalStateException("Packet received on " + receivedSide + " cannot be handled");

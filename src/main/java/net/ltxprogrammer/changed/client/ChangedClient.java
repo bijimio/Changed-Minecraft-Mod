@@ -114,9 +114,6 @@ public class ChangedClient {
         if (event.phase != TickEvent.Phase.END)
             return;
 
-        if (clientTicks % 3 == 0)
-            Changed.tryHandlePackets(LogicalSide.CLIENT);
-
         if (minecraft.level != null && particleSystem.tick()) {
             var cameraPos = minecraft.gameRenderer.getMainCamera().getBlockPosition();
             var aabb = AABB.of(BoundingBox.fromCorners(cameraPos.offset(-64, -64, -64), cameraPos.offset(64, 64, 64)));

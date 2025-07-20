@@ -58,14 +58,9 @@ public class Changed {
     //private static IEventBus modEventBus;
 
     private static final String PROTOCOL_VERSION = "1";
-    public static final SimpleChannel PACKET_HANDLER = NetworkRegistry.newSimpleChannel(modResource(MODID), () -> PROTOCOL_VERSION,
+    public static final SimpleChannel PACKET_HANDLER = NetworkRegistry.newSimpleChannel(modResource("network"), () -> PROTOCOL_VERSION,
             PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
     private static final ChangedPackets PACKETS = new ChangedPackets(PACKET_HANDLER);
-    private static int messageID = 0;
-
-    public static void tryHandlePackets(LogicalSide side) {
-        PACKETS.tryHandlePackets(side);
-    }
 
     /**
      * This function is split out of the main function as a request by mod extension devs

@@ -686,8 +686,6 @@ public class ProcessTransfur {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.side.isServer() && event.phase == TickEvent.Phase.END) {
-            Changed.tryHandlePackets(LogicalSide.SERVER);
-
             worldTickCount++;
 
             /*if (worldTickCount % 60 == 0) { // Discrete sync packet
