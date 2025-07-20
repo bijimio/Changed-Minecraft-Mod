@@ -132,22 +132,6 @@ public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTra
         return isTargetNearby.getAcquire();
     }
 
-    @Override
-    public void latexTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull RandomSource random) {
-        if (level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE) == 0 ||
-                random.nextInt(1000) > level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE))
-            return;
-        if (!targetNearby(level, position))
-            return;
-
-        BlockPos above = position.above();
-        if (level.getBlockState(above).is(Blocks.AIR) && level.getBlockState(above.above()).is(Blocks.AIR)) {
-            if (level.getEntitiesOfClass(WhiteLatexEntity.class, new AABB(above).inflate(8)).size() < 8) {
-                ChangedEntities.PURE_WHITE_LATEX_WOLF.get().spawn(level, (CompoundTag) null, null, above, MobSpawnType.NATURAL, true, true);
-            }
-        }
-    }
-
     public static final List<Supplier<? extends WhiteLatexPillar>> PILLAR = List.of(
             ChangedBlocks.WHITE_LATEX_PILLAR
     );

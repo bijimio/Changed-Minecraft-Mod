@@ -1,12 +1,10 @@
 package net.ltxprogrammer.changed.entity.latex;
 
 import net.ltxprogrammer.changed.Changed;
-import net.ltxprogrammer.changed.block.DarkLatexBlock;
-import net.ltxprogrammer.changed.block.LatexCoveringSource;
-import net.ltxprogrammer.changed.block.WhiteLatexBlock;
-import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
+import net.ltxprogrammer.changed.block.*;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.TransfurCause;
+import net.ltxprogrammer.changed.entity.beast.WhiteLatexEntity;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
@@ -20,17 +18,20 @@ import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -46,6 +47,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -53,6 +55,7 @@ import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.eventbus.api.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -441,6 +444,35 @@ public abstract class SpreadingLatexType extends LatexType {
                 }
             }
         }
+
+        @Override
+        public void randomTick(LatexCoverState state, ServerLevel level, BlockPos blockPos, RandomSource random) {
+            super.randomTick(state, level, blockPos, random);
+
+            if (level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE) == 0 ||
+                    random.nextInt(5000) > level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE))
+                return;
+
+            BlockPos below = blockPos.below();
+            BlockPos above = blockPos.above();
+            boolean isAir = level.getBlockState(blockPos).isAir();
+            boolean isAboveAir = level.getBlockState(above).isAir();
+            if (isAir && DarkLatexBlock.canSupportRigidBlock(level, below)) { // Do growth event
+                long crystalCount = level.getBlockStates(new AABB(blockPos).inflate(3.0))
+                        .filter(neighbor -> neighbor.is(ChangedTags.Blocks.LATEX_CRYSTAL))
+                        .count();
+
+                if (crystalCount > 6) return;
+
+                if (random.nextFloat() < 0.75f || !isAboveAir) {
+                    level.setBlockAndUpdate(blockPos, Util.getRandom(DarkLatexBlock.SMALL_CRYSTALS, random).get().defaultBlockState());
+                } else {
+                    final var newBlockState = Util.getRandom(DarkLatexBlock.CRYSTALS, random).get().defaultBlockState();
+                    level.setBlockAndUpdate(blockPos, newBlockState.setValue(AbstractDoubleTransfurCrystal.HALF, DoubleBlockHalf.LOWER));
+                    level.setBlockAndUpdate(above, newBlockState.setValue(AbstractDoubleTransfurCrystal.HALF, DoubleBlockHalf.UPPER));
+                }
+            }
+        }
     }
 
     public static class WhiteLatex extends SpreadingLatexType {
@@ -539,6 +571,26 @@ public abstract class SpreadingLatexType extends LatexType {
                                     .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
                         });
                     }
+                }
+            }
+        }
+
+        @Override
+        public void randomTick(@NotNull LatexCoverState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull RandomSource random) {
+            super.randomTick(state, level, position, random);
+
+            if (level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE) == 0 ||
+                    random.nextInt(1000) > level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE))
+                return;
+            if (level.getDifficulty() == Difficulty.PEACEFUL)
+                return;
+            if (!WhiteLatexBlock.targetNearby(level, position))
+                return;
+
+            BlockPos above = position.above();
+            if (level.getBlockState(above).is(Blocks.AIR) && level.getBlockState(above.above()).is(Blocks.AIR)) {
+                if (level.getEntitiesOfClass(WhiteLatexEntity.class, new AABB(above).inflate(8)).size() < 8) {
+                    ChangedEntities.PURE_WHITE_LATEX_WOLF.get().spawn(level, (CompoundTag) null, null, above, MobSpawnType.NATURAL, true, true);
                 }
             }
         }

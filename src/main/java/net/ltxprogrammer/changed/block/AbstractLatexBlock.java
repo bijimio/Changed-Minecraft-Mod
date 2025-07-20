@@ -168,13 +168,4 @@ public abstract class AbstractLatexBlock extends Block implements LatexCoveringS
             return List.of(new ItemStack(this));
         return List.of(goo.get().getDefaultInstance(), goo.get().getDefaultInstance(), goo.get().getDefaultInstance());
     }
-
-    @Override
-    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull RandomSource random) {
-        super.randomTick(state, level, position, random);
-
-        latexTick(state, level, position, random);
-    }
-
-    public void latexTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull RandomSource random) {}
 }

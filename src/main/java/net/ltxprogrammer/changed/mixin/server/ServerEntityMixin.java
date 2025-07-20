@@ -70,7 +70,7 @@ public abstract class ServerEntityMixin {
         }
         if (entity instanceof LivingEntityDataExtension ext) {
             ext.getAccessorySlots().ifPresent(slots -> {
-                if (slots.getContainerSize() > 0)
+                if (!slots.isEmpty())
                     connectionSend.accept(
                             Changed.PACKET_HANDLER.toVanillaPacket(new AccessorySyncPacket(this.entity.getId(), slots), NetworkDirection.PLAY_TO_CLIENT)
                     );
