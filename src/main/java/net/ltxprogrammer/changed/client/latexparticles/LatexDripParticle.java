@@ -7,6 +7,7 @@ import net.ltxprogrammer.changed.client.ModelPartStem;
 import net.ltxprogrammer.changed.client.PoseStackExtender;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModelInterface;
+import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.init.ChangedSounds;
@@ -16,6 +17,7 @@ import net.ltxprogrammer.changed.util.Color3;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -207,6 +209,32 @@ public class LatexDripParticle extends LatexParticle {
     }
 
     @Override
+    public boolean wantsPartInfo(ModelPart part) {
+        return attached && attachedPart.getLeaf() == part;
+    }
+
+    @Override
+    public void handlePartPosition(ModelPart part, PoseStack.Pose modelPose) {
+        if (!attached)
+            return;
+        if (this.preppedForRender)
+            return;
+
+        Vector4f translationVector = new Vector4f(surface.position().x(), surface.position().y(), surface.position().z(), 1.0f);
+        //translationVector.mul(modelPose.pose()); // Coordinates now in screenspace
+
+        Vector4f worldSpace = CameraUtil.toWorldSpace(translationVector, modelPose);
+        x = worldSpace.x();
+        y = worldSpace.y();
+        z = worldSpace.z();
+
+        surfaceNormalRelativeCamera.set(surface.normal());
+        surfaceNormalRelativeCamera.mul(modelPose.normal());
+
+        this.preppedForTick = true;
+    }
+
+    @Override
     public void setupForRender(PoseStack poseStack, float partialTick, SetupContext setupContext) {
         super.setupForRender(poseStack, partialTick, setupContext);
         if (!attached)
@@ -214,34 +242,8 @@ public class LatexDripParticle extends LatexParticle {
         if (!attachedPart.stem.stream().allMatch(part -> part.visible))
             return;
 
-        poseStack.pushPose();
-        if (this.attachedModel instanceof AdvancedHumanoidModelInterface<?,?> modelInterface) {
-            if (this.attachedPart.getRoot() == attachedModel.getHead())
-                modelInterface.scaleForHead(poseStack);
-            else
-                modelInterface.scaleForBody(poseStack);
-        }
-
-        attachedPart.translateAndRotate(poseStack);
-        // in C = A * B, this is C
-        var modelSpaceToScreenSpace = poseStack.last().pose();
-        var modelSpaceToScreenSpaceN = poseStack.last().normal();
-        poseStack.popPose();
-
-        Vector4f translationVector = new Vector4f(surface.position().x(), surface.position().y(), surface.position().z(), 1.0f);
-        translationVector.mul(modelSpaceToScreenSpace); // Coordinates now in screenspace
-
-        Vector4f worldSpace = CameraUtil.toWorldSpace(translationVector);
-        x = worldSpace.x();
-        y = worldSpace.y();
-        z = worldSpace.z();
-
-        surfaceNormalRelativeCamera.set(surface.normal());
-        surfaceNormalRelativeCamera.mul(modelSpaceToScreenSpaceN);
-
         this.setupContext = setupContext;
         this.preppedForRender = true;
-        this.preppedForTick = true;
     }
 
     @Override

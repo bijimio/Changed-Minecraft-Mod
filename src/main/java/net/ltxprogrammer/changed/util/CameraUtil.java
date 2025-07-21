@@ -1,5 +1,7 @@
 package net.ltxprogrammer.changed.util;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.entity.PlayerDataExtension;
@@ -8,7 +10,6 @@ import net.minecraft.Util;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -129,14 +130,31 @@ public class CameraUtil {
         livingEntity.yRotO = yRotO;
     }
 
-    private static @NotNull Matrix4f inverseMatrix = Util.make(new Matrix4f(), Matrix4f::identity);
-    public static void setInverseMatrix(@NotNull Matrix4f matrix) {
-        inverseMatrix = matrix;
+    private static @NotNull Matrix4f viewSpaceToWorldSpaceMatrix = Util.make(new Matrix4f(), Matrix4f::identity);
+    public static void setViewSpaceToWorldSpaceMatrix(@NotNull Matrix4f matrix) {
+        viewSpaceToWorldSpaceMatrix = matrix;
     }
 
-    public static Vector4f toWorldSpace(Vector4f screenSpace) {
-        Vector4f v = new Vector4f(screenSpace.x(), screenSpace.y(), screenSpace.z(), screenSpace.w());
-        v.mulTranspose(inverseMatrix);
-        return v;
+    public static Vector4f toWorldSpace(Vector4f localSpace, PoseStack.Pose localToModel) {
+        RenderSystem.assertOnRenderThread();
+
+        final Vector4f modelSpace = new Vector4f();
+        localSpace.mul(localToModel.pose(), modelSpace);
+
+        final Matrix4f cameraMatrix = RenderSystem.getModelViewMatrix();
+
+        final Vector4f viewSpace = new Vector4f();
+        modelSpace.mul(cameraMatrix, viewSpace); // viewSpace is where the vertex resides on the client's screen
+
+        final Vector4f worldSpace = new Vector4f();
+        viewSpace.mul(viewSpaceToWorldSpaceMatrix, worldSpace);
+
+        return worldSpace;
+
+        //final Matrix3f normalMatrix = RenderSystem.getInverseViewRotationMatrix();
+
+        /*Vector4f v = new Vector4f(modelSpace.x(), modelSpace.y(), modelSpace.z(), modelSpace.w());
+        v.mul(modelSpaceToWorldSpaceMatrix);
+        return v;*/
     }
 }

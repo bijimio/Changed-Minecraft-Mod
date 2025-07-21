@@ -4,11 +4,13 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.ltxprogrammer.changed.client.ChangedClient;
 import net.ltxprogrammer.changed.client.CubeExtender;
+import net.ltxprogrammer.changed.client.PoseStackExtender;
 import net.ltxprogrammer.changed.client.SkinManagerExtender;
 import net.ltxprogrammer.changed.client.latexparticles.LatexDripParticle;
 import net.ltxprogrammer.changed.client.latexparticles.SetupContext;
 import net.ltxprogrammer.changed.client.latexparticles.SurfacePoint;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
+import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.ltxprogrammer.changed.data.MixedTexture;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.util.Color3;
@@ -18,6 +20,7 @@ import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.RandomSource;
@@ -29,6 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -211,9 +216,39 @@ public class LatexParticlesLayer<T extends ChangedEntity, M extends AdvancedHuma
         ChangedClient.particleSystem.addParticle(LatexDripParticle.of(entity, model, partToAttach, surface, color, alpha, 100));
     }
 
+    private static Predicate<ModelPart> capturingPose = null;
+    private static BiConsumer<ModelPart, PoseStack.Pose> handlePose = null;
+    public static boolean isCapturing() {
+        return capturingPose != null;
+    }
+
+    public static boolean capture(ModelPart part, PoseStack pose) {
+        if (capturingPose == null)
+            return false;
+
+        handlePose.accept(part, ((PoseStackExtender)pose).copyLast());
+
+        return true;
+    }
+
     @Override
     public void render(PoseStack pose, MultiBufferSource bufferSource, int packedLight, T entity, float f1, float f2, float partialTicks, float bobAmount, float f3, float f4) {
-        ChangedClient.particleSystem.getAllParticlesForEntity(entity).forEach(particle -> {
+        final var particles = ChangedClient.particleSystem.getAllParticlesForEntity(entity);
+        if (particles.isEmpty())
+            return;
+
+        capturingPose = part -> particles.stream().anyMatch(particle -> particle.wantsPartInfo(part));
+        handlePose = (part, modelPose) -> particles.stream().filter(particle -> particle.wantsPartInfo(part)).forEach(particle -> {
+            particle.handlePartPosition(part, modelPose);
+        });
+
+        parent.getModel().renderToBuffer(pose, bufferSource.getBuffer(parent.getModel().renderType(parent.getTextureLocation(entity))),
+                packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
+
+        handlePose = null;
+        capturingPose = null;
+
+        particles.forEach(particle -> {
             particle.setupForRender(pose, partialTicks, SetupContext.THIRD_PERSON);
             particle.renderFromLayer(bufferSource, partialTicks);
         });

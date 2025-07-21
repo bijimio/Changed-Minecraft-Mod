@@ -2,7 +2,9 @@ package net.ltxprogrammer.changed.client.latexparticles;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.minecraft.client.Camera;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
@@ -63,4 +65,12 @@ public abstract class LatexParticle {
     public abstract AABB getBoundingBox();
 
     public void onCollide() {}
+
+    public boolean wantsPartInfo(ModelPart part) {
+        return false;
+    }
+
+    public void handlePartPosition(ModelPart part, PoseStack.Pose modelPose) {
+
+    }
 }

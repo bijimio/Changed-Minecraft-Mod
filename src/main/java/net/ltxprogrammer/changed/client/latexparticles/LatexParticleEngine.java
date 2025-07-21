@@ -133,9 +133,9 @@ public class LatexParticleEngine implements PreparableReloadListener {
         RenderSystem.enableDepthTest();
         RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE2);
         RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE0);
-        PoseStack posestack = RenderSystem.getModelViewStack();
-        posestack.pushPose();
-        posestack.mulPoseMatrix(poseStack.last().pose());
+        PoseStack modelViewStack = RenderSystem.getModelViewStack();
+        modelViewStack.pushPose();
+        modelViewStack.mulPoseMatrix(poseStack.last().pose());
         RenderSystem.applyModelViewMatrix();
 
         for(ParticleRenderType particlerendertype : this.particles.keySet()) {
@@ -166,7 +166,7 @@ public class LatexParticleEngine implements PreparableReloadListener {
             }
         }
 
-        posestack.popPose();
+        modelViewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         RenderSystem.depthMask(true);
         RenderSystem.disableBlend();

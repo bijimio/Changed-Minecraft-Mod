@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.ltxprogrammer.changed.client.*;
@@ -20,7 +21,6 @@ import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
@@ -35,9 +35,9 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -46,8 +46,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3d;
-import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -197,12 +197,25 @@ public abstract class LevelRendererMixin {
 
     @Inject(method = "prepareCullFrustum", at = @At("TAIL"))
     public void captureInverseMatrix(PoseStack poseStack, Vec3 cameraPosition, Matrix4f projectionMatrix, CallbackInfo ci) {
-        Matrix4f modelViewCopy = new Matrix4f(poseStack.last().pose());
+        final var gameRenderer = Minecraft.getInstance().gameRenderer;
+        final var camera = gameRenderer.getMainCamera();
+        net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles cameraSetup = net.minecraftforge.client.ForgeHooksClient.onCameraSetup(gameRenderer,
+                camera, Minecraft.getInstance().getPartialTick());
+        camera.setAnglesInternal(cameraSetup.getYaw(), cameraSetup.getPitch());
 
-        modelViewCopy.invert();
-        modelViewCopy.translate(new Vector3f((float) cameraPosition.x, (float) cameraPosition.y, (float) cameraPosition.z));
+        Matrix4f viewSpaceToWorldSpace = new Matrix4f();
+        viewSpaceToWorldSpace.translate((float) cameraPosition.x, (float) cameraPosition.y, (float) cameraPosition.z);
+        float xRot = camera.getXRot() * Mth.DEG_TO_RAD;
+        float yRot = (camera.getYRot() + 180.0F) * Mth.DEG_TO_RAD;
+        float zRot = cameraSetup.getRoll() * Mth.DEG_TO_RAD;
+        if (yRot != 0.0F)
+            viewSpaceToWorldSpace.rotate(Axis.YN.rotation(yRot));
+        if (xRot != 0.0F)
+            viewSpaceToWorldSpace.rotate(Axis.XN.rotation(xRot));
+        if (zRot != 0.0F)
+            viewSpaceToWorldSpace.rotate(Axis.ZN.rotation(zRot));
 
-        CameraUtil.setInverseMatrix(modelViewCopy);
+        CameraUtil.setViewSpaceToWorldSpaceMatrix(viewSpaceToWorldSpace);
     }
 
     @Unique private final Cacheable<WaveVisionRenderer> waveVisionRendererCache = Cacheable.of(() -> new WaveVisionRenderer(
