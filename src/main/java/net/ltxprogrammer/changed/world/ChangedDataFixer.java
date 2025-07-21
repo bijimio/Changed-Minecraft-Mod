@@ -70,7 +70,7 @@ public class ChangedDataFixer {
     });
 
     private final HashMap<ResourceLocation, ResourceLocation> BLOCK_ID_REMAP = Util.make(new HashMap<>(), map -> {
-        
+
     });
 
     // IDs that both blocks and items share
@@ -84,6 +84,11 @@ public class ChangedDataFixer {
         map.put(Changed.modResource("light_latex_puddle_female"), ChangedBlocks.WHITE_LATEX_PUDDLE_FEMALE.getId());
         map.put(Changed.modResource("light_latex_puddle_male"), ChangedBlocks.WHITE_LATEX_PUDDLE_MALE.getId());
         map.put(Changed.modResource("tiles_darkblue"), ChangedBlocks.TILES_TEAL.getId());
+
+        map.put(Changed.modResource("tiles_greenhouse_connected"), ChangedBlocks.TILES_GREENHOUSE.getId());
+        map.put(Changed.modResource("tiles_grayblue_connected"), ChangedBlocks.TILES_GRAYBLUE.getId());
+        map.put(Changed.modResource("tiles_grayblue_bolted_connected"), ChangedBlocks.TILES_GRAYBLUE_BOLTED.getId());
+        map.put(Changed.modResource("tiles_white_connected"), ChangedBlocks.TILES_WHITE.getId());
     });
 
     private final HashMap<ResourceLocation, ResourceLocation> VARIANT_ID_REMAP = Util.make(new HashMap<>(), map -> {

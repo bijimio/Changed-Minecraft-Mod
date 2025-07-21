@@ -1,9 +1,17 @@
 package net.ltxprogrammer.changed.block;
 
+import com.google.common.collect.ImmutableList;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -12,9 +20,16 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.ToolAction;
+import net.minecraftforge.common.ToolActions;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 public class ConnectedFloorBlock extends ChangedBlock {
-    // Refer to https://optifine.readthedocs.io/_images/ctm.png
     public static final IntegerProperty STATE = IntegerProperty.create("state", 0, 46);
     private int getRotateC90(int state) {
         return switch (state) {
@@ -69,7 +84,6 @@ public class ConnectedFloorBlock extends ChangedBlock {
     private int getRotate180(int state) {
         return getRotateC90(getRotateC90(state));
     }
-
 
     private int getRotateCC90(int state) {
         return getRotate180(getRotateC90(state));
@@ -139,86 +153,288 @@ public class ConnectedFloorBlock extends ChangedBlock {
         };
     }
 
-    private int calculateState(LevelReader level, BlockPos blockPos, BlockState blockState) {
-        boolean northValid = level.getBlockState(blockPos.north()).is(blockState.getBlock());
-        boolean eastValid = level.getBlockState(blockPos.east()).is(blockState.getBlock());
-        boolean southValid = level.getBlockState(blockPos.south()).is(blockState.getBlock());
-        boolean westValid = level.getBlockState(blockPos.west()).is(blockState.getBlock());
+    public enum CornerState { // Based on ctm_compact
+        INNER(0),
+        NONE(1),
+        VERTICAL(2),
+        HORIZONTAL(3),
+        OUTER(4);
 
-        if (!northValid && !eastValid && !southValid && !westValid)
-            return 0;
-        if (!northValid && eastValid && !southValid && !westValid)
-            return 1; // East
-        if (!northValid && eastValid && !southValid && westValid)
-            return 2; // AxisX
-        if (!northValid && !eastValid && !southValid && westValid)
-            return 3; // West
-        if (!northValid && !eastValid && southValid && !westValid)
-            return 12; // South
-        if (northValid && !eastValid && southValid && !westValid)
-            return 24; // AxisY
-        if (northValid && !eastValid && !southValid && !westValid)
-            return 36; // North
+        public final int stateIndex;
 
-        boolean northEastValid = level.getBlockState(blockPos.north().east()).is(blockState.getBlock());
-        boolean southEastValid = level.getBlockState(blockPos.south().east()).is(blockState.getBlock());
-        boolean southWestValid = level.getBlockState(blockPos.south().west()).is(blockState.getBlock());
-        boolean northWestValid = level.getBlockState(blockPos.north().west()).is(blockState.getBlock());
+        CornerState(int stateIndex) {
+            this.stateIndex = stateIndex;
+        }
 
-        if (northValid && eastValid && southValid && westValid &&
-            northEastValid && northWestValid && southEastValid && southWestValid)
-            return 26; // Quick exit for common type
+        public static CornerState fromBoolean(boolean vertical, boolean horizontal, boolean corner) {
+            if (vertical && horizontal)
+                return corner ? NONE : OUTER;
+            if (vertical)
+                return VERTICAL;
+            return horizontal ? HORIZONTAL : INNER;
+        }
 
-        if (!northValid && eastValid && southValid && !westValid)
-            return southEastValid ? 13 : 4;
-        if (!northValid && !eastValid && southValid && westValid)
-            return southWestValid ? 15 : 5;
-        if (northValid && eastValid && !southValid && !westValid)
-            return northEastValid ? 37 : 16;
-        if (northValid && !eastValid && !southValid && westValid)
-            return northWestValid ? 39 : 17;
+        public CornerState setVertical(boolean vertical) {
+            return switch (this) {
+                case INNER, VERTICAL -> vertical ? VERTICAL : INNER;
+                case OUTER, HORIZONTAL -> vertical ? OUTER : HORIZONTAL;
+                case NONE -> vertical ? NONE : HORIZONTAL;
+            };
+        }
 
-        if (northValid && eastValid && southValid && !westValid)
-            return northEastValid && southEastValid ? 25 : (northEastValid ? 30 : (southEastValid ? 28 : 6));
-        if (!northValid && eastValid && southValid && westValid)
-            return southEastValid && southWestValid ? 14 : (southEastValid ? 31 : (southWestValid ? 29 : 7));
-        if (northValid && eastValid && !southValid && westValid)
-            return northEastValid && northWestValid ? 38 : (northEastValid ? 40 : (northWestValid ? 42 : 18));
-        if (northValid && !eastValid && southValid && westValid)
-            return northWestValid && southWestValid ? 27 : (northWestValid ? 41 : (southWestValid ? 43 : 19));
+        public CornerState setHorizontal(boolean horizontal) {
+            return switch (this) {
+                case INNER, HORIZONTAL -> horizontal ? HORIZONTAL : INNER;
+                case OUTER, VERTICAL -> horizontal ? OUTER : VERTICAL;
+                case NONE -> horizontal ? NONE : VERTICAL;
+            };
+        }
 
-        // At this point, every direct block is valid. Check corners
-        if (!northEastValid && !southEastValid && !southWestValid && !northWestValid)
-            return 46;
+        public CornerState setCorner(boolean corner) {
+            return switch (this) {
+                case NONE, OUTER -> corner ? NONE : OUTER;
+                default -> this;
+            };
+        }
 
-        if (northEastValid && !southWestValid && !northWestValid)
-            return southEastValid ? 23 : 8;
-        if (!northEastValid && southEastValid && !northWestValid)
-            return southWestValid ? 22 : 9;
-        if (!southEastValid && !southWestValid && northWestValid)
-            return northEastValid ? 11 : 20;
-        if (!northEastValid && !southEastValid && southWestValid)
-            return northWestValid ? 10 : 21;
+        public boolean isHorizontal() {
+            return switch (this) {
+                case HORIZONTAL, OUTER, NONE -> true;
+                default -> false;
+            };
+        }
 
-        if (!northWestValid && !southEastValid)
-            return 34;
-        if (!northEastValid && !southWestValid)
-            return 35;
+        public boolean isVertical() {
+            return switch (this) {
+                case VERTICAL, OUTER, NONE -> true;
+                default -> false;
+            };
+        }
 
-        if (!southEastValid)
-            return 32;
-        if (!southWestValid)
-            return 33;
-        if (!northEastValid)
-            return 44;
-        if (!northWestValid)
-            return 45;
+        public boolean isCorner() {
+            return this == NONE;
+        }
 
-        throw new RuntimeException(); // Somehow, a state wasn't accounted for
+        public boolean wantsCorner() {
+            return switch (this) {
+                case OUTER, NONE -> true;
+                default -> false;
+            };
+        }
+    }
+
+    public record CornerSet(CornerState topLeft, CornerState topRight, CornerState bottomLeft, CornerState bottomRight) {
+        public static CornerSet of(CornerState topLeft, CornerState topRight, CornerState bottomLeft, CornerState bottomRight) {
+            return new CornerSet(topLeft, topRight, bottomLeft, bottomRight);
+        }
+    }
+
+    public static final List<CornerSet> STATE_CORNERS = Util.make(new ImmutableList.Builder<CornerSet>(), builder -> {
+        // Index based on https://optifine.readthedocs.io/ctm.html#ctm-standard-8-way
+        builder.add(CornerSet.of(CornerState.INNER, CornerState.INNER, CornerState.INNER, CornerState.INNER));
+        builder.add(CornerSet.of(CornerState.INNER, CornerState.HORIZONTAL, CornerState.INNER, CornerState.HORIZONTAL));
+        builder.add(CornerSet.of(CornerState.HORIZONTAL, CornerState.HORIZONTAL, CornerState.HORIZONTAL, CornerState.HORIZONTAL));
+        builder.add(CornerSet.of(CornerState.HORIZONTAL, CornerState.INNER, CornerState.HORIZONTAL, CornerState.INNER));
+
+        builder.add(CornerSet.of(CornerState.INNER, CornerState.HORIZONTAL, CornerState.VERTICAL, CornerState.OUTER));
+        builder.add(CornerSet.of(CornerState.HORIZONTAL, CornerState.INNER, CornerState.OUTER, CornerState.VERTICAL));
+        builder.add(CornerSet.of(CornerState.VERTICAL, CornerState.OUTER, CornerState.VERTICAL, CornerState.OUTER));
+        builder.add(CornerSet.of(CornerState.HORIZONTAL, CornerState.HORIZONTAL, CornerState.OUTER, CornerState.OUTER));
+
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.NONE, CornerState.OUTER, CornerState.OUTER));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.OUTER, CornerState.OUTER, CornerState.NONE));
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.OUTER, CornerState.NONE, CornerState.OUTER));
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.NONE, CornerState.OUTER, CornerState.OUTER));
+
+        // 12
+        builder.add(CornerSet.of(CornerState.INNER, CornerState.INNER, CornerState.VERTICAL, CornerState.VERTICAL));
+        builder.add(CornerSet.of(CornerState.INNER, CornerState.HORIZONTAL, CornerState.VERTICAL, CornerState.NONE));
+        builder.add(CornerSet.of(CornerState.HORIZONTAL, CornerState.HORIZONTAL, CornerState.NONE, CornerState.NONE));
+        builder.add(CornerSet.of(CornerState.HORIZONTAL, CornerState.INNER, CornerState.NONE, CornerState.VERTICAL));
+
+        builder.add(CornerSet.of(CornerState.VERTICAL, CornerState.OUTER, CornerState.INNER, CornerState.HORIZONTAL));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.VERTICAL, CornerState.HORIZONTAL, CornerState.INNER));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.OUTER, CornerState.HORIZONTAL, CornerState.HORIZONTAL));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.VERTICAL, CornerState.OUTER, CornerState.VERTICAL));
+
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.OUTER, CornerState.OUTER, CornerState.OUTER));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.OUTER, CornerState.NONE, CornerState.OUTER));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.OUTER, CornerState.NONE, CornerState.NONE));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.NONE, CornerState.OUTER, CornerState.NONE));
+
+        // 24
+        builder.add(CornerSet.of(CornerState.VERTICAL, CornerState.VERTICAL, CornerState.VERTICAL, CornerState.VERTICAL));
+        builder.add(CornerSet.of(CornerState.VERTICAL, CornerState.NONE, CornerState.VERTICAL, CornerState.NONE));
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.NONE, CornerState.NONE, CornerState.NONE));
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.VERTICAL, CornerState.NONE, CornerState.VERTICAL));
+
+        builder.add(CornerSet.of(CornerState.VERTICAL, CornerState.OUTER, CornerState.VERTICAL, CornerState.NONE));
+        builder.add(CornerSet.of(CornerState.HORIZONTAL, CornerState.HORIZONTAL, CornerState.NONE, CornerState.OUTER));
+        builder.add(CornerSet.of(CornerState.VERTICAL, CornerState.NONE, CornerState.VERTICAL, CornerState.OUTER));
+        builder.add(CornerSet.of(CornerState.HORIZONTAL, CornerState.HORIZONTAL, CornerState.OUTER, CornerState.NONE));
+
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.NONE, CornerState.NONE, CornerState.OUTER));
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.NONE, CornerState.OUTER, CornerState.NONE));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.NONE, CornerState.NONE, CornerState.OUTER));
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.OUTER, CornerState.OUTER, CornerState.NONE));
+
+        // 36
+        builder.add(CornerSet.of(CornerState.VERTICAL, CornerState.VERTICAL, CornerState.INNER, CornerState.INNER));
+        builder.add(CornerSet.of(CornerState.VERTICAL, CornerState.NONE, CornerState.INNER, CornerState.HORIZONTAL));
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.NONE, CornerState.HORIZONTAL, CornerState.HORIZONTAL));
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.VERTICAL, CornerState.HORIZONTAL, CornerState.INNER));
+
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.NONE, CornerState.HORIZONTAL, CornerState.HORIZONTAL));
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.VERTICAL, CornerState.OUTER, CornerState.VERTICAL));
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.OUTER, CornerState.HORIZONTAL, CornerState.HORIZONTAL));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.VERTICAL, CornerState.NONE, CornerState.VERTICAL));
+
+        builder.add(CornerSet.of(CornerState.NONE, CornerState.OUTER, CornerState.NONE, CornerState.NONE));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.NONE, CornerState.NONE, CornerState.NONE));
+        builder.add(CornerSet.of(CornerState.OUTER, CornerState.OUTER, CornerState.OUTER, CornerState.OUTER));
+    }).build();
+
+    private int computeFromCornerStates(CornerState topLeft, CornerState topRight, CornerState bottomLeft, CornerState bottomRight) {
+        for (int index = 0; index < STATE_CORNERS.size(); ++index) {
+            final var set = STATE_CORNERS.get(index);
+            if (set.topLeft == topLeft && set.topRight == topRight &&
+                    set.bottomLeft == bottomLeft && set.bottomRight == bottomRight)
+                return index;
+        }
+
+        throw new IllegalStateException();
+    }
+
+    private CornerSet getCornerSet(int state) {
+        return STATE_CORNERS.get(state);
+    }
+
+    private boolean isConnected(int state, BlockPos thisPos, BlockPos otherPos) {
+        final var set = getCornerSet(state);
+        CornerState topLeft = set.topLeft;
+        CornerState topRight = set.topRight;
+        CornerState bottomLeft = set.bottomLeft;
+        CornerState bottomRight = set.bottomRight;
+
+        int zOffset = otherPos.getZ() - thisPos.getZ();
+        int xOffset = otherPos.getX() - thisPos.getX();
+
+        if (zOffset == Direction.NORTH.getStepZ() && xOffset == 0) {
+            return topLeft.isVertical() || topRight.isVertical();
+        }
+
+        else if (zOffset == 0 && xOffset == Direction.EAST.getStepX()) {
+            return topRight.isHorizontal() || bottomRight.isHorizontal();
+        }
+
+        else if (zOffset == Direction.SOUTH.getStepZ() && xOffset == 0) {
+            return bottomLeft.isVertical() || bottomRight.isVertical();
+        }
+
+        else if (zOffset == 0 && xOffset == Direction.WEST.getStepX()) {
+            return topLeft.isHorizontal() || bottomLeft.isHorizontal();
+        }
+
+        else if (zOffset == Direction.NORTH.getStepZ() && xOffset == Direction.WEST.getStepX()) {
+            return topLeft.isCorner();
+        }
+
+        else if (zOffset == Direction.NORTH.getStepZ() && xOffset == Direction.EAST.getStepX()) {
+            return topRight.isCorner();
+        }
+
+        else if (zOffset == Direction.SOUTH.getStepZ() && xOffset == Direction.EAST.getStepX()) {
+            return bottomRight.isCorner();
+        }
+
+        else if (zOffset == Direction.SOUTH.getStepZ() && xOffset == Direction.WEST.getStepX()) {
+            return bottomLeft.isCorner();
+        }
+
+        return false;
+    }
+
+    private Stream<BlockPos> getConnected(BlockState state, BlockPos thisPos) {
+        final var north = thisPos.north();
+        final var east = thisPos.east();
+        final var south = thisPos.south();
+        final var west = thisPos.west();
+
+        return Stream.of(north, north.east(), east, south.east(), south, south.west(), west, north.west())
+                .filter(otherPos -> this.isConnected(state.getValue(STATE), thisPos, otherPos));
+    }
+
+    private Stream<BlockPos> getNotConnected(BlockState state, BlockPos thisPos) {
+        final var north = thisPos.north();
+        final var east = thisPos.east();
+        final var south = thisPos.south();
+        final var west = thisPos.west();
+
+        return Stream.of(north, north.east(), east, south.east(), south, south.west(), west, north.west())
+                .filter(otherPos -> !this.isConnected(state.getValue(STATE), thisPos, otherPos));
+    }
+
+    private boolean shouldConsiderBlock(BlockPos thisPos, BlockPos otherPos) {
+        int zOffset = otherPos.getZ() - thisPos.getZ();
+        int xOffset = otherPos.getX() - thisPos.getX();
+
+        if (zOffset == 0 && xOffset == 0)
+            return false;
+        return Mth.abs(zOffset) <= 1 && Mth.abs(xOffset) <= 1;
+    }
+
+    private int setBlockToState(int state, BlockPos thisPos, BlockPos otherPos, boolean value) {
+        final var set = getCornerSet(state);
+        CornerState topLeft = set.topLeft;
+        CornerState topRight = set.topRight;
+        CornerState bottomLeft = set.bottomLeft;
+        CornerState bottomRight = set.bottomRight;
+
+        int zOffset = otherPos.getZ() - thisPos.getZ();
+        int xOffset = otherPos.getX() - thisPos.getX();
+
+        if (zOffset == Direction.NORTH.getStepZ() && xOffset == 0) {
+            topLeft = topLeft.setVertical(value);
+            topRight = topRight.setVertical(value);
+        }
+
+        else if (zOffset == 0 && xOffset == Direction.EAST.getStepX()) {
+            topRight = topRight.setHorizontal(value);
+            bottomRight = bottomRight.setHorizontal(value);
+        }
+
+        else if (zOffset == Direction.SOUTH.getStepZ() && xOffset == 0) {
+            bottomLeft = bottomLeft.setVertical(value);
+            bottomRight = bottomRight.setVertical(value);
+        }
+
+        else if (zOffset == 0 && xOffset == Direction.WEST.getStepX()) {
+            topLeft = topLeft.setHorizontal(value);
+            bottomLeft = bottomLeft.setHorizontal(value);
+        }
+
+        else if (zOffset == Direction.NORTH.getStepZ() && xOffset == Direction.WEST.getStepX()) {
+            topLeft = topLeft.setCorner(value);
+        }
+
+        else if (zOffset == Direction.NORTH.getStepZ() && xOffset == Direction.EAST.getStepX()) {
+            topRight = topRight.setCorner(value);
+        }
+
+        else if (zOffset == Direction.SOUTH.getStepZ() && xOffset == Direction.EAST.getStepX()) {
+            bottomRight = bottomRight.setCorner(value);
+        }
+
+        else if (zOffset == Direction.SOUTH.getStepZ() && xOffset == Direction.WEST.getStepX()) {
+            bottomLeft = bottomLeft.setCorner(value);
+        }
+
+        return computeFromCornerStates(topLeft, topRight, bottomLeft, bottomRight);
     }
 
     public ConnectedFloorBlock(Properties properties) {
         super(properties.hasPostProcess(ChangedBlocks::always));
+        this.registerDefaultState(this.stateDefinition.any().setValue(STATE, 0));
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -230,11 +446,37 @@ public class ConnectedFloorBlock extends ChangedBlock {
         return blockState.is(this);
     }
 
+    private BlockState attachToOtherState(BlockState current, BlockPos thisPos, BlockState otherState, BlockPos blockPosOther) {
+        AtomicInteger atomic = new AtomicInteger(current.getValue(STATE));
+        if (this.connectsTo(otherState))
+            atomic.getAndUpdate(state -> this.setBlockToState(state, thisPos, blockPosOther, true));
+        else
+            return current;
+
+        this.getNotConnected(otherState, blockPosOther) // Remove corner pieces
+                .filter(other -> this.shouldConsiderBlock(thisPos, other))
+                .filter(other -> Mth.abs((other.getX() - thisPos.getX()) * (other.getZ() - thisPos.getZ())) == 1)
+                .forEach(otherPos -> {
+                    atomic.getAndUpdate(state -> this.setBlockToState(state, thisPos, otherPos, false));
+                });
+        this.getConnected(otherState, blockPosOther)
+                .filter(other -> this.shouldConsiderBlock(thisPos, other))
+                .forEach(otherPos -> {
+                    atomic.getAndUpdate(state -> this.setBlockToState(state, thisPos, otherPos, true));
+                });
+
+        return current.setValue(STATE, atomic.getAcquire());
+    }
+
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        LevelReader level = context.getLevel();
-        BlockPos blockPos = context.getClickedPos();
-        return super.getStateForPlacement(context)
-                .setValue(STATE, calculateState(level, blockPos, this.defaultBlockState()));
+        if (!Direction.Plane.HORIZONTAL.test(context.getClickedFace()) || (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()))
+            return super.getStateForPlacement(context);
+
+        final var clickPos = context.getClickedPos();
+        final var blockPosOther = context.getClickedPos().relative(context.getClickedFace().getOpposite());
+        final var otherState = context.getLevel().getBlockState(blockPosOther);
+
+        return this.attachToOtherState(this.defaultBlockState(), clickPos, otherState, blockPosOther);
     }
 
     public BlockState rotate(BlockState state, Rotation direction) {
@@ -258,7 +500,37 @@ public class ConnectedFloorBlock extends ChangedBlock {
     public BlockState updateShape(BlockState blockState, Direction direction, BlockState blockStateOther, LevelAccessor level, BlockPos blockPos, BlockPos blockPosOther) {
         if (direction.getAxis() == Direction.Axis.Y)
             return super.updateShape(blockState, direction, blockStateOther, level, blockPos, blockPosOther);
-        else
-            return blockState.setValue(STATE, calculateState(level, blockPos, blockState));
+
+        int currentState = blockState.getValue(STATE);
+        if (this.isConnected(currentState, blockPos, blockPosOther)) {
+            if (!this.connectsTo(blockStateOther)) {
+                currentState = this.setBlockToState(currentState, blockPos, blockPosOther, false);
+            }
+
+            else { // Connect to other blocks the other state is connected to
+                currentState = this.attachToOtherState(blockState, blockPos, blockStateOther, blockPosOther).getValue(STATE);
+            }
+        }
+
+        else if (this.connectsTo(blockStateOther) && this.getConnected(blockStateOther, blockPosOther).anyMatch(blockPos::equals)) { // Other block is connected to this, so connect back
+            currentState = this.attachToOtherState(blockState, blockPos, blockStateOther, blockPosOther).getValue(STATE);
+        }
+
+        return super.updateShape(blockState.setValue(STATE, currentState), direction, blockStateOther, level, blockPos, blockPosOther);
+    }
+
+    @Override
+    public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction toolAction, boolean simulate) {
+        // This is to allow the player to connect a tile to another, manually
+        if (toolAction != ToolActions.AXE_SCRAPE)
+            return super.getToolModifiedState(state, context, toolAction, simulate);
+
+        BlockState nextState = state;
+        for (var direction : Direction.Plane.HORIZONTAL) {
+            final var otherPos = context.getClickedPos().relative(direction);
+            nextState = this.attachToOtherState(nextState, context.getClickedPos(), context.getLevel().getBlockState(otherPos), otherPos);
+        }
+
+        return state != nextState ? nextState : super.getToolModifiedState(state, context, toolAction, simulate);
     }
 }

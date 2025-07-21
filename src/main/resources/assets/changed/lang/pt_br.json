@@ -76,7 +76,7 @@
   "subtitles.changed.paralyze3": "Intercomunicador anunciando",
   "subtitles.changed.blow1": "Jogador Sendo Infectado",
   "subtitles.changed.vacuum": "Rotaçoes do Robô aspiradorr",
-  
+
   "subtitles.changed.exoskeleton_step": "Paso de Exoesqueleto",
   "subtitles.changed.exoskeleton_chime": "Sinal sonoro digital",
   "subtitles.changed.exoskeleton_lock": "Exoesqueleto equipado",
@@ -750,5 +750,11 @@
   "changed.stasis.modify.arms": "Braços: %s",
   "changed.stasis.modify.arms.tooltip": "Configuração: Modifica os braços da criatura de látex",
   "changed.stasis.modify.scale": "Escala: %s",
-  "changed.stasis.modify.scale.tooltip": "Configuração: Modifica a escala da criatura de látex"
+  "changed.stasis.modify.scale.tooltip": "Configuração: Modifica a escala da criatura de látex",
+
+  "changed.accessory.slot_disabled_by": "Slot desabilitado por:",
+
+  "changed.exoskeleton.prompt": "[%s]> %s",
+  "changed.exoskeleton.battery_low": "Nível de Bateria baixo!",
+  "changed.exoskeleton.battery_critical": "Nível de Bateria crítico!"
 }
