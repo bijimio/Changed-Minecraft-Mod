@@ -74,7 +74,7 @@ public class AnimationEventPacket<T extends AnimationParameters> implements Chan
     public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
         if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
             context.setPacketHandled(true);
-            levelFuture.thenAccept(level -> {
+            return levelFuture.thenAccept(level -> {
                 final var entities = this.propEntityIds.intStream().mapToObj(level::getEntity).map(entity -> {
                     if (entity instanceof LivingEntity livingEntity)
                         return livingEntity;
