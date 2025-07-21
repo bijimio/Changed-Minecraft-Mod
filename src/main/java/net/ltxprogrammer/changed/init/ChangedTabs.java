@@ -96,17 +96,14 @@ public class ChangedTabs {
                         output.accept(ChangedBlocks.TILES_CAUTION_SLAB.get());
                         output.accept(ChangedBlocks.TILES_CAUTION_STAIRS.get());
                         output.accept(ChangedBlocks.TILES_GREENHOUSE.get());
-                        output.accept(ChangedBlocks.TILES_GREENHOUSE_CONNECTED.get());
                         output.accept(ChangedBlocks.WALL_GREENHOUSE.get());
                         output.accept(ChangedBlocks.TILES_GRAYBLUE.get());
-                        output.accept(ChangedBlocks.TILES_GRAYBLUE_CONNECTED.get());
                         output.accept(ChangedBlocks.TILES_GRAYBLUE_SLAB.get());
                         output.accept(ChangedBlocks.TILES_GRAYBLUE_STAIRS.get());
                         output.accept(ChangedBlocks.TILES_GRAY.get());
                         output.accept(ChangedBlocks.TILES_GRAY_SLAB.get());
                         output.accept(ChangedBlocks.TILES_GRAY_STAIRS.get());
                         output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED.get());
-                        output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED_CONNECTED.get());
                         output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED_SLAB.get());
                         output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED_STAIRS.get());
                         output.accept(ChangedBlocks.TILES_LIBRARY_BROWN.get());
@@ -117,7 +114,6 @@ public class ChangedTabs {
                         output.accept(ChangedBlocks.TILES_LIBRARY_TAN_STAIRS.get());
                         output.accept(ChangedBlocks.TILES_TEAL.get());
                         output.accept(ChangedBlocks.TILES_WHITE.get());
-                        output.accept(ChangedBlocks.TILES_WHITE_CONNECTED.get());
                         output.accept(ChangedBlocks.TILES_WHITE_SLAB.get());
                         output.accept(ChangedBlocks.TILES_WHITE_STAIRS.get());
                         output.accept(ChangedBlocks.ORANGE_LAB_CARPETING.get());
