@@ -104,6 +104,7 @@ public class ChangedTabs {
                         output.accept(ChangedBlocks.TILES_GRAY_SLAB.get());
                         output.accept(ChangedBlocks.TILES_GRAY_STAIRS.get());
                         output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED.get());
+                        output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED_CONNECTED.get());
                         output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED_SLAB.get());
                         output.accept(ChangedBlocks.TILES_GRAYBLUE_BOLTED_STAIRS.get());
                         output.accept(ChangedBlocks.TILES_LIBRARY_BROWN.get());
