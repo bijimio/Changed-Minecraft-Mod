@@ -317,6 +317,7 @@
   "block.changed.tiles_caution_stairs": "Caution Tile Stairs",
   "block.changed.tiles_grayblue": "Grayblue Tiles",
   "block.changed.tiles_grayblue_bolted": "Bolted Grayblue Tiles",
+  "block.changed.tiles_grayblue_bolted_connected": "Connected Bolted Grayblue Tiles",
   "block.changed.tiles_grayblue_bolted_slab": "Bolted Grayblue Tile Slab",
   "block.changed.tiles_grayblue_bolted_stairs": "Bolted Grayblue Tile Stairs",
   "block.changed.tiles_grayblue_slab": "Grayblue Tile Slab",
