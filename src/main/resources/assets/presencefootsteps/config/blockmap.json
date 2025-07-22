@@ -65,6 +65,7 @@
   "changed:tiles_grayblue_bolted": "composite",
   "changed:tiles_grayblue_bolted_slab": "composite",
   "changed:tiles_grayblue_bolted_stairs": "composite",
+  "changed:tiles_grayblue_connected": "composite",
   "changed:tiles_grayblue_slab": "composite",
   "changed:tiles_grayblue_stairs": "composite",
   "changed:tiles_gray": "composite",

@@ -87,7 +87,7 @@ public class ChangedDataFixer {
 
         map.put(Changed.modResource("tiles_greenhouse_connected"), ChangedBlocks.TILES_GREENHOUSE.getId());
         map.put(Changed.modResource("tiles_grayblue_connected"), ChangedBlocks.TILES_GRAYBLUE.getId());
-        map.put(Changed.modResource("tiles_grayblue_bolted_connected"), ChangedBlocks.TILES_GRAYBLUE_BOLTED.getId());
+        //map.put(Changed.modResource("tiles_grayblue_bolted_connected"), ChangedBlocks.TILES_GRAYBLUE_BOLTED.getId());
         map.put(Changed.modResource("tiles_white_connected"), ChangedBlocks.TILES_WHITE.getId());
     });
 

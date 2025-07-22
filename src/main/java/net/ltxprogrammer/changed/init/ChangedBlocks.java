@@ -121,7 +121,9 @@ public class ChangedBlocks {
     public static final RegistryObject<LabBlock> TILES_GRAY = register("tiles_gray", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get())));
     public static final RegistryObject<LabSlabBlock> TILES_GRAY_SLAB = register("tiles_gray_slab", () -> new LabSlabBlock(TILES_GRAY.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAY.get())));
     public static final RegistryObject<LabStairBlock> TILES_GRAY_STAIRS = register("tiles_gray_stairs", () -> new LabStairBlock(TILES_GRAY.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAY.get())));
-    public static final RegistryObject<ConnectedFloorBlock> TILES_GRAYBLUE_BOLTED = register("tiles_grayblue_bolted", () -> new ConnectedFloorBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get())));
+    public static final RegistryObject<LabBlock> TILES_GRAYBLUE_BOLTED = register("tiles_grayblue_bolted", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get())));
+    // TODO rename out of "connected" to distinguish it from TILES_GRAYBLUE_BOLTED
+    public static final RegistryObject<ConnectedFloorBlock> TILES_GRAYBLUE_BOLTED_CONNECTED = register("tiles_grayblue_bolted_connected", () -> new ConnectedFloorBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get())));
     public static final RegistryObject<LabSlabBlock> TILES_GRAYBLUE_BOLTED_SLAB = register("tiles_grayblue_bolted_slab", () -> new LabSlabBlock(TILES_GRAYBLUE_BOLTED.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAYBLUE_BOLTED.get())));
     public static final RegistryObject<LabStairBlock> TILES_GRAYBLUE_BOLTED_STAIRS = register("tiles_grayblue_bolted_stairs", () -> new LabStairBlock(TILES_GRAYBLUE_BOLTED.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAYBLUE_BOLTED.get())));
     public static final RegistryObject<LabBlock> TILES_LIBRARY_BROWN = register("tiles_library_brown", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get())));
