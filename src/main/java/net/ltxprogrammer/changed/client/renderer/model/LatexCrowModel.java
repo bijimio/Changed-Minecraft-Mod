@@ -31,7 +31,7 @@ public class LatexCrowModel extends AdvancedHumanoidModel<LatexCrow> implements 
     private final ModelPart Tail;
     private final HumanoidAnimator<LatexCrow, LatexCrowModel> animator;
 
-    // TODO finalize model, texture, animator
+    // TODO finalize model, texture
     public LatexCrowModel(ModelPart root) {
         super(root);
         this.RightLeg = root.getChild("RightLeg");
@@ -50,7 +50,7 @@ public class LatexCrowModel extends AdvancedHumanoidModel<LatexCrow> implements 
         var rightFoot = rightLowerLeg.getChild("RightFoot");
 
         animator = HumanoidAnimator.of(this).hipOffset(-1.5f)
-                .addPreset(AnimatorPresets.dragonLike(
+                .addPreset(AnimatorPresets.birdLike(
                         Head, Torso, LeftArm, RightArm,
                         Tail, List.of(tailPrimary),
                         LeftLeg, leftLowerLeg, leftFoot, leftFoot.getChild("LeftPad"), RightLeg, rightLowerLeg, rightFoot, rightFoot.getChild("RightPad")));

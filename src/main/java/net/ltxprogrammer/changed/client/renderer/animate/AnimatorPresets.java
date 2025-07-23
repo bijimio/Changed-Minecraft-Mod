@@ -20,7 +20,6 @@ import net.ltxprogrammer.changed.client.renderer.animate.upperbody.*;
 import net.ltxprogrammer.changed.client.renderer.animate.wing.*;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 
 import java.util.List;
@@ -329,6 +328,18 @@ public class AnimatorPresets {
                     .addAnimator(new TaurUpperBodyStandAnimator<>(head, torso, leftArm, rightArm))
                     .addAnimator(new TaurUpperBodyJumpAnimator<>(head, torso, leftArm, rightArm))
                     .addCameraAnimator(new TaurCameraJumpAnimator<>());
+        };
+    }
+
+    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> birdUpperBody(ModelPart head, ModelPart torso, ModelPart leftArm, ModelPart rightArm) {
+        return animator -> {
+            animator.setupHands(1, leftArm, rightArm)
+                    .addAnimator(new HoldEntityAnimator<>(head, torso, leftArm, rightArm))
+                    .addAnimator(new WingedDragonUpperBodyInitAnimator<>(head, torso, leftArm, rightArm))
+                    .addAnimator(new BirdUpperBodyCreativeFlyAnimator<>(head, torso, leftArm, rightArm))
+                    .addAnimator(new DragonUpperBodyCrouchAnimator<>(head, torso, leftArm, rightArm))
+                    .addAnimator(new DragonUpperBodyAttackAnimator<>(head, torso, leftArm, rightArm))
+                    .addAnimator(new DragonUpperBodyStandAnimator<>(head, torso, leftArm, rightArm));
         };
     }
 
@@ -816,6 +827,26 @@ public class AnimatorPresets {
                     .addAnimator(new ArmSwimAnimator<>(upperLeftArm, upperRightArm))
                     .addAnimator(new DoubleArmBobAnimator<>(upperLeftArm, upperRightArm, lowerLeftArm, lowerRightArm))
                     .addAnimator(new ArmRideAnimator<>(upperLeftArm, upperRightArm));
+        };
+    }
+
+    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> birdLike(ModelPart head, ModelPart torso, ModelPart leftArm, ModelPart rightArm,
+                                                                                                                            ModelPart tail, List<ModelPart> tailJoints,
+                                                                                                                            ModelPart leftLeg, ModelPart leftLegLower, ModelPart leftFoot, ModelPart leftPad,
+                                                                                                                            ModelPart rightLeg, ModelPart rightLegLower, ModelPart rightFoot, ModelPart rightPad) {
+        return animator -> {
+            animator.addPreset(dragonBipedal(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
+                    .addPreset(birdUpperBody(head, torso, leftArm, rightArm))
+                    .addPreset(dragonTail(tail, tailJoints))
+                    .addAnimator(new DragonBipedalCreativeFlyAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
+                    .addAnimator(new DragonTailCreativeFlyAnimator<>(tail, tailJoints))
+                    .addAnimator(new DragonHeadCreativeFlyAnimator<>(head))
+                    .addAnimator(new DragonHeadInitAnimator<>(head))
+                    .addAnimator(new BirdArmGlideAnimator<>(leftArm, rightArm))
+                    .addAnimator(new ArmSwimAnimator<>(leftArm, rightArm))
+                    .addAnimator(new ArmBobAnimator<>(leftArm, rightArm))
+                    .addAnimator(new ArmRideAnimator<>(leftArm, rightArm))
+                    .addCameraAnimator(new DragonCameraCreativeFlyAnimator<>());
         };
     }
 
