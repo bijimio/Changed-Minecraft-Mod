@@ -793,5 +793,9 @@
 
   "changed.exoskeleton.prompt": "[%s]> %s",
   "changed.exoskeleton.battery_low": "Battery level low",
-  "changed.exoskeleton.battery_critical": "Battery level critical"
+  "changed.exoskeleton.battery_critical": "Battery level critical",
+
+  "builtin_resources.changed:beyond_earth_extra": "Changed Beyond Earth Extra",
+  "builtin_resources.changed:instant_transfur": "Changed Instant Transfur",
+  "builtin_resources.changed:changed_pbr": "Changed PBR"
 }
