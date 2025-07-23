@@ -25,10 +25,6 @@ public class BirdArmGlideAnimator<T extends ChangedEntity, M extends AdvancedHum
         return HumanoidAnimator.AnimateStage.FALL_FLY;
     }
 
-    public static float LEFT_X = 90.0f * Mth.DEG_TO_RAD;
-    public static float LEFT_Y = 90.0f * Mth.DEG_TO_RAD;
-    public static float LEFT_Z = 0.0F;
-
     @Override
     public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         if (entity.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA))
@@ -45,9 +41,9 @@ public class BirdArmGlideAnimator<T extends ChangedEntity, M extends AdvancedHum
         float fallFlyingAmount = Mth.clamp(fallFlyingTicks * fallFlyingTicks / 100.0F, 0.0F, 1.0F);
 
         if (animateLeft) {
-            leftArm.xRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, leftArm.xRot, LEFT_X);
-            leftArm.yRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, leftArm.yRot, LEFT_Y);
-            leftArm.zRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, leftArm.zRot, LEFT_Z);
+            leftArm.xRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, leftArm.xRot, -90.0f * Mth.DEG_TO_RAD);
+            leftArm.yRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, leftArm.yRot, -90.0f * Mth.DEG_TO_RAD);
+            leftArm.zRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, leftArm.zRot, 0.0f);
         }
 
         if (animateRight) {
