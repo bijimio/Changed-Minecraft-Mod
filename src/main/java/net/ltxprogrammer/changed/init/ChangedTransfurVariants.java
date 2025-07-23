@@ -78,6 +78,8 @@ public class ChangedTransfurVariants {
             TransfurVariant.Builder.of(ChangedEntities.GREEN_LIZARD).stepSize(0.7f).sound(ChangedSounds.SOUND3.getId()));
     public static final RegistryObject<TransfurVariant<LatexHuman>> LATEX_HUMAN = register("form_latex_human",
             TransfurVariant.Builder.of(ChangedEntities.LATEX_HUMAN).stepSize(0.6f));
+    public static final RegistryObject<TransfurVariant<LatexEel>> LATEX_EEL = register("form_latex_eel",
+            TransfurVariant.Builder.of(ChangedEntities.LATEX_EEL).stepSize(0.7f).gills().absorbing());
     public static final RegistryObject<TransfurVariant<LatexFennecFox>> LATEX_FENNEC_FOX = register("form_latex_fennec_fox",
             TransfurVariant.Builder.of(ChangedEntities.LATEX_FENNEC_FOX).stepSize(0.7f));
     public static final RegistryObject<TransfurVariant<LatexGoldenDragon>> LATEX_GOLDEN_DRAGON = register("form_latex_golden_dragon",
