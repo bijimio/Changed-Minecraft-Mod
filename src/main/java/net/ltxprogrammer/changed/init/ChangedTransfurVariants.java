@@ -65,6 +65,9 @@ public class ChangedTransfurVariants {
             TransfurVariant.Builder.of(ChangedEntities.BLUE_LATEX_WOLF).stepSize(0.7f).scares(AbstractSkeleton.class).absorbing());
     public static final RegistryObject<TransfurVariant<LatexCrocodile>> LATEX_CROCODILE = register("form_latex_crocodile",
             TransfurVariant.Builder.of(ChangedEntities.LATEX_CROCODILE).breatheMode(TransfurVariant.BreatheMode.STRONG));
+    // TODO balance extra jumps and gliding (maybe only allow one or the other)
+    public static final RegistryObject<TransfurVariant<LatexCrow>> LATEX_CROW = register("form_latex_crow",
+            TransfurVariant.Builder.of(ChangedEntities.LATEX_CROW).stepSize(0.7f).extraJumps(4).glide());
     public static final RegistryObject<TransfurVariant<CrystalWolf>> CRYSTAL_WOLF = register("form_crystal_wolf",
             TransfurVariant.Builder.of(ChangedEntities.CRYSTAL_WOLF).stepSize(0.7f).scares(AbstractSkeleton.class).sound(ChangedSounds.SOUND3.getId()));
     public static final RegistryObject<TransfurVariant<CrystalWolfHorned>> CRYSTAL_WOLF_HORNED = register("form_crystal_wolf_horned",

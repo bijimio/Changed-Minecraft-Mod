@@ -189,6 +189,9 @@ public class ChangedEntities {
     public static final RegistryObject<EntityType<LatexCrocodile>> LATEX_CROCODILE = registerSpawning("latex_crocodile", 0x216d50, 0x43b058,
             EntityType.Builder.of(LatexCrocodile::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.8F, 2.3F),
             ChangedEntities::overworldOnly, SpawnPlacements.Type.ON_GROUND, LatexCrocodile::checkEntitySpawnRules);
+    public static final RegistryObject<EntityType<LatexCrow>> LATEX_CROW = registerSpawning("latex_crow", 0x0e0e0e, 0xffffff,
+            EntityType.Builder.of(LatexCrow::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.7F, 1.93F),
+            ChangedEntities::overworldOnly, SpawnPlacements.Type.ON_GROUND, LatexCrow::checkEntitySpawnRules);
     public static final RegistryObject<EntityType<LatexFennecFox>> LATEX_FENNEC_FOX = registerSpawning("latex_fennec_fox", 0xffe195, 0x84484b,
             EntityType.Builder.of(LatexFennecFox::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.7F, 1.93F),
             ChangedEntities::overworldOnly, SpawnPlacements.Type.ON_GROUND, LatexFennecFox::checkEntitySpawnRules);
