@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.mixin.compatibility.Create;
 import com.simibubi.create.foundation.item.CustomArmPoseItem;
 import net.ltxprogrammer.changed.client.renderer.AdvancedHumanoidRenderer;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
+import net.ltxprogrammer.changed.extension.RequiredMods;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.InteractionHand;
@@ -14,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = AdvancedHumanoidRenderer.class, remap = false)
+@RequiredMods("create")
 public abstract class AdvancedHumanoidRendererMixin {
     @Inject(
             method = {"getArmPose"},
