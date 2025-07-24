@@ -21,7 +21,8 @@ public abstract class AdvancedHumanoidRendererMixin {
             method = {"getArmPose"},
             at = {@At(
                     value = "INVOKE_ASSIGN",
-                    target = "Lnet/ltxprogrammer/changed/entity/ChangedEntity;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"
+                    target = "Lnet/ltxprogrammer/changed/entity/ChangedEntity;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;",
+                    remap = true
             )},
             cancellable = true
     )
