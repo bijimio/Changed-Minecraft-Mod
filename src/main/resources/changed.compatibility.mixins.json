@@ -10,7 +10,8 @@
     "BeyondEarth.OxygenSystemMixin",
     "CarryOn.HoldEntityAnimatorMixin",
     "CarryOn.PickupHandlerMixin",
-
+    "Create.HumanoidAnimatorMixin",
+    "Create.AdvancedHumanoidRendererMixin",
     "DoABarrelRoll.AdvancedHumanoidRendererMixin",
     "EMF.HumanoidAnimatorMixin",
     "FirstPerson.FirstPersonBaseMixin",
