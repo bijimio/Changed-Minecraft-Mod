@@ -197,6 +197,7 @@ public class ChangedTabs {
                         output.accept(ChangedItems.COMPACT_DISC.get());
                         output.accept(ChangedItems.LAB_BOOK.get());
                         output.accept(ChangedItems.LATEX_BASE.get());
+                        output.accept(ChangedBlocks.MUG.get());
                         output.accept(ChangedItems.ORANGE.get());
                         output.accept(ChangedItems.SYRINGE.get());
                         output.accept(ChangedItems.BLOOD_SYRINGE.get());

@@ -94,6 +94,7 @@ public class ChangedBlocks {
     public static final RegistryObject<LatexPupCrystal> LATEX_PUP_CRYSTAL = register("latex_pup_crystal", () -> new LatexPupCrystal(ChangedTransfurVariants.DARK_LATEX_WOLF_PUP, 6, ChangedItems.DARK_LATEX_CRYSTAL_FRAGMENT, BlockBehaviour.Properties.copy(LATEX_CRYSTAL.get())));
     public static final RegistryObject<LatexContainerBlock> LATEX_CONTAINER = register("latex_container", LatexContainerBlock::new);
     public static final RegistryObject<LatexTrafficCone> LATEX_TRAFFIC_CONE = register("latex_traffic_cone", LatexTrafficCone::new);
+    public static final RegistryObject<MugBlock> MUG = register("mug", MugBlock::new);
     public static final RegistryObject<BeifengCrystal> BEIFENG_CRYSTAL = register("beifeng_crystal", () -> new BeifengCrystal(BlockBehaviour.Properties.copy(LATEX_CRYSTAL.get()).strength(1.7F, 0.2F)));
     public static final RegistryObject<BeifengCrystalSmall> BEIFENG_CRYSTAL_SMALL = register("beifeng_crystal_small", () -> new BeifengCrystalSmall(BlockBehaviour.Properties.copy(LATEX_CRYSTAL.get()).strength(1.7F, 0.2F)));
     public static final RegistryObject<DarkDragonCrystal> DARK_DRAGON_CRYSTAL = register("dark_dragon_crystal", () -> new DarkDragonCrystal(BlockBehaviour.Properties.copy(LATEX_CRYSTAL.get()).strength(1.7F, 0.2F)));

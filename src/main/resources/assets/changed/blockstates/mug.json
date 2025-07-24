@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "mugs=1": {
+      "model": "changed:block/mug1"
+    },
+    "mugs=2": {
+      "model": "changed:block/mug2"
+    },
+    "mugs=3": {
+      "model": "changed:block/mug3"
+    },
+    "mugs=4": {
+      "model": "changed:block/mug4"
+    }
+  }
+}
