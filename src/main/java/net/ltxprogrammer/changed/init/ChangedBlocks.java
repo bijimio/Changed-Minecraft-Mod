@@ -78,6 +78,9 @@ public class ChangedBlocks {
     public static final RegistryObject<DuctBlock> DUCT = register("duct", () -> new DuctBlock(BlockBehaviour.Properties.of().sound(SoundType.METAL).strength(3.0F, 3.0F)));
     public static final RegistryObject<ErlenmeyerFlask> ERLENMEYER_FLASK = register("erlenmeyer_flask", ErlenmeyerFlask::new);
     public static final RegistryObject<ExoskeletonCharger> EXOSKELETON_CHARGER = register("exoskeleton_charger", ExoskeletonCharger::new);
+    public static final RegistryObject<FloorSignBlock> FLOOR_SIGN_ELECTRICAL = register("floor_sign_electrical", () -> new FloorSignBlock(BlockBehaviour.Properties.of().sound(SoundType.WOOD)));
+    public static final RegistryObject<FloorSignBlock> FLOOR_SIGN_EXIT = register("floor_sign_exit", () -> new FloorSignBlock(BlockBehaviour.Properties.of().sound(SoundType.WOOD)));
+    public static final RegistryObject<FloorSignBlock> FLOOR_SIGN_WET = register("floor_sign_wet", () -> new FloorSignBlock(BlockBehaviour.Properties.of().sound(SoundType.WOOD)));
     public static final RegistryObject<IronCrate> IRON_CRATE = register("iron_crate", () -> new IronCrate(BlockBehaviour.Properties.of().sound(SoundType.COPPER).requiresCorrectToolForDrops().strength(5.0F, 6.0F)));
     public static final RegistryObject<DarkLatexFluidBlock> DARK_LATEX_FLUID = registerNoItem("dark_latex_fluid", DarkLatexFluidBlock::new);
     public static final RegistryObject<KeypadBlock> KEYPAD = register("keypad", KeypadBlock::new);
