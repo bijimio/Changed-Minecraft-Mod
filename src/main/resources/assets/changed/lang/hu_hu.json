@@ -796,5 +796,9 @@
 
   "changed.exoskeleton.prompt": "[%s]> %s",
   "changed.exoskeleton.battery_low": "Akkumulátorszint alacsony",
-  "changed.exoskeleton.battery_critical": "Akkumulátorszint kritikus"
+  "changed.exoskeleton.battery_critical": "Akkumulátorszint kritikus",
+
+  "builtin_resources.changed:beyond_earth_extra": "Changed Beyond Earth Extra",
+  "builtin_resources.changed:instant_transfur": "Changed Azonnali transzfur",
+  "builtin_resources.changed:changed_pbr": "Changed PBR"
 }
