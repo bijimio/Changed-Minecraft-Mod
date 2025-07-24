@@ -1,0 +1,39 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 2, 16],
+			"faces": {
+				"north": {"uv": [13.625, 5, 15.625, 5.25], "texture": "#container", "cullface": "north"},
+				"up": {"uv": [2, 2, 0, 0], "texture": "#container"},
+				"down": {"uv": [2, 6, 0, 8], "texture": "#container", "cullface": "down"}
+			}
+		},
+		{
+			"from": [0, 2, 0],
+			"to": [16, 16, 2],
+			"faces": {
+				"north": {"uv": [10, 10, 12, 11.75], "texture": "#container", "cullface": "north"},
+				"south": {"uv": [9.875, 0, 11.875, 1.75], "texture": "#container"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "Middle2",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [
+				{
+					"name": "group",
+					"origin": [8, 8, 8],
+					"color": 0,
+					"children": [0, 1]
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"format_version": "1.21.6",
+	"parent": "changed:block/shipping_container/fbr",
+	"texture_size": [32, 32],
+	"textures": {
+		"bars": "changed:block/shipping_container_bars",
+		"container": "changed:block/blue_shipping_container",
+		"particle": "changed:block/blue_shipping_container"
+	}
+}
