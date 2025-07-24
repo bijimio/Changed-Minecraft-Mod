@@ -1,0 +1,83 @@
+{
+  "variants": {
+    "facing=north,section=back_bottom_left": { "model": "changed:block/shipping_container_orange/bbl" },
+    "facing=east,section=back_bottom_left": { "model": "changed:block/shipping_container_orange/bbl", "y": 90 },
+    "facing=south,section=back_bottom_left": { "model": "changed:block/shipping_container_orange/bbl", "y": 180 },
+    "facing=west,section=back_bottom_left": { "model": "changed:block/shipping_container_orange/bbl", "y": 270 },
+
+    "facing=north,section=front_bottom_left": { "model": "changed:block/shipping_container_orange/fbl" },
+    "facing=east,section=front_bottom_left": { "model": "changed:block/shipping_container_orange/fbl", "y": 90 },
+    "facing=south,section=front_bottom_left": { "model": "changed:block/shipping_container_orange/fbl", "y": 180 },
+    "facing=west,section=front_bottom_left": { "model": "changed:block/shipping_container_orange/fbl", "y": 270 },
+
+    "facing=north,section=back_top_left": { "model": "changed:block/shipping_container_orange/btl" },
+    "facing=east,section=back_top_left": { "model": "changed:block/shipping_container_orange/btl", "y": 90 },
+    "facing=south,section=back_top_left": { "model": "changed:block/shipping_container_orange/btl", "y": 180 },
+    "facing=west,section=back_top_left": { "model": "changed:block/shipping_container_orange/btl", "y": 270 },
+
+    "facing=north,section=front_top_left": { "model": "changed:block/shipping_container_orange/ftl" },
+    "facing=east,section=front_top_left": { "model": "changed:block/shipping_container_orange/ftl", "y": 90 },
+    "facing=south,section=front_top_left": { "model": "changed:block/shipping_container_orange/ftl", "y": 180 },
+    "facing=west,section=front_top_left": { "model": "changed:block/shipping_container_orange/ftl", "y": 270 },
+
+    "facing=north,section=back_bottom_middle_left": { "model": "changed:block/shipping_container_orange/bbm" },
+    "facing=east,section=back_bottom_middle_left": { "model": "changed:block/shipping_container_orange/bbm", "y": 90 },
+    "facing=south,section=back_bottom_middle_left": { "model": "changed:block/shipping_container_orange/bbm", "y": 180 },
+    "facing=west,section=back_bottom_middle_left": { "model": "changed:block/shipping_container_orange/bbm", "y": 270 },
+
+    "facing=north,section=front_bottom_middle_left": { "model": "changed:block/shipping_container_orange/fbm" },
+    "facing=east,section=front_bottom_middle_left": { "model": "changed:block/shipping_container_orange/fbm", "y": 90 },
+    "facing=south,section=front_bottom_middle_left": { "model": "changed:block/shipping_container_orange/fbm", "y": 180 },
+    "facing=west,section=front_bottom_middle_left": { "model": "changed:block/shipping_container_orange/fbm", "y": 270 },
+
+    "facing=north,section=back_top_middle_left": { "model": "changed:block/shipping_container_orange/btm" },
+    "facing=east,section=back_top_middle_left": { "model": "changed:block/shipping_container_orange/btm", "y": 90 },
+    "facing=south,section=back_top_middle_left": { "model": "changed:block/shipping_container_orange/btm", "y": 180 },
+    "facing=west,section=back_top_middle_left": { "model": "changed:block/shipping_container_orange/btm", "y": 270 },
+
+    "facing=north,section=front_top_middle_left": { "model": "changed:block/shipping_container_orange/ftm" },
+    "facing=east,section=front_top_middle_left": { "model": "changed:block/shipping_container_orange/ftm", "y": 90 },
+    "facing=south,section=front_top_middle_left": { "model": "changed:block/shipping_container_orange/ftm", "y": 180 },
+    "facing=west,section=front_top_middle_left": { "model": "changed:block/shipping_container_orange/ftm", "y": 270 },
+
+    "facing=north,section=back_bottom_middle_right": { "model": "changed:block/shipping_container_orange/bbm2" },
+    "facing=east,section=back_bottom_middle_right": { "model": "changed:block/shipping_container_orange/bbm2", "y": 90 },
+    "facing=south,section=back_bottom_middle_right": { "model": "changed:block/shipping_container_orange/bbm2", "y": 180 },
+    "facing=west,section=back_bottom_middle_right": { "model": "changed:block/shipping_container_orange/bbm2", "y": 270 },
+
+    "facing=north,section=front_bottom_middle_right": { "model": "changed:block/shipping_container_orange/fbm2" },
+    "facing=east,section=front_bottom_middle_right": { "model": "changed:block/shipping_container_orange/fbm2", "y": 90 },
+    "facing=south,section=front_bottom_middle_right": { "model": "changed:block/shipping_container_orange/fbm2", "y": 180 },
+    "facing=west,section=front_bottom_middle_right": { "model": "changed:block/shipping_container_orange/fbm2", "y": 270 },
+
+    "facing=north,section=back_top_middle_right": { "model": "changed:block/shipping_container_orange/btm2" },
+    "facing=east,section=back_top_middle_right": { "model": "changed:block/shipping_container_orange/btm2", "y": 90 },
+    "facing=south,section=back_top_middle_right": { "model": "changed:block/shipping_container_orange/btm2", "y": 180 },
+    "facing=west,section=back_top_middle_right": { "model": "changed:block/shipping_container_orange/btm2", "y": 270 },
+
+    "facing=north,section=front_top_middle_right": { "model": "changed:block/shipping_container_orange/ftm2" },
+    "facing=east,section=front_top_middle_right": { "model": "changed:block/shipping_container_orange/ftm2", "y": 90 },
+    "facing=south,section=front_top_middle_right": { "model": "changed:block/shipping_container_orange/ftm2", "y": 180 },
+    "facing=west,section=front_top_middle_right": { "model": "changed:block/shipping_container_orange/ftm2", "y": 270 },
+
+    "facing=north,section=back_bottom_right": { "model": "changed:block/shipping_container_orange/bbr" },
+    "facing=east,section=back_bottom_right": { "model": "changed:block/shipping_container_orange/bbr", "y": 90 },
+    "facing=south,section=back_bottom_right": { "model": "changed:block/shipping_container_orange/bbr", "y": 180 },
+    "facing=west,section=back_bottom_right": { "model": "changed:block/shipping_container_orange/bbr", "y": 270 },
+
+    "facing=north,section=front_bottom_right": { "model": "changed:block/shipping_container_orange/fbr" },
+    "facing=east,section=front_bottom_right": { "model": "changed:block/shipping_container_orange/fbr", "y": 90 },
+    "facing=south,section=front_bottom_right": { "model": "changed:block/shipping_container_orange/fbr", "y": 180 },
+    "facing=west,section=front_bottom_right": { "model": "changed:block/shipping_container_orange/fbr", "y": 270 },
+
+    "facing=north,section=back_top_right": { "model": "changed:block/shipping_container_orange/btr" },
+    "facing=east,section=back_top_right": { "model": "changed:block/shipping_container_orange/btr", "y": 90 },
+    "facing=south,section=back_top_right": { "model": "changed:block/shipping_container_orange/btr", "y": 180 },
+    "facing=west,section=back_top_right": { "model": "changed:block/shipping_container_orange/btr", "y": 270 },
+
+    "facing=north,section=front_top_right": { "model": "changed:block/shipping_container_orange/ftr" },
+    "facing=east,section=front_top_right": { "model": "changed:block/shipping_container_orange/ftr", "y": 90 },
+    "facing=south,section=front_top_right": { "model": "changed:block/shipping_container_orange/ftr", "y": 180 },
+    "facing=west,section=front_top_right": { "model": "changed:block/shipping_container_orange/ftr", "y": 270 }
+  }
+}
