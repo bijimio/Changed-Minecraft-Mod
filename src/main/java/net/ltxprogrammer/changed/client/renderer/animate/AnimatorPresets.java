@@ -833,7 +833,8 @@ public class AnimatorPresets {
     public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> birdLike(ModelPart head, ModelPart torso, ModelPart leftArm, ModelPart rightArm,
                                                                                                                             ModelPart tail, List<ModelPart> tailJoints,
                                                                                                                             ModelPart leftLeg, ModelPart leftLegLower, ModelPart leftFoot, ModelPart leftPad,
-                                                                                                                            ModelPart rightLeg, ModelPart rightLegLower, ModelPart rightFoot, ModelPart rightPad) {
+                                                                                                                            ModelPart rightLeg, ModelPart rightLegLower, ModelPart rightFoot, ModelPart rightPad,
+                                                                                                                            ModelPart leftWing, ModelPart leftSubWing, ModelPart rightWing, ModelPart rightSubWing) {
         return animator -> {
             animator.addPreset(dragonBipedal(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
                     .addPreset(birdUpperBody(head, torso, leftArm, rightArm))
@@ -846,6 +847,9 @@ public class AnimatorPresets {
                     .addAnimator(new ArmSwimAnimator<>(leftArm, rightArm))
                     .addAnimator(new ArmBobAnimator<>(leftArm, rightArm))
                     .addAnimator(new ArmRideAnimator<>(leftArm, rightArm))
+                    .addAnimator(new BirdWingInitAnimator<>(leftWing, leftSubWing, rightWing, rightSubWing))
+                    .addAnimator(new BirdWingCreativeFlyAnimator<>(leftWing, leftSubWing, rightWing, rightSubWing))
+                    .addAnimator(new BirdWingFallFlyAnimator<>(leftWing, leftSubWing, rightWing, rightSubWing))
                     .addCameraAnimator(new DragonCameraCreativeFlyAnimator<>());
         };
     }

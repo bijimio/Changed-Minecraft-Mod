@@ -37,19 +37,16 @@ public class BirdArmGlideAnimator<T extends ChangedEntity, M extends AdvancedHum
         boolean animateLeft = !usingItem || (entity.getUsedItemHand() != leftInteractionArm);
         boolean animateRight = !usingItem || (entity.getUsedItemHand() != rightInteractionArm);
 
-        float fallFlyingTicks = (float)entity.getFallFlyingTicks();
-        float fallFlyingAmount = Mth.clamp(fallFlyingTicks * fallFlyingTicks / 100.0F, 0.0F, 1.0F);
-
         if (animateLeft) {
-            leftArm.xRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, leftArm.xRot, -90.0f * Mth.DEG_TO_RAD);
-            leftArm.yRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, leftArm.yRot, -90.0f * Mth.DEG_TO_RAD);
-            leftArm.zRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, leftArm.zRot, 0.0f);
+            leftArm.xRot = HumanoidAnimator.rotlerpRad(core.fallFlyingAmount, leftArm.xRot, -90.0f * Mth.DEG_TO_RAD);
+            leftArm.yRot = HumanoidAnimator.rotlerpRad(core.fallFlyingAmount, leftArm.yRot, -90.0f * Mth.DEG_TO_RAD);
+            leftArm.zRot = HumanoidAnimator.rotlerpRad(core.fallFlyingAmount, leftArm.zRot, 0.0f);
         }
 
         if (animateRight) {
-            rightArm.xRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, rightArm.xRot, -90.0f * Mth.DEG_TO_RAD);
-            rightArm.yRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, rightArm.yRot, 90.0f * Mth.DEG_TO_RAD);
-            rightArm.zRot = HumanoidAnimator.rotlerpRad(fallFlyingAmount, rightArm.zRot, 0.0f);
+            rightArm.xRot = HumanoidAnimator.rotlerpRad(core.fallFlyingAmount, rightArm.xRot, -90.0f * Mth.DEG_TO_RAD);
+            rightArm.yRot = HumanoidAnimator.rotlerpRad(core.fallFlyingAmount, rightArm.yRot, 90.0f * Mth.DEG_TO_RAD);
+            rightArm.zRot = HumanoidAnimator.rotlerpRad(core.fallFlyingAmount, rightArm.zRot, 0.0f);
         }
     }
 }

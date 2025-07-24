@@ -48,11 +48,17 @@ public class LatexCrowModel extends AdvancedHumanoidModel<LatexCrow> implements 
         var rightLowerLeg = RightLeg.getChild("RightLowerLeg");
         var rightFoot = rightLowerLeg.getChild("RightFoot");
 
+        var leftWing = LeftArm.getChild("LeftFlight");
+        var leftSubWing = leftWing.getChild("LeftSubFlight");
+        var rightWing = RightArm.getChild("RightFlight");
+        var rightSubWing = rightWing.getChild("RightSubFlight");
+
         animator = HumanoidAnimator.of(this).hipOffset(-1.5f)
                 .addPreset(AnimatorPresets.birdLike(
                         Head, Torso, LeftArm, RightArm,
                         Tail, List.of(tailPrimary),
-                        LeftLeg, leftLowerLeg, leftFoot, leftFoot.getChild("LeftPad"), RightLeg, rightLowerLeg, rightFoot, rightFoot.getChild("RightPad")));
+                        LeftLeg, leftLowerLeg, leftFoot, leftFoot.getChild("LeftPad"), RightLeg, rightLowerLeg, rightFoot, rightFoot.getChild("RightPad"),
+                        leftWing, leftSubWing, rightWing, rightSubWing));
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -135,17 +141,17 @@ public class LatexCrowModel extends AdvancedHumanoidModel<LatexCrow> implements 
 
         PartDefinition RightArm_r1 = RightArm.addOrReplaceChild("RightArm_r1", CubeListBuilder.create().texOffs(48, 8).addBox(-2.0F, 0.0F, 0.0F, 4.0F, 0.0F, 3.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(-1.0F, -2.0F, 0.0F, 0.5236F, 0.0F, 0.0F));
 
-        PartDefinition RightFlight = RightArm.addOrReplaceChild("RightFlight", CubeListBuilder.create(), PartPose.offsetAndRotation(-3.0F, 3.0F, 0.0F, 0.0F, -0.2618F, 0.0F));
+        PartDefinition RightFlight = RightArm.addOrReplaceChild("RightFlight", CubeListBuilder.create().texOffs(40, 14).addBox(-6.0F, -6.0F, 0.0F, 6.0F, 13.0F, 0.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(-3.0F, 3.0F, 0.0F, 0.0F, 1.0472F, 0.0F));
 
-        PartDefinition RightArm_r2 = RightFlight.addOrReplaceChild("RightArm_r2", CubeListBuilder.create().texOffs(40, 14).addBox(-6.0F, -8.0F, 0.0F, 6.0F, 13.0F, 0.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(0.0F, 2.0F, 0.0F, 0.0F, 1.309F, 0.0F));
+        PartDefinition RightSubFlight = RightFlight.addOrReplaceChild("RightSubFlight", CubeListBuilder.create().texOffs(40, 14).addBox(-6.0F, -6.0F, 0.25F, 6.0F, 13.0F, 0.0F, CubeDeformation.NONE), PartPose.offset(-3.0F, -2.0F, 0.0F));
 
         PartDefinition LeftArm = partdefinition.addOrReplaceChild("LeftArm", CubeListBuilder.create().texOffs(24, 16).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, CubeDeformation.NONE), PartPose.offset(5.0F, 1.5F, 0.0F));
 
         PartDefinition LeftArm_r1 = LeftArm.addOrReplaceChild("LeftArm_r1", CubeListBuilder.create().texOffs(50, 40).addBox(-2.0F, 0.0F, 0.0F, 4.0F, 0.0F, 3.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(1.0F, -2.0F, 0.0F, 0.5236F, 0.0F, 0.0F));
 
-        PartDefinition LeftFlight = LeftArm.addOrReplaceChild("LeftFlight", CubeListBuilder.create(), PartPose.offsetAndRotation(3.0F, 3.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
+        PartDefinition LeftFlight = LeftArm.addOrReplaceChild("LeftFlight", CubeListBuilder.create().texOffs(16, 42).addBox(0.0F, -6.0F, 0.0F, 6.0F, 13.0F, 0.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(3.0F, 3.0F, 0.0F, 0.0F, -1.309F, 0.0F));
 
-        PartDefinition LeftArm_r2 = LeftFlight.addOrReplaceChild("LeftArm_r2", CubeListBuilder.create().texOffs(16, 42).addBox(0.0F, -8.0F, 0.0F, 6.0F, 13.0F, 0.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(0.0F, 2.0F, 0.0F, 0.0F, -1.309F, 0.0F));
+        PartDefinition LeftSubFlight = LeftFlight.addOrReplaceChild("LeftSubFlight", CubeListBuilder.create().texOffs(16, 42).addBox(0.0F, -6.0F, 0.25F, 6.0F, 13.0F, 0.0F, CubeDeformation.NONE), PartPose.offset(4.0F, -2.0F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
