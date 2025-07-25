@@ -101,6 +101,11 @@
   "item.changed.latex_syringe": "Latexszel teli fecskendő",
   "item.changed.wolf_crystal_fragment": "Farkas kristályszilánk",
   "item.changed.latex_tipped_arrow": "Latexes nyílvessző",
+  "item.changed.mug_with_water": "Vízzel teli bögre",
+  "item.changed.mug_with_milk": "Tejjel teli bögre",
+  "item.changed.mug_with_coffee": "Kávéval teli bögre",
+  "item.changed.mug_with_dark_latex": "Sötét latexszel teli bögre",
+  "item.changed.mug_with_white_latex": "Fehér latexszel teli bögre",
   "item.changed.nitrile_gloves": "Nitril kesztyű",
   "item.changed.orange": "Narancs",
   "item.changed.pink_shorts": "Rózsaszín rövidnadrág",
@@ -213,6 +218,8 @@
   "death.attack.changed:electrocution.player": "%1$s játékost áramütés érte, miközben vele harcolt: %2$s",
   "death.attack.changed:fan": "%s játékost felkockázta egy ventilátor",
   "death.attack.changed:fan.player": "%1$s játékost felkockázta egy ventilátor, miközben vele harcolt: %2$s",
+  "death.attack.changed:heart_attack": "%s szívrohamot kapott",
+  "death.attack.changed:heart_attack.player": "%1$s szívrohamot kapott, miközben vele harcolt: %2$s",
 
   "command.changed.success.transfurred.one": "%s játékos %s alakra lett transzfurálva",
   "command.changed.success.transfurred.many": "%s játékosok %s alakra lettek transzfurálva",
@@ -266,6 +273,7 @@
 
   "effect.changed.hypercoagulation": "Hiperkoaguláció",
   "effect.changed.shock": "Sokk",
+  "effect.changed.caffeinated": "Koffeinezett",
   
   "enchantment.changed.latex_protection": "Latexvédelem",
   "enchantment.changed.latex_protection.desc": "Védi a viselőjét a transzfurálástól.",
