@@ -198,6 +198,11 @@ public class ChangedTabs {
                         output.accept(ChangedItems.LAB_BOOK.get());
                         output.accept(ChangedItems.LATEX_BASE.get());
                         output.accept(ChangedBlocks.MUG.get());
+                        output.accept(ChangedItems.MUG_WITH_WATER.get());
+                        output.accept(ChangedItems.MUG_WITH_MILK.get());
+                        output.accept(ChangedItems.MUG_WITH_COFFEE.get());
+                        output.accept(ChangedItems.MUG_WITH_DARK_LATEX.get());
+                        output.accept(ChangedItems.MUG_WITH_WHITE_LATEX.get());
                         output.accept(ChangedItems.ORANGE.get());
                         output.accept(ChangedItems.SYRINGE.get());
                         output.accept(ChangedItems.BLOOD_SYRINGE.get());

@@ -101,6 +101,11 @@
   "item.changed.latex_syringe": "Latex Syringe",
   "item.changed.wolf_crystal_fragment": "Wolf Crystal Shard",
   "item.changed.latex_tipped_arrow": "Latex Tipped Arrow",
+  "item.changed.mug_with_water": "Water Filled Mug",
+  "item.changed.mug_with_milk": "Milk Filled Mug",
+  "item.changed.mug_with_coffee": "Coffee Filled Mug",
+  "item.changed.mug_with_dark_latex": "Dark Latex Filled Mug",
+  "item.changed.mug_with_white_latex": "White Latex Filled Mug",
   "item.changed.nitrile_gloves": "Nitrile Gloves",
   "item.changed.orange": "Orange",
   "item.changed.pink_shorts": "Pink Shorts",
@@ -213,6 +218,8 @@
   "death.attack.changed:electrocution.player": "%1$s was electrocuted whilst fighting %2$s",
   "death.attack.changed:fan": "%s was diced by a fan",
   "death.attack.changed:fan.player": "%1$s was diced by a fan whilst fighting %2$s",
+  "death.attack.changed:heart_attack": "%s had a heart attack",
+  "death.attack.changed:heart_attack.player": "%1$s had a heart attack whilst fighting %2$s",
 
   "command.changed.success.transfurred.one": "Transfurred %s into %s",
   "command.changed.success.transfurred.many": "Transfurred %s player(s) into %s",
@@ -266,6 +273,7 @@
 
   "effect.changed.hypercoagulation": "Hypercoagulation",
   "effect.changed.shock": "Shock",
+  "effect.changed.caffeinated": "Caffeinated",
 
   "enchantment.changed.latex_protection": "Latex Protection",
   "enchantment.changed.latex_protection.desc": "Protects the wearer from being transfurred.",

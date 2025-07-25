@@ -41,6 +41,7 @@ public class ChangedDamageSources {
     public static final DamageTypeHolder LATEX_FLUID = holder("latex_fluid");
     public static final DamageTypeHolder PALE = holder("pale");
     public static final DamageTypeHolder FAN = holder("fan");
+    public static final DamageTypeHolder HEART_ATTACK = holder("heart_attack");
 
     public static DamageSource entityTransfur(RegistryAccess access, LivingEntity source) {
         return TRANSFUR.source(access, source);

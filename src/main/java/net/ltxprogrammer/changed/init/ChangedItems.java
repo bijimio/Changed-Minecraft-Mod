@@ -1,21 +1,28 @@
 package net.ltxprogrammer.changed.init;
 
 import net.ltxprogrammer.changed.Changed;
+import net.ltxprogrammer.changed.entity.TransfurCause;
+import net.ltxprogrammer.changed.entity.TransfurContext;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.entity.robot.Roomba;
 import net.ltxprogrammer.changed.item.*;
+import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -85,6 +92,21 @@ public class ChangedItems {
     public static final RegistryObject<LatexInkballItem> LATEX_INKBALL = register("latex_inkball", LatexInkballItem::new);
     public static final RegistryObject<LatexSyringe> LATEX_SYRINGE = register("latex_syringe", () -> new LatexSyringe(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<LatexTippedArrowItem> LATEX_TIPPED_ARROW = register("latex_tipped_arrow", LatexTippedArrowItem::new);
+    public static final RegistryObject<FilledMug> MUG_WITH_WATER = register("mug_with_water", () -> new FilledMug(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<FilledMug> MUG_WITH_MILK = register("mug_with_milk", () -> new FilledMug(new Item.Properties().stacksTo(16)) {
+        @Override
+        protected void onDrink(ItemStack stack, Level level, LivingEntity user) {
+            user.removeAllEffects();
+        }
+    });
+    public static final RegistryObject<FilledMug> MUG_WITH_COFFEE = register("mug_with_coffee", () -> new FilledMug(new Item.Properties().stacksTo(16)) {
+        @Override
+        protected void onDrink(ItemStack stack, Level level, LivingEntity user) {
+            ChangedEffects.CAFFEINATED.get().stackEffect(user, 5 * 60 * 20, (5 * 60 * 20) / 2);
+        }
+    });
+    public static final RegistryObject<FilledMug> MUG_WITH_DARK_LATEX = register("mug_with_dark_latex", () -> new LatexFilledMug(ChangedLatexTypes.DARK_LATEX, new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<FilledMug> MUG_WITH_WHITE_LATEX = register("mug_with_white_latex", () -> new LatexFilledMug(ChangedLatexTypes.WHITE_LATEX, new Item.Properties().stacksTo(16)));
     public static final RegistryObject<TransfurCrystalItem> WOLF_CRYSTAL_FRAGMENT = register("wolf_crystal_fragment",
             () -> new TransfurCrystalItem(ChangedTransfurVariants.CRYSTAL_WOLF));
     public static final RegistryObject<TransfurCrystalItem> DARK_DRAGON_CRYSTAL_FRAGMENT = register("dark_dragon_crystal_fragment",
