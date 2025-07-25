@@ -13,7 +13,6 @@ import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.recipe.InfuserRecipe;
 import net.ltxprogrammer.changed.recipe.PurifierRecipe;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.NotImplementedException;
@@ -30,17 +29,15 @@ public class InfuserRecipeCategory implements IRecipeCategory<InfuserRecipe> {
     public static final int WIDTH = 116;
     public static final int HEIGHT = 54;
 
-    private final IDrawable background;
     private final IDrawable icon;
-    private final TranslatableComponent localizedName;
+    private final Component localizedName;
     private final ICraftingGridHelper craftingGridHelper;
 
     public InfuserRecipeCategory(IGuiHelper guiHelper) {
-        ResourceLocation location = new ResourceLocation("jei", "textures/gui/gui_vanilla.png");
-        background = guiHelper.createDrawable(location, 0, 60, WIDTH, HEIGHT);
+        ResourceLocation location = ResourceLocation.fromNamespaceAndPath("jei", "textures/gui/gui_vanilla.png");
         icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ChangedBlocks.INFUSER.get()));
-        localizedName = new TranslatableComponent("container.changed.infuser");
-        craftingGridHelper = guiHelper.createCraftingGridHelper(craftInputSlot1);
+        localizedName = Component.translatable("container.changed.infuser");
+        craftingGridHelper = guiHelper.createCraftingGridHelper();
     }
 
     @Override
@@ -49,8 +46,13 @@ public class InfuserRecipeCategory implements IRecipeCategory<InfuserRecipe> {
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return WIDTH;
+    }
+
+    @Override
+    public int getHeight() {
+        return HEIGHT;
     }
 
     @Override
@@ -64,18 +66,6 @@ public class InfuserRecipeCategory implements IRecipeCategory<InfuserRecipe> {
     }
 
     @Override
-    @SuppressWarnings("removal")
-    public @NotNull ResourceLocation getUid() {
-        throw new NotImplementedException("Deprecated function");
-    }
-
-    @Override
-    @SuppressWarnings("removal")
-    public @NotNull Class<? extends InfuserRecipe> getRecipeClass() {
-        throw new NotImplementedException("Deprecated");
-    }
-
-    @Override
     public void setRecipe(IRecipeLayoutBuilder builder, InfuserRecipe recipe, IFocusGroup focuses) {
         var ingredients = recipe.getIngredients();
         List<List<ItemStack>> grid = new ArrayList<>();
@@ -83,7 +73,7 @@ public class InfuserRecipeCategory implements IRecipeCategory<InfuserRecipe> {
         for (int idx = 0; idx < ingredients.size(); ++idx)
             grid.add(Arrays.asList(ingredients.get(idx).getItems()));
 
-        craftingGridHelper.setInputs(builder, VanillaTypes.ITEM_STACK, grid, 3, 3);
-        craftingGridHelper.setOutputs(builder, VanillaTypes.ITEM_STACK, recipe.getPossibleResults());
+        craftingGridHelper.createAndSetInputs(builder, VanillaTypes.ITEM_STACK, grid, 3, 3);
+        craftingGridHelper.createAndSetOutputs(builder, VanillaTypes.ITEM_STACK, recipe.getPossibleResults());
     }
 }

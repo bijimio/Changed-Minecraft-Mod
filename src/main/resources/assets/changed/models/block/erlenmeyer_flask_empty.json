@@ -1,8 +1,9 @@
 {
+  "render_type": "minecraft:cutout",
   "parent": "changed:custom/erlenmeyer_flask",
   "textures": {
-    "all": "changed:blocks/erlenmeyer_flask/erlenmeyer_flask",
-    "particle": "changed:blocks/erlenmeyer_flask/erlenmeyer_flask",
-    "0": "changed:blocks/erlenmeyer_flask/erlenmeyer_flask"
+    "all": "changed:block/erlenmeyer_flask/erlenmeyer_flask",
+    "particle": "changed:block/erlenmeyer_flask/erlenmeyer_flask",
+    "0": "changed:block/erlenmeyer_flask/erlenmeyer_flask"
   }
 }

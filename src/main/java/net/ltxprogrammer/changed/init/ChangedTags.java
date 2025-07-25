@@ -3,7 +3,9 @@ package net.ltxprogrammer.changed.init;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
@@ -27,7 +29,7 @@ public class ChangedTags {
         public static final TagKey<EntityType<?>> BENIGN_LATEXES = create("benign_latexes");
 
         private static TagKey<EntityType<?>> create(String name) {
-            return TagKey.create(Registry.ENTITY_TYPE_REGISTRY, Changed.modResource(name));
+            return TagKey.create(Registries.ENTITY_TYPE, Changed.modResource(name));
         }
     }
 
@@ -41,9 +43,11 @@ public class ChangedTags {
         public static final TagKey<Block> LATEX_CRYSTAL = create("latex_crystal");
         public static final TagKey<Block> LATEX_SPAWNABLE_ON = create("latex_spawnable_on");
         public static final TagKey<Block> CRYSTALLINE = create("crystalline");
+        public static final TagKey<Block> DENY_LATEX_COVER = create("deny_latex_cover");
+        public static final TagKey<Block> DENY_LATEX_COVER_CLIMB = create("deny_latex_cover_climb");
 
         private static TagKey<Block> create(String name) {
-            return TagKey.create(Registry.BLOCK_REGISTRY, Changed.modResource(name));
+            return TagKey.create(Registries.BLOCK, Changed.modResource(name));
         }
     }
 
@@ -56,7 +60,7 @@ public class ChangedTags {
         public static final TagKey<Item> QUADRUPEDAL_BOOTS = create("quadrupedal_boots");
 
         private static TagKey<Item> create(String name) {
-            return TagKey.create(Registry.ITEM_REGISTRY, Changed.modResource(name));
+            return TagKey.create(Registries.ITEM, Changed.modResource(name));
         }
     }
 
@@ -64,7 +68,7 @@ public class ChangedTags {
         public static final TagKey<Fluid> LATEX = create("latex");
 
         private static TagKey<Fluid> create(String name) {
-            return TagKey.create(Registry.FLUID_REGISTRY, Changed.modResource(name));
+            return TagKey.create(Registries.FLUID, Changed.modResource(name));
         }
     }
 
@@ -76,7 +80,17 @@ public class ChangedTags {
         public static final TagKey<Biome> HAS_FACILITY = create("has_structure/facility");
 
         private static TagKey<Biome> create(String name) {
-            return TagKey.create(Registry.BIOME_REGISTRY, Changed.modResource(name));
+            return TagKey.create(Registries.BIOME, Changed.modResource(name));
+        }
+    }
+
+    public static class DamageTypes {
+        public static final TagKey<DamageType> IS_TRANSFUR = create("is_transfur");
+        public static final TagKey<DamageType> LATEX_IMMUNE_TO = create("latex_immune_to");
+        public static final TagKey<DamageType> LATEX_WEAK_TO = create("latex_weak_to");
+
+        private static TagKey<DamageType> create(String name) {
+            return TagKey.create(Registries.DAMAGE_TYPE, Changed.modResource(name));
         }
     }
 
@@ -84,6 +98,7 @@ public class ChangedTags {
         public static final TagKey<TransfurVariant<?>> CAN_SLEEP_ON_PILLOWS = create("can_sleep_on_pillows");
         public static final TagKey<TransfurVariant<?>> BREAK_ITEMS_ON_TF = create("break_items_on_tf");
         public static final TagKey<TransfurVariant<?>> TEMPORARY_ONLY = create("temporary_only");
+        public static final TagKey<TransfurVariant<?>> MASKED = create("masked");
 
         private static TagKey<TransfurVariant<?>> create(String name) {
             return TagKey.create(ChangedRegistry.TRANSFUR_VARIANT.key, Changed.modResource(name));

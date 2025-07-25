@@ -27,7 +27,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -46,7 +45,7 @@ public class BedsideIVRack extends AbstractCustomShapeTallBlock implements Simpl
     public static final VoxelShape SHAPE_WHOLE = Shapes.or(SHAPE_BASE, SHAPE_STEM, SHAPE_TOP);
 
     public BedsideIVRack() {
-        super(BlockBehaviour.Properties.of(Material.METAL).sound(SoundType.METAL).dynamicShape().strength(3.0F, 5.0F).isSuffocating(ChangedBlocks::never).isViewBlocking(ChangedBlocks::never));
+        super(BlockBehaviour.Properties.of().sound(SoundType.METAL).dynamicShape().strength(3.0F, 5.0F).isSuffocating(ChangedBlocks::never).isViewBlocking(ChangedBlocks::never));
         this.registerDefaultState(this.stateDefinition.any().setValue(HALF, DoubleBlockHalf.LOWER).setValue(WATERLOGGED, false).setValue(FULL, false));
     }
 

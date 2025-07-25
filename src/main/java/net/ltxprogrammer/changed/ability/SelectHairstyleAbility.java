@@ -22,14 +22,14 @@ public class SelectHairstyleAbility extends SimpleAbility {
     @Override
     public void saveData(CompoundTag tag, IAbstractChangedEntity entity) {
         super.saveData(tag, entity);
-        tag.putInt("HairStyle", ChangedRegistry.HAIR_STYLE.get().getID(entity.getHairStyle()));
+        tag.putInt("HairStyle", ChangedRegistry.HAIR_STYLE.getID(entity.getHairStyle()));
     }
 
     @Override
     public void readData(CompoundTag tag, IAbstractChangedEntity entity) {
         super.readData(tag, entity);
         if (tag.contains("HairStyle"))
-            entity.setHairStyle(ChangedRegistry.HAIR_STYLE.get().getValue(tag.getInt("HairStyle")));
+            entity.setHairStyle(ChangedRegistry.HAIR_STYLE.getValue(tag.getInt("HairStyle")));
     }
 
     @Override

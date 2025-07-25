@@ -17,12 +17,15 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.extensions.IForgeItemStack;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class AnimationEventPacket<T extends AnimationParameters> implements ChangedPacket {
@@ -46,7 +49,7 @@ public class AnimationEventPacket<T extends AnimationParameters> implements Chan
 
     public AnimationEventPacket(FriendlyByteBuf buffer) {
         this.targetId = buffer.readInt();
-        this.event = (AnimationEvent<T>) ChangedRegistry.ANIMATION_EVENTS.get().getValue(buffer.readInt());
+        this.event = (AnimationEvent<T>) ChangedRegistry.ANIMATION_EVENTS.readRegistryObject(buffer);
         this.category = buffer.readOptional(FriendlyByteBuf::readUtf).map(AnimationCategory::fromSerial).flatMap(DataResult::result).orElse(null);
         this.parameters = buffer.readOptional(FriendlyByteBuf::readAnySizeNbt).map(nbt ->
                 this.event.getCodec().parse(NbtOps.INSTANCE, nbt).getOrThrow(false, error -> {})
@@ -58,7 +61,7 @@ public class AnimationEventPacket<T extends AnimationParameters> implements Chan
     @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeInt(this.targetId);
-        buffer.writeInt(ChangedRegistry.ANIMATION_EVENTS.get().getID(this.event));
+        ChangedRegistry.ANIMATION_EVENTS.writeRegistryObject(buffer, this.event);
         buffer.writeOptional(Optional.ofNullable(category), (buf, cat) -> buf.writeUtf(cat.getSerializedName()));
         buffer.writeOptional(Optional.ofNullable(this.parameters), (buf, param) -> {
             buf.writeNbt((CompoundTag) this.event.getCodec().encodeStart(NbtOps.INSTANCE, param).getOrThrow(false, error -> {}));
@@ -68,24 +71,23 @@ public class AnimationEventPacket<T extends AnimationParameters> implements Chan
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        final var context = contextSupplier.get();
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+            context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                final var entities = this.propEntityIds.intStream().mapToObj(level::getEntity).map(entity -> {
+                    if (entity instanceof LivingEntity livingEntity)
+                        return livingEntity;
+                    return null;
+                }).toList();
 
-        if (context.getDirection().getReceptionSide().isClient()) {
-            final Level level = UniversalDist.getLevel();
-            final var entities = this.propEntityIds.intStream().mapToObj(level::getEntity).map(entity -> {
-                if (entity instanceof LivingEntity livingEntity)
-                    return livingEntity;
-                return null;
-            }).toList();
-
-            if (level.getEntity(this.targetId) instanceof LivingEntity livingEntity) {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
-                        net.ltxprogrammer.changed.client.animations.AnimationAssociations.dispatchAnimation(livingEntity, this.event, this.category, this.parameters, entities, this.propItemStacks));
-
-                context.setPacketHandled(true);
-            }
+                if (level.getEntity(this.targetId) instanceof LivingEntity livingEntity) {
+                    net.ltxprogrammer.changed.client.animations.AnimationAssociations.dispatchAnimation(livingEntity, this.event, this.category, this.parameters, entities, this.propItemStacks);
+                }
+            });
         }
+
+        return CompletableFuture.failedFuture(makeIllegalSideException(context.getDirection().getReceptionSide(), LogicalSide.CLIENT));
     }
 
     public static class Builder<T extends AnimationParameters> {

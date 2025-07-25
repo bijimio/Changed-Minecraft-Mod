@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "changed:items/3d/tsc_baton",
-		"particle": "changed:items/3d/tsc_baton"
+		"0": "changed:item/3d/tsc_baton",
+		"particle": "changed:item/3d/tsc_baton"
 	},
 	"elements": [
 		{

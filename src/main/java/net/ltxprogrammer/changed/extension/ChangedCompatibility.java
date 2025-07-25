@@ -14,12 +14,13 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -28,7 +29,9 @@ public class ChangedCompatibility {
     private static Field findField(String className, String fieldName) {
         Field tmp;
         try {
-            tmp = Class.forName(className).getField(fieldName);
+            var clazz = Class.forName(className);
+            tmp = clazz.getDeclaredField(fieldName);
+            tmp.setAccessible(true);
             LOGGER.info("Found compatibility for class {}, field {}", className, fieldName);
         } catch (Exception ignored) {
             tmp = null;
@@ -40,7 +43,9 @@ public class ChangedCompatibility {
     private static Method findMethod(String className, String functionName, Class<?>... param) {
         Method tmp;
         try {
-            tmp = Class.forName(className).getMethod(functionName, param);
+            var clazz = Class.forName(className);
+            tmp = clazz.getDeclaredMethod(functionName, param);
+            tmp.setAccessible(true);
             LOGGER.info("Found compatibility for class {}, method {}", className, functionName);
         } catch (Exception ignored) {
             tmp = null;
@@ -144,6 +149,8 @@ public class ChangedCompatibility {
             StaticField.of("dev.tr7zw.firstperson.FirstPersonModelCore", "isRenderingPlayer");
     public static final StaticFunction<Entity, Boolean> by_dragonsurvivalteam_dragonsurvival_util$DragonUtils$isDragon =
             StaticFunction.of("by.dragonsurvivalteam.dragonsurvival.util.DragonUtils", "isDragon", Entity.class);
+    public static final StaticField<Set<UUID>> com_simibubi_create_foundation_render_PlayerSkyhookRenderer$hangingPlayers =
+            StaticField.of("com.simibubi.create.foundation.render.PlayerSkyhookRenderer", "hangingPlayers");
     public static Boolean frozen_isFirstPersonRendering = null;
 
     public static void freezeIsFirstPersonRendering() {
@@ -205,7 +212,7 @@ public class ChangedCompatibility {
         });
     }
 
-    private static <T extends IForgeRegistryEntry<T>> Cacheable<T> findRegistryObject(IForgeRegistry<T> registry, ResourceLocation name) {
+    private static <T> Cacheable<T> findRegistryObject(IForgeRegistry<T> registry, ResourceLocation name) {
         return Cacheable.of(() -> {
             var item = registry.getValue(name);
             if (item != null)
@@ -217,7 +224,7 @@ public class ChangedCompatibility {
     }
 
     private static final Cacheable<Enchantment> enchantment_enigmaticlegacy_eternalbinding
-            = findRegistryObject(ForgeRegistries.ENCHANTMENTS, new ResourceLocation("enigmaticlegacy", "eternal_binding_curse"));
+            = findRegistryObject(ForgeRegistries.ENCHANTMENTS, ResourceLocation.fromNamespaceAndPath("enigmaticlegacy", "eternal_binding_curse"));
 
     public static void shouldAccessoryDropOnDeath(AccessorySlots.DropItemEvent event) {
         if (EnchantmentHelper.getItemEnchantmentLevel(enchantment_enigmaticlegacy_eternalbinding.get(), event.getStack()) > 0)

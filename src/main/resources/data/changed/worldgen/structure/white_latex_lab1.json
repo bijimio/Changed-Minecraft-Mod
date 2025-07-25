@@ -1,0 +1,8 @@
+{
+  "type": "changed:decayed_lab",
+  "biomes": "#changed:has_structure/white_decayed_labs",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "piece": "changed:white_latex_lab1",
+  "loot_table": "changed:chests/decayed_lab_wl"
+}

@@ -1,11 +1,11 @@
 package net.ltxprogrammer.changed.fluid;
 
-import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -14,7 +14,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
+import org.joml.Vector3f;
 
 import java.util.Random;
 
@@ -26,7 +28,7 @@ public abstract class Gas extends ForgeFlowingFluid {
     public abstract Color3 getColor();
 
     @Override
-    protected FluidState getNewLiquid(LevelReader level, BlockPos pos, BlockState state) {
+    protected FluidState getNewLiquid(Level level, BlockPos pos, BlockState state) {
         // Overwritten from FlowingFluid.getNewLiquid()
 
         int i = 0;
@@ -37,7 +39,7 @@ public abstract class Gas extends ForgeFlowingFluid {
             BlockState blockstate = level.getBlockState(blockpos);
             FluidState fluidstate = blockstate.getFluidState();
             if (fluidstate.getType().isSame(this) && this.canPassThroughWall(direction, level, pos, state, blockpos, blockstate)) {
-                if (fluidstate.isSource() && net.minecraftforge.event.ForgeEventFactory.canCreateFluidSource(level, blockpos, blockstate, this.canConvertToSource())) {
+                if (fluidstate.isSource() && net.minecraftforge.event.ForgeEventFactory.canCreateFluidSource(level, blockpos, blockstate, this.canConvertToSource(level))) {
                     ++j;
                 }
 
@@ -48,7 +50,7 @@ public abstract class Gas extends ForgeFlowingFluid {
         if (j >= 2) {
             BlockState blockstate1 = level.getBlockState(pos.below());
             FluidState fluidstate1 = blockstate1.getFluidState();
-            if (blockstate1.getMaterial().isSolid() || this.isSourceBlockOfThisType(fluidstate1)) {
+            if (blockstate1.isSolid() || this.isSourceBlockOfThisType(fluidstate1)) {
                 return this.getSource(false);
             }
         }
@@ -78,18 +80,18 @@ public abstract class Gas extends ForgeFlowingFluid {
     }
 
     @Override
-    protected void animateTick(Level level, BlockPos blockPos, FluidState state, Random random) {
+    protected void animateTick(Level level, BlockPos blockPos, FluidState state, RandomSource random) {
         super.animateTick(level, blockPos, state, random);
 
         float fluidLevel = state.getAmount() / 8f;
         if (random.nextFloat() < 0.1F * fluidLevel) {
-            Color3 color = getColor().lerp(random.nextFloat(0.2f, 0.4f), Color3.fromInt(0xbfbfbf));
+            Color3 color = getColor().lerp(0.2f + random.nextFloat() * 0.2f, Color3.fromInt(0xbfbfbf));
 
             float x = blockPos.getX();
             float y = blockPos.getY();
             float z = blockPos.getZ();
             float dx = random.nextFloat();
-            float dy = random.nextFloat(0f, fluidLevel);
+            float dy = random.nextFloat() * fluidLevel;
             float dz = random.nextFloat();
             level.addParticle(
                     new DustParticleOptions(new Vector3f(color.red(), color.green(), color.blue()), 1.0F),

@@ -1,0 +1,8 @@
+{
+  "textures": [
+    "changed:drip_hang",
+    "changed:drip_loose",
+    "changed:drip_fall",
+    "changed:drip_land"
+  ]
+}

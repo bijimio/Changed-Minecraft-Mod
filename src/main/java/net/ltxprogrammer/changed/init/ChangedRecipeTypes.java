@@ -3,45 +3,29 @@ package net.ltxprogrammer.changed.init;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.recipe.InfuserRecipe;
 import net.ltxprogrammer.changed.recipe.PurifierRecipe;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChangedRecipeTypes {
-    public static Map<ResourceLocation, RecipeType<?>> REGISTRY = new HashMap<>();
-    private static <T extends Recipe<?>> RecipeType<T> register(ResourceLocation name) {
-        var recipe = new RecipeType<T>() {
+    public static DeferredRegister<RecipeType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, Changed.MODID);
+    private static <T extends Recipe<?>> RegistryObject<RecipeType<T>> register(String name) {
+        return REGISTRY.register(name, () -> new RecipeType<T>() {
             public String toString() {
-                return name.toString();
+                return Changed.modResourceStr(name);
             }
-        };
-
-        REGISTRY.put(name, recipe);
-        return recipe;
+        });
     }
 
     private static <T extends Recipe<?>> RecipeBookType registerBookType(String name) {
         return RecipeBookType.create(name);
     }
 
-    public static RecipeType<InfuserRecipe> INFUSER_RECIPE = register(Changed.modResource("infuser"));
-    public static RecipeType<PurifierRecipe> PURIFIER_RECIPE = register(Changed.modResource("purifier"));
+    public static RegistryObject<RecipeType<InfuserRecipe>> INFUSER_RECIPE = register("infuser");
+    public static RegistryObject<RecipeType<PurifierRecipe>> PURIFIER_RECIPE = register("purifier");
 
     public static final RecipeBookType INFUSER_BOOK = registerBookType( "CHANGED_INFUSER");
-
-    @SubscribeEvent
-    public static void onRegister(FMLCommonSetupEvent event) {
-        REGISTRY.forEach((name, type) -> {
-            Registry.register(Registry.RECIPE_TYPE, name, type);
-        });
-    }
 }

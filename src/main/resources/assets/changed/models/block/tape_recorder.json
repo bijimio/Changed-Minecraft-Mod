@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [32, 32],
 	"textures": {
-		"0": "changed:blocks/tape_recorder",
-		"particle": "changed:blocks/tape_recorder"
+		"0": "changed:block/tape_recorder",
+		"particle": "changed:block/tape_recorder"
 	},
 	"elements": [
 		{

@@ -9,6 +9,7 @@ import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.item.AccessoryItem;
+import net.ltxprogrammer.changed.item.ExtendedItemProperties;
 import net.ltxprogrammer.changed.network.packet.AccessoryEventPacket;
 import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
 import net.ltxprogrammer.changed.util.Cacheable;
@@ -52,8 +53,8 @@ public class AccessorySlots implements Container {
     private final Map<AccessorySlotType, ItemStack> lastItems = new HashMap<>();
     private final List<ItemStack> invalidItems = new ArrayList<>();
     private final Cacheable<List<AccessorySlotType>> orderedSlots = Cacheable.of(() -> {
-        final var registry = ChangedRegistry.ACCESSORY_SLOTS.get();
-        final var sorted = new ArrayList<>(registry.getValues().stream()
+        final var registry = ChangedRegistry.ACCESSORY_SLOTS;
+        final var sorted = new ArrayList<>(registry.get().getValues().stream()
                 .filter(items::containsKey)
                 .map(slotType -> Pair.of(slotType, registry.getID(slotType)))
                 .toList());
@@ -64,7 +65,7 @@ public class AccessorySlots implements Container {
     public static final AccessorySlots DUMMY = new AccessorySlots(null);
 
     public static void openAccessoriesMenu(@NotNull LivingEntity entity) {
-        if (entity.level.isClientSide)
+        if (entity.level().isClientSide)
             Changed.PACKET_HANDLER.sendToServer(new AccessorySyncPacket(entity.getId(), AccessorySlots.DUMMY));
     }
 
@@ -153,16 +154,18 @@ public class AccessorySlots implements Container {
     }
 
     public static void equipEventAndSound(LivingEntity entity, ItemStack stack) {
-        SoundEvent soundevent = stack.getEquipSound();
-        if (!stack.isEmpty() && soundevent != null && !entity.isSpectator()) {
-            entity.gameEvent(GameEvent.EQUIP);
-            if (!entity.level.isClientSide)
-                ChangedSounds.broadcastSound(entity, soundevent, 1.0F, 1.0F);
+        if (stack.getItem() instanceof ExtendedItemProperties ext) {
+            SoundEvent soundevent = ext.getEquipSound(stack);
+            if (!stack.isEmpty() && soundevent != null && !entity.isSpectator()) {
+                entity.gameEvent(GameEvent.EQUIP);
+                if (!entity.level().isClientSide)
+                    ChangedSounds.broadcastSound(entity, soundevent.getLocation(), 1.0F, 1.0F);
+            }
         }
     }
 
     public static void onBrokenAccessory(LivingEntity livingEntity, AccessorySlotType slotType) {
-        if (livingEntity.level.isClientSide)
+        if (livingEntity.level().isClientSide)
             return;
 
         Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity),
@@ -170,7 +173,7 @@ public class AccessorySlots implements Container {
     }
 
     public static void onInteractAccessory(LivingEntity livingEntity, AccessorySlotType slotType) {
-        if (livingEntity.level.isClientSide) {
+        if (livingEntity.level().isClientSide) {
             Changed.PACKET_HANDLER.sendToServer(
                     new AccessoryEventPacket(livingEntity.getId(), slotType, 2));
             return;
@@ -363,14 +366,14 @@ public class AccessorySlots implements Container {
 
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
-        forEachSlot((slotType, stack) -> tag.put(slotType.getRegistryName().toString(), stack.serializeNBT()));
+        forEachSlot((slotType, stack) -> tag.put(ChangedRegistry.ACCESSORY_SLOTS.getKey(slotType).toString(), stack.serializeNBT()));
         return tag;
     }
 
     public void load(CompoundTag tag) {
         this.emptySlots();
         tag.getAllKeys().forEach(key -> {
-            ResourceLocation id = new ResourceLocation(key);
+            ResourceLocation id = ResourceLocation.parse(key);
             ItemStack value = ItemStack.of(tag.getCompound(key));
             if (!ChangedRegistry.ACCESSORY_SLOTS.get().containsKey(id)) {
                 invalidItems.add(value);
@@ -378,7 +381,7 @@ public class AccessorySlots implements Container {
                 return;
             }
 
-            AccessorySlotType slotType = ChangedRegistry.ACCESSORY_SLOTS.get().getValue(new ResourceLocation(key));
+            AccessorySlotType slotType = ChangedRegistry.ACCESSORY_SLOTS.get().getValue(ResourceLocation.parse(key));
             items.put(slotType, value);
             orderedSlots.clear();
         });
@@ -386,14 +389,14 @@ public class AccessorySlots implements Container {
 
     public void writeNetwork(FriendlyByteBuf buffer) {
         buffer.writeMap(items,
-                (byteBuf, slotType) -> byteBuf.writeInt(ChangedRegistry.ACCESSORY_SLOTS.get().getID(slotType)),
+                ChangedRegistry.ACCESSORY_SLOTS::writeRegistryObject,
                 (byteBuf, stack) -> byteBuf.writeNbt(stack.serializeNBT()));
     }
 
     public void readNetwork(FriendlyByteBuf buffer) {
         this.emptySlots();
         items.putAll(buffer.readMap(
-                byteBuf -> ChangedRegistry.ACCESSORY_SLOTS.get().getValue(byteBuf.readInt()),
+                ChangedRegistry.ACCESSORY_SLOTS::readRegistryObject,
                 byteBuf -> ItemStack.of(byteBuf.readAnySizeNbt())
         ));
     }
@@ -415,11 +418,11 @@ public class AccessorySlots implements Container {
         return stack -> {
             if (stack.isEmpty()) return;
 
-            ItemEntity itemEntity = new ItemEntity(entity.level, entity.getX(), entity.getY() + 0.5, entity.getZ(), stack);
+            ItemEntity itemEntity = new ItemEntity(entity.level(), entity.getX(), entity.getY() + 0.5, entity.getZ(), stack);
             itemEntity.setPickUpDelay(40);
             itemEntity.setDeltaMovement(itemEntity.getDeltaMovement().multiply(0, 1, 0));
 
-            entity.level.addFreshEntity(itemEntity);
+            entity.level().addFreshEntity(itemEntity);
         };
     }
 

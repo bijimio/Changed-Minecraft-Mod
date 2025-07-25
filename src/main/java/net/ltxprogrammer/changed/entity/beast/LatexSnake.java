@@ -1,8 +1,9 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -22,11 +23,6 @@ public class LatexSnake extends ChangedEntity {
         attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(1.0);
         attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(1.5);
         attributes.getInstance(Attributes.MAX_HEALTH).setBaseValue(26);
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

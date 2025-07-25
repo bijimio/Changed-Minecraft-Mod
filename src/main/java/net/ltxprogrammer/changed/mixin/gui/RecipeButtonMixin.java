@@ -11,6 +11,7 @@ import net.ltxprogrammer.changed.init.ChangedEntities;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.recipe.InfuserRecipe;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -18,7 +19,6 @@ import net.minecraft.client.gui.screens.recipebook.RecipeButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.Mth;
@@ -46,7 +46,7 @@ public abstract class RecipeButtonMixin extends AbstractWidget {
     @Shadow
     private RecipeBookMenu<?> menu;
     @Unique
-    private static final ResourceLocation RECIPE_BOOK_LOCATION = new ResourceLocation("textures/gui/recipe_book.png");
+    private static final ResourceLocation RECIPE_BOOK_LOCATION = ResourceLocation.parse("textures/gui/recipe_book.png");
     @Unique
     private Gender activeGender = Gender.MALE;
 
@@ -54,11 +54,11 @@ public abstract class RecipeButtonMixin extends AbstractWidget {
         super(p_93629_, p_93630_, p_93631_, p_93632_, p_93633_);
     }
 
-    @Inject(method = "renderButton", at = @At("HEAD"), cancellable = true)
-    public void renderButton(PoseStack p_100484_, int p_100485_, int p_100486_, float p_100487_, CallbackInfo ci) {
+    @Inject(method = "renderWidget", at = @At("HEAD"), cancellable = true)
+    public void renderButton(GuiGraphics p_281385_, int p_282779_, int p_282744_, float p_282439_, CallbackInfo ci) {
         if (collection.getRecipes().get(0) instanceof InfuserRecipe infuserRecipe) {
             if (!Screen.hasControlDown()) {
-                time += p_100487_;
+                time += p_282439_;
             }
 
             Minecraft minecraft = Minecraft.getInstance();
@@ -69,7 +69,7 @@ public abstract class RecipeButtonMixin extends AbstractWidget {
             activeGender = Gender.values()[Mth.floor(time / 30.0F) % (infuserRecipe.gendered ? 2 : 1)];
             ResourceLocation formId = infuserRecipe.form;
             if (infuserRecipe.gendered)
-                formId = new ResourceLocation(formId + "/" + activeGender.toString().toLowerCase());
+                formId = ResourceLocation.parse(formId + "/" + activeGender.toString().toLowerCase());
             TransfurVariant<?> variant = ChangedRegistry.TRANSFUR_VARIANT.get().getValue(formId);
             if (variant == null)
                 return;
@@ -78,15 +78,15 @@ public abstract class RecipeButtonMixin extends AbstractWidget {
                 entity.getBasicPlayerInfo().copyFrom(ext.getBasicPlayerInfo());
             entity.tickCount = (int)time;
 
-            InventoryScreen.renderEntityInInventory(this.x + 15, this.y + 25, isHoveredOrFocused() ? 40 : 10, (float) (Math.sin(time / 60.0f) * 60.0f), 0.0f, entity);
+            InventoryScreen.renderEntityInInventoryFollowsMouse(p_281385_, this.getX() + 15, this.getY() + 25, isHoveredOrFocused() ? 40 : 10, (float) (Math.sin(time / 60.0f) * 60.0f), 0.0f, entity);
 
             ci.cancel();
         }
     }
 
-    private static final Component MORE_RECIPES_TOOLTIP = new TranslatableComponent("gui.recipebook.moreRecipes");
+    private static final Component MORE_RECIPES_TOOLTIP = Component.translatable("gui.recipebook.moreRecipes");
     @Inject(method = "getTooltipText", at = @At("HEAD"), cancellable = true)
-    public void getTooltipText(Screen p_100478_, CallbackInfoReturnable<List<Component>> ci) {
+    public void getTooltipText(CallbackInfoReturnable<List<Component>> ci) {
         if (collection.getRecipes().get(0) instanceof InfuserRecipe infuserRecipe) {
             ci.cancel();
             List<Component> list = Lists.newArrayList(infuserRecipe.getNameFor(Minecraft.getInstance().level, activeGender));

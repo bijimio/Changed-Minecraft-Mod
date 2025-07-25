@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 
 public class LatexInkballItem extends Item {
     public LatexInkballItem() {
-        super(new Item.Properties().stacksTo(16).tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(new Item.Properties().stacksTo(16));
     }
 
     public InteractionResultHolder<ItemStack> use(Level p_43142_, Player p_43143_, InteractionHand p_43144_) {

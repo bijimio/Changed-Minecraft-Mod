@@ -5,12 +5,13 @@ import com.mojang.blaze3d.vertex.*;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 
 import java.util.function.Consumer;
@@ -40,6 +41,7 @@ public class ColorSelector extends EditBox {
         this.setResponder(this::onValueChange);
         this.setFilter(this::validColor);
         this.setFormatter(this::onFormat);
+        this.setTooltip(Tooltip.create(Component.translatable("changed.config.color_picker_tooltip")));
     }
 
     public Component getName() {
@@ -78,73 +80,21 @@ public class ColorSelector extends EditBox {
     }
 
     @Override
-    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float deltaTime) {
-        super.renderButton(poseStack, mouseX, mouseY, deltaTime);
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float deltaTime) {
+        super.renderWidget(graphics, mouseX, mouseY, deltaTime);
 
         if (this.isVisible()) {
             // Render color preview
-            int startX = this.x + this.width + padding;
-            int startY = this.y;
+            int startX = this.getX() + this.width + padding;
+            int startY = this.getY();
             int endX = startX + this.height;
             int endY = startY + this.height;
 
-            // Border
-            {
-                Tesselator tesselator = Tesselator.getInstance();
-                BufferBuilder bufferbuilder = tesselator.getBuilder();
-                RenderSystem.setShader(GameRenderer::getPositionShader);
-                RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
-                RenderSystem.disableTexture();
-                bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-                bufferbuilder.vertex(endX + 1, startY - 1, 0.0D).endVertex();
-                bufferbuilder.vertex(startX - 1, startY - 1, 0.0D).endVertex();
-                bufferbuilder.vertex(startX - 1, endY + 1, 0.0D).endVertex();
-                bufferbuilder.vertex(endX + 1, endY + 1, 0.0D).endVertex();
-                tesselator.end();
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.enableTexture();
-            }
+            graphics.fill(startX - 1, startY - 1, endX + 1, endY + 1, 0);
 
-            // Color
-            {
-                var color = colorGetter.get();
-                Tesselator tesselator = Tesselator.getInstance();
-                BufferBuilder bufferbuilder = tesselator.getBuilder();
-                RenderSystem.setShader(GameRenderer::getPositionShader);
-                RenderSystem.setShaderColor(color.red(), color.green(), color.blue(), 1.0F);
-                RenderSystem.disableTexture();
-                bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-                bufferbuilder.vertex(endX, startY, 0.0D).endVertex();
-                bufferbuilder.vertex(startX, startY, 0.0D).endVertex();
-                bufferbuilder.vertex(startX, endY, 0.0D).endVertex();
-                bufferbuilder.vertex(endX, endY, 0.0D).endVertex();
-                tesselator.end();
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.enableTexture();
-            }
-
-            if (mouseX >= startX && mouseX < endX && mouseY >= startY && mouseY < endY) {
-                this.renderToolTip(poseStack, mouseX, mouseY);
-            }
+            var color = colorGetter.get();
+            graphics.fill(startX, startY, endX, endY, color.toInt());
         }
-    }
-
-    @Override
-    public void renderToolTip(PoseStack poseStack, int mouseX, int mouseY) {
-        super.renderToolTip(poseStack, mouseX, mouseY);
-        if (Minecraft.getInstance().screen == null) return;
-
-        if (Minecraft.getInstance().screen instanceof BasicPlayerInfoScreen bpiScreen)
-            bpiScreen.setToolTip(() -> {
-                Minecraft.getInstance().screen.renderTooltip(poseStack, new TranslatableComponent("changed.config.color_picker_tooltip"), mouseX, mouseY);
-            });
-        else
-            Minecraft.getInstance().screen.renderTooltip(poseStack, new TranslatableComponent("changed.config.color_picker_tooltip"), mouseX, mouseY);
-    }
-
-    @Override
-    public void updateNarration(NarrationElementOutput output) {
-
     }
 
     @Override
@@ -170,7 +120,7 @@ public class ColorSelector extends EditBox {
 
     @Override
     protected boolean clicked(double x, double y) {
-        return this.active && this.visible && x >= (double)this.x && y >= (double)this.y && x < (double)(this.x + this.realWidth) && y < (double)(this.y + this.height);
+        return this.active && this.visible && x >= (double)this.getX() && y >= (double)this.getY() && x < (double)(this.getX() + this.realWidth) && y < (double)(this.getY() + this.height);
     }
 
     @Override
@@ -178,8 +128,8 @@ public class ColorSelector extends EditBox {
         super.onClick(x, y);
 
         if (this.isVisible()) {
-            int startX = this.x + this.width + padding;
-            int startY = this.y;
+            int startX = this.getX() + this.width + padding;
+            int startY = this.getY();
             int endX = startX + this.height;
             int endY = startY + this.height;
 

@@ -58,32 +58,10 @@ public class OnlineTexture extends AbstractTexture {
 
     protected SimpleTexture.TextureImage getTextureImage() throws IOException {
         SimpleTexture.TextureImage $$5;
-        try {
-            NativeImage nativeimage = NativeImage.read(resource.getInputStream());
-            TextureMetadataSection texturemetadatasection = null;
-
-            try {
-                texturemetadatasection = resource.getMetadata(TextureMetadataSection.SERIALIZER);
-            } catch (RuntimeException runtimeexception) {
-                Changed.LOGGER.warn("Failed reading metadata of: {}", resource.getLocation(), runtimeexception);
-            }
-
+        try (NativeImage nativeimage = NativeImage.read(resource.open())) {
+            TextureMetadataSection texturemetadatasection = resource.metadata().getSection(TextureMetadataSection.SERIALIZER).orElse(null);
             $$5 = new SimpleTexture.TextureImage(texturemetadatasection, nativeimage);
-        } catch (Throwable throwable1) {
-                if (resource != null) {
-                    try {
-                        resource.close();
-                    } catch (Throwable throwable) {
-                        throwable1.addSuppressed(throwable);
-                    }
-                }
-
-            throw throwable1;
         }
-
-            if (resource != null) {
-                resource.close();
-            }
 
         return $$5;
     }

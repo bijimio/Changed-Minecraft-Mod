@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "base": {
+    "item": "minecraft:leather_boots"
+  },
+  "addition": {
+    "item": "minecraft:leather"
+  },
+  "template": {
+    "item": "changed:abdomen_conversion_smithing_template"
+  },
+  "result": {
+    "item": "changed:leather_lower_abdomen_armor"
+  }
+}

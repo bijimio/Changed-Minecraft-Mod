@@ -1,9 +1,9 @@
 package net.ltxprogrammer.changed.client;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.core.Direction;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.List;

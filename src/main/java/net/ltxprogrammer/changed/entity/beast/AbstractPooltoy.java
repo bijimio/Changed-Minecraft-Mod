@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -26,11 +27,6 @@ public abstract class AbstractPooltoy extends ChangedEntity implements PowderSno
     public int getTicksRequiredToFreeze() { return 240; }
 
     @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
-    }
-
-    @Override
     public TransfurMode getTransfurMode() { return TransfurMode.NONE; }
 
     @Override
@@ -40,12 +36,12 @@ public abstract class AbstractPooltoy extends ChangedEntity implements PowderSno
 
     @Override
     public SoundEvent getHurtSound(DamageSource ds) {
-        return ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("entity.generic.hurt"));
+        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse("entity.generic.hurt"));
     }
 
     @Override
     public SoundEvent getDeathSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("entity.generic.death"));
+        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse("entity.generic.death"));
     }
 
     @Override

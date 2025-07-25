@@ -50,9 +50,6 @@ public class ChangedTextures {
         RenderSystem.assertOnRenderThreadOrInit();
 
         var textureManager = Minecraft.getInstance().getTextureManager();
-        PatreonBenefits.ONLINE_TEXTURES.forEach(resource -> {
-            REGISTRY.put(resource.getLocation(), OnlineTexture.of(resource));
-        });
         REGISTRY.forEach(textureManager::register);
     }
 

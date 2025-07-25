@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "changed:items/puros_home_record"
+    "layer0": "changed:item/puros_home_record"
   }
 }

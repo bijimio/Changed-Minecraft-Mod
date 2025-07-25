@@ -44,10 +44,10 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
 
     public boolean hideSlots = false;
 
-    private static final ResourceLocation EMPTY_SYRINGE_SLOT = Changed.modResource("items/empty_slot_syringe");
+    private static final ResourceLocation EMPTY_SYRINGE_SLOT = Changed.modResource("item/empty_slot_syringe");
 
     public StasisChamberMenu(int id, Inventory inventory, FriendlyByteBuf extra) {
-        super(ChangedMenus.STASIS_CHAMBER, id);
+        super(ChangedMenus.STASIS_CHAMBER.get(), id);
         this.accessor = inventory.player;
         this.data = new SimpleContainerData(2);
 
@@ -59,14 +59,14 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
             return;
         }
 
-        this.blockEntity = inventory.player.level.getBlockEntity(extra.readBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get()).orElse(null);
+        this.blockEntity = inventory.player.level().getBlockEntity(extra.readBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get()).orElse(null);
         this.container = blockEntity;
         this.container.startOpen(inventory.player);
         this.createSlots(inventory);
     }
 
     public StasisChamberMenu(int id, Inventory inventory, @Nullable StasisChamberBlockEntity blockEntity, ContainerData dataAccess) {
-        super(ChangedMenus.STASIS_CHAMBER, id);
+        super(ChangedMenus.STASIS_CHAMBER.get(), id);
         this.accessor = inventory.player;
         this.data = dataAccess;
         this.blockEntity = blockEntity;

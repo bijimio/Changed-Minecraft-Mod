@@ -10,6 +10,7 @@ import net.ltxprogrammer.changed.entity.animation.AnimationAssociation;
 import net.ltxprogrammer.changed.entity.animation.AnimationCategory;
 import net.ltxprogrammer.changed.entity.animation.AnimationEvent;
 import net.ltxprogrammer.changed.entity.animation.AnimationParameters;
+import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.util.ResourceUtil;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
@@ -37,9 +38,9 @@ public class AnimationAssociations extends SimplePreparableReloadListener<Immuta
                     .getOrThrow(false, str -> {});
             object.getAsJsonArray("animations").forEach(animation -> {
                 final JsonObject animationObject = animation.getAsJsonObject();
-                map.put(new ResourceLocation(entry.getKey()),
+                map.put(ResourceLocation.parse(entry.getKey()),
                         new AnimationAssociation(category,
-                                new ResourceLocation(animationObject.get("name").getAsString()),
+                                ResourceLocation.parse(animationObject.get("name").getAsString()),
                                 animationObject.getAsJsonObject("criteria")
                         ));
             });
@@ -66,7 +67,7 @@ public class AnimationAssociations extends SimplePreparableReloadListener<Immuta
         final List<AnimationAssociation> allowed = new ArrayList<>();
         final List<AnimationAssociation> defaulted = new ArrayList<>();
 
-        associations.get(event.getRegistryName()).forEach(association -> {
+        associations.get(ChangedRegistry.ANIMATION_EVENTS.getKey(event)).forEach(association -> {
             switch (parameters == null ? AnimationAssociation.Match.DEFAULT : parameters.matchesAssociation(association)) {
                 case ALLOW -> allowed.add(association);
                 case DEFAULT -> defaulted.add(association);

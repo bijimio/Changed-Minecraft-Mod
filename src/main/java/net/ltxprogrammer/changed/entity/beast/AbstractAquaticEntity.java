@@ -1,14 +1,17 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.control.MoveControl;
@@ -89,11 +92,6 @@ public abstract class AbstractAquaticEntity extends ChangedEntity implements Aqu
     public int getTicksRequiredToFreeze() { return 100; }
 
     @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
-    }
-
-    @Override
     public TransfurMode getTransfurMode() { return TransfurMode.REPLICATION; }
 
     @Override
@@ -155,7 +153,7 @@ public abstract class AbstractAquaticEntity extends ChangedEntity implements Aqu
         float depth = 0.0f;
 
         for (int i = 0; i < 3; ++i) {
-            BlockState state = this.level.getBlockState(pos.relative(Direction.DOWN, i));
+            BlockState state = this.level().getBlockState(pos.relative(Direction.DOWN, i));
             if (state.getFluidState().is(FluidTags.WATER))
                 depth += 1.0f;
             else if (!state.isAir())
@@ -163,7 +161,7 @@ public abstract class AbstractAquaticEntity extends ChangedEntity implements Aqu
         }
 
         for (int i = 1; i < 3; ++i) {
-            BlockState state = this.level.getBlockState(pos.relative(Direction.UP, i));
+            BlockState state = this.level().getBlockState(pos.relative(Direction.UP, i));
             if (state.getFluidState().is(FluidTags.WATER))
                 depth += 1.0f;
             else if (!state.isAir())
@@ -184,15 +182,15 @@ public abstract class AbstractAquaticEntity extends ChangedEntity implements Aqu
 
     protected boolean adjacentToLand(BlockPos pos) {
         return Direction.Plane.HORIZONTAL.stream().map(pos::relative).anyMatch(blockPos -> {
-            if (!this.level.getBlockState(blockPos.above()).isAir())
+            if (!this.level().getBlockState(blockPos.above()).isAir())
                 return false;
-            return this.level.getBlockState(blockPos).isCollisionShapeFullBlock(this.level, blockPos);
+            return this.level().getBlockState(blockPos).isCollisionShapeFullBlock(this.level(), blockPos);
         });
     }
 
     public void updateSwimming() {
-        if (!this.level.isClientSide) {
-            this.maxUpStep = this.isInWater() ? 1.05f : 0.7f;
+        if (!this.level().isClientSide) {
+            this.setMaxUpStep(this.isInWater() ? 1.05f : 0.7f);
 
             boolean animateSwim = this.isInWater()
                     && this.canFitInWater(this.position());
@@ -278,7 +276,7 @@ public abstract class AbstractAquaticEntity extends ChangedEntity implements Aqu
         public GoToWaterGoal(AbstractAquaticEntity entity, double speed) {
             this.mob = entity;
             this.speedModifier = speed;
-            this.level = entity.level;
+            this.level = entity.level();
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
 
@@ -315,7 +313,7 @@ public abstract class AbstractAquaticEntity extends ChangedEntity implements Aqu
 
         @Nullable
         private Vec3 getWaterPos() {
-            Random random = this.mob.getRandom();
+            RandomSource random = this.mob.getRandom();
             BlockPos blockpos = this.mob.blockPosition();
 
             for(int i = 0; i < 10; ++i) {
@@ -340,7 +338,7 @@ public abstract class AbstractAquaticEntity extends ChangedEntity implements Aqu
         public SinkFromSurfaceGoal(AbstractAquaticEntity entity, double speed) {
             this.mob = entity;
             this.speedModifier = speed;
-            this.level = entity.level;
+            this.level = entity.level();
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
 
@@ -375,7 +373,7 @@ public abstract class AbstractAquaticEntity extends ChangedEntity implements Aqu
 
         @Nullable
         private Vec3 getWaterPos() {
-            Random random = this.mob.getRandom();
+            RandomSource random = this.mob.getRandom();
             BlockPos blockpos = this.mob.blockPosition();
 
             for(int i = 0; i < 10; ++i) {

@@ -12,7 +12,6 @@ import net.ltxprogrammer.changed.entity.projectile.GasParticle;
 import net.ltxprogrammer.changed.entity.projectile.LatexInkball;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.entity.robot.Roomba;
-import net.ltxprogrammer.changed.world.biome.ChangedBiomeInterface;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +26,6 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -53,7 +51,7 @@ public class ChangedEntities {
     public static Pair<Integer, Integer> getEntityColor(ResourceLocation location) {
         return ENTITY_COLOR_MAP.computeIfAbsent(location, loc -> {
             try {
-                if (Registry.ITEM.get(new ResourceLocation(loc.getNamespace(), loc.getPath() + "_spawn_egg")) instanceof ForgeSpawnEggItem item)
+                if (ForgeRegistries.ITEMS.getValue(ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), loc.getPath() + "_spawn_egg")) instanceof ForgeSpawnEggItem item)
                     return new Pair<>(item.getColor(0), item.getColor(1));
                 else
                     return new Pair<>(0xF0F0F0, 0xF0F0F0);
@@ -93,7 +91,7 @@ public class ChangedEntities {
     }
 
     public static final Map<Supplier<? extends EntityType<?>>, Predicate<Level>> DIMENSION_RESTRICTIONS = new HashMap<>();
-    public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.ENTITIES, Changed.MODID);
+    public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Changed.MODID);
     public static final Map<RegistryObject<? extends EntityType<?>>, RegistryObject<ForgeSpawnEggItem>> SPAWN_EGGS = new HashMap<>();
     public static final RegistryObject<EntityType<WhiteLatexWolfFemale>> WHITE_LATEX_WOLF_FEMALE = registerSpawning("white_latex_wolf_female", 0xFFFFFF, 0xFF927F,
             EntityType.Builder.of(WhiteLatexWolfFemale::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.7F, 1.93F),
@@ -191,6 +189,12 @@ public class ChangedEntities {
     public static final RegistryObject<EntityType<LatexCrocodile>> LATEX_CROCODILE = registerSpawning("latex_crocodile", 0x216d50, 0x43b058,
             EntityType.Builder.of(LatexCrocodile::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.8F, 2.3F),
             ChangedEntities::overworldOnly, SpawnPlacements.Type.ON_GROUND, LatexCrocodile::checkEntitySpawnRules);
+    public static final RegistryObject<EntityType<LatexCrow>> LATEX_CROW = registerSpawning("latex_crow", 0x0e0e0e, 0xffffff,
+            EntityType.Builder.of(LatexCrow::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.7F, 1.93F),
+            ChangedEntities::overworldOnly, SpawnPlacements.Type.ON_GROUND, LatexCrow::checkEntitySpawnRules);
+    public static final RegistryObject<EntityType<LatexEel>> LATEX_EEL = registerSpawning("latex_eel", 0xffdb4f, 0xffffffff,
+            EntityType.Builder.of(LatexEel::new, ChangedMobCategories.AQUATIC).clientTrackingRange(10).sized(0.7F, 1.93F),
+            ChangedEntities::overworldOnly, SpawnPlacements.Type.IN_WATER, LatexFennecFox::checkEntitySpawnRules);
     public static final RegistryObject<EntityType<LatexFennecFox>> LATEX_FENNEC_FOX = registerSpawning("latex_fennec_fox", 0xffe195, 0x84484b,
             EntityType.Builder.of(LatexFennecFox::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.7F, 1.93F),
             ChangedEntities::overworldOnly, SpawnPlacements.Type.ON_GROUND, LatexFennecFox::checkEntitySpawnRules);
@@ -341,8 +345,6 @@ public class ChangedEntities {
             EntityType.Builder.of(DarkLatexWolfPartial::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.7F, 1.93F));
     public static final RegistryObject<EntityType<LatexHuman>> LATEX_HUMAN = registerNoEgg("latex_human", 0x8B8B8B, 0xC6C6C6,
             EntityType.Builder.of(LatexHuman::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.6F, 1.8F));
-    public static final RegistryObject<EntityType<SpecialLatex>> SPECIAL_LATEX = registerNoEgg("special_latex",
-            EntityType.Builder.of(SpecialLatex::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(0.7F, 1.93F));
 
     public static final RegistryObject<EntityType<BehemothHead>> BEHEMOTH_HEAD = registerNoEgg("behemoth_head",
             EntityType.Builder.of(BehemothHead::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(3.0f, 3.0f));
@@ -409,8 +411,7 @@ public class ChangedEntities {
         RegistryObject<EntityType<T>> entityType = REGISTRY.register(name, () -> builder.build(regName));
         INIT_FUNC_REGISTRY.add(ChangedEntity.getInit(entityType, spawnType, spawnPredicate));
         ATTR_FUNC_REGISTRY.add(new Pair<>(entityType::get, attributes));
-        RegistryObject<ForgeSpawnEggItem> spawnEggItem = ChangedItems.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(entityType, eggBack, eggHighlight,
-                new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ENTITIES)));
+        RegistryObject<ForgeSpawnEggItem> spawnEggItem = ChangedItems.REGISTRY.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(entityType, eggBack, eggHighlight, new Item.Properties()));
         SPAWN_EGGS.put(entityType, spawnEggItem);
         DIMENSION_RESTRICTIONS.put(entityType, dimension);
         return entityType;
@@ -426,145 +427,5 @@ public class ChangedEntities {
         ATTR_FUNC_REGISTRY.forEach((pair) -> event.put(pair.getFirst().get(), pair.getSecond().get().build()));
         event.put(ROOMBA.get(), Roomba.createAttributes().build());
         event.put(EXOSKELETON.get(), Exoskeleton.createAttributes().build());
-    }
-
-    @Mod.EventBusSubscriber
-    public static class EventListener {
-        @SubscribeEvent
-        public static void addSpawners(BiomeLoadingEvent event) { // Inject spawns into vanilla / modded biomes (not including changed)
-            if (event.getName() != null && event.getName().getNamespace().equals(Changed.MODID))
-                return;
-
-            final var spawns = event.getSpawns();
-
-            /* Cave spawning entities */
-
-            ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.UNDERGROUND, LATEX_STIGER, 80, 1, 3, 0.7, 0.15);
-            ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.UNDERGROUND, LATEX_TRAFFIC_CONE_DRAGON, 100, 1, 3, 0.7, 0.15);
-            ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.UNDERGROUND, LATEX_TRANSLUCENT_LIZARD, 60, 1, 3, 0.7, 0.15);
-            ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.UNDERGROUND, LATEX_KOBOLD, 50, 1, 3, 0.7, 0.15);
-
-            // Passive
-            ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.UNDERGROUND, BEIFENG, 10, 1, 1, 0.7, 0.15);
-
-            /* Surface spawning entities */
-
-            if (event.getCategory() == Biome.BiomeCategory.PLAINS) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, WHITE_LATEX_WOLF_MALE, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, WHITE_LATEX_WOLF_FEMALE, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, WHITE_LATEX_KNIGHT, 50, 1, 1, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, WHITE_LATEX_CENTAUR, 20, 1, 1, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, HEADLESS_KNIGHT, 40, 1, 1, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, WHITE_LATEX_KNIGHT_FUSION, 20, 1, 1, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_KEON_WOLF, 10, 1, 1, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_MING_CAT, 15, 1, 1, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_SIAMESE_CAT, 15, 1, 1, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, MILK_PUDDING, 80, 1, 1, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, DARK_LATEX_WOLF_MALE, 10, 1, 1, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, DARK_LATEX_WOLF_FEMALE, 10, 1, 1, 0.7, 0.15);
-
-                // Passive
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, WHITE_WOLF_MALE, 10, 1, 2, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, WHITE_WOLF_FEMALE, 10, 1, 2, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, CRYSTAL_WOLF, 10, 1, 2, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, CRYSTAL_WOLF_HORNED, 10, 1, 2, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, GAS_SKUNK, 10, 1, 2, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, GAS_WOLF, 10, 1, 2, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, SNIPER_DOG, 10, 1, 2, 0.7, 0.15);
-            }
-
-            if (event.getCategory() == Biome.BiomeCategory.MOUNTAIN) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, BLUE_LATEX_WOLF, 70, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_PINK_WYVERN, 60, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_PINK_YUIN_DRAGON, 50, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_YUIN, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, DARK_LATEX_YUFENG, 20, 1, 1, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, DARK_LATEX_DOUBLE_YUFENG, 5, 1, 1, 0.7, 0.15);
-
-                // Passive
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, DARK_DRAGON, 5, 1, 1, 0.7, 0.15);
-            }
-
-            if (event.getCategory() == Biome.BiomeCategory.FOREST) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_DEER, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_PINK_DEER, 50, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_BEE, 80, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_LEAF, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_SQUIRREL, 80, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_MOTH, 40, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_MIMIC_PLANT, 50, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_RACCOON, 30, 1, 3, 0.7, 0.15);
-
-                // Passive
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, GAS_SKUNK, 10, 1, 3, 0.7, 0.15);
-            }
-
-            if (event.getCategory() == Biome.BiomeCategory.JUNGLE) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_RED_PANDA, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_WATERMELON_CAT, 30, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_MIMIC_PLANT, 70, 1, 3, 0.7, 0.15);
-            }
-
-            if (event.getCategory() == Biome.BiomeCategory.DESERT) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_FENNEC_FOX, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_SNAKE, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_GOLDEN_DRAGON, 40, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_ALIEN, 20, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, GREEN_LIZARD, 10, 1, 2, 0.7, 0.15);
-            }
-
-            if (event.getCategory() == Biome.BiomeCategory.BEACH && !event.getName().equals(Biomes.STONY_SHORE.getRegistryName())) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_OTTER, 100, 1, 3, 0.7, 0.15);
-
-                // Passive
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, POOLTOY_WOLF, 1, 1, 2, 0.7, 0.15);
-            }
-
-            if (event.getCategory() == Biome.BiomeCategory.MESA) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_RED_DRAGON, 80, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_FENNEC_FOX, 50, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_ALIEN, 10, 1, 3, 0.7, 0.15);
-            }
-
-            if (event.getCategory() == Biome.BiomeCategory.SWAMP) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_CROCODILE, 100, 1, 3, 0.7, 0.5);
-            }
-
-            if (event.getCategory() == Biome.BiomeCategory.SAVANNA) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_HYPNO_CAT, 60, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_MEDUSA_CAT, 40, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_GNOLL_TAUR, 40, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, GREEN_LIZARD, 20, 1, 2, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_GOLDEN_DRAGON, 10, 1, 3, 0.7, 0.15);
-            }
-
-            if (event.getCategory() == Biome.BiomeCategory.TAIGA || event.getCategory() == Biome.BiomeCategory.ICY) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, BLUE_LATEX_DRAGON, 50, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_PURPLE_FOX, 30, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_SNOW_LEOPARD_MALE, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_SNOW_LEOPARD_FEMALE, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_WHITE_TIGER, 80, 1, 3, 0.7, 0.15);
-
-                // Passive
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, GAS_TIGER, 1, 1, 2, 0.7, 0.15);
-            }
-
-            /* Water spawning entities */
-
-            if (event.getCategory() == Biome.BiomeCategory.OCEAN || event.getCategory() == Biome.BiomeCategory.RIVER) {
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_MANTA_RAY_MALE, 30, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_MANTA_RAY_FEMALE, 30, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_MERMAID_SHARK, 20, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_SIREN, 20, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_SHARK, 100, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_SHARK_MALE, 30, 1, 3, 0.7, 0.5);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_SHARK_FEMALE, 30, 1, 3, 0.7, 0.5);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_TIGER_SHARK, 20, 1, 3, 0.7, 0.35);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_ORCA, 80, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_SQUID_DOG_MALE, 80, 1, 3, 0.7, 0.35);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, LATEX_SQUID_DOG_FEMALE, 80, 1, 3, 0.7, 0.35);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.AQUATIC, SHARK, 100, 1, 3, 0.7, 0.15);
-            }
-        }
     }
 }

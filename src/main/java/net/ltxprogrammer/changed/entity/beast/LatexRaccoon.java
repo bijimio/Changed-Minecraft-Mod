@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -19,11 +20,6 @@ public class LatexRaccoon extends ChangedEntity {
         attributes.getInstance(Attributes.FOLLOW_RANGE).setBaseValue(8.0);
         attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(0.95);
         attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(0.97);
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

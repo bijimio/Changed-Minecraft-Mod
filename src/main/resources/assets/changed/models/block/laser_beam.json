@@ -1,7 +1,8 @@
 {
+  "render_type": "minecraft:cutout",
   "parent": "minecraft:block/cross",
   "textures": {
-    "cross": "changed:blocks/laser_beam",
-    "particle": "changed:blocks/blank"
+    "cross": "changed:block/laser_beam",
+    "particle": "changed:block/blank"
   }
 }

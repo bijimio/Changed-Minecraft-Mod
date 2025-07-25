@@ -162,6 +162,14 @@ public class HumanoidAnimator<T extends ChangedEntity, M extends AdvancedHumanoi
         for (var anim : animators.get(AnimateStage.INIT)) {
             anim.copyTo(propertyModel);
         }
+
+        propertyModel.leftLeg.setInitialPose(propertyModel.leftLeg.storePose());
+        propertyModel.rightLeg.setInitialPose(propertyModel.rightLeg.storePose());
+        propertyModel.leftArm.setInitialPose(propertyModel.leftArm.storePose());
+        propertyModel.rightArm.setInitialPose(propertyModel.rightArm.storePose());
+        propertyModel.body.setInitialPose(propertyModel.body.storePose());
+        propertyModel.head.setInitialPose(propertyModel.head.storePose());
+        propertyModel.hat.setInitialPose(propertyModel.hat.storePose());
     }
 
     public void writePropertyModel(PlayerModel<?> propertyModel) {
@@ -176,6 +184,12 @@ public class HumanoidAnimator<T extends ChangedEntity, M extends AdvancedHumanoi
         propertyModel.leftSleeve.visible = propertyModel.leftArm.visible;
         propertyModel.rightPants.visible = propertyModel.rightLeg.visible;
         propertyModel.leftPants.visible = propertyModel.leftLeg.visible;
+
+        propertyModel.leftPants.setInitialPose(propertyModel.leftPants.storePose());
+        propertyModel.rightPants.setInitialPose(propertyModel.rightPants.storePose());
+        propertyModel.leftSleeve.setInitialPose(propertyModel.leftSleeve.storePose());
+        propertyModel.rightSleeve.setInitialPose(propertyModel.rightSleeve.storePose());
+        propertyModel.jacket.setInitialPose(propertyModel.jacket.storePose());
     }
 
     /**
@@ -239,7 +253,7 @@ public class HumanoidAnimator<T extends ChangedEntity, M extends AdvancedHumanoi
     private void setupCameraAnimStage(AnimateStage stage, @NotNull CameraExtender camera, @NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         var animatorList = cameraAnimators.get(stage);
         if (animatorList == null) return;
-        boolean bobView = Minecraft.getInstance().options.bobView;
+        boolean bobView = Minecraft.getInstance().options.bobView().get();
 
         animatorList.forEach(animator -> {
             if (animator.requiresViewBob() && !bobView)

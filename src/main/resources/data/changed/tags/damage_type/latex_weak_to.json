@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:is_fire",
+    "#minecraft:is_lightning",
+    "changed:electrocution"
+  ]
+}

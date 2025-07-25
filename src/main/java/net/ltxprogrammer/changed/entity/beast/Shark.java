@@ -1,7 +1,8 @@
 package net.ltxprogrammer.changed.entity.beast;
 
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.minecraft.core.particles.ParticleTypes;
@@ -45,7 +46,7 @@ public class Shark extends AbstractAquaticEntity {
 
     @Override
     public TransfurVariant<?> getTransfurVariant() {
-        return this.level.getSeaLevel() - 6 > this.getBlockY() ? ChangedTransfurVariants.Gendered.LATEX_MERMAID_SHARKS.getRandomVariant(this.random) : ChangedTransfurVariants.LATEX_SHARK.get();
+        return this.level().getSeaLevel() - 6 > this.getBlockY() ? ChangedTransfurVariants.Gendered.LATEX_MERMAID_SHARKS.getRandomVariant(this.random) : ChangedTransfurVariants.LATEX_SHARK.get();
     }
 
     protected PathNavigation createNavigation(Level p_28362_) {
@@ -70,31 +71,26 @@ public class Shark extends AbstractAquaticEntity {
             this.setAirSupply(this.getMaxAirSupply());
         } else {
             if (!this.isInWaterRainOrBubble()) {
-                if (this.onGround) {
+                if (this.onGround()) {
                     this.setDeltaMovement(this.getDeltaMovement().add((double)((this.random.nextFloat() * 2.0F - 1.0F) * 0.2F), 0.5D, (double)((this.random.nextFloat() * 2.0F - 1.0F) * 0.2F)));
                     this.setYRot(this.random.nextFloat() * 360.0F);
-                    this.onGround = false;
+                    this.setOnGround(false);
                     this.hasImpulse = true;
                 }
             }
 
-            if (this.level.isClientSide && this.isInWater() && this.getDeltaMovement().lengthSqr() > 0.03D) {
+            if (this.level().isClientSide && this.isInWater() && this.getDeltaMovement().lengthSqr() > 0.03D) {
                 Vec3 vec3 = this.getViewVector(0.0F);
                 float f = Mth.cos(this.getYRot() * ((float)Math.PI / 180F)) * 0.3F;
                 float f1 = Mth.sin(this.getYRot() * ((float)Math.PI / 180F)) * 0.3F;
                 float f2 = 1.2F - this.random.nextFloat() * 0.7F;
 
                 for(int i = 0; i < 2; ++i) {
-                    this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vec3.x * (double)f2 + (double)f, this.getY() - vec3.y, this.getZ() - vec3.z * (double)f2 + (double)f1, 0.0D, 0.0D, 0.0D);
-                    this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vec3.x * (double)f2 - (double)f, this.getY() - vec3.y, this.getZ() - vec3.z * (double)f2 - (double)f1, 0.0D, 0.0D, 0.0D);
+                    this.level().addParticle(ParticleTypes.DOLPHIN, this.getX() - vec3.x * (double)f2 + (double)f, this.getY() - vec3.y, this.getZ() - vec3.z * (double)f2 + (double)f1, 0.0D, 0.0D, 0.0D);
+                    this.level().addParticle(ParticleTypes.DOLPHIN, this.getX() - vec3.x * (double)f2 - (double)f, this.getY() - vec3.y, this.getZ() - vec3.z * (double)f2 - (double)f1, 0.0D, 0.0D, 0.0D);
                 }
             }
 
         }
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 }

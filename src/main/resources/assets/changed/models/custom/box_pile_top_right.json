@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "changed:blocks/box_pile",
-		"particle": "changed:blocks/box_pile"
+		"0": "changed:block/box_pile",
+		"particle": "changed:block/box_pile"
 	},
 	"elements": [
 		{

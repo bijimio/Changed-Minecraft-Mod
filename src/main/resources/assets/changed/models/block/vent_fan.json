@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "down": "changed:blocks/vent_fan_side_r_inv",
-    "up": "changed:blocks/vent_fan_side_r",
-    "north": "changed:blocks/vent_fan_off",
-    "east": "changed:blocks/vent_fan_side_inv",
-    "south": "changed:blocks/vent_fan_back",
-    "west": "changed:blocks/vent_fan_side",
-    "particle": "changed:blocks/vent_fan_back"
+    "down": "changed:block/vent_fan_side_r_inv",
+    "up": "changed:block/vent_fan_side_r",
+    "north": "changed:block/vent_fan_off",
+    "east": "changed:block/vent_fan_side_inv",
+    "south": "changed:block/vent_fan_back",
+    "west": "changed:block/vent_fan_side",
+    "particle": "changed:block/vent_fan_back"
   }
 }

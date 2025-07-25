@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.world.features.structures.facility;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 
 import java.util.Stack;
@@ -12,10 +13,10 @@ import java.util.stream.Stream;
 public class FacilityGenerationStack {
     private final Stack<FacilityPiece> stack;
     private final BoundingBox parentPieceBoundingBox;
-    private final PieceGenerator.Context<NoneFeatureConfiguration> context;
+    private final Structure.GenerationContext context;
     private final int depthRemaining;
 
-    public FacilityGenerationStack(Stack<FacilityPiece> stack, BoundingBox parentPieceBoundingBox, PieceGenerator.Context<NoneFeatureConfiguration> context, int depthRemaining) {
+    public FacilityGenerationStack(Stack<FacilityPiece> stack, BoundingBox parentPieceBoundingBox, Structure.GenerationContext context, int depthRemaining) {
         this.stack = stack;
         this.parentPieceBoundingBox = parentPieceBoundingBox;
         this.context = context;
@@ -38,7 +39,7 @@ public class FacilityGenerationStack {
         return context.chunkGenerator();
     }
 
-    public PieceGenerator.Context<NoneFeatureConfiguration> getContext() {
+    public Structure.GenerationContext getContext() {
         return context;
     }
 

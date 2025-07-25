@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.init.ChangedBlockStateProviders;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,7 +35,7 @@ public class MixedStateProvider extends BlockStateProvider {
     }
 
     @Override
-    public BlockState getState(Random random, BlockPos blockPos) {
+    public BlockState getState(RandomSource random, BlockPos blockPos) {
         int i = random.nextInt(this.totalWeight);
         return WeightedRandom.getWeightedItem(this.items, i).get().getData().getState(random, blockPos);
     }

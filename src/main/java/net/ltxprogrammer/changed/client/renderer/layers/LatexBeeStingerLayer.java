@@ -2,9 +2,7 @@ package net.ltxprogrammer.changed.client.renderer.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,9 +12,11 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 public class LatexBeeStingerLayer<T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> extends LatexStuckInBodyLayer<T, M> {
-    private static final ResourceLocation BEE_STINGER_LOCATION = new ResourceLocation("textures/entity/bee/bee_stinger.png");
+    private static final ResourceLocation BEE_STINGER_LOCATION = ResourceLocation.parse("textures/entity/bee/bee_stinger.png");
 
     public LatexBeeStingerLayer(LivingEntityRenderer<T, M> p_116580_) {
         super(p_116580_);
@@ -31,20 +31,20 @@ public class LatexBeeStingerLayer<T extends ChangedEntity, M extends AdvancedHum
         float f1 = (float)(Math.atan2((double)p_116588_, (double)p_116590_) * (double)(180F / (float)Math.PI));
         float f2 = (float)(Math.atan2((double)p_116589_, (double)f) * (double)(180F / (float)Math.PI));
         p_116584_.translate(0.0D, 0.0D, 0.0D);
-        p_116584_.mulPose(Vector3f.YP.rotationDegrees(f1 - 90.0F));
-        p_116584_.mulPose(Vector3f.ZP.rotationDegrees(f2));
+        p_116584_.mulPose(Axis.YP.rotationDegrees(f1 - 90.0F));
+        p_116584_.mulPose(Axis.ZP.rotationDegrees(f2));
         float f3 = 0.0F;
         float f4 = 0.125F;
         float f5 = 0.0F;
         float f6 = 0.0625F;
         float f7 = 0.03125F;
-        p_116584_.mulPose(Vector3f.XP.rotationDegrees(45.0F));
+        p_116584_.mulPose(Axis.XP.rotationDegrees(45.0F));
         p_116584_.scale(0.03125F, 0.03125F, 0.03125F);
         p_116584_.translate(2.5D, 0.0D, 0.0D);
         VertexConsumer vertexconsumer = p_116585_.getBuffer(RenderType.entityCutoutNoCull(BEE_STINGER_LOCATION));
 
         for(int i = 0; i < 4; ++i) {
-            p_116584_.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+            p_116584_.mulPose(Axis.XP.rotationDegrees(90.0F));
             PoseStack.Pose posestack$pose = p_116584_.last();
             Matrix4f matrix4f = posestack$pose.pose();
             Matrix3f matrix3f = posestack$pose.normal();

@@ -2,8 +2,6 @@ package net.ltxprogrammer.changed.client.renderer.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModelInterface;
@@ -44,7 +42,7 @@ public class AdditionalEyesLayer<M extends AdvancedHumanoidModel<T>, T extends C
     private CustomEyesLayer.HeadShape headShape = CustomEyesLayer.HeadShape.NORMAL;
 
     private ResourceLocation getEyesTexture(EyeStyle style, String part) {
-        return new ResourceLocation(additionalEyesId.getNamespace(), "textures/eyes/" + additionalEyesId.getPath() + "/" + style.getId().getNamespace() + "/" + style.getId().getPath() + "_" + part + ".png");
+        return ResourceLocation.fromNamespaceAndPath(additionalEyesId.getNamespace(), "textures/eyes/" + additionalEyesId.getPath() + "/" + style.getId().getNamespace() + "/" + style.getId().getPath() + "_" + part + ".png");
     }
 
     private ResourceLocation getScleraTexture(EyeStyle style) {

@@ -5,10 +5,11 @@ import net.ltxprogrammer.changed.entity.PlayerMover;
 import net.ltxprogrammer.changed.entity.PlayerMoverInstance;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.util.InputWrapper;
+import net.ltxprogrammer.changed.util.TagUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -38,6 +39,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -188,8 +190,8 @@ public class DuctBlock extends ChangedBlock implements SimpleWaterloggedBlock
     }
 
     public boolean isLadder(final BlockState state, final LevelReader level, final BlockPos pos, final LivingEntity entity) {
-        BlockPos entityBlockPos = new BlockPos(entity.position().add(0.0, 0.25, 0.0));
-        return super.isLadder(state, level, pos, entity) || entityBlockPos.equals(pos) || entity.eyeBlockPosition().equals(pos);
+        BlockPos entityBlockPos = EntityUtil.getBlock(entity.position().add(0.0, 0.25, 0.0));
+        return super.isLadder(state, level, pos, entity) || entityBlockPos.equals(pos) || EntityUtil.getEyeBlock(entity).equals(pos);
     }
 
     public BlockState getStateForPlacement(final BlockPlaceContext context) {
@@ -309,13 +311,13 @@ public class DuctBlock extends ChangedBlock implements SimpleWaterloggedBlock
             @Override
             public void saveTo(CompoundTag tag) {
                 super.saveTo(tag);
-                tag.putInt("block", Registry.BLOCK.getId(ductBlock));
+                TagUtil.putResourceLocation(tag, "block", ForgeRegistries.BLOCKS.getKey(ductBlock));
             }
 
             @Override
             public void readFrom(CompoundTag tag) {
                 super.readFrom(tag);
-                this.ductBlock = Registry.BLOCK.byId(tag.getInt("block"));
+                this.ductBlock = ForgeRegistries.BLOCKS.getValue(TagUtil.getResourceLocation(tag, "block"));
             }
 
             @Override
@@ -347,7 +349,7 @@ public class DuctBlock extends ChangedBlock implements SimpleWaterloggedBlock
                 BlockPos currentPos = player.blockPosition();
                 BlockPos nextPos = currentPos.relative(moveDir);
 
-                BlockState nextState = player.level.getBlockState(nextPos);
+                BlockState nextState = player.level().getBlockState(nextPos);
                 if (!nextState.is(ductBlock) && !nextState.is(ChangedTags.Blocks.DUCT_EXIT))
                     return;
 
@@ -370,16 +372,16 @@ public class DuctBlock extends ChangedBlock implements SimpleWaterloggedBlock
 
             @Override
             public boolean shouldRemoveMover(Player player, InputWrapper input, LogicalSide side) {
-                return !player.level.getBlockState(player.blockPosition()).is(ductBlock);
+                return !player.level().getBlockState(player.blockPosition()).is(ductBlock);
             }
 
             @Override
-            public EntityDimensions getDimensions(Pose pose, EntityDimensions currentDimensions) {
+            public EntityDimensions getDimensions(LivingEntity entity, Pose pose, EntityDimensions currentDimensions) {
                 return EntityDimensions.scalable(0.5f, 0.5f);
             }
 
             @Override
-            public float getEyeHeight(Pose pose, float eyeHeight) {
+            public float getEyeHeight(LivingEntity entity, Pose pose, float eyeHeight) {
                 return 0.25f;
             }
         }

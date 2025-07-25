@@ -82,8 +82,6 @@ public interface IAbstractChangedEntity {
             doesAbsorption = getSelfVariant().transfurMode() == TransfurMode.ABSORPTION;
         else if (getTransfurVariant() != null && getTransfurVariant().transfurMode() == TransfurMode.ABSORPTION)
             doesAbsorption = true;
-        else if (getTransfurVariant() != null && getTransfurVariant().getEntityType() == ChangedEntities.SPECIAL_LATEX.get())
-            doesAbsorption = true;
         else
             doesAbsorption = false;
 
@@ -143,7 +141,7 @@ public interface IAbstractChangedEntity {
 
             @Override
             public @NotNull Level getLevel() {
-                return player.level;
+                return player.level();
             }
 
             @Override
@@ -321,7 +319,7 @@ public interface IAbstractChangedEntity {
 
             @Override
             public @NotNull Level getLevel() {
-                return cached.get().level;
+                return cached.get().level();
             }
 
             @Override
@@ -438,12 +436,12 @@ public interface IAbstractChangedEntity {
                 if (stack.isEmpty()) {
                     return;
                 } else {
-                    if (cached.get().level.isClientSide) {
+                    if (cached.get().level().isClientSide) {
                         cached.get().swing(InteractionHand.MAIN_HAND);
                     }
 
                     double d0 = cached.get().getEyeY() - (double)0.3F;
-                    ItemEntity itementity = new ItemEntity(cached.get().level, cached.get().getX(), d0, cached.get().getZ(), stack);
+                    ItemEntity itementity = new ItemEntity(cached.get().level(), cached.get().getX(), d0, cached.get().getZ(), stack);
                     itementity.setPickUpDelay(40);
                     if (includeName) {
                         itementity.setThrower(cached.get().getUUID());
@@ -454,9 +452,9 @@ public interface IAbstractChangedEntity {
                     float f2 = Mth.cos(cached.get().getXRot() * ((float)Math.PI / 180F));
                     float f3 = Mth.sin(cached.get().getYRot() * ((float)Math.PI / 180F));
                     float f4 = Mth.cos(cached.get().getYRot() * ((float)Math.PI / 180F));
-                    float f5 = cached.get().level.random.nextFloat() * ((float)Math.PI * 2F);
-                    float f6 = 0.02F * cached.get().level.random.nextFloat();
-                    itementity.setDeltaMovement((double)(-f3 * f2 * 0.3F) + Math.cos((double)f5) * (double)f6, (double)(-f8 * 0.3F + 0.1F + (cached.get().level.random.nextFloat() - cached.get().level.random.nextFloat()) * 0.1F), (double)(f4 * f2 * 0.3F) + Math.sin((double)f5) * (double)f6);
+                    float f5 = cached.get().level().random.nextFloat() * ((float)Math.PI * 2F);
+                    float f6 = 0.02F * cached.get().level().random.nextFloat();
+                    itementity.setDeltaMovement((double)(-f3 * f2 * 0.3F) + Math.cos((double)f5) * (double)f6, (double)(-f8 * 0.3F + 0.1F + (cached.get().level().random.nextFloat() - cached.get().level().random.nextFloat()) * 0.1F), (double)(f4 * f2 * 0.3F) + Math.sin((double)f5) * (double)f6);
                 }
             }
 

@@ -7,8 +7,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class MultiRotateHeadPacket implements ChangedPacket {
@@ -43,23 +46,23 @@ public class MultiRotateHeadPacket implements ChangedPacket {
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        var context = contextSupplier.get();
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+            context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                IAbstractChangedEntity.forEitherSafe(this.getEntity(level))
+                        .map(IAbstractChangedEntity::getChangedEntity)
+                        .ifPresent(effectedEntity -> {
+                            if (effectedEntity instanceof DoubleHeadedEntity doubleHeadedEntity) {
+                                float yRot = (float)(this.yHeadRot2 * 360) / 256.0F;
+                                float xRot = (float)(this.xHeadRot2 * 360) / 256.0F;
+                                doubleHeadedEntity.lerpHead2To(yRot, xRot, 3);
+                            }
+                        });
+            });
+        }
 
-        if (!context.getDirection().getReceptionSide().isClient())
-            return;
-
-        IAbstractChangedEntity.forEitherSafe(this.getEntity(UniversalDist.getLevel()))
-                .map(IAbstractChangedEntity::getChangedEntity)
-                .ifPresent(effectedEntity -> {
-                    if (effectedEntity instanceof DoubleHeadedEntity doubleHeadedEntity) {
-                        float yRot = (float)(this.yHeadRot2 * 360) / 256.0F;
-                        float xRot = (float)(this.xHeadRot2 * 360) / 256.0F;
-                        doubleHeadedEntity.lerpHead2To(yRot, xRot, 3);
-                    }
-
-                    context.setPacketHandled(true);
-                });
+        return CompletableFuture.failedFuture(makeIllegalSideException(context.getDirection().getReceptionSide(), LogicalSide.CLIENT));
     }
 
     public Entity getEntity(Level level) {

@@ -1,8 +1,9 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedEntities;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
@@ -34,11 +35,6 @@ public class MilkPudding extends ChangedEntity {
         attributes.getInstance(Attributes.FOLLOW_RANGE).setBaseValue(12.0);
         attributes.getInstance(Attributes.ATTACK_DAMAGE).setBaseValue(2.0D);
         attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(0.9);
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

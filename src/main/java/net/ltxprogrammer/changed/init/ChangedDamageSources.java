@@ -2,53 +2,60 @@ package net.ltxprogrammer.changed.init;
 
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
+import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ChangedDamageSources {
-    public static class TransfurDamageSource extends DamageSource {
-        protected final LivingEntity entity;
-
-        public TransfurDamageSource(String name, LivingEntity entity) {
-            super(name);
-            this.entity = entity;
-            this.bypassArmor();
+    public record DamageTypeHolder(ResourceKey<DamageType> key) {
+        public DamageSource source(RegistryAccess access) {
+            final Holder<DamageType> type = access.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(key);
+            return new DamageSource(type);
         }
 
-        public Entity getEntity() {
-            return this.entity;
-        }
-
-        public String toString() {
-            return "TransfurDamageSource (" + this.entity + ")";
+        public DamageSource source(RegistryAccess access, Entity sourceEntity) {
+            final Holder<DamageType> type = access.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(key);
+            return new DamageSource(type, sourceEntity);
         }
     }
 
-    public static final String TRANSFUR_NAME = Changed.modResourceStr("transfur");
-    public static DamageSource entityTransfur(LivingEntity source) {
-        return new TransfurDamageSource(TRANSFUR_NAME, source);
+    private static DamageTypeHolder holder(String name) {
+        return new DamageTypeHolder(ResourceKey.create(Registries.DAMAGE_TYPE, Changed.modResource(name)));
     }
 
-    public static DamageSource entityTransfur(@Nullable IAbstractChangedEntity source) {
-        return new TransfurDamageSource(TRANSFUR_NAME, source == null ? null : source.getEntity());
+    public static final DamageTypeHolder TRANSFUR = holder("transfur");
+    public static final DamageTypeHolder ABSORB = holder("absorb");
+    public static final DamageTypeHolder BLOODLOSS = holder("bloodloss");
+    public static final DamageTypeHolder ELECTROCUTION = holder("electrocution");
+    public static final DamageTypeHolder WHITE_LATEX = holder("white_latex");
+    public static final DamageTypeHolder LATEX_FLUID = holder("latex_fluid");
+    public static final DamageTypeHolder PALE = holder("pale");
+    public static final DamageTypeHolder FAN = holder("fan");
+    public static final DamageTypeHolder HEART_ATTACK = holder("heart_attack");
+
+    public static DamageSource entityTransfur(RegistryAccess access, LivingEntity source) {
+        return TRANSFUR.source(access, source);
     }
 
-    public static final String ABSORB_NAME = Changed.modResourceStr("absorb");
-    public static DamageSource entityAbsorb(LivingEntity source) {
-        return new TransfurDamageSource(ABSORB_NAME, source);
+    public static DamageSource entityTransfur(RegistryAccess access, @Nullable IAbstractChangedEntity source) {
+        return TRANSFUR.source(access, source == null ? null : source.getEntity());
     }
 
-    public static DamageSource entityAbsorb(@Nullable IAbstractChangedEntity source) {
-        return new TransfurDamageSource(ABSORB_NAME, source == null ? null : source.getEntity());
+    public static DamageSource entityAbsorb(RegistryAccess access, LivingEntity source) {
+        return ABSORB.source(access, source);
     }
 
-    public static final DamageSource BLOODLOSS = (new DamageSource(Changed.modResourceStr("bloodloss"))).bypassArmor();
-    public static final DamageSource ELECTROCUTION = (new DamageSource(Changed.modResourceStr("electrocution"))).bypassArmor();
-    public static final DamageSource WHITE_LATEX = (new DamageSource(Changed.modResourceStr("white_latex"))).bypassArmor().bypassMagic();
-    public static final DamageSource LATEX_FLUID = (new DamageSource(Changed.modResourceStr("latex_fluid"))).bypassArmor().bypassMagic();
-    public static final DamageSource PALE = (new DamageSource(Changed.modResourceStr("pale"))).bypassArmor().bypassMagic();
-    public static final DamageSource FAN = new DamageSource(Changed.modResourceStr("fan"));
+    public static DamageSource entityAbsorb(RegistryAccess access, @Nullable IAbstractChangedEntity source) {
+        return ABSORB.source(access, source == null ? null : source.getEntity());
+    }
 }

@@ -2,8 +2,7 @@ package net.ltxprogrammer.changed.effect.particle;
 
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.ltxprogrammer.changed.entity.Emote;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -14,6 +13,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class EmoteParticle extends TextureSheetParticle {
     private final Entity track;
@@ -52,23 +53,23 @@ public class EmoteParticle extends TextureSheetParticle {
         float x = (float)(Mth.lerp(partialTicks, this.xo, this.x) - camPos.x());
         float y = (float)(Mth.lerp(partialTicks, this.yo, this.y) - camPos.y());
         float z = (float)(Mth.lerp(partialTicks, this.zo, this.z) - camPos.z());
-        Quaternion quat;
+        Quaternionf quat;
         if (this.roll == 0.0F) {
             quat = camera.rotation();
         } else {
-            quat = new Quaternion(camera.rotation());
+            quat = new Quaternionf(camera.rotation());
             float f3 = Mth.lerp(partialTicks, this.oRoll, this.roll);
-            quat.mul(Vector3f.ZP.rotation(f3));
+            quat.mul(Axis.ZP.rotation(f3));
         }
 
         Vector3f vector3f1 = new Vector3f(-1.0F, -1.0F, 0.0F);
-        vector3f1.transform(quat);
+        quat.transform(vector3f1);
         Vector3f[] avector3f = new Vector3f[]{new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F), new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)};
         float f4 = this.getQuadSize(partialTicks);
 
         for(int i = 0; i < 4; ++i) {
             Vector3f vector3f = avector3f[i];
-            vector3f.transform(quat);
+            quat.transform(vector3f);
             vector3f.mul(f4);
             vector3f.add(x, y, z);
         }

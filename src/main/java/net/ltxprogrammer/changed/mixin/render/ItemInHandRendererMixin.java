@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,10 +31,10 @@ public abstract class ItemInHandRendererMixin {
 
     @Shadow private float oMainHandHeight;
 
-    @Shadow public abstract void renderItem(LivingEntity p_109323_, ItemStack p_109324_, ItemTransforms.TransformType p_109325_, boolean p_109326_, PoseStack p_109327_, MultiBufferSource p_109328_, int p_109329_);
+    @Shadow public abstract void renderItem(LivingEntity p_109323_, ItemStack p_109324_, ItemDisplayContext p_109325_, boolean p_109326_, PoseStack p_109327_, MultiBufferSource p_109328_, int p_109329_);
 
     @Inject(method = "renderItem", at = @At("HEAD"))
-    public void renderItem(LivingEntity entity, ItemStack item, ItemTransforms.TransformType type, boolean leftHand, PoseStack pose, MultiBufferSource buffers, int packedLight, CallbackInfo callback) {
+    public void renderItem(LivingEntity entity, ItemStack item, ItemDisplayContext type, boolean leftHand, PoseStack pose, MultiBufferSource buffers, int packedLight, CallbackInfo callback) {
         if (!item.isEmpty() && item.getItem() instanceof SpecializedAnimations specialized) {
             var handler = specialized.getAnimationHandler();
             if (handler != null && (!type.firstPerson() || handler.changesFirstPersonAnimation())) {

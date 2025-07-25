@@ -43,18 +43,18 @@ public class PurifierMenu extends AbstractContainerMenu implements Supplier<Map<
     }
 
     public PurifierMenu(int p_38969_, Inventory inv, Container p_38971_, ContainerData p_38972_) {
-        super(ChangedMenus.PURIFIER, p_38969_);
+        super(ChangedMenus.PURIFIER.get(), p_38969_);
         checkContainerSize(p_38971_, 1);
         checkContainerDataCount(p_38972_, 1);
         this.container = p_38971_;
         this.data = p_38972_;
-        this.world = inv.player.level;
+        this.world = inv.player.level();
         this.entity = inv.player;
-        this.recipeManager = inv.player.level.getRecipeManager();
+        this.recipeManager = inv.player.level().getRecipeManager();
         this.customSlots.put(0, this.addSlot(new Slot(p_38971_, 0, 79, 35) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                boolean hasRecipe = recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE).stream().anyMatch(recipe -> recipe.getIngredient().test(stack));
+                boolean hasRecipe = recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE.get()).stream().anyMatch(recipe -> recipe.getIngredient().test(stack));
 
                 return (ChangedItems.LATEX_SYRINGE.get() == stack.getItem()) || hasRecipe;
             }

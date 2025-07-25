@@ -1,9 +1,10 @@
 {
 	"credit": "Made with Blockbench",
 	"texture_size": [128, 128],
+	"render_type": "minecraft:cutout",
 	"textures": {
-		"0": "changed:blocks/lab_door",
-		"particle": "changed:blocks/lab_door"
+		"0": "changed:block/lab_door",
+		"particle": "changed:block/lab_door"
 	},
 	"elements": [
 		{

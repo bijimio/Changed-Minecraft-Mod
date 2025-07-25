@@ -2,6 +2,7 @@ package net.ltxprogrammer.changed.client.animations;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 public class TimedSoundEffect {
     private final float time;
-    private final SoundEvent soundEvent;
+    private final Holder<SoundEvent> soundEvent;
     private final float pitchLow;
     private final float pitchHigh;
     private final float volume;
@@ -26,7 +27,7 @@ public class TimedSoundEffect {
             pitch.or(() -> pitchLow).orElseThrow(),
             pitch.or(() -> pitchHigh).orElseThrow(), volume)));
 
-    public TimedSoundEffect(float time, SoundEvent soundEvent, float pitchLow, float pitchHigh, float volume) {
+    public TimedSoundEffect(float time, Holder<SoundEvent> soundEvent, float pitchLow, float pitchHigh, float volume) {
         this.time = time;
         this.soundEvent = soundEvent;
         this.pitchLow = Math.min(pitchLow, pitchHigh);
@@ -35,7 +36,7 @@ public class TimedSoundEffect {
     }
 
     public void play(LivingEntity entity) {
-        entity.playSound(this.soundEvent, this.volume, Mth.lerp(entity.getRandom().nextFloat(), this.pitchLow, this.pitchHigh));
+        entity.playSound(this.soundEvent.get(), this.volume, Mth.lerp(entity.getRandom().nextFloat(), this.pitchLow, this.pitchHigh));
     }
 
     public void playIfInRange(LivingEntity entity, float timeO, float time) {

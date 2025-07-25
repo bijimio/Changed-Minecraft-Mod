@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [32, 32],
 	"textures": {
-		"0": "changed:blocks/duct_joint",
-		"particle": "changed:blocks/duct_joint"
+		"0": "changed:block/duct_joint",
+		"particle": "changed:block/duct_joint"
 	},
 	"elements": [
 		{

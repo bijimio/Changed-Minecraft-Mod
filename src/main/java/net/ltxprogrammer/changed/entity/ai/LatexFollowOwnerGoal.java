@@ -35,7 +35,7 @@ public class LatexFollowOwnerGoal<T extends ChangedEntity & TamableLatexEntity> 
 
     public LatexFollowOwnerGoal(T entity, double speed, float startDistance, float stopDistance, boolean canFly) {
         this.tamable = entity;
-        this.level = entity.level;
+        this.level = entity.level();
         this.speedModifier = speed;
         this.navigation = entity.getNavigation();
         this.startDistance = startDistance;

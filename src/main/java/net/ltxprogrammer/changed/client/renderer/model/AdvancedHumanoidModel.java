@@ -23,6 +23,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.HumanoidArm;
 
 import javax.annotation.Nullable;
@@ -154,7 +155,7 @@ public abstract class AdvancedHumanoidModel<T extends ChangedEntity> extends Pla
         });
     }
 
-    public ModelPart getRandomModelPart(Random random) {
+    public ModelPart getRandomModelPart(RandomSource random) {
         List<ModelPart> partList = rootModelPart.getAllParts().toList();
         return partList.get(random.nextInt(partList.size()));
     }

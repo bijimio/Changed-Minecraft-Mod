@@ -50,12 +50,12 @@ public class DroppedSyringeBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
         super.saveAdditional(tag);
-        tag.putInt("variant", ChangedRegistry.TRANSFUR_VARIANT.get().getID(getVariant()));
+        tag.putInt("variant", ChangedRegistry.TRANSFUR_VARIANT.getID(getVariant()));
     }
 
     @Override
     public void load(@NotNull CompoundTag tag) {
         super.load(tag);
-        setVariant(ChangedRegistry.TRANSFUR_VARIANT.get().getValue(tag.getInt("variant")));
+        setVariant(ChangedRegistry.TRANSFUR_VARIANT.getValue(tag.getInt("variant")));
     }
 }

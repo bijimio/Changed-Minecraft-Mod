@@ -1,6 +1,5 @@
 package net.ltxprogrammer.changed.world.features.structures;
 
-import net.ltxprogrammer.changed.block.ConnectedFloorBlock;
 import net.ltxprogrammer.changed.init.ChangedStructurePieceTypes;
 import net.ltxprogrammer.changed.util.TagUtil;
 import net.minecraft.CrashReport;
@@ -10,20 +9,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
-import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -35,7 +35,7 @@ public class SurfaceNBTPiece extends StructurePiece {
     private final StructureTemplate template;
     private final BlockPos generationPosition;
 
-    private SurfaceNBTPiece(StructureTemplate template, ResourceLocation structureNBT, @Nullable ResourceLocation lootTable, PieceGenerator.Context<?> context, int x, int z) {
+    private SurfaceNBTPiece(StructureTemplate template, ResourceLocation structureNBT, @Nullable ResourceLocation lootTable, Structure.GenerationContext context, int x, int z) {
         super(ChangedStructurePieceTypes.NBT.get(), 0, BoundingBox.infinite());
         this.setOrientation(Direction.Plane.HORIZONTAL.getRandomDirection(context.random()));
         var settings = new StructurePlaceSettings()
@@ -46,10 +46,10 @@ public class SurfaceNBTPiece extends StructurePiece {
                 x, 0, z
         );
         this.boundingBox = template.getBoundingBox(settings, tmpGenPos);
-        int minXminZ = context.chunkGenerator().getBaseHeight(this.boundingBox.minX(), this.boundingBox.minZ(), Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor());
-        int minXmaxZ = context.chunkGenerator().getBaseHeight(this.boundingBox.minX(), this.boundingBox.maxZ(), Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor());
-        int maxXminZ = context.chunkGenerator().getBaseHeight(this.boundingBox.maxX(), this.boundingBox.minZ(), Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor());
-        int maxXmaxZ = context.chunkGenerator().getBaseHeight(this.boundingBox.maxX(), this.boundingBox.maxZ(), Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor());
+        int minXminZ = context.chunkGenerator().getBaseHeight(this.boundingBox.minX(), this.boundingBox.minZ(), Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState());
+        int minXmaxZ = context.chunkGenerator().getBaseHeight(this.boundingBox.minX(), this.boundingBox.maxZ(), Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState());
+        int maxXminZ = context.chunkGenerator().getBaseHeight(this.boundingBox.maxX(), this.boundingBox.minZ(), Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState());
+        int maxXmaxZ = context.chunkGenerator().getBaseHeight(this.boundingBox.maxX(), this.boundingBox.maxZ(), Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState());
 
         this.generationPosition = tmpGenPos.offset(0, Math.min(Math.min(minXminZ, minXmaxZ), Math.min(maxXminZ, maxXmaxZ)), 0);
         this.boundingBox = this.boundingBox.moved(0, this.generationPosition.getY(), 0);
@@ -58,17 +58,17 @@ public class SurfaceNBTPiece extends StructurePiece {
         this.lootTable = lootTable;
     }
 
-    private SurfaceNBTPiece(StructureTemplate template, ResourceLocation structureNBT, @Nullable ResourceLocation lootTable, PieceGenerator.Context<?> context) {
+    private SurfaceNBTPiece(StructureTemplate template, ResourceLocation structureNBT, @Nullable ResourceLocation lootTable, Structure.GenerationContext context) {
         this(template, structureNBT, lootTable, context,
                 context.chunkPos().getMinBlockX() + context.random().nextInt(16),
                 context.chunkPos().getMinBlockZ() + context.random().nextInt(16));
     }
 
-    public SurfaceNBTPiece(ResourceLocation structureNBT, @Nullable ResourceLocation lootTable, PieceGenerator.Context<?> context) {
-        this(context.structureManager().getOrCreate(structureNBT), structureNBT, lootTable, context);
+    public SurfaceNBTPiece(ResourceLocation structureNBT, @Nullable ResourceLocation lootTable, Structure.GenerationContext context) {
+        this(context.structureTemplateManager().getOrCreate(structureNBT), structureNBT, lootTable, context);
     }
 
-    public SurfaceNBTPiece(StructureManager manager, CompoundTag tag) {
+    public SurfaceNBTPiece(StructureTemplateManager manager, CompoundTag tag) {
         super(ChangedStructurePieceTypes.NBT.get(), tag);
         this.templateName = TagUtil.getResourceLocation(tag, "nbt");
         this.template = manager.get(templateName).orElseThrow();
@@ -89,7 +89,7 @@ public class SurfaceNBTPiece extends StructurePiece {
     }
 
     @Override
-    public void postProcess(WorldGenLevel level, StructureFeatureManager manager, ChunkGenerator chunk, Random random, BoundingBox bb, ChunkPos chunkPos, BlockPos blockPos) {
+    public void postProcess(WorldGenLevel level, StructureManager manager, ChunkGenerator chunk, RandomSource random, BoundingBox bb, ChunkPos chunkPos, BlockPos blockPos) {
         var settings = new StructurePlaceSettings()
                 .setMirror(this.getMirror())
                 .setRotation(this.getRotation()).setRandom(random)

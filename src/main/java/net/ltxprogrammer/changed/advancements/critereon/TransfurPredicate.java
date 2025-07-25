@@ -2,7 +2,7 @@ package net.ltxprogrammer.changed.advancements.critereon;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.*;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
@@ -76,7 +76,7 @@ public class TransfurPredicate {
         if (json != null && !json.isJsonNull()) {
             JsonObject jsonObject = GsonHelper.convertToJsonObject(json, "form");
             if (jsonObject.has("type")) {
-                final LatexType type = LatexType.valueOf(GsonHelper.getAsString(jsonObject, "type"));
+                final LatexType type = ChangedRegistry.LATEX_TYPE.getValue(ResourceLocation.parse(GsonHelper.getAsString(jsonObject, "type")));
                 return new TransfurPredicate(type);
             }
             if (jsonObject.has("forms")) {
@@ -84,7 +84,7 @@ public class TransfurPredicate {
                 if (jsonArray != null) {
                     ImmutableSet.Builder<TransfurVariant<?>> builder = ImmutableSet.builder();
                     for (var element : jsonArray) {
-                        ResourceLocation resourcelocation = new ResourceLocation(GsonHelper.convertToString(element, "form"));
+                        ResourceLocation resourcelocation = ResourceLocation.parse(GsonHelper.convertToString(element, "form"));
                         if (!ChangedRegistry.TRANSFUR_VARIANT.get().containsKey(resourcelocation))
                             throw new JsonSyntaxException("Unknown form id '" + resourcelocation + "'");
                         builder.add(ChangedRegistry.TRANSFUR_VARIANT.get().getValue(resourcelocation));

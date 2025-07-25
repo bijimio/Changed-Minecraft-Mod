@@ -6,12 +6,16 @@ import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.UniversalDist;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 /**
@@ -30,38 +34,39 @@ public class AbilityPayloadPacket implements ChangedPacket {
 
     public AbilityPayloadPacket(FriendlyByteBuf buffer) {
         this.entityId = buffer.readInt();
-        this.ability = ChangedRegistry.ABILITY.get().getValue(buffer.readInt());
+        this.ability = ChangedRegistry.ABILITY.readRegistryObject(buffer);
         this.tag = buffer.readAnySizeNbt();
     }
 
     @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeInt(entityId);
-        buffer.writeInt(ChangedRegistry.ABILITY.get().getID(ability));
+        ChangedRegistry.ABILITY.writeRegistryObject(buffer, ability);
         buffer.writeNbt(tag);
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        final var context = contextSupplier.get();
-
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
         if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
-            var entity = UniversalDist.getLevel().getEntity(entityId);
-            AbstractAbilityInstance abilityInstance = null;
-            if (entity instanceof ChangedEntity changedEntity) {
-                abilityInstance = changedEntity.getAbilityInstance(ability);
-            } else if (entity instanceof Player player) {
-                final var variant = ProcessTransfur.getPlayerTransfurVariant(player);
-                if (variant != null)
-                    abilityInstance = variant.getAbilityInstance(ability);
-            }
-
-            if (abilityInstance == null)
-                return; // Not handled
-
-            abilityInstance.acceptPayload(tag);
-
             context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                var entity = level.getEntity(entityId);
+                AbstractAbilityInstance abilityInstance = null;
+                if (entity instanceof ChangedEntity changedEntity) {
+                    abilityInstance = changedEntity.getAbilityInstance(ability);
+                } else if (entity instanceof Player player) {
+                    final var variant = ProcessTransfur.getPlayerTransfurVariant(player);
+                    if (variant != null)
+                        abilityInstance = variant.getAbilityInstance(ability);
+                }
+
+                if (abilityInstance == null)
+                    throw new IllegalStateException("Ability instance not present on entity: " + entity);
+
+                abilityInstance.acceptPayload(tag);
+            });
         }
+
+        return CompletableFuture.failedFuture(makeIllegalSideException(context.getDirection().getReceptionSide(), LogicalSide.CLIENT));
     }
 }

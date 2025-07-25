@@ -3,7 +3,6 @@ package net.ltxprogrammer.changed.ability;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +44,7 @@ public class GrabEntityAbility extends AbstractAbility<GrabEntityAbilityInstance
         return Optional.ofNullable(IAbstractChangedEntity.forEither(ext.getGrabbedBy()));
     }
 
-    private static final Collection<Component> DESCRIPTION = Collections.singleton(new TranslatableComponent("ability.changed.grab_entity.desc"));
+    private static final Collection<Component> DESCRIPTION = Collections.singleton(Component.translatable("ability.changed.grab_entity.desc"));
 
     @NotNull
     public static LivingEntity getControllingEntity(LivingEntity livingEntity) {

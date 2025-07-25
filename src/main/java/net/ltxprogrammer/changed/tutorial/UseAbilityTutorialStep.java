@@ -8,15 +8,14 @@ import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.tutorial.Tutorial;
 import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class UseAbilityTutorialStep implements ChangedTutorialInstance {
     private static final int HINT_DELAY = 0;
-    private static final Component TITLE = new TranslatableComponent("changed.tutorial.use_ability.title");
-    private static final Component DESCRIPTION = new TranslatableComponent("changed.tutorial.use_ability.description", ChangedTutorial.key(ChangedKeyMappings.USE_ABILITY));
+    private static final Component TITLE = Component.translatable("changed.tutorial.use_ability.title");
+    private static final Component DESCRIPTION = Component.translatable("changed.tutorial.use_ability.description", ChangedTutorial.key(ChangedKeyMappings.USE_ABILITY));
     private final Tutorial tutorial;
     private TutorialToast toast;
     private int timeWaiting;

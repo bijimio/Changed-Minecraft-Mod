@@ -13,6 +13,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class SyncMoversPacket implements ChangedPacket {
@@ -56,52 +60,57 @@ public class SyncMoversPacket implements ChangedPacket {
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isClient()) {
-            ClientLevel level = Minecraft.getInstance().level;
-            Objects.requireNonNull(level);
-            movers.forEach((uuid, listing) -> {
-                if (level.getPlayerByUUID(uuid) instanceof PlayerDataExtension ext) {
-                    ext.setPlayerMoverType(listing.mover == NO_FORM ? null : ChangedRegistry.PLAYER_MOVER.get().getValue(listing.mover));
-                    var mover = ext.getPlayerMover();
-                    if (mover != null)
-                        mover.readFrom(listing.data);
-                }
-            });
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
             context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                movers.forEach((uuid, listing) -> {
+                    if (level.getPlayerByUUID(uuid) instanceof PlayerDataExtension ext) {
+                        ext.setPlayerMoverType(listing.mover == NO_FORM ? null : ChangedRegistry.PLAYER_MOVER.getValue(listing.mover));
+                        var mover = ext.getPlayerMover();
+                        if (mover != null)
+                            mover.readFrom(listing.data);
+                    }
+                });
+            });
         }
-        else if (context.getDirection().getReceptionSide().isServer()) { // Mirror packet
+
+        else {
             ServerPlayer sender = context.getSender();
             if (sender != null) {
                 Changed.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), this);
             }
             context.setPacketHandled(true);
+            return CompletableFuture.completedFuture(null);
         }
     }
 
     public static class Builder {
         private final Map<UUID, Listing> movers = new HashMap<>();
 
-        public void addPlayer(Player player) {
+        public void addPlayer(Player player, boolean excludeNormal) {
             if (player instanceof PlayerDataExtension ext && ext.getPlayerMover() != null) {
                 CompoundTag tag = new CompoundTag();
                 ext.getPlayerMover().saveTo(tag);
                 movers.put(player.getUUID(),
-                        new Listing(ChangedRegistry.PLAYER_MOVER.get().getID(ext.getPlayerMover().parent), tag));
-            } else {
+                        new Listing(ChangedRegistry.PLAYER_MOVER.getID(ext.getPlayerMover().parent), tag));
+            } else if (!excludeNormal) {
                 movers.put(player.getUUID(),
                         new Listing(-1, new CompoundTag()));
             }
+        }
+
+        public boolean worthSending() {
+            return !movers.isEmpty();
         }
 
         public SyncMoversPacket build() {
             return new SyncMoversPacket(movers);
         }
 
-        public static SyncMoversPacket of(Player player) {
+        public static SyncMoversPacket of(Player player, boolean excludeNormal) {
             Builder builder = new Builder();
-            builder.addPlayer(player);
+            builder.addPlayer(player, excludeNormal);
             return builder.build();
         }
     }

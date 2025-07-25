@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -82,7 +83,7 @@ public class LatexPupCrystal extends TransfurCrystalBlock {
     }
 
     @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.tick(state, level, pos, random);
         if (state.getValue(HALF) == DoubleBlockHalf.UPPER)
             this.retract(level.getBlockState(pos.below()), level, pos.below());
@@ -100,7 +101,7 @@ public class LatexPupCrystal extends TransfurCrystalBlock {
         }
 
         else {
-            level.playSound(null, pos, ChangedSounds.ICE2, SoundSource.BLOCKS, 1.0f, 1.0f);
+            level.playSound(null, pos, ChangedSounds.ICE2.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
 
             level.setBlockAndUpdate(pos, state.setValue(EXTENDED, true));
             var upState = level.getBlockState(pos.above());

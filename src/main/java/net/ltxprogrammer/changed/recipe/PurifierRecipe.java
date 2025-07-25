@@ -7,6 +7,7 @@ import net.ltxprogrammer.changed.init.ChangedRecipeSerializers;
 import net.ltxprogrammer.changed.init.ChangedRecipeTypes;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -19,6 +20,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +88,13 @@ public class PurifierRecipe implements Recipe<SimpleContainer> {
         return i == 1 && (isSimple ? stackedcontents.canCraft(this, (IntList)null) : net.minecraftforge.common.util.RecipeMatcher.findMatches(inputs,  this.ingredients) != null);
     }
 
-    public ItemStack assemble(SimpleContainer p_44260_) {
+    @Override
+    public ItemStack assemble(SimpleContainer container, RegistryAccess registryAccess) {
+        return this.getResultItem();
+    }
+
+    @Override
+    public ItemStack getResultItem(RegistryAccess registryAccess) {
         return this.getResultItem();
     }
 
@@ -94,30 +102,30 @@ public class PurifierRecipe implements Recipe<SimpleContainer> {
         return p_44252_ * p_44253_ >= this.ingredients.size();
     }
 
-    public static class Serializer extends net.minecraftforge.registries.ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<PurifierRecipe> {
+    public static class Serializer implements RecipeSerializer<PurifierRecipe> {
         public PurifierRecipe fromJson(ResourceLocation id, JsonObject json) {
             String group = GsonHelper.getAsString(json, "group", "");
             Ingredient in = Ingredient.fromJson(json.get("ingredient"));
-            Item out = Registry.ITEM.get(new ResourceLocation(json.get("result").getAsString()));
+            Item out = ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(json.get("result").getAsString()));
             return new PurifierRecipe(id, group, in, out);
         }
 
         public PurifierRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
             String group = buffer.readUtf();
             Ingredient in = Ingredient.fromNetwork(buffer);
-            Item out = Registry.ITEM.get(new ResourceLocation(buffer.readUtf()));
+            Item out = ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(buffer.readUtf()));
             return new PurifierRecipe(id, group, in, out);
         }
 
         public void toNetwork(FriendlyByteBuf buffer, PurifierRecipe recipe) {
             buffer.writeUtf(recipe.group);
             recipe.ingredient.toNetwork(buffer);
-            buffer.writeUtf(recipe.result.getRegistryName().toString());
+            buffer.writeUtf(ForgeRegistries.ITEMS.getKey(recipe.result).toString());
         }
     }
 
     @Override
     public RecipeType<?> getType() {
-        return ChangedRecipeTypes.PURIFIER_RECIPE;
+        return ChangedRecipeTypes.PURIFIER_RECIPE.get();
     }
 }

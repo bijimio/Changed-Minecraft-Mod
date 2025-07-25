@@ -7,11 +7,14 @@ import net.ltxprogrammer.changed.init.ChangedEntities;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class SeatEntityInfoPacket implements ChangedPacket {
@@ -40,11 +43,30 @@ public class SeatEntityInfoPacket implements ChangedPacket {
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        var context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide() == LogicalSide.SERVER) { // Echo with entity
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+            context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                if (!(level.getBlockEntity(this.position) instanceof SeatableBlockEntity seat))
+                    throw new IllegalArgumentException("Entity at " + this.position + " is not a seat");
+                this.id.ifPresentOrElse(id -> {
+                    if (seat.getEntityHolder() != null) {
+                        seat.getEntityHolder().setId(id);
+                    } else {
+                        var entity = ChangedEntities.SEAT_ENTITY.get().create(level);
+                        entity.setId(id);
+                        seat.setEntityHolder(entity);
+                    }
+                }, () -> {
+                    seat.setEntityHolder(null);
+                });
+                context.setPacketHandled(true);
+            });
+        }
+
+        else {
             final SeatEntityInfoPacket response;
-            if (context.getSender().getLevel().getBlockEntity(this.position) instanceof SeatableBlockEntity seat) {
+            if (context.getSender().level().getBlockEntity(this.position) instanceof SeatableBlockEntity seat) {
                 if (seat.getEntityHolder() != null)
                     response = new SeatEntityInfoPacket(seat.getEntityHolder());
                 else
@@ -55,21 +77,7 @@ public class SeatEntityInfoPacket implements ChangedPacket {
 
             Changed.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(context::getSender), response);
             context.setPacketHandled(true);
-        } else {
-            if (UniversalDist.getLevel().getBlockEntity(this.position) instanceof SeatableBlockEntity seat) {
-                this.id.ifPresentOrElse(id -> {
-                    if (seat.getEntityHolder() != null) {
-                        seat.getEntityHolder().setId(id);
-                    } else {
-                        var entity = ChangedEntities.SEAT_ENTITY.get().create(UniversalDist.getLevel());
-                        entity.setId(id);
-                        seat.setEntityHolder(entity);
-                    }
-                }, () -> {
-                    seat.setEntityHolder(null);
-                });
-                context.setPacketHandled(true);
-            }
+            return CompletableFuture.completedFuture(null);
         }
     }
 }

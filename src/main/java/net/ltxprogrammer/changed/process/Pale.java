@@ -44,7 +44,7 @@ public class Pale {
     public static void tickPaleExposure(Player player) {
         if (isCured(player))
             return;
-        if (!player.level.getGameRules().getBoolean(ChangedGameRules.RULE_DO_PALE))
+        if (!player.level().getGameRules().getBoolean(ChangedGameRules.RULE_DO_PALE))
             return;
         if (player.isCreative() || player.isSpectator())
             return;
@@ -52,7 +52,7 @@ public class Pale {
         int exposure = getPaleExposure(player);
 
         AtomicInteger localExposure = new AtomicInteger(0);
-        player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.blockPosition()).inflate(1.5)).forEach(livingEntity -> {
+        player.level().getEntitiesOfClass(LivingEntity.class, new AABB(player.blockPosition()).inflate(1.5)).forEach(livingEntity -> {
             if (player == livingEntity) return;
 
             if (livingEntity.getType().is(ChangedTags.EntityTypes.PALE_SMALL_EXPOSURE))
@@ -85,18 +85,18 @@ public class Pale {
         // VVV effects VVV
         if (exposure >= THRESHOLD_MINIMAL_DAMAGE && exposure < THRESHOLD_SMALL_DAMAGE) {
             if (exposure % 1200 < 5) { // 1/2 Heart per minute
-                player.hurt(ChangedDamageSources.PALE, 1f);
+                player.hurt(ChangedDamageSources.PALE.source(player.level().registryAccess()), 1f);
             }
         } else if (exposure >= THRESHOLD_SMALL_DAMAGE && exposure < THRESHOLD_LARGE_DAMAGE) {
             if (exposure % 600 < 5) { // 1/2 Heart per 30 seconds
-                player.hurt(ChangedDamageSources.PALE, 1f);
+                player.hurt(ChangedDamageSources.PALE.source(player.level().registryAccess()), 1f);
             }
         } else if (exposure >= THRESHOLD_LARGE_DAMAGE && exposure < THRESHOLD_DEATH) {
             if (exposure % 300 < 5) { // 1 Heart per 15 seconds
-                player.hurt(ChangedDamageSources.PALE, 2f);
+                player.hurt(ChangedDamageSources.PALE.source(player.level().registryAccess()), 2f);
             }
         } else if (exposure >= THRESHOLD_DEATH) {
-            player.hurt(ChangedDamageSources.PALE, 2f); // 1 Heart (like poison II)
+            player.hurt(ChangedDamageSources.PALE.source(player.level().registryAccess()), 2f); // 1 Heart (like poison II)
         }
     }
 }

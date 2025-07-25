@@ -1,0 +1,8 @@
+{
+  "type": "changed:decayed_lab",
+  "biomes": "#changed:has_structure/decayed_labs",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "piece": "changed:laser_lab1",
+  "loot_table": "changed:chests/low_tier_lab"
+}

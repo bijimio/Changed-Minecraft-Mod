@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -15,12 +16,12 @@ import javax.annotation.Nullable;
 public interface Clothing extends AccessoryItem {
     ArmorMaterial MATERIAL = new ArmorMaterial() {
         @Override
-        public int getDurabilityForSlot(EquipmentSlot p_40410_) {
+        public int getDurabilityForType(ArmorItem.Type p_40410_) {
             return 5;
         }
 
         @Override
-        public int getDefenseForSlot(EquipmentSlot p_40411_) {
+        public int getDefenseForType(ArmorItem.Type p_40411_) {
             return 0;
         }
 

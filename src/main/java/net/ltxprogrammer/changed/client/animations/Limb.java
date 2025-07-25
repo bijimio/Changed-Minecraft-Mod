@@ -86,7 +86,7 @@ public enum Limb implements StringRepresentable {
 
     public static DataResult<Limb> fromSerial(String name) {
         return Arrays.stream(values()).filter(type -> type.serialName.equals(name))
-                .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(name + " is not a valid Limb"));
+                .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(() -> name + " is not a valid Limb"));
     }
 
     private final String serialName;

@@ -3,7 +3,7 @@ package net.ltxprogrammer.changed.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.block.entity.LatexContainerBlockEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.latex.IClientLatexTypeExtensions;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class LatexContainerRenderer<T extends LatexContainerBlockEntity> implements BlockEntityRenderer<T> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Changed.modResource("latex_fill"), "main");
-    public static final ResourceLocation TEXTURE = Changed.modResource("textures/blocks/latex_fill.png");
+    public static final ResourceLocation TEXTURE = Changed.modResource("textures/block/latex_fill.png");
     private static final RenderType renderType = RenderType.entityCutout(TEXTURE);
     private final ModelPart goo;
 
@@ -35,9 +35,9 @@ public class LatexContainerRenderer<T extends LatexContainerBlockEntity> impleme
 
     @Override
     public void render(T blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffers, int packedLight, int packedOverlay) {
-        if (blockEntity.getFillLevel() == 0 || blockEntity.getFillType() == LatexType.NEUTRAL)
+        if (blockEntity.getFillLevel() == 0 || blockEntity.getFillType().isAir())
             return;
-        var color = blockEntity.getFillType().color;
+        var color = IClientLatexTypeExtensions.of(blockEntity.getFillType()).getColor();
 
         pose.pushPose();
 

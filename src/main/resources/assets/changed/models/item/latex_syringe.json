@@ -1,9 +1,9 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "changed:items/latex_syringe_head",
-    "layer1": "changed:items/latex_syringe_head2",
-    "layer2": "changed:items/latex_syringe_base"
+    "layer0": "changed:item/latex_syringe_head",
+    "layer1": "changed:item/latex_syringe_head2",
+    "layer2": "changed:item/latex_syringe_base"
   },
   "display": {
     "thirdperson_lefthand": {

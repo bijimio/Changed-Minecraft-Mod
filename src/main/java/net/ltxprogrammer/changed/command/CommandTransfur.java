@@ -26,8 +26,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -43,14 +42,14 @@ import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber
 public class CommandTransfur {
-    private static final SimpleCommandExceptionType NOT_LATEX_FORM = new SimpleCommandExceptionType(new TranslatableComponent("command.changed.error.not_latex_form"));
-    private static final SimpleCommandExceptionType NOT_CAUSE = new SimpleCommandExceptionType(new TranslatableComponent("command.changed.error.not_cause"));
-    private static final SimpleCommandExceptionType USED_BY_OTHER_MOD = new SimpleCommandExceptionType(new TranslatableComponent("command.changed.error.used_by_other_mod"));
-    private static final SimpleCommandExceptionType NO_SPECIAL_FORM = new SimpleCommandExceptionType(new TranslatableComponent("command.changed.error.no_special_form"));
+    private static final SimpleCommandExceptionType NOT_LATEX_FORM = new SimpleCommandExceptionType(Component.translatable("command.changed.error.not_latex_form"));
+    private static final SimpleCommandExceptionType NOT_CAUSE = new SimpleCommandExceptionType(Component.translatable("command.changed.error.not_cause"));
+    private static final SimpleCommandExceptionType USED_BY_OTHER_MOD = new SimpleCommandExceptionType(Component.translatable("command.changed.error.used_by_other_mod"));
+    private static final SimpleCommandExceptionType NO_SPECIAL_FORM = new SimpleCommandExceptionType(Component.translatable("command.changed.error.no_special_form"));
     private static final ResourceLocation RANDOM_VARIANT = Changed.modResource("random");
 
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_TRANSFUR_VARIANT = SuggestionProviders.register(Changed.modResource("transfur_variant"), (p_121667_, p_121668_) -> {
-        var list = TransfurVariant.getPublicTransfurVariants().map(TransfurVariant::getRegistryName).collect(Collectors.toCollection(ArrayList::new));
+        var list = TransfurVariant.getPublicTransfurVariants().map(ChangedRegistry.TRANSFUR_VARIANT::getKey).collect(Collectors.toCollection(ArrayList::new));
         list.add(TransfurVariant.SPECIAL_LATEX);
         list.add(RANDOM_VARIANT);
         return SharedSuggestionProvider.suggestResource(list, p_121668_);
@@ -144,7 +143,7 @@ public class CommandTransfur {
         if (form.equals(RANDOM_VARIANT))
             form = Util.getRandom(TransfurVariant.getPublicTransfurVariants().collect(Collectors.toList()), player.getRandom()).getFormId();
 
-        if (TransfurVariant.getPublicTransfurVariants().map(TransfurVariant::getRegistryName).anyMatch(form::equals)) {
+        if (TransfurVariant.getPublicTransfurVariants().map(ChangedRegistry.TRANSFUR_VARIANT::getKey).anyMatch(form::equals)) {
             ProcessTransfur.transfur(player, source.getLevel(), ChangedRegistry.TRANSFUR_VARIANT.get().getValue(form), true,
                     TransfurContext.hazard(cause));
         }
@@ -170,7 +169,7 @@ public class CommandTransfur {
             final ServerPlayer player = players.stream().findFirst().get();
             int success = transfurPlayer(source, player, form, transfurCause);
             if (success > 0)
-                source.sendSuccess(new TranslatableComponent("command.changed.success.transfurred.one", player.getScoreboardName(), form), false);
+                source.sendSuccess(() -> Component.translatable("command.changed.success.transfurred.one", player.getScoreboardName(), form), false);
             return success;
         } else if (players.size() > 1) {
             int success = players.stream().map(player -> {
@@ -181,7 +180,7 @@ public class CommandTransfur {
                 }
             }).reduce(0, Integer::sum);
             if (success > 0)
-                source.sendSuccess(new TranslatableComponent("command.changed.success.transfurred.many", success, form), false);
+                source.sendSuccess(() -> Component.translatable("command.changed.success.transfurred.many", success, form), false);
             return success;
         } else
             return 0;
@@ -208,7 +207,7 @@ public class CommandTransfur {
         if (form.equals(RANDOM_VARIANT))
             form = Util.getRandom(TransfurVariant.getPublicTransfurVariants().collect(Collectors.toList()), player.getRandom()).getFormId();
 
-        if (TransfurVariant.getPublicTransfurVariants().map(TransfurVariant::getRegistryName).anyMatch(form::equals)) {
+        if (TransfurVariant.getPublicTransfurVariants().map(ChangedRegistry.TRANSFUR_VARIANT::getKey).anyMatch(form::equals)) {
             ProcessTransfur.progressTransfur(player, progression, ChangedRegistry.TRANSFUR_VARIANT.get().getValue(form), context);
         }
         else if (form.equals(TransfurVariant.SPECIAL_LATEX)) {
@@ -228,7 +227,7 @@ public class CommandTransfur {
             final ServerPlayer player = players.stream().findFirst().get();
             int success = progressPlayerTransfur(source, player, form, progression, cause);
             if (success > 0)
-                source.sendSuccess(new TranslatableComponent("command.changed.success.progresstf.one", player.getScoreboardName()), false);
+                source.sendSuccess(() -> Component.translatable("command.changed.success.progresstf.one", player.getScoreboardName()), false);
             return success;
         } else if (players.size() > 1) {
             int success = players.stream().map(player -> {
@@ -239,7 +238,7 @@ public class CommandTransfur {
                 }
             }).reduce(0, Integer::sum);
             if (success > 0)
-                source.sendSuccess(new TranslatableComponent("command.changed.success.progresstf.many", success), false);
+                source.sendSuccess(() -> Component.translatable("command.changed.success.progresstf.many", success), false);
             return success;
         } else
             return 0;
@@ -261,7 +260,7 @@ public class CommandTransfur {
             final ServerPlayer player = players.stream().findFirst().get();
             int success = regressPlayerTransfur(source, player, regression);
             if (success > 0)
-                source.sendSuccess(new TranslatableComponent("command.changed.success.regresstf.one", player.getScoreboardName()), false);
+                source.sendSuccess(() -> Component.translatable("command.changed.success.regresstf.one", player.getScoreboardName()), false);
             return success;
         } else if (players.size() > 1) {
             int success = players.stream().map(player -> {
@@ -272,7 +271,7 @@ public class CommandTransfur {
                 }
             }).reduce(0, Integer::sum);
             if (success > 0)
-                source.sendSuccess(new TranslatableComponent("command.changed.success.regresstf.many", success), false);
+                source.sendSuccess(() -> Component.translatable("command.changed.success.regresstf.many", success), false);
             return success;
         } else
             return 0;
@@ -291,12 +290,12 @@ public class CommandTransfur {
             final ServerPlayer player = players.stream().findFirst().get();
             int success = untransfurPlayer(source, player);
             if (success > 0)
-                source.sendSuccess(new TranslatableComponent("command.changed.success.untransfurred.one", player.getScoreboardName()), false);
+                source.sendSuccess(() -> Component.translatable("command.changed.success.untransfurred.one", player.getScoreboardName()), false);
             return success;
         } else if (players.size() > 1) {
             int success = players.stream().map(player -> untransfurPlayer(source, player)).reduce(0, Integer::sum);
             if (success > 0)
-                source.sendSuccess(new TranslatableComponent("command.changed.success.untransfurred.many", success), false);
+                source.sendSuccess(() -> Component.translatable("command.changed.success.untransfurred.many", success), false);
             return success;
         } else
             return 0;
@@ -304,7 +303,7 @@ public class CommandTransfur {
 
     private static int getTransfur(CommandSourceStack source, ServerPlayer player, Predicate<TransfurVariantInstance<?>> test) {
         return ProcessTransfur.getPlayerTransfurVariantSafe(player).filter(test).map(instance -> {
-            source.sendSuccess(new TextComponent(player.getScoreboardName() + ": " + instance.getFormId().toString()), false);
+            source.sendSuccess(() -> Component.literal(player.getScoreboardName() + ": " + instance.getFormId().toString()), false);
             return 1;
         }).orElse(0);
     }

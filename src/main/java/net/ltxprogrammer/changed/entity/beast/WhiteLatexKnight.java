@@ -1,8 +1,9 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.AttributePresets;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.minecraft.world.entity.EntityType;
@@ -18,11 +19,6 @@ public class WhiteLatexKnight extends AbstractLatexWolf {
     protected void setAttributes(AttributeMap attributes) {
         super.setAttributes(attributes);
         AttributePresets.wolfLike(attributes);
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

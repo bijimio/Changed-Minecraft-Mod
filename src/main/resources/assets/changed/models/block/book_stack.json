@@ -1,8 +1,8 @@
 {
   "parent": "changed:custom/book_stack",
   "textures": {
-    "all": "changed:blocks/book_stack",
-    "particle": "changed:blocks/book_stack",
-    "0": "changed:blocks/book_stack"
+    "all": "changed:block/book_stack",
+    "particle": "changed:block/book_stack",
+    "0": "changed:block/book_stack"
   }
 }

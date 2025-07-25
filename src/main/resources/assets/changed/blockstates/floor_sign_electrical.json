@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "axis=z": {
+      "model": "changed:block/floor_sign_electrical"
+    },
+    "axis=x": {
+      "model": "changed:block/floor_sign_electrical",
+      "y": 90
+    }
+  }
+}

@@ -13,7 +13,7 @@ public interface UpdateableMenu {
     default void setDirty(CompoundTag tag) {
         Player player = getPlayer();
 
-        if (player.level.isClientSide)
+        if (player.level().isClientSide)
             Changed.PACKET_HANDLER.sendToServer(new MenuUpdatePacket(this.getId(), tag));
         else
             Changed.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)player), new MenuUpdatePacket(this.getId(), tag));

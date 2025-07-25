@@ -1,8 +1,8 @@
 package net.ltxprogrammer.changed.block;
 
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.Util;
@@ -27,24 +27,25 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.*;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class LatexWallSplotch extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public final LatexType type;
+    public final Supplier<? extends LatexType> type;
     public final List<Supplier<? extends TransfurVariant<?>>> variants;
 
     private static final VoxelShape AABB = Block.box(0.0, 0.0, 15.0, 16.0, 16.0, 16.0);
 
-    public LatexWallSplotch(LatexType type, List<Supplier<? extends TransfurVariant<?>>> variants) {
-        super(BlockBehaviour.Properties.of(Material.CLAY, MaterialColor.COLOR_GRAY).sound(SoundType.SLIME_BLOCK).strength(1.0F, 4.0F).noOcclusion());
+    public LatexWallSplotch(Supplier<? extends LatexType> type, List<Supplier<? extends TransfurVariant<?>>> variants) {
+        super(BlockBehaviour.Properties.of().sound(SoundType.SLIME_BLOCK).strength(1.0F, 4.0F).noOcclusion());
         this.type = type;
         this.variants = variants;
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
@@ -116,8 +117,8 @@ public class LatexWallSplotch extends HorizontalDirectionalBlock implements Simp
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder context) {
-        return List.of(new ItemStack(type.goo.get()));
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder context) {
+        return List.of(new ItemStack(Objects.requireNonNull(type.get().getGooItem())));
     }
 
     @Override

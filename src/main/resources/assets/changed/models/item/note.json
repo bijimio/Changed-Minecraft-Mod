@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "changed:items/note"
+    "layer0": "changed:item/note"
   }
 }

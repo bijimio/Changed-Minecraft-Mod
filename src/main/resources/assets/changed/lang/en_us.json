@@ -4,6 +4,7 @@
   "itemGroup.tab_changed_entities": "Changed Entities",
   "itemGroup.tab_changed_combat": "Changed Combat",
   "itemGroup.tab_changed_music": "Changed Music",
+  "itemGroup.tab_changed_clothing": "Changed Clothing",
 
   "ability.changed.access_saddle": "Access Saddle",
   "ability.changed.switch_transfur_mode": "Switch Transfur Mode",
@@ -100,6 +101,11 @@
   "item.changed.latex_syringe": "Latex Syringe",
   "item.changed.wolf_crystal_fragment": "Wolf Crystal Shard",
   "item.changed.latex_tipped_arrow": "Latex Tipped Arrow",
+  "item.changed.mug_with_water": "Water Filled Mug",
+  "item.changed.mug_with_milk": "Milk Filled Mug",
+  "item.changed.mug_with_coffee": "Coffee Filled Mug",
+  "item.changed.mug_with_dark_latex": "Dark Latex Filled Mug",
+  "item.changed.mug_with_white_latex": "White Latex Filled Mug",
   "item.changed.nitrile_gloves": "Nitrile Gloves",
   "item.changed.orange": "Orange",
   "item.changed.pink_shorts": "Pink Shorts",
@@ -127,6 +133,12 @@
   "item.changed.netherite_upper_abdomen_armor": "Netherite Upper Abdomen Armor",
   "item.changed.netherite_lower_abdomen_armor": "Netherite Lower Abdomen Armor",
 
+  "conversion.changed.abdomen_conversion": "Abdomen Armor Conversion",
+  "item.changed.smithing_template.abdomen_conversion.applies_to": "Leggings, Boots",
+  "item.changed.smithing_template.abdomen_conversion.ingredients": "Armor Ingredient",
+  "item.changed.smithing_template.abdomen_conversion.base_slot_description": "Add leggings or boots",
+  "item.changed.smithing_template.abdomen_conversion.additions_slot_description": "Add armor ingredient",
+
   "item.changed.leather_quadrupedal_leggings": "Leather Quadrupedal Leggings",
   "item.changed.leather_quadrupedal_boots": "Leather Quadrupedal Boots",
   "item.changed.chainmail_quadrupedal_leggings": "Chainmail Quadrupedal Leggings",
@@ -139,6 +151,12 @@
   "item.changed.diamond_quadrupedal_boots": "Diamond Quadrupedal Boots",
   "item.changed.netherite_quadrupedal_leggings": "Netherite Quadrupedal Leggings",
   "item.changed.netherite_quadrupedal_boots": "Netherite Quadrupedal Boots",
+
+  "conversion.changed.quadrupedal_conversion": "Quadrupedal Armor Conversion",
+  "item.changed.smithing_template.quadrupedal_conversion.applies_to": "Leggings, Boots",
+  "item.changed.smithing_template.quadrupedal_conversion.ingredients": "Armor Ingredient",
+  "item.changed.smithing_template.quadrupedal_conversion.base_slot_description": "Add leggings or boots",
+  "item.changed.smithing_template.quadrupedal_conversion.additions_slot_description": "Add armor ingredient",
 
   "item.changed.owo_record": "Latex Music Disc",
   "item.changed.owo_record.desc": "Artemka2009 - ÒwÓ",
@@ -161,6 +179,27 @@
   "item.changed.the_white_tail_chase_part_2_record.desc": "Shizi - The White Tail Chase Part 2",
   "item.changed.vent_pipe_record.desc": "Shizi - Vent Pipe",
 
+  "painting.changed.a_lazy_fox_on_the_paper.title": "A Lazy Fox on the Paper",
+  "painting.changed.a_lazy_fox_on_the_paper.author": "Puro",
+  "painting.changed.creation_of_lin.title": "Creation of Lin",
+  "painting.changed.creation_of_lin.author": "KoBOLTA",
+  "painting.changed.dark_latex_mask.title": "Self Sketch",
+  "painting.changed.dark_latex_mask.author": "Puro",
+  "painting.changed.dr_k.title": "Dr. K",
+  "painting.changed.dr_k.author": "fofnar",
+  "painting.changed.earth_and_moon.title": "Earth and Moon",
+  "painting.changed.earth_and_moon.author": "Puro",
+  "painting.changed.kade_tail.title": "Kade Tail",
+  "painting.changed.kade_tail.author": "Puro",
+  "painting.changed.puro_place.title": "Puro in Place",
+  "painting.changed.puro_place.author": "r/changedfurry",
+  "painting.changed.puropoint.title": "Puro Pointing",
+  "painting.changed.puropoint.author": "Puro",
+  "painting.changed.sharks_gaze.title": "Shark's Gaze",
+  "painting.changed.sharks_gaze.author": "Twix5803",
+  "painting.changed.thunder_science_building.title": "Thunder Science Building",
+  "painting.changed.thunder_science_building.author": "Puro",
+
   "syringe.changed:form_special": "Patron Custom Form Syringe",
 
   "death.attack.changed:transfur": "%1$s was transfurred",
@@ -179,6 +218,8 @@
   "death.attack.changed:electrocution.player": "%1$s was electrocuted whilst fighting %2$s",
   "death.attack.changed:fan": "%s was diced by a fan",
   "death.attack.changed:fan.player": "%1$s was diced by a fan whilst fighting %2$s",
+  "death.attack.changed:heart_attack": "%s had a heart attack",
+  "death.attack.changed:heart_attack.player": "%1$s had a heart attack whilst fighting %2$s",
 
   "command.changed.success.transfurred.one": "Transfurred %s into %s",
   "command.changed.success.transfurred.many": "Transfurred %s player(s) into %s",
@@ -232,6 +273,7 @@
 
   "effect.changed.hypercoagulation": "Hypercoagulation",
   "effect.changed.shock": "Shock",
+  "effect.changed.caffeinated": "Caffeinated",
 
   "enchantment.changed.latex_protection": "Latex Protection",
   "enchantment.changed.latex_protection.desc": "Protects the wearer from being transfurred.",
@@ -268,6 +310,9 @@
   "block.changed.empty_canister": "Empty Canister",
   "block.changed.erlenmeyer_flask": "Erlenmeyer Flask",
   "block.changed.exoskeleton_charger": "Exoskeleton Charger",
+  "block.changed.floor_sign_electrical": "Electrical Hazard Floor Sign",
+  "block.changed.floor_sign_exit": "Exit Floor Sign",
+  "block.changed.floor_sign_wet": "Wet Floor Sign",
   "block.changed.glu": "Glu Block",
   "block.changed.infuser": "Infuser",
   "block.changed.iron_crate": "Iron Crate",
@@ -294,6 +339,7 @@
   "block.changed.maintenance_door": "Maintenance Door",
   "block.changed.microphone": "Microphone",
   "block.changed.microscope": "Microscope",
+  "block.changed.mug": "Mug",
   "block.changed.note": "Note",
   "block.changed.office_chair": "Office Chair",
   "block.changed.orange_lab_carpeting": "Orange Lab Carpeting",
@@ -308,6 +354,8 @@
   "block.changed.skunk_gas_canister": "Skunk Transfur Gas Canister",
   "block.changed.speaker": "Speaker",
   "block.changed.stasis_chamber": "Stasis Chamber",
+  "block.changed.shipping_container_blue": "Blue Shipping Container",
+  "block.changed.shipping_container_orange": "Orange Shipping Container",
   "block.changed.tape_recorder": "Tape Recorder",
   "block.changed.tiger_gas_canister": "Tiger Transfur Gas Canister",
   "block.changed.tiles_blue": "Blue Tiles",
@@ -422,7 +470,9 @@
   "entity.changed.latex_blue_dragon": "Latex Blue Dragon",
   "entity.changed.latex_blue_wolf": "Latex Blue Wolf",
   "entity.changed.latex_crocodile": "Latex Crocodile",
+  "entity.changed.latex_crow": "Latex Crow",
   "entity.changed.latex_deer": "Latex Deer",
+  "entity.changed.latex_eel": "Latex Eel",
   "entity.changed.latex_fennec_fox": "Latex Fennec Fox",
   "entity.changed.latex_gnoll_taur": "Latex Gnoll Taur",
   "entity.changed.latex_golden_dragon": "Latex Golden Dragon",
@@ -505,7 +555,9 @@
   "item.changed.latex_blue_dragon_spawn_egg": "Latex Blue Dragon Spawn Egg",
   "item.changed.latex_blue_wolf_spawn_egg": "Latex Blue Wolf Spawn Egg",
   "item.changed.latex_crocodile_spawn_egg": "Latex Crocodile Spawn Egg",
+  "item.changed.latex_crow_spawn_egg": "Latex Crow Spawn Egg",
   "item.changed.latex_deer_spawn_egg": "Latex Deer Spawn Egg",
+  "item.changed.latex_eel_spawn_egg": "Latex Eel Spawn Egg",
   "item.changed.latex_fennec_fox_spawn_egg": "Latex Fennec Fox Spawn Egg",
   "item.changed.latex_gnoll_taur_spawn_egg": "Latex Gnoll Taur Spawn Egg",
   "item.changed.latex_golden_dragon_spawn_egg": "Latex Golden Dragon Spawn Egg",
@@ -755,5 +807,9 @@
 
   "changed.exoskeleton.prompt": "[%s]> %s",
   "changed.exoskeleton.battery_low": "Battery level low",
-  "changed.exoskeleton.battery_critical": "Battery level critical"
+  "changed.exoskeleton.battery_critical": "Battery level critical",
+
+  "builtin_resources.changed:beyond_earth_extra": "Changed Beyond Earth Extra",
+  "builtin_resources.changed:instant_transfur": "Changed Instant Transfur",
+  "builtin_resources.changed:changed_pbr": "Changed PBR"
 }

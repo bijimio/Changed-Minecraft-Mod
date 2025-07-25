@@ -113,6 +113,6 @@ public class GasMaskModel extends Model {
     }
 
     public ResourceLocation getTexture() {
-        return Changed.modResource("textures/items/3d/gas_mask.png");
+        return Changed.modResource("textures/item/3d/gas_mask.png");
     }
 }

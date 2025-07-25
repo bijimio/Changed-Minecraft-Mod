@@ -1,5 +1,8 @@
 package net.ltxprogrammer.changed.mixin.entity;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.GrabEntityAbility;
@@ -13,26 +16,25 @@ import net.ltxprogrammer.changed.data.AccessorySlotContext;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.SpreadingLatexType;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
-import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.fluid.AbstractLatexFluid;
 import net.ltxprogrammer.changed.fluid.Gas;
 import net.ltxprogrammer.changed.fluid.TransfurGas;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.item.AccessoryItem;
-import net.ltxprogrammer.changed.item.ExoskeletonItem;
 import net.ltxprogrammer.changed.item.ExtendedItemProperties;
 import net.ltxprogrammer.changed.item.SpecializedAnimations;
 import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -47,6 +49,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
@@ -109,10 +112,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
 
     @Inject(method = "updateFallFlying", at = @At("HEAD"), cancellable = true)
     private void updateFallFlying(CallbackInfo callback) {
-        if (this.level.isClientSide) return;
+        if (this.level().isClientSide) return;
         ProcessTransfur.ifPlayerTransfurred(EntityUtil.playerOrNull(this), (player, variant) -> {
             if (variant.getParent().canGlide) {
-                this.setSharedFlag(7, player.isFallFlying() && !player.isOnGround() && !player.isPassenger() && !player.hasEffect(MobEffects.LEVITATION));
+                this.setSharedFlag(7, player.isFallFlying() && !player.onGround() && !player.isPassenger() && !player.hasEffect(MobEffects.LEVITATION));
                 callback.cancel();
             }
         });
@@ -153,7 +156,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
                 callback.setReturnValue(true);
 
             if (effect.equals(MobEffects.NIGHT_VISION)) {
-                if (variant.getChangedEntity().getLatexType() == LatexType.WHITE_LATEX && WhiteLatexTransportInterface.isEntityInWhiteLatex(player))
+                if (WhiteLatexTransportInterface.isEntityInWhiteLatex(player))
                     callback.setReturnValue(true);
             }
             if (variant.breatheMode.canBreatheWater() && effect.equals(MobEffects.CONDUIT_POWER) && isEyeInFluid(FluidTags.WATER))
@@ -171,7 +174,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
                 callback.setReturnValue(new MobEffectInstance(effect, 300, 1, false, false));
 
             if (effect.equals(MobEffects.NIGHT_VISION)) {
-                if (variant.getChangedEntity().getLatexType() == LatexType.WHITE_LATEX && WhiteLatexTransportInterface.isEntityInWhiteLatex(player))
+                if (WhiteLatexTransportInterface.isEntityInWhiteLatex(player))
                     callback.setReturnValue(new MobEffectInstance(MobEffects.NIGHT_VISION, 300, 1, false, false));
             }
             if (variant.breatheMode.canBreatheWater() && effect.equals(MobEffects.CONDUIT_POWER) && isEyeInFluid(FluidTags.WATER))
@@ -260,15 +263,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
         // Code from Entity.updateFluidOnEyes()
         double yCheck = this.getEyeY() - 0.11111111;
 
-        BlockPos blockpos = new BlockPos(this.getX(), yCheck, this.getZ());
-        FluidState fluidstate = this.level.getFluidState(blockpos);
-        double yFluid = ((float)blockpos.getY() + fluidstate.getHeight(this.level, blockpos));
+        BlockPos blockpos = EntityUtil.getBlock(this.getX(), yCheck, this.getZ());
+        FluidState fluidstate = this.level().getFluidState(blockpos);
+        double yFluid = ((float)blockpos.getY() + fluidstate.getHeight(this.level(), blockpos));
         if (yFluid > yCheck && fluidstate.getType() instanceof Gas transfurGas)
             eyeInGas = transfurGas;
 
-        var blockstate = this.level.getBlockState(blockpos);
+        var blockstate = this.level().getBlockState(blockpos);
         if (blockstate.is(ChangedBlocks.STASIS_CHAMBER.get())) {
-            this.level.getBlockEntity(
+            this.level().getBlockEntity(
                     blockstate.getValue(StasisChamber.SECTION).getRelative(blockpos, blockstate.getValue(HorizontalDirectionalBlock.FACING), ThreeXThreeSection.CENTER),
                     ChangedBlockEntities.STASIS_CHAMBER.get()
             ).filter(chamber -> chamber.getFluidYHeight() > yCheck).flatMap(StasisChamberBlockEntity::getFluidType).ifPresent(fluid -> {
@@ -325,32 +328,27 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
         AccessorySlots.getForEntity((LivingEntity)(Object)this).ifPresent(AccessorySlots::tick);
     }
 
-    @Inject(method = "canStandOnFluid", at = @At("HEAD"), cancellable = true)
-    public void canStandOnFluid(FluidState state, CallbackInfoReturnable<Boolean> callback) {
-        var variant = TransfurVariant.getEntityVariant((LivingEntity)(Object)this);
-        if (variant == null) return;
-        if (variant.getLatexType() == LatexType.NEUTRAL) return;
-
-        if (state.getType() instanceof AbstractLatexFluid latexFluid && latexFluid.canEntityStandOn((LivingEntity)(Object)this))
-            callback.setReturnValue(true);
+    @WrapMethod(method = "canStandOnFluid")
+    public boolean canStandOnFluid(FluidState state, Operation<Boolean> original) {
+        return state.getType() instanceof AbstractLatexFluid latexFluid && latexFluid.canEntityStandOn((LivingEntity)(Object)this) ||
+                original.call(state);
     }
 
-    @Inject(method = "breakItem", at = @At("HEAD"), cancellable = true)
-    public void useDifferentBreakSound(ItemStack itemStack, CallbackInfo ci) {
-        if (!(itemStack.getItem() instanceof ExtendedItemProperties extended) || itemStack.isEmpty())
+    @WrapMethod(method = "breakItem")
+    public void useDifferentBreakSound(ItemStack itemStack, Operation<Void> original) {
+        if (!(itemStack.getItem() instanceof ExtendedItemProperties extended) || itemStack.isEmpty()) {
+            original.call(itemStack);
             return;
+        }
 
         if (!this.isSilent()) {
-            this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), extended.getBreakSound(itemStack), this.getSoundSource(), 0.8F, 0.8F + this.level.random.nextFloat() * 0.4F, false);
+            this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), extended.getBreakSound(itemStack), this.getSoundSource(), 0.8F, 0.8F + this.level().random.nextFloat() * 0.4F, false);
         }
 
         this.spawnItemParticles(itemStack, 5);
-
-        ci.cancel();
     }
 
     @Shadow public abstract boolean canStandOnFluid(FluidState state);
-    @Shadow public abstract boolean isEffectiveAi();
     @Shadow public abstract boolean hasEffect(MobEffect effect);
     @Shadow public abstract AttributeInstance getAttribute(Attribute attribute);
     @Shadow protected abstract boolean isAffectedByFluids();
@@ -387,7 +385,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
             }
             d0 = gravity.getValue();
 
-            FluidState fluidstate = this.level.getFluidState(this.blockPosition());
+            FluidState fluidstate = this.level().getFluidState(this.blockPosition());
             if (this.isInLatex() && this.isAffectedByFluids() && !this.canStandOnFluid(fluidstate)) {
                 double d8 = this.getY();
                 this.moveRelative(0.02F, direction);
@@ -467,11 +465,11 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
 
     @Inject(method = "stopSleeping", at = @At("HEAD"), cancellable = true)
     public void unlessIsStabilizedAndMultiplayer(CallbackInfo ci) {
-        if ((LivingEntity)(Object)this instanceof Player && level instanceof ServerLevel serverLevel) {
+        if ((LivingEntity)(Object)this instanceof Player && level() instanceof ServerLevel serverLevel) {
             if (serverLevel.players().stream().filter(player -> !player.isSpectator()).count() == 1) {
                 // Singleplayer, just skip stasis time
                 if (this.vehicle instanceof SeatEntity seatEntity) {
-                    this.level.getBlockEntity(seatEntity.getAttachedBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get())
+                    this.level().getBlockEntity(seatEntity.getAttachedBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get())
                             .ifPresent(StasisChamberBlockEntity::trimSchedule);
                 }
                 return;
@@ -485,7 +483,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
     public void getStasisChamberOrientation(CallbackInfoReturnable<Direction> cir) {
         if (this.vehicle instanceof SeatEntity seatEntity) {
             seatEntity.getAttachedBlockState()
-                    .map(state -> state.getBedDirection(this.level, seatEntity.getAttachedBlockPos()))
+                    .map(state -> state.getBedDirection(this.level(), seatEntity.getAttachedBlockPos()))
                     .ifPresent(cir::setReturnValue);
         }
     }
@@ -503,7 +501,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
 
     @Inject(method = "dropEquipment", at = @At("RETURN"))
     public void dropAccessories(CallbackInfo ci) {
-        if (!this.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+        if (!this.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
             for(int i = 0; i < accessorySlots.getContainerSize(); ++i) {
                 ItemStack itemstack = accessorySlots.getItem(i);
                 if (!itemstack.isEmpty() && EnchantmentHelper.hasVanishingCurse(itemstack)) {
@@ -513,5 +511,16 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
 
             accessorySlots.dropAll(AccessorySlots.dropItemHandler((LivingEntity)(Object)this));
         }
+    }
+
+    @WrapOperation(method = "playBlockFallSound", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/level/block/SoundType;"))
+    public SoundType extendedSoundEvent(BlockState instance, LevelReader reader, BlockPos blockPos, Entity entity, Operation<SoundType> original) {
+        final LatexCoverState coverState = LatexCoverState.getAt(reader, blockPos.above());
+        if (coverState.isAir())
+            return original.call(instance, reader, blockPos, entity);
+        if (coverState.getProperties().contains(SpreadingLatexType.DOWN) && !coverState.getValue(SpreadingLatexType.DOWN))
+            return original.call(instance, reader, blockPos, entity);
+        final SoundType coveredSound = coverState.getSoundType(reader, blockPos.above(), entity);
+        return coveredSound != null ? coveredSound : original.call(instance, reader, blockPos, entity);
     }
 }

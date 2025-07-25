@@ -8,8 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -18,10 +16,10 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.Wearable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -30,6 +28,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +36,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public class ClothingItem extends Item implements Wearable, Clothing, ExtendedItemProperties {
+public class ClothingItem extends Item implements Clothing, ExtendedItemProperties {
     public static String INTERACT_INSTRUCTIONS = "changed.instruction.clothing_state";
     public static BooleanProperty CLOSED = BooleanProperty.create("closed");
 
@@ -45,7 +44,7 @@ public class ClothingItem extends Item implements Wearable, Clothing, ExtendedIt
     public ClothingState defaultClothingState;
 
     public ClothingItem() {
-        super(new Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).durability(5));
+        super(new Properties().durability(5));
         StateDefinition.Builder<ClothingItem, ClothingState> builder = new StateDefinition.Builder<>(this);
         this.createClothingStateDefinition(builder);
         this.stateDefinition = builder.create(ClothingItem::defaultClothingState, ClothingState::new);
@@ -57,11 +56,11 @@ public class ClothingItem extends Item implements Wearable, Clothing, ExtendedIt
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> builder, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, level, builder, tooltipFlag);
         if (tooltipFlag.isAdvanced())
-            builder.add((new TextComponent(this.getClothingState(stack).toString())).withStyle(ChatFormatting.DARK_GRAY));
+            builder.add((Component.literal(this.getClothingState(stack).toString())).withStyle(ChatFormatting.DARK_GRAY));
     }
 
     protected void addInteractInstructions(Consumer<Component> builder) {
-        builder.accept(new TranslatableComponent(INTERACT_INSTRUCTIONS, Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage())
+        builder.accept(Component.translatable(INTERACT_INSTRUCTIONS, Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage())
                 .withStyle(ChatFormatting.GRAY));
     }
 
@@ -113,19 +112,19 @@ public class ClothingItem extends Item implements Wearable, Clothing, ExtendedIt
     }
 
     @Override
-    public SoundEvent getEquipSound() {
-        return ChangedSounds.EQUIP3;
+    public SoundEvent getEquipSound(ItemStack itemStack) {
+        return ChangedSounds.EQUIP3.get();
     }
 
     @Override
     public SoundEvent getBreakSound(ItemStack itemStack) {
-        return ChangedSounds.SLASH10;
+        return ChangedSounds.SLASH10.get();
     }
 
     @Nullable
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
-        ResourceLocation itemId = stack.getItem().getRegistryName();
+        ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(stack.getItem());
         //return String.format("%s:textures/models/%s_%s.png", itemId.getNamespace(), itemId.getPath(), Mth.clamp(stack.getDamageValue() - 1, 0, 4));
         return String.format("%s:textures/models/%s.png", itemId.getNamespace(), itemId.getPath());
     }

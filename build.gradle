@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '[6.0,6.2)', changing: true
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
@@ -46,7 +46,8 @@ minecraft {
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
     runs {
-        client {
+        // applies to all the run configs below
+        configureEach {
             workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
@@ -61,92 +62,36 @@ minecraft {
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
 
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', 'changed'
-
             mods {
-                changed {
+                "changed" {
                     source sourceSets.main
                 }
             }
         }
 
-        server {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
-
+        client {
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', 'changed'
+        }
 
-            mods {
-                changed {
-                    source sourceSets.main
-                }
-            }
+        server {
+            property 'forge.enabledGameTestNamespaces', 'changed'
+            args '--nogui'
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
         // By default, the server will crash when no gametests are provided.
         // The gametest system is also enabled by default for other run configs under the /test command.
         gameTestServer {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
-
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', 'changed'
-
-            mods {
-                changed {
-                    source sourceSets.main
-                }
-            }
         }
 
         data {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
+            // example of overriding the workingDirectory set in configureEach above
+            workingDirectory project.file('run-data')
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             args '--mod', 'changed', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-
-            mods {
-                changed {
-                    source sourceSets.main
-                }
-            }
         }
     }
 }
@@ -171,6 +116,11 @@ repositories {
         // location of a maven mirror for JEI files, as a fallback
         name = "ModMaven"
         url = "https://modmaven.dev/"
+    }
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "https://maven.blamejared.com/"
     }
     maven { url "https://maven.theillusivec4.top/" }
     maven { url "https://maven.shedaniel.me/" }
@@ -198,65 +148,69 @@ dependencies {
         jarJar.ranged(it, "[0.4.1,)")
     }
 
-    implementation fg.deobf("curse.maven:presence-footsteps-forge-433068:4328018") // Forge 1.18.2 v1.5.1
-    implementation fg.deobf("curse.maven:spark-361579:4505375") // Forge 1.18.2 v1.10.38
-    implementation fg.deobf("curse.maven:modernfix-790626:5399365") // Forge 1.18.2 v5.18.0
-    implementation fg.deobf("curse.maven:rubidium-574856:4494903") // Forge 1.18.2 v0.5.6
-    implementation fg.deobf("curse.maven:oculus-581495:4578744") // Forge 1.18.2 v1.6.4
-    implementation fg.deobf("curse.maven:vivecraft-667903:6208677") // Forge 1.18.2 v1.2.5
-    runtimeOnly fg.deobf("curse.maven:ferritecore-429235:4074294") // Forge 1.18.2 v4.2.2
-
-    compileOnly fg.deobf("mezz.jei:jei-${minecraftVersion}:${jeiVersion}:api")
-    //runtimeOnly fg.deobf("mezz.jei:jei-${minecraftVersion}:${jeiVersion}")
+    compileOnly fg.deobf("mezz.jei:jei-${minecraftVersion}-common-api:${jeiVersion}")
+    compileOnly fg.deobf("mezz.jei:jei-${minecraftVersion}-forge-api:${jeiVersion}")
+    //runtimeOnly fg.deobf("mezz.jei:jei-${minecraftVersion}-forge:${jeiVersion}")
 
     implementation fg.deobf("me.shedaniel:RoughlyEnoughItems-forge:${reiVersion}")
     implementation fg.deobf("me.shedaniel.cloth:cloth-config-forge:${clothVersion}")
     implementation fg.deobf("dev.architectury:architectury-forge:${archVersion}")
 
-    compileOnly fg.deobf("curse.maven:selene-499980:5660287") // Forge 1.18.2 v1.17.16
-    //runtimeOnly fg.deobf("curse.maven:supplementaries-412082:4548315") // Forge 1.18.2 v1.5.18
+    implementation fg.deobf("curse.maven:presence-footsteps-forge-433068:5015286") // Forge 1.20.1 v1.9.1-beta.1
+    implementation fg.deobf("curse.maven:spark-361579:4738952") // Forge 1.20.1 v1.10.53
+    implementation fg.deobf("curse.maven:modernfix-790626:6609555") // Forge 1.20.1 v5.23.1
+    implementation fg.deobf("curse.maven:rubidium-574856:4573226") // Forge 1.20.1 v0.6.5
+    implementation fg.deobf("curse.maven:oculus-581495:4578741") // Forge 1.20.1 v1.6.4
+    implementation fg.deobf("curse.maven:vivecraft-667903:6208688") // Forge 1.20.1 v1.2.5
+    runtimeOnly fg.deobf("curse.maven:ferritecore-429235:4810975") // Forge 1.20.1 v6.0.1
 
-    compileOnly fg.deobf("curse.maven:balm-531761:4442615") // Forge 1.18.2 v3.2.6
-    compileOnly fg.deobf("curse.maven:hardcore-revival-274036:3830873") // Forge 1.18.2 v8.0.1
+    compileOnly fg.deobf("curse.maven:selene-499980:6693288") // Forge 1.20.1 v2.14.11
+    //runtimeOnly fg.deobf("curse.maven:supplementaries-412082:6615104") // Forge 1.20.1 v3.1.31
 
-    compileOnly fg.deobf("curse.maven:pehkui-319596:5393085") // Forge 1.18.2 v3.8.2
+    compileOnly fg.deobf("curse.maven:balm-531761:6588893") // Forge 1.20.1 v7.3.31
+    compileOnly fg.deobf("curse.maven:hardcore-revival-274036:6134976") // Forge 1.20.1 v12.0.7
+
+    compileOnly fg.deobf("curse.maven:pehkui-319596:5393101") // Forge 1.20.1 v3.8.2
 
     // These mods have 3rd party sharing disabled
-    compileOnly fg.deobf("dev.tr7zw:notenoughanimations-forge-1.7.0-mc1.18.2:1.7.0")
-    compileOnly fg.deobf("dev.tr7zw:firstperson-forge-2.3.2-mc1.18.2:2.3.2")
+    compileOnly fg.deobf("dev.tr7zw:notenoughanimations-forge-1.10.0-mc1.20.1:1.10.0")
+    compileOnly fg.deobf("dev.tr7zw:firstperson-forge-2.4.9-mc1.20.1:2.4.9")
 
     // Uncomment here to test the dragons
-    // implementation fg.deobf("curse.maven:geckolib-388172:4181370") // Forge 1.18.2 v3.0.57
-    // implementation fg.deobf("curse.maven:dragons-survival-420799:5570486") // Forge 1.18.2 v27.07.2024
+    // implementation fg.deobf("curse.maven:geckolib-388172:6658942") // Forge 1.20.1 v4.7.2
+    // implementation fg.deobf("curse.maven:dragons-survival-420799:6588402") // Forge 1.20.1 v28.05.2025
 
-    compileOnly fg.deobf("curse.maven:framework-549225:4613856") // Forge 1.18.2 v0.4.3
-    compileOnly fg.deobf("curse.maven:mrcrayfishs-gun-mod-289479:4344223") // Forge 1.18.2 v1.3.3
+    // CGM does not exist for 1.20.1
+    // compileOnly fg.deobf("curse.maven:framework-549225:6531428") // Forge 1.20.1 v0.7.15
+    // compileOnly fg.deobf("curse.maven:mrcrayfishs-gun-mod-289479:4344223") // Forge 1.18.2 v1.3.3
 
-    implementation fg.deobf("curse.maven:playeranimator-658587:4418152") // Forge 1.18.2 v1.0.2
-    runtimeOnly fg.deobf("curse.maven:better-combat-by-daedelus-639842:4428885") // Forge 1.18.2 v1.6.2
+    compileOnly fg.deobf("curse.maven:playeranimator-658587:4587214") // Forge 1.20.1 v1.0.2
+    //runtimeOnly fg.deobf("curse.maven:better-combat-by-daedelus-639842:5625757") // Forge 1.20.1 v1.8.6
 
-    compileOnly fg.deobf("curse.maven:beyond-earth-377448:4940240") // Forge 1.18.2 v7.0-SNAPSHOT-04
-    compileOnly fg.deobf("curse.maven:carry-on-274259:5141758") // Forge 1.18.2, v1.17.2.15
-    compileOnly fg.deobf("curse.maven:leashed-376861:3614245") // Forge 1.18.2 v1.2.3
-    compileOnly fg.deobf("curse.maven:ctm-267602:3933537") // Forge 1.18.2 v1.1.5+5
-    compileOnly fg.deobf("curse.maven:chisels-bits-231095:4119191") // Forge 1.18.2 v1.2.116
-    //runtimeOnly fg.deobf("curse.maven:coroutil-237749:5008370") // Forge 1.18.2 v1.3.6
-    compileOnly fg.deobf("curse.maven:what-are-they-up-to-945479:5008387") // Forge 1.18.2 v1.0.14
+    compileOnly fg.deobf("curse.maven:beyond-earth-377448:5622318") // Forge 1.20.1 v7.0-PRERELEASE
+    compileOnly fg.deobf("curse.maven:carry-on-274259:4882500") // Forge 1.20.1, v2.1.2.7
+    compileOnly fg.deobf("curse.maven:leashed-376861:4614201") // Forge 1.20.1 v1.6.0
+    compileOnly fg.deobf("curse.maven:ctm-267602:5983309") // Forge 1.20.1 v1.1.10
+    compileOnly fg.deobf("curse.maven:chisels-bits-231095:5203366") // Forge 1.20.1 v1.4.148
+    //runtimeOnly fg.deobf("curse.maven:coroutil-237749:5096038") // Forge 1.20.1 v1.3.7
+    compileOnly fg.deobf("curse.maven:what-are-they-up-to-945479:6315241") // Forge 1.20.1 v1.2.3
 
-    compileOnly fg.deobf("curse.maven:originsforge-474438:5179273") // Forge 1.18.2 v1.5.0.2
-    //runtimeOnly fg.deobf("curse.maven:caelus-308989:3650485")
+    compileOnly fg.deobf("curse.maven:origins-forge-474438:5314209") // Forge 1.20.1 v1.10.0.9
+    //runtimeOnly fg.deobf("curse.maven:caelus-308989:5281700")
 
-    compileOnly fg.deobf("curse.maven:forgery-434087:5669989")
+    compileOnly fg.deobf("curse.maven:forgery-434087:6586436")
 
-    compileOnly fg.deobf("curse.maven:do-a-barrel-roll-663658:4344182") // Forge 1.18.2 v2.5.3
-    compileOnly fg.deobf("curse.maven:entity-texture-features-fabric-568563:5275072") // Forge 1.18.2 v6.0
-    compileOnly fg.deobf("curse.maven:entity-model-features-844662:5304245") // Forge 1.18.2 v2.0.2
+    compileOnly fg.deobf("curse.maven:do-a-barrel-roll-663658:5326142") // Forge 1.20.1 v3.5.6
+    compileOnly fg.deobf("curse.maven:entity-texture-features-fabric-568563:5982136") // Forge 1.20.1 v6.2.9
+    compileOnly fg.deobf("curse.maven:entity-model-features-844662:6001134") // Forge 1.20.1 v2.4.1
 
-    compileOnly fg.deobf("curse.maven:timeless-and-classics-zero-1028108:6069322") // Forge 1.18.2 v1.1.4-Hotfix
+    compileOnly fg.deobf("curse.maven:timeless-and-classics-zero-1028108:6654541") // Forge 1.20.1 v1.1.6-hotfix
 
-    compileOnly fg.deobf("curse.maven:parcool-482378:6035542") // Forge 1.18.2 v3.3.1.0
+    compileOnly fg.deobf("curse.maven:parcool-482378:6652972") // Forge 1.20.1 v3.4.0.7
 
-    compileOnly fg.deobf("curse.maven:personality-415974:3881529") // Forge 1.18.2 v2.0.0
+    compileOnly fg.deobf("curse.maven:personality-415974:6248892") // Forge 1.20.1 v4.1.0
+
+    compileOnly fg.deobf("curse.maven:create-328085:6641603") // Forge 1.20.1 v6.0.6
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

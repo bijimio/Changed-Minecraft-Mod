@@ -1,7 +1,7 @@
 package net.ltxprogrammer.changed.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.ltxprogrammer.changed.client.renderer.layers.*;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModelInterface;
@@ -48,12 +48,12 @@ public abstract class AdvancedHumanoidRenderer<T extends ChangedEntity, M extend
             hairLayer = new LatexHumanoidHairLayer<>(this, context.getModelSet());*/
         if (armorLayer != null)
             this.addLayer(armorLayer);
-        this.addLayer(new LatexItemInHandLayer<>(this));
+        this.addLayer(new LatexItemInHandLayer<>(this, context.getItemInHandRenderer()));
         if (hairLayer != null)
             this.addLayer(hairLayer);
         this.addLayer(new LatexArrowLayer<>(context, this));
         //this.addLayer(new LatexCapeLayer<>(this));
-        this.addLayer(new CustomHeadLayer<>(this, context.getModelSet()));
+        this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemInHandRenderer()));
         this.addLayer(new LatexElytraLayer<>(this, context.getModelSet()));
         this.addLayer(new LatexParrotOnShoulderLayer<>(this, context.getModelSet()));
         this.addLayer(new LatexBeeStingerLayer<>(this));
@@ -79,7 +79,7 @@ public abstract class AdvancedHumanoidRenderer<T extends ChangedEntity, M extend
                                     ArmorModelPicker<? super T> modelPicker, float shadowSize) {
         super(context, main, shadowSize);
         if (main == null) return;
-        this.armorLayer = new LatexHumanoidArmorLayer<>(this, modelPicker);
+        this.armorLayer = new LatexHumanoidArmorLayer<>(this, modelPicker, context.getModelManager());
         this.addLayers(context, main);
     }
 
@@ -108,7 +108,7 @@ public abstract class AdvancedHumanoidRenderer<T extends ChangedEntity, M extend
             float f1 = (float)entity.getFallFlyingTicks() + partialTicks;
             float f2 = Mth.clamp(f1 * f1 / 100.0F, 0.0F, 1.0F);
             if (!entity.isAutoSpinAttack()) {
-                poseStack.mulPose(Vector3f.XP.rotationDegrees(f2 * (-90.0F - entity.getXRot())));
+                poseStack.mulPose(Axis.XP.rotationDegrees(f2 * (-90.0F - entity.getXRot())));
             }
 
             Vec3 vec3 = entity.getViewVector(partialTicks);
@@ -118,13 +118,13 @@ public abstract class AdvancedHumanoidRenderer<T extends ChangedEntity, M extend
             if (d0 > 0.0D && d1 > 0.0D) {
                 double d2 = (vec31.x * vec3.x + vec31.z * vec3.z) / Math.sqrt(d0 * d1);
                 double d3 = vec31.x * vec3.z - vec31.z * vec3.x;
-                poseStack.mulPose(Vector3f.YP.rotation((float)(Math.signum(d3) * Math.acos(d2))));
+                poseStack.mulPose(Axis.YP.rotation((float)(Math.signum(d3) * Math.acos(d2))));
             }
         } else if (upright && swimAmount > 0.0F) {
             super.setupRotations(entity, poseStack, bob, bodyYRot, partialTicks);
             float f3 = entity.isInWater() ? -90.0F - entity.getXRot() : -90.0F;
             float f4 = Mth.lerp(swimAmount, 0.0F, f3);
-            poseStack.mulPose(Vector3f.XP.rotationDegrees(f4));
+            poseStack.mulPose(Axis.XP.rotationDegrees(f4));
             if (entity.isVisuallySwimming()) {
                 poseStack.translate(0.0D, -1.0D, (double)0.3F);
             }

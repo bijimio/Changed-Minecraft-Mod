@@ -1,39 +1,54 @@
 package net.ltxprogrammer.changed.world.features.structures;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.ltxprogrammer.changed.init.ChangedStructureTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+import net.minecraft.world.level.levelgen.structure.structures.IglooStructure;
 
-public class Beehive extends StructureFeature<NoneFeatureConfiguration> {
-    private final GenerationStep.Decoration step;
+import java.util.Optional;
 
-    public Beehive(Codec<NoneFeatureConfiguration> codec, GenerationStep.Decoration step, ResourceLocation nbt) {
-        super(codec, PieceGeneratorSupplier.simple(Beehive::checkLocation, Beehive.generatePieces(nbt)));
-        this.step = step;
+public class Beehive extends Structure {
+    public static final Codec<Beehive> CODEC = RecordCodecBuilder.create((instance) -> {
+        return instance.group(
+                settingsCodec(instance),
+                ResourceLocation.CODEC.fieldOf("piece").forGetter(Beehive::getPiece)
+        ).apply(instance, Beehive::new);
+    });
+
+    private final ResourceLocation piece;
+
+    public Beehive(Structure.StructureSettings settings, ResourceLocation piece) {
+        super(settings);
+        this.piece = piece;
     }
 
-    private static <C extends FeatureConfiguration> boolean checkLocation(PieceGeneratorSupplier.Context<C> context) {
-        if (!context.validBiomeOnTop(Heightmap.Types.WORLD_SURFACE_WG)) {
-            return false;
-        } else {
-            return context.getLowestY(12, 15) >= context.chunkGenerator().getSeaLevel();
-        }
+    public ResourceLocation getPiece() {
+        return piece;
     }
 
-    private static PieceGenerator<NoneFeatureConfiguration> generatePieces(ResourceLocation nbt) {
-        return (builder, context) -> {
-            builder.addPiece(new SurfaceNBTPiece(nbt, null, context));
-        };
+    private void generatePieces(StructurePiecesBuilder builder, GenerationContext context) {
+        builder.addPiece(new SurfaceNBTPiece(this.getPiece(), null, context));
     }
 
     @Override
-    public GenerationStep.Decoration step() {
-        return step;
+    protected Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
+        return onTopOfChunkCenter(context, Heightmap.Types.WORLD_SURFACE_WG, (builder) -> {
+            generatePieces(builder, context);
+        });
+    }
+
+    @Override
+    public StructureType<?> type() {
+        return ChangedStructureTypes.BEEHIVE.get();
     }
 }

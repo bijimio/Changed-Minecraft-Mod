@@ -3,7 +3,7 @@ package net.ltxprogrammer.changed.mixin.compatibility.Personality;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.teamabnormals.personality.common.CommonEvents;
+import com.teamabnormals.personality.core.other.PersonalityClientEvents;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.PlayerDataExtension;
 import net.ltxprogrammer.changed.extension.RequiredMods;
@@ -15,7 +15,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(value = CommonEvents.class, remap = false)
+@Mixin(value = PersonalityClientEvents.class, remap = false)
 @RequiredMods("personality")
 public class PersonalityClientEventsMixin<T extends ChangedEntity> {
     @WrapOperation(method = "onEntitySize", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Player;STANDING_DIMENSIONS:Lnet/minecraft/world/entity/EntityDimensions;"))

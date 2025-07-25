@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.client;
 
 import net.ltxprogrammer.changed.ability.GrabEntityAbility;
+import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.minecraft.client.player.LocalPlayer;
@@ -25,6 +26,15 @@ public class LocalTransfurVariantInstance<T extends ChangedEntity> extends Clien
             ((LocalPlayerAccessor)host).setHandsBusy(true);
         } else if (host.getVehicle() == null && host.isHandsBusy()) {
             ((LocalPlayerAccessor)host).setHandsBusy(false);
+        }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (WhiteLatexTransportInterface.isEntityInWhiteLatex(host)) {
+            ((LocalPlayerAccessor)host).setHandsBusy(true);
         }
     }
 

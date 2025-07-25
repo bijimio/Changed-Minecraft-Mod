@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "axis=z": {
+      "model": "changed:block/floor_sign_wet"
+    },
+    "axis=x": {
+      "model": "changed:block/floor_sign_wet",
+      "y": 90
+    }
+  }
+}

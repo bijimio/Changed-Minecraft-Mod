@@ -58,15 +58,15 @@ public class BehemothHead extends Behemoth {
         AABB checkBB = new AABB(this.blockPosition()).inflate(16);
         if (leftHand == null) {
             if (loadedLeftHand == null) {
-                leftHand = ChangedEntities.BEHEMOTH_HAND_LEFT.get().create(level);
+                leftHand = ChangedEntities.BEHEMOTH_HAND_LEFT.get().create(level());
                 leftHand.moveTo(this.position());
                 leftHand.setHead(this);
-                level.addFreshEntity(leftHand);
+                level().addFreshEntity(leftHand);
                 loadedLeftHand = this.getUUID();
             }
 
             else if (!loadedLeftHand.equals(this.getUUID())) {
-                var list = level.getEntitiesOfClass(BehemothHandLeft.class, checkBB,
+                var list = level().getEntitiesOfClass(BehemothHandLeft.class, checkBB,
                         foundEntity -> foundEntity.handUUID.equals(loadedLeftHand));
                 if (!list.isEmpty()) {
                     leftHand = list.get(0);
@@ -77,15 +77,15 @@ public class BehemothHead extends Behemoth {
 
         if (rightHand == null) {
             if (loadedRightHand == null) {
-                rightHand = ChangedEntities.BEHEMOTH_HAND_RIGHT.get().create(level);
+                rightHand = ChangedEntities.BEHEMOTH_HAND_RIGHT.get().create(level());
                 rightHand.moveTo(this.position());
                 rightHand.setHead(this);
-                level.addFreshEntity(rightHand);
+                level().addFreshEntity(rightHand);
                 loadedRightHand = this.getUUID();
             }
 
             else if (!loadedRightHand.equals(this.getUUID())) {
-                var list = level.getEntitiesOfClass(BehemothHandRight.class, checkBB,
+                var list = level().getEntitiesOfClass(BehemothHandRight.class, checkBB,
                         foundEntity -> foundEntity.handUUID.equals(loadedRightHand));
                 if (!list.isEmpty()) {
                     rightHand = list.get(0);

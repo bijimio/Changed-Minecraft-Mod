@@ -11,7 +11,6 @@ import net.ltxprogrammer.changed.world.inventory.StasisChamberMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -39,12 +38,10 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -52,6 +49,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,11 +60,11 @@ import java.util.List;
 
 import static net.ltxprogrammer.changed.init.ChangedSounds.OPEN2;
 
-public class StasisChamber extends HorizontalDirectionalBlock implements NonLatexCoverableBlock, PartialEntityBlock, OpenableDoor, SeatableBlock {
+public class StasisChamber extends HorizontalDirectionalBlock implements PartialEntityBlock, OpenableDoor, SeatableBlock {
     public static final EnumProperty<ThreeXThreeSection> SECTION = EnumProperty.create("section", ThreeXThreeSection.class);
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
 
-    private static final Component CONTAINER_TITLE = new TranslatableComponent("container.changed.stasis_chamber");
+    private static final Component CONTAINER_TITLE = Component.translatable("container.changed.stasis_chamber");
 
     public static final VoxelShape SHAPE_FRAME_LEFT = Block.box(25.3D, 0.0D, 0.0D, 27.3D, 48.0D, 16.0D);
     public static final VoxelShape SHAPE_FRAME_RIGHT = Block.box(-11.3D, 0.0D, 0.0D, -9.3D, 48.0D, 16.0D);
@@ -224,13 +222,13 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
     public static final VoxelShape SHAPE_DOOR = Shapes.or(SHAPE_FRAME_FRONT);
     public static final VoxelShape SHAPE_COLLISION_CLOSED = Shapes.or(SHAPE_FRAME, SHAPE_DOOR);
 
-    private final SoundEvent open, close;
+    private final RegistryObject<SoundEvent> open, close;
 
     private final VoxelShape shapeFrame;
     private final VoxelShape shapeCollisionClosed;
 
-    public StasisChamber(SoundEvent open, SoundEvent close) {
-        super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F));
+    public StasisChamber(RegistryObject<SoundEvent> open, RegistryObject<SoundEvent> close) {
+        super(Properties.of().sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F));
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(SECTION, ThreeXThreeSection.MIDDLE_BOTTOM_MIDDLE)
@@ -303,7 +301,7 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return state.getValue(SECTION) == ThreeXThreeSection.MIDDLE_BOTTOM_MIDDLE ?
                 new ArrayList<>(Collections.singleton(this.asItem().getDefaultInstance())) :
                 List.of();
@@ -333,7 +331,7 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
             return InteractionResult.FAIL;
 
         if (player instanceof ServerPlayer serverPlayer) {
-            NetworkHooks.openGui(serverPlayer, getMenuProvider(beState, level, bePos), extra -> {
+            NetworkHooks.openScreen(serverPlayer, getMenuProvider(beState, level, bePos), extra -> {
                 extra.writeBlockPos(bePos);
             });
         }
@@ -466,9 +464,9 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
             if (nBlock.getBlock() != this)
                 continue;
             level.setBlockAndUpdate(nPos, nBlock.setValue(OPEN, wantState));
-            level.gameEvent(GameEvent.BLOCK_OPEN, pos);
+            level.gameEvent(GameEvent.BLOCK_OPEN, pos, GameEvent.Context.of(state));
         }
-        level.playSound(null, pos, open, SoundSource.BLOCKS, 1, 1);
+        level.playSound(null, pos, open.get(), SoundSource.BLOCKS, 1, 1);
         return true;
     }
 
@@ -485,9 +483,9 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
             if (nBlock.getBlock() != this)
                 continue;
             level.setBlockAndUpdate(nPos, nBlock.setValue(OPEN, wantState));
-            level.gameEvent(GameEvent.BLOCK_CLOSE, pos);
+            level.gameEvent(GameEvent.BLOCK_CLOSE, pos, GameEvent.Context.of(state));
         }
-        level.playSound(null, pos, close, SoundSource.BLOCKS, 1, 1);
+        level.playSound(null, pos, close.get(), SoundSource.BLOCKS, 1, 1);
         return true;
     }
 
@@ -538,7 +536,7 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
 
     public static boolean isEntityStabilized(LivingEntity livingEntity) {
         if (livingEntity.vehicle instanceof SeatEntity seatEntity) {
-            return livingEntity.level.getBlockEntity(seatEntity.getAttachedBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get())
+            return livingEntity.level().getBlockEntity(seatEntity.getAttachedBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get())
                     .map(StasisChamberBlockEntity::isStabilized)
                     .orElse(false);
         }
@@ -548,7 +546,7 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
 
     public static boolean isEntityCaptured(LivingEntity livingEntity) {
         if (livingEntity.vehicle instanceof SeatEntity seatEntity) {
-            return livingEntity.level.getBlockEntity(seatEntity.getAttachedBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get())
+            return livingEntity.level().getBlockEntity(seatEntity.getAttachedBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get())
                     .isPresent();
         }
 

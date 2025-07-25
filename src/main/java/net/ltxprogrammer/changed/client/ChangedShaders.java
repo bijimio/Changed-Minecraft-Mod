@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.Changed;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.GameRenderer;
@@ -15,6 +14,8 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceProvider;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -108,19 +109,7 @@ public class ChangedShaders {
         return WAVE_VISION_RESONANT_CUTOUT_MIPPED.apply(BLOCK_SHEET_MIPPED_RESONANT, resonance);
     }
 
-    public static RenderType latexWaveVisionSolid() {
-        return WAVE_VISION_SOLID.apply(LATEX_SHEET_MIPPED);
-    }
-
-    public static RenderType latexWaveVisionCutout() {
-        return WAVE_VISION_CUTOUT.apply(LATEX_SHEET);
-    }
-
-    public static RenderType latexWaveVisionCutoutMipped() {
-        return WAVE_VISION_CUTOUT_MIPPED.apply(LATEX_SHEET_MIPPED);
-    }
-
-    public static void reloadShaders(ResourceManager resourceManager, Consumer<Pair<ShaderInstance, Consumer<ShaderInstance>>> loader) throws IOException {
+    public static void reloadShaders(ResourceProvider resourceManager, Consumer<Pair<ShaderInstance, Consumer<ShaderInstance>>> loader) throws IOException {
         loader.accept(Pair.of(new ShaderInstance(resourceManager, Changed.modResource("rendertype_wave_vision_entity"), DefaultVertexFormat.NEW_ENTITY), (instance) -> {
             rendertypeWaveVisionEntity = instance;
         }));
@@ -173,8 +162,8 @@ public class ChangedShaders {
 
     public static final RenderStateShard.TextureStateShard BLOCK_SHEET_MIPPED = new RenderStateShard.TextureStateShard(TextureAtlas.LOCATION_BLOCKS, false, true);
     public static final RenderStateShard.TextureStateShard BLOCK_SHEET = new RenderStateShard.TextureStateShard(TextureAtlas.LOCATION_BLOCKS, false, false);
-    public static final RenderStateShard.TextureStateShard LATEX_SHEET_MIPPED = new RenderStateShard.TextureStateShard(LatexCoveredBlockRenderer.LATEX_COVER_ATLAS, false, true);
-    public static final RenderStateShard.TextureStateShard LATEX_SHEET = new RenderStateShard.TextureStateShard(LatexCoveredBlockRenderer.LATEX_COVER_ATLAS, false, false);
+    public static final RenderStateShard.TextureStateShard LATEX_SHEET_MIPPED = BLOCK_SHEET_MIPPED;//new RenderStateShard.TextureStateShard(LatexCoveredBlockRenderer.LATEX_COVER_ATLAS, false, true);
+    public static final RenderStateShard.TextureStateShard LATEX_SHEET = BLOCK_SHEET;//new RenderStateShard.TextureStateShard(LatexCoveredBlockRenderer.LATEX_COVER_ATLAS, false, false);
 
     public static final RenderStateShard.MultiTextureStateShard BLOCK_SHEET_MIPPED_RESONANT = RenderStateShard.MultiTextureStateShard.builder().add(TextureAtlas.LOCATION_BLOCKS, false, true).add(WaveVisionRenderer.WAVE_RESONANCE_BLOCK_MASK, false, true).build();
     public static final RenderStateShard.MultiTextureStateShard BLOCK_SHEET_RESONANT = RenderStateShard.MultiTextureStateShard.builder().add(TextureAtlas.LOCATION_BLOCKS, false, false).add(WaveVisionRenderer.WAVE_RESONANCE_BLOCK_MASK, false, false).build();
@@ -183,8 +172,11 @@ public class ChangedShaders {
     private static final RenderType LATEX_CUTOUT_MIPPED = RenderType.create("changed:latex_cutout_mipped", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 131072, true, false, RenderType.CompositeState.builder().setLightmapState(LIGHTMAP).setShaderState(RENDERTYPE_CUTOUT_MIPPED_SHADER).setTextureState(LATEX_SHEET_MIPPED).createCompositeState(true));
     private static final RenderType LATEX_CUTOUT = RenderType.create("changed:latex_cutout", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 131072, true, false, RenderType.CompositeState.builder().setLightmapState(LIGHTMAP).setShaderState(RENDERTYPE_CUTOUT_SHADER).setTextureState(LATEX_SHEET).createCompositeState(true));
 
+    @Deprecated
     public static RenderType latexSolid() { return LATEX_SOLID; }
+    @Deprecated
     public static RenderType latexCutoutMipped() { return LATEX_CUTOUT_MIPPED; }
+    @Deprecated
     public static RenderType latexCutout() { return LATEX_CUTOUT; }
 
     private static final Function<ResourceLocation, RenderType> WAVE_VISION = Util.memoize((texture) -> {

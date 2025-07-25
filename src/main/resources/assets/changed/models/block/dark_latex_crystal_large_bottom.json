@@ -1,6 +1,7 @@
 {
+  "render_type": "minecraft:cutout",
   "parent": "minecraft:block/cross",
   "textures": {
-    "cross": "changed:blocks/dark_latex_crystal_large_bottom"
+    "cross": "changed:block/dark_latex_crystal_large_bottom"
   }
 }

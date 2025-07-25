@@ -3,7 +3,6 @@ package net.ltxprogrammer.changed.block;
 import net.ltxprogrammer.changed.world.inventory.InfuserMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -27,7 +26,7 @@ public class Infuser extends LabBlock {
         super(p_49795_);
     }
 
-    private static final Component CONTAINER_TITLE = new TranslatableComponent("container.changed.infuser");
+    private static final Component CONTAINER_TITLE = Component.translatable("container.changed.infuser");
 
     @Override
     public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,

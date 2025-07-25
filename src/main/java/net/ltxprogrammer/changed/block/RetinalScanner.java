@@ -5,6 +5,7 @@ package net.ltxprogrammer.changed.block;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -109,11 +110,11 @@ public class RetinalScanner extends AbstractCustomShapeBlock {
         } else {
             if (!canSetSpawn(level)) {
                 level.removeBlock(blockPos, false);
-                level.explode((Entity)null, DamageSource.badRespawnPointExplosion(), (ExplosionDamageCalculator)null, (double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.5D, (double)blockPos.getZ() + 0.5D, 5.0F, true, Explosion.BlockInteraction.DESTROY);
+                level.explode((Entity)null, level.damageSources().badRespawnPointExplosion(blockPos.getCenter()), (ExplosionDamageCalculator)null, (double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.5D, (double)blockPos.getZ() + 0.5D, 5.0F, true, Level.ExplosionInteraction.BLOCK);
                 return InteractionResult.SUCCESS;
             } else if (player instanceof ServerPlayer serverPlayer) {
                 serverPlayer.setRespawnPosition(level.dimension(), blockPos, player.getYRot(), false, true);
-                ChangedSounds.broadcastSound(level.getServer(), ChangedSounds.SAVE, blockPos, 1, 1);
+                ChangedSounds.broadcastSound((ServerLevel) level, ChangedSounds.SAVE, blockPos, 1, 1);
                 return InteractionResult.SUCCESS;
             }
 

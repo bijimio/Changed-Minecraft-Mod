@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
@@ -32,7 +31,7 @@ public class PurifierBlockEntity extends BaseContainerBlockEntity implements Sta
     }
 
     protected @NotNull Component getDefaultName() {
-        return new TranslatableComponent("container.changed.purifier");
+        return Component.translatable("container.changed.purifier");
     }
 
     protected @NotNull AbstractContainerMenu createMenu(int p_59293_, @NotNull Inventory p_59294_) {
@@ -81,12 +80,12 @@ public class PurifierBlockEntity extends BaseContainerBlockEntity implements Sta
         return ContainerHelper.takeItem(this.items, p_58387_);
     }
 
-    public void setItem(int p_58333_, ItemStack p_58334_) {
+    public void setItem(int p_58333_, ItemStack stack) {
         ItemStack itemstack = this.items.get(p_58333_);
-        boolean flag = !p_58334_.isEmpty() && p_58334_.sameItem(itemstack) && ItemStack.tagMatches(p_58334_, itemstack);
-        this.items.set(p_58333_, p_58334_);
-        if (p_58334_.getCount() > this.getMaxStackSize()) {
-            p_58334_.setCount(this.getMaxStackSize());
+        boolean flag = !stack.isEmpty() && ItemStack.isSameItemSameTags(stack, itemstack);
+        this.items.set(p_58333_, stack);
+        if (stack.getCount() > this.getMaxStackSize()) {
+            stack.setCount(this.getMaxStackSize());
         }
 
         if (p_58333_ == 0 && !flag) {
@@ -114,12 +113,12 @@ public class PurifierBlockEntity extends BaseContainerBlockEntity implements Sta
     }
 
     public static boolean isConversionRecipe(RecipeManager recipeManager, ItemStack stack) {
-        return recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE).stream().anyMatch(recipe -> recipe.getIngredient().test(stack));
+        return recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE.get()).stream().anyMatch(recipe -> recipe.getIngredient().test(stack));
     }
 
     public ItemLike getConversionFor(RecipeManager recipeManager,ItemStack stack) {
         try {
-            return recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE).stream()
+            return recipeManager.getAllRecipesFor(ChangedRecipeTypes.PURIFIER_RECIPE.get()).stream()
                     .filter(recipe -> recipe.getIngredient().test(stack)).toList().get(0).getResult();
         } catch (Exception ex) {
             Changed.LOGGER.error("Error retrieving recipe that should exist");

@@ -7,6 +7,7 @@ import net.minecraft.advancements.critereon.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 
 public class TameLatexTrigger extends SimpleCriterionTrigger<TameLatexTrigger.TriggerInstance> {
     static final ResourceLocation ID = Changed.modResource("tame_latex");
@@ -15,8 +16,8 @@ public class TameLatexTrigger extends SimpleCriterionTrigger<TameLatexTrigger.Tr
         return ID;
     }
 
-    public TriggerInstance createInstance(JsonObject json, EntityPredicate.Composite composite, DeserializationContext context) {
-        EntityPredicate.Composite entitypredicate$composite = EntityPredicate.Composite.fromJson(json, "entity", context);
+    public TriggerInstance createInstance(JsonObject json, ContextAwarePredicate composite, DeserializationContext context) {
+        ContextAwarePredicate entitypredicate$composite = EntityPredicate.fromJson(json, "entity", context);
         return new TriggerInstance(composite, entitypredicate$composite);
     }
 
@@ -26,19 +27,19 @@ public class TameLatexTrigger extends SimpleCriterionTrigger<TameLatexTrigger.Tr
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final EntityPredicate.Composite entity;
+        private final ContextAwarePredicate entity;
 
-        public TriggerInstance(EntityPredicate.Composite p_68846_, EntityPredicate.Composite p_68847_) {
+        public TriggerInstance(ContextAwarePredicate p_68846_, ContextAwarePredicate p_68847_) {
             super(TameLatexTrigger.ID, p_68846_);
             this.entity = p_68847_;
         }
 
         public static TriggerInstance tamedAnimal() {
-            return new TriggerInstance(EntityPredicate.Composite.ANY, EntityPredicate.Composite.ANY);
+            return new TriggerInstance(ContextAwarePredicate.ANY, ContextAwarePredicate.ANY);
         }
 
         public static TriggerInstance tamedAnimal(EntityPredicate entityPredicate) {
-            return new TriggerInstance(EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(entityPredicate));
+            return new TriggerInstance(ContextAwarePredicate.ANY, EntityPredicate.wrap(entityPredicate));
         }
 
         public boolean matches(LootContext p_68853_) {

@@ -42,7 +42,7 @@ public abstract class BehemothHand extends Behemoth {
             }
 
             // Find head or discard
-            level.getEntitiesOfClass(BehemothHead.class, new AABB(blockPosition()).inflate(2.0)).forEach(foundHead -> {
+            level().getEntitiesOfClass(BehemothHead.class, new AABB(blockPosition()).inflate(2.0)).forEach(foundHead -> {
                 if (head == null)
                     head = foundHead;
             });

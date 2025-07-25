@@ -1,7 +1,7 @@
 package net.ltxprogrammer.changed.client.renderer.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModelInterface;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -19,6 +20,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -26,11 +28,14 @@ public class LatexItemInHandLayer<T extends ChangedEntity, M extends AdvancedHum
     private static final float X_ROT_MIN = (-(float)Math.PI / 6F);
     private static final float X_ROT_MAX = ((float)Math.PI / 2F);
 
-    public LatexItemInHandLayer(RenderLayerParent<T, M> p_174516_) {
-        super(p_174516_);
+    private final ItemInHandRenderer itemInHandRenderer;
+
+    public LatexItemInHandLayer(RenderLayerParent<T, M> parent, ItemInHandRenderer itemInHandRenderer) {
+        super(parent, itemInHandRenderer);
+        this.itemInHandRenderer = itemInHandRenderer;
     }
 
-    protected void renderArmWithItem(LivingEntity p_174525_, ItemStack p_174526_, ItemTransforms.TransformType p_174527_, HumanoidArm p_174528_, PoseStack poseStack, MultiBufferSource p_174530_, int p_174531_) {
+    protected void renderArmWithItem(LivingEntity p_174525_, ItemStack p_174526_, ItemDisplayContext p_174527_, HumanoidArm p_174528_, PoseStack poseStack, MultiBufferSource p_174530_, int p_174531_) {
         if (p_174525_ instanceof ChangedEntity ChangedEntity && ChangedEntity.getUnderlyingPlayer() != null)
             p_174525_ = ChangedEntity.getUnderlyingPlayer();
 
@@ -65,7 +70,7 @@ public class LatexItemInHandLayer<T extends ChangedEntity, M extends AdvancedHum
         var headCube = list.get(0);
         float dH = 0.5f - headCube.maxY;*/
         pose.translate(((flag ? -2.5F : 2.5F) / 16.0F), -0.0625D/* + (dH / 16.0f)*/, 0.0D);
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(entity, itemStack, ItemTransforms.TransformType.HEAD, false, pose, source, color);
+        itemInHandRenderer.renderItem(entity, itemStack, ItemDisplayContext.HEAD, false, pose, source, color);
         pose.popPose();
     }
 
@@ -80,24 +85,24 @@ public class LatexItemInHandLayer<T extends ChangedEntity, M extends AdvancedHum
             if (this.getParentModel() instanceof AdvancedHumanoidModelInterface<?,?> modelInterface)
                 modelInterface.scaleForHead(pose);
             pose.translate(head.x / 16.0F, (head.y) / 16.0F, head.z / 16.0F);
-            pose.mulPose(Vector3f.ZP.rotation(0.0F));
-            pose.mulPose(Vector3f.YP.rotationDegrees(netHeadYaw));
-            pose.mulPose(Vector3f.XP.rotationDegrees(headPitch));
+            pose.mulPose(Axis.ZP.rotation(0.0F));
+            pose.mulPose(Axis.YP.rotationDegrees(netHeadYaw));
+            pose.mulPose(Axis.XP.rotationDegrees(headPitch));
             if (flag) {
                 pose.translate(0.46F, 0.26F, 0.22F);
             } else {
                 pose.translate(0.06F, 0.27F, -0.5D);
             }
 
-            pose.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+            pose.mulPose(Axis.XP.rotationDegrees(90.0F));
             if (flag) {
-                pose.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
+                pose.mulPose(Axis.ZP.rotationDegrees(90.0F));
             }
-            pose.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+            pose.mulPose(Axis.ZP.rotationDegrees(180.0F));
             pose.translate(1.0 / 16.0F, -2.0 / 16.0F, 1.0 / 16.0F);
 
             ItemStack itemstack = entity.getItemBySlot(EquipmentSlot.MAINHAND);
-            Minecraft.getInstance().getItemInHandRenderer().renderItem(entity, itemstack, ItemTransforms.TransformType.GROUND, false, pose, bufferSource, packedLight);
+            itemInHandRenderer.renderItem(entity, itemstack, ItemDisplayContext.GROUND, false, pose, bufferSource, packedLight);
             pose.popPose();
         }
     }

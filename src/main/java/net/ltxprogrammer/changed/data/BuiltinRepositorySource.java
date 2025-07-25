@@ -1,9 +1,10 @@
 package net.ltxprogrammer.changed.data;
 
 import net.minecraft.Util;
-import net.minecraft.server.packs.FolderPackResources;
-import net.minecraft.server.packs.PackResources;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
@@ -17,7 +18,6 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -27,6 +27,7 @@ public class BuiltinRepositorySource implements RepositorySource {
     private final Path modFile;
     private final boolean isJar;
     private final Set<String> packIds = new HashSet<>();
+    private final PackType packType;
     private final String packsFolder;
     private static final EnumMap<PackType, String> NAMED_FOLDERS = Util.make(new EnumMap<>(PackType.class), map -> {
         map.put(PackType.CLIENT_RESOURCES, "resourcepacks");
@@ -37,6 +38,7 @@ public class BuiltinRepositorySource implements RepositorySource {
     public BuiltinRepositorySource(PackType type, String modId) throws IOException, NullPointerException {
         this.modId = modId;
         this.modFile = FMLLoader.getLoadingModList().getModFileById(modId).getFile().getFilePath();
+        this.packType = type;
         this.packsFolder = NAMED_FOLDERS.getOrDefault(type, type.getDirectory());
         var file = this.modFile.toFile();
         if (file.isDirectory()) {
@@ -61,10 +63,14 @@ public class BuiltinRepositorySource implements RepositorySource {
     }
 
     @Override
-    public void loadPacks(Consumer<Pack> out, Pack.PackConstructor constructor) {
+    public void loadPacks(Consumer<Pack> out) {
         for(String id : packIds) {
-            Pack pack = Pack.create(modId + ":" + id, false,
-                    this.createSupplier(this.modFile.toFile(), id), constructor, Pack.Position.TOP, PackSource.BUILT_IN);
+            Pack pack = Pack.readMetaAndCreate(
+                    modId + ":" + id,
+                    Component.translatable("builtin_resources." + modId + ":" + id),
+                    false,
+                    this.createSupplier(this.modFile.toFile(), id),
+                    this.packType, Pack.Position.TOP, PackSource.BUILT_IN);
             if (pack instanceof PackExtender ext)
                 ext.setIncludeByDefault(false);
             if (pack != null) {
@@ -73,11 +79,11 @@ public class BuiltinRepositorySource implements RepositorySource {
         }
     }
 
-    private Supplier<PackResources> createSupplier(File file, String packName) {
-        return isJar ? () -> {
-            return new BuiltinPackResources(file, packsFolder + "/" + packName + "/");
-        } : () -> {
-            return new FolderPackResources(new File(file, packsFolder + "/" + packName));
+    private Pack.ResourcesSupplier createSupplier(File file, String packName) {
+        return isJar ? name -> {
+            return new JarredPackResources(packName, file, packsFolder + "/" + packName + "/");
+        } : name -> {
+            return new PathPackResources(packName, Path.of(file.getPath(), packsFolder + "/" + packName), true);
         };
     }
 }

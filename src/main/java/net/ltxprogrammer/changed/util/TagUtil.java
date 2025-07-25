@@ -50,7 +50,14 @@ public class TagUtil {
     }
 
     public static ResourceLocation getResourceLocation(CompoundTag cTag, String name) {
-        return new ResourceLocation(cTag.getString(name));
+        return ResourceLocation.tryParse(cTag.getString(name));
+    }
+
+    public static ResourceLocation getResourceLocation(CompoundTag cTag, String name, Function<String, String> fixer) {
+        if (cTag.getString(name).isEmpty())
+            return null;
+        else
+            return ResourceLocation.tryParse(fixer.apply(cTag.getString(name)));
     }
 
     public static void putBlockPos(CompoundTag cTag, String name, BlockPos pos) {
@@ -62,7 +69,8 @@ public class TagUtil {
     }
 
     public static void putResourceLocation(CompoundTag cTag, String name, ResourceLocation location) {
-        cTag.putString(name, location.toString());
+        if (location != null)
+            cTag.putString(name, location.toString());
     }
 
     public static <T, V> CompoundTag createMap(Map<T, V> map, TriConsumer<T, V, CompoundTag> consumer) {

@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "axis=z": {
+      "model": "changed:block/floor_sign_exit"
+    },
+    "axis=x": {
+      "model": "changed:block/floor_sign_exit",
+      "y": 90
+    }
+  }
+}

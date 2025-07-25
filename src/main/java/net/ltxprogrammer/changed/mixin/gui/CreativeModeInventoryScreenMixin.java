@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CreativeModeInventoryScreen.class)
 public abstract class CreativeModeInventoryScreenMixin extends EffectRenderingInventoryScreen<CreativeModeInventoryScreen.ItemPickerMenu> {
-    @Shadow private static int selectedTab;
+    @Shadow private static CreativeModeTab selectedTab;
     @Unique private static final ResourceLocation ACCESSORY_ICON = Changed.modResource("textures/gui/basic_player_info.png");
 
     @Unique private Button accessoryButton;
@@ -37,7 +38,7 @@ public abstract class CreativeModeInventoryScreenMixin extends EffectRenderingIn
                 AccessorySlots.openAccessoriesMenu(invMenu.owner);
         }));
 
-        accessoryButton.visible = selectedTab == CreativeModeTab.TAB_INVENTORY.getId();
+        accessoryButton.visible = selectedTab.getType() == CreativeModeTab.Type.INVENTORY;
     }
 
     @Inject(method = "selectTab", at = @At("RETURN"))
@@ -45,6 +46,6 @@ public abstract class CreativeModeInventoryScreenMixin extends EffectRenderingIn
         if (tab == null)
             return;
         if (accessoryButton != null)
-            accessoryButton.visible = selectedTab == CreativeModeTab.TAB_INVENTORY.getId();
+            accessoryButton.visible = selectedTab.getType() == CreativeModeTab.Type.INVENTORY;
     }
 }

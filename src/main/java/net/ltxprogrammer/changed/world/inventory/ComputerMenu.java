@@ -33,11 +33,11 @@ public class ComputerMenu extends TextMenu {
     private final Map<Integer, Slot> customSlots = new HashMap<>();
 
     public ComputerMenu(int id, Inventory inventory, BlockPos pos, BlockState state, TextEnterable textMenuBlockEntity) {
-        super(ChangedMenus.COMPUTER, id, inventory, pos, state, textMenuBlockEntity);
+        super(ChangedMenus.COMPUTER.get(), id, inventory, pos, state, textMenuBlockEntity);
     }
 
     public ComputerMenu(int id, Inventory inventory, ItemStack disk) {
-        super(ChangedMenus.COMPUTER, id, inventory, null);
+        super(ChangedMenus.COMPUTER.get(), id, inventory, null);
         this.serverDisk = disk;
         this.data = new DiscData(disk.getOrCreateTag());
         inventory.removeItem(serverDisk);
@@ -45,7 +45,7 @@ public class ComputerMenu extends TextMenu {
     }
 
     public ComputerMenu(int id, Inventory inventory, FriendlyByteBuf extraData) {
-        super(ChangedMenus.COMPUTER, id, inventory, extraData);
+        super(ChangedMenus.COMPUTER.get(), id, inventory, extraData);
 
         if (extraData != null) {
             serverDisk = null;
@@ -82,7 +82,7 @@ public class ComputerMenu extends TextMenu {
 
                 switch (op) {
                     case GET_RECIPE -> {
-                        data.getFileSafe(Path.of(payload.getString("path"))).flatMap(file -> player.level.getRecipeManager().byKey(ResourceLocation.tryParse(file.content))).ifPresent(recipe -> {
+                        data.getFileSafe(Path.of(payload.getString("path"))).flatMap(file -> player.level().getRecipeManager().byKey(ResourceLocation.tryParse(file.content))).ifPresent(recipe -> {
                             player.awardRecipes(Collections.singleton(recipe));
                         });
                     }

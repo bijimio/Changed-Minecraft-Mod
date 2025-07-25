@@ -14,7 +14,7 @@ public enum Gender implements IExtensibleEnum {
     
     public static ResourceLocation switchGenderedForm(ResourceLocation form) {
         if (form.getPath().contains("/male")) {
-            ResourceLocation newVariantId = new ResourceLocation(form.getNamespace(),
+            ResourceLocation newVariantId = ResourceLocation.fromNamespaceAndPath(form.getNamespace(),
                     form.getPath().replace("/male", "/female"));
             if (ChangedRegistry.TRANSFUR_VARIANT.get().containsKey(newVariantId)) {
                 return newVariantId;
@@ -22,7 +22,7 @@ public enum Gender implements IExtensibleEnum {
         }
 
         else if (form.getPath().contains("/female")) {
-            ResourceLocation newVariantId = new ResourceLocation(form.getNamespace(),
+            ResourceLocation newVariantId = ResourceLocation.fromNamespaceAndPath(form.getNamespace(),
                     form.getPath().replace("/female", "/male"));
             if (ChangedRegistry.TRANSFUR_VARIANT.get().containsKey(newVariantId)) {
                 return newVariantId;
@@ -33,7 +33,7 @@ public enum Gender implements IExtensibleEnum {
     }
 
     public static ResourceLocation getGenderedForm(ResourceLocation form, Gender gender) {
-        return new ResourceLocation(form.toString() + "/" + gender.toString().toLowerCase());
+        return ResourceLocation.parse(form.toString() + "/" + gender.toString().toLowerCase());
     }
 
     public ResourceLocation convertToGendered(ResourceLocation formId) {

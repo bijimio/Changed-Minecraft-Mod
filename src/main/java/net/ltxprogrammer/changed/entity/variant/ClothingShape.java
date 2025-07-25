@@ -29,7 +29,7 @@ public abstract class ClothingShape {
         public ResourceLocation getEmptyArmorSlot() {
             if (this == NONE || this == ANTHRO)
                 return null;
-            return Changed.modResource("items/empty_armor_slot_" + serialName + "_head");
+            return Changed.modResource("item/empty_armor_slot_" + serialName + "_head");
         }
 
         public static Head create(String name, String serialName) {
@@ -58,7 +58,7 @@ public abstract class ClothingShape {
         public ResourceLocation getEmptyArmorSlot() {
             if (this == NONE || this == ANTHRO)
                 return null;
-            return Changed.modResource("items/empty_armor_slot_" + serialName + "_torso");
+            return Changed.modResource("item/empty_armor_slot_" + serialName + "_torso");
         }
 
         public static Torso create(String name, String serialName) {
@@ -89,7 +89,7 @@ public abstract class ClothingShape {
         public ResourceLocation getEmptyArmorSlot() {
             if (this == NONE || this == BIPEDAL)
                 return null;
-            return Changed.modResource("items/empty_armor_slot_" + serialName + "_legs");
+            return Changed.modResource("item/empty_armor_slot_" + serialName + "_legs");
         }
 
         public static Legs create(String name, String serialName) {
@@ -120,7 +120,7 @@ public abstract class ClothingShape {
         public ResourceLocation getEmptyArmorSlot() {
             if (this == NONE || this == BIPEDAL)
                 return null;
-            return Changed.modResource("items/empty_armor_slot_" + serialName + "_feet");
+            return Changed.modResource("item/empty_armor_slot_" + serialName + "_feet");
         }
 
         public static Feet create(String name, String serialName) {

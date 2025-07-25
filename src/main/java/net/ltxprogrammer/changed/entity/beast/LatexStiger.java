@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -32,11 +33,6 @@ public class LatexStiger extends AbstractCaveEntity {
     public int getTicksRequiredToFreeze() { return 240; }
 
     @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
-    }
-
-    @Override
     public TransfurMode getTransfurMode() { return TransfurMode.REPLICATION; }
 
     @Override
@@ -51,7 +47,7 @@ public class LatexStiger extends AbstractCaveEntity {
 
     public void tick() {
         super.tick();
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.setClimbing(this.horizontalCollision);
         }
 

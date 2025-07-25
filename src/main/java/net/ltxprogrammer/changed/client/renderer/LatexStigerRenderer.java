@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public class LatexStigerRenderer extends AdvancedHumanoidRenderer<LatexStiger, LatexStigerModel, ArmorLatexStigerModel<LatexStiger>> {
     public LatexStigerRenderer(EntityRendererProvider.Context context) {
         super(context, new LatexStigerModel(context.bakeLayer(LatexStigerModel.LAYER_LOCATION)), ArmorLatexStigerModel.MODEL_SET, 0.5f);
-        this.addLayer(new DoubleItemInHandLayer<>(this));
+        this.addLayer(new DoubleItemInHandLayer<>(this, context.getItemInHandRenderer()));
         this.addLayer(new LatexParticlesLayer<>(this, getModel()));
         this.addLayer(TransfurCapeLayer.normalCape(this, context.getModelSet()));
         this.addLayer(CustomEyesLayer.builder(this, context.getModelSet())

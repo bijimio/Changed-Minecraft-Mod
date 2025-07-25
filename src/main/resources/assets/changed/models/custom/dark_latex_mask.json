@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [32, 32],
 	"textures": {
-		"0": "changed:items/3d/dark_latex_mask"
+		"0": "changed:item/3d/dark_latex_mask"
 	},
 	"elements": [
 		{

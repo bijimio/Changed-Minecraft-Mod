@@ -1,8 +1,8 @@
 package net.ltxprogrammer.changed.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 import java.util.function.Function;
 

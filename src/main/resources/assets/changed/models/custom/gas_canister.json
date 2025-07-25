@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "changed:blocks/wolf_gas_canister",
-		"particle": "changed:blocks/gas_canister"
+		"0": "changed:block/wolf_gas_canister",
+		"particle": "changed:block/gas_canister"
 	},
 	"elements": [
 		{

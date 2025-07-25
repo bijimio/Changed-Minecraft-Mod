@@ -1,0 +1,11 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#forge:is_desert",
+  "spawners": [
+    { "type": "changed:latex_fennec_fox", "weight": 100, "minCount": 1, "maxCount": 3 },
+    { "type": "changed:latex_snake", "weight": 100, "minCount": 1, "maxCount": 3 },
+    { "type": "changed:latex_golden_dragon", "weight": 40, "minCount": 1, "maxCount": 3 },
+    { "type": "changed:latex_alien", "weight": 20, "minCount": 1, "maxCount": 3 },
+    { "type": "changed:green_lizard", "weight": 10, "minCount": 1, "maxCount": 2 }
+  ]
+}

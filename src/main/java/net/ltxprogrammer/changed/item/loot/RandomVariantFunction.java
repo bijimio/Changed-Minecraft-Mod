@@ -6,6 +6,7 @@ import com.google.gson.JsonSerializationContext;
 import com.mojang.logging.LogUtils;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedLootItemFunctions;
+import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.item.Syringe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -30,7 +31,7 @@ public class RandomVariantFunction extends LootItemConditionalFunction {
     }
 
     public LootItemFunctionType getType() {
-        return ChangedLootItemFunctions.RANDOM_VARIANT;
+        return ChangedLootItemFunctions.RANDOM_VARIANT.get();
     }
 
     public ItemStack run(ItemStack itemStack, LootContext context) {
@@ -58,7 +59,7 @@ public class RandomVariantFunction extends LootItemConditionalFunction {
         }
 
         public RandomVariantFunction.Builder withAllVariants() {
-            this.variants.addAll(TransfurVariant.getPublicTransfurVariants().map(TransfurVariant::getRegistryName).toList());
+            this.variants.addAll(TransfurVariant.getPublicTransfurVariants().map(ChangedRegistry.TRANSFUR_VARIANT::getKey).toList());
             return this;
         }
 

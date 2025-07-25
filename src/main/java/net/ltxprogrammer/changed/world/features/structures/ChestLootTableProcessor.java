@@ -29,14 +29,14 @@ public class ChestLootTableProcessor extends StructureProcessor {
 
     @Nullable
     public StructureTemplate.StructureBlockInfo processBlock(LevelReader level, BlockPos blockPos, BlockPos p_74057_, StructureTemplate.StructureBlockInfo p_74058_, StructureTemplate.StructureBlockInfo info, StructurePlaceSettings settings) {
-        if (info.state.getBlock() instanceof ChestBlock) {
-            TagUtil.putResourceLocation(info.nbt, "LootTable", table);
-            info.nbt.putLong("LootTableSeed", settings.getRandom(info.pos).nextLong());
+        if (info.state().getBlock() instanceof ChestBlock) {
+            TagUtil.putResourceLocation(info.nbt(), "LootTable", table);
+            info.nbt().putLong("LootTableSeed", settings.getRandom(info.pos()).nextLong());
         }
         return info;
     }
 
     protected StructureProcessorType<?> getType() {
-        return ChangedFeatures.CHEST_LOOT_TABLE_PROCESSOR;
+        return ChangedFeatures.CHEST_LOOT_TABLE_PROCESSOR.get();
     }
 }

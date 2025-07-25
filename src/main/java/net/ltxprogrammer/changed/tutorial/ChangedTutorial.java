@@ -5,7 +5,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.KeybindComponent;
 
 public interface ChangedTutorial {
     void setStep(ChangedTutorialSteps step);
@@ -14,7 +13,7 @@ public interface ChangedTutorial {
     void onUseAbility(AbstractAbilityInstance ability);
 
     static Component key(KeyMapping keyMapping) {
-        return (new KeybindComponent(keyMapping.getName())).withStyle(ChatFormatting.BOLD);
+        return Component.keybind(keyMapping.getName()).withStyle(ChatFormatting.BOLD);
     }
 
     static void triggerOnOpenRadial() {

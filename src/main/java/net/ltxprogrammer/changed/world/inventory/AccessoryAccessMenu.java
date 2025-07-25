@@ -8,7 +8,7 @@ import net.ltxprogrammer.changed.init.ChangedMenus;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
@@ -44,7 +44,7 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
     private final Map<Integer, Slot> customSlots = new HashMap<>();
 
     private AccessoryAccessMenu(int id, Player owner, List<AccessorySlotType> slotTypes) {
-        super(ChangedMenus.ACCESSORY_ACCESS, id);
+        super(ChangedMenus.ACCESSORY_ACCESS.get(), id);
         this.owner = owner;
         this.inventory = owner.getInventory();
         this.accessorySlots = AccessorySlots.getForEntity(owner).orElseGet(AccessorySlots::new);
@@ -64,18 +64,17 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
         final var registry = ChangedRegistry.ACCESSORY_SLOTS.get();
         final var slots = AccessorySlots.getForEntity(player).orElseGet(AccessorySlots::new);
 
-        NetworkHooks.openGui(player,
-                new SimpleMenuProvider((id, inv, accessor) -> new AccessoryAccessMenu(id, accessor, slots.getOrderedSlots()), TextComponent.EMPTY),
+        NetworkHooks.openScreen(player,
+                new SimpleMenuProvider((id, inv, accessor) -> new AccessoryAccessMenu(id, accessor, slots.getOrderedSlots()), Component.empty()),
                 extra -> {
-                    extra.writeCollection(slots.getOrderedSlots(), (listBuffer, slotType) -> listBuffer.writeInt(registry.getID(slotType)));
+                    extra.writeCollection(slots.getOrderedSlots(), ChangedRegistry.ACCESSORY_SLOTS::writeRegistryObject);
                 });
     }
 
     private static List<AccessorySlotType> readSlotTypes(@Nullable FriendlyByteBuf buffer) {
         if (buffer == null)
             return List.of();
-        final var registry = ChangedRegistry.ACCESSORY_SLOTS.get();
-        return buffer.readList(listBuffer -> registry.getValue(listBuffer.readInt()));
+        return buffer.readList(ChangedRegistry.ACCESSORY_SLOTS::readRegistryObject);
     }
 
     public AccessoryAccessMenu(int id, Inventory inventory, FriendlyByteBuf extra) {

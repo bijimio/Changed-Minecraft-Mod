@@ -45,7 +45,7 @@ public class LatexInkball extends ThrowableItemProjectile {
             ParticleOptions particleoptions = this.getParticle();
 
             for (int i = 0; i < 8; ++i) {
-                this.level.addParticle(particleoptions, this.getX(), this.getY(), this.getZ(), 0.0D, 0.0D, 0.0D);
+                this.level().addParticle(particleoptions, this.getX(), this.getY(), this.getZ(), 0.0D, 0.0D, 0.0D);
             }
         }
 
@@ -57,13 +57,13 @@ public class LatexInkball extends ThrowableItemProjectile {
             return;
 
         ProcessTransfur.progressTransfur(livingEntity, 6.0f,
-                ChangedTransfurVariants.Gendered.LATEX_SQUID_DOGS.getRandomVariant(hitResult.getEntity().level.random), TransfurContext.hazard(TransfurCause.SQUID_DOG_INKBALL));
+                ChangedTransfurVariants.Gendered.LATEX_SQUID_DOGS.getRandomVariant(hitResult.getEntity().level().random), TransfurContext.hazard(TransfurCause.SQUID_DOG_INKBALL));
     }
 
     protected void onHit(HitResult hitResult) {
         super.onHit(hitResult);
-        if (!this.level.isClientSide) {
-            this.level.broadcastEntityEvent(this, (byte)3);
+        if (!this.level().isClientSide) {
+            this.level().broadcastEntityEvent(this, (byte)3);
             this.discard();
         }
 

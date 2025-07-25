@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.ltxprogrammer.changed.client.ModelPartExtender;
 import net.ltxprogrammer.changed.client.Triangle;
+import net.ltxprogrammer.changed.client.renderer.layers.LatexParticlesLayer;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.minecraft.client.model.geom.ModelPart;
 import org.spongepowered.asm.mixin.Final;
@@ -45,12 +46,29 @@ public abstract class ModelPartMixin implements ModelPartExtender {
         this.triangles.add(triangle);
     }
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V", at = @At("HEAD"), cancellable = true)
-    public void orCapture(PoseStack pose, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
+    public void orCaptureForTransfur(PoseStack pose, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
         if (TransfurAnimator.isCapturing()) {
             pose.pushPose();
 
             if (TransfurAnimator.capture((ModelPart)(Object)this, pose)) {
                 this.translateAndRotate(pose);
+                for(ModelPart modelpart : this.children.values()) {
+                    modelpart.render(pose, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+                }
+            }
+
+            pose.popPose();
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V", at = @At("HEAD"), cancellable = true)
+    public void orCaptureForParticles(PoseStack pose, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
+        if (LatexParticlesLayer.isCapturing()) {
+            pose.pushPose();
+
+            this.translateAndRotate(pose);
+            if (LatexParticlesLayer.capture((ModelPart)(Object)this, pose)) {
                 for(ModelPart modelpart : this.children.values()) {
                     modelpart.render(pose, buffer, packedLight, packedOverlay, red, green, blue, alpha);
                 }

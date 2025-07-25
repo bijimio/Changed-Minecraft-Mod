@@ -3,7 +3,6 @@ package net.ltxprogrammer.changed.mixin.compatibility.Parcool;
 import com.alrex.parcool.client.animation.PlayerModelRotator;
 import com.alrex.parcool.common.capability.Animation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.client.PoseStackExtender;
 import net.ltxprogrammer.changed.client.renderer.AdvancedHumanoidRenderer;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;

@@ -6,8 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class NullInput extends Input {
     @Override
-    public void tick(boolean movingSlowly) {
-        super.tick(movingSlowly);
+    public void tick(boolean movingSlowly, float sneakSpeed) {
+        super.tick(movingSlowly, sneakSpeed);
         leftImpulse = 0.0f;
         forwardImpulse = 0.0f;
         up = false;

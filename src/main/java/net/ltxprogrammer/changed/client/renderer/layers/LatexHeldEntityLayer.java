@@ -1,7 +1,7 @@
 package net.ltxprogrammer.changed.client.renderer.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.ltxprogrammer.changed.client.LivingEntityRendererExtender;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
@@ -34,7 +34,7 @@ public class LatexHeldEntityLayer<T extends ChangedEntity, M extends AdvancedHum
         torso.translateAndRotate(pose);
 
         pose.translate(-0.0625, 0.0, -4.5 / 16.0);
-        pose.mulPose(Vector3f.ZP.rotationDegrees(-11.0f));
+        pose.mulPose(Axis.ZP.rotationDegrees(-11.0f));
 
         var entityRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(ability.grabbedEntity);
 

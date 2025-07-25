@@ -21,7 +21,6 @@ public class Shock extends MobEffect {
 
     public Shock() {
         super(MobEffectCategory.HARMFUL, 14688288);
-        setRegistryName("shock");
     }
 
     @Override

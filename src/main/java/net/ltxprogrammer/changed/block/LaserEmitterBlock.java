@@ -17,14 +17,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Material;
 import org.jetbrains.annotations.Nullable;
 
 public class LaserEmitterBlock extends DirectionalBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public LaserEmitterBlock() {
-        super(BlockBehaviour.Properties.of(Material.METAL).sound(SoundType.METAL).strength(5.5F, 6.0F).requiresCorrectToolForDrops());
+        super(BlockBehaviour.Properties.of().sound(SoundType.METAL).strength(5.5F, 6.0F).requiresCorrectToolForDrops());
     }
 
     public BlockState rotate(BlockState p_55115_, Rotation p_55116_) {
@@ -92,7 +91,7 @@ public class LaserEmitterBlock extends DirectionalBlock {
             }
 
             if (level instanceof ServerLevel serverLevel)
-                ChangedSounds.broadcastSound(serverLevel.getServer(), ChangedSounds.SHOT1, blockPos, 1, 1);
+                ChangedSounds.broadcastSound(serverLevel, ChangedSounds.SHOT1, blockPos, 1, 1);
         } else if (!shouldPower && blockState.getValue(POWERED)) {
             level.setBlockAndUpdate(blockPos, blockState.setValue(POWERED, Boolean.FALSE));
             int distance = 0;

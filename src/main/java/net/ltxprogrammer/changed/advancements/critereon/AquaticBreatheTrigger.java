@@ -12,7 +12,7 @@ public class AquaticBreatheTrigger extends SimpleCriterionTrigger<AquaticBreathe
 
     public ResourceLocation getId() { return ID; }
 
-    public TriggerInstance createInstance(JsonObject jsonObject, EntityPredicate.Composite predicate, DeserializationContext context) {
+    public TriggerInstance createInstance(JsonObject jsonObject, ContextAwarePredicate predicate, DeserializationContext context) {
         return new TriggerInstance(predicate, jsonObject.has("ticks") ? GsonHelper.getAsInt(jsonObject, "ticks") : 0);
     }
 
@@ -23,7 +23,7 @@ public class AquaticBreatheTrigger extends SimpleCriterionTrigger<AquaticBreathe
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final int ticks;
 
-        public TriggerInstance(EntityPredicate.Composite entityPredicate, int ticks) {
+        public TriggerInstance(ContextAwarePredicate entityPredicate, int ticks) {
             super(ID, entityPredicate);
             this.ticks = ticks;
         }

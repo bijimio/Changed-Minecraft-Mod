@@ -2,6 +2,7 @@ package net.ltxprogrammer.changed.item;
 
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedTabs;
+import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.stats.Stats;
@@ -17,7 +18,7 @@ import net.minecraft.world.level.Level;
 
 public class GasMaskItem extends Item implements ExtendedItemProperties {
     public GasMaskItem() {
-        super(new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).stacksTo(1));
+        super(new Item.Properties().stacksTo(1));
     }
 
     @Override
@@ -33,7 +34,7 @@ public class GasMaskItem extends Item implements ExtendedItemProperties {
     @Override
     public boolean allowedToWear(ItemStack itemStack, LivingEntity entity, EquipmentSlot slot) {
         return ProcessTransfur.getEntityVariant(entity).map(variant -> {
-            if (DarkLatexMask.MASKED_LATEXES.contains(variant.getFormId()))
+            if (variant.is(ChangedTags.TransfurVariants.MASKED))
                 return false;
             if (variant.is(ChangedTransfurVariants.LATEX_ALIEN))
                 return false;

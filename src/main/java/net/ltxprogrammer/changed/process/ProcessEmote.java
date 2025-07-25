@@ -10,12 +10,12 @@ import net.minecraftforge.network.PacketDistributor;
 
 public class ProcessEmote {
     private static void rawEmote(LivingEntity entity, Emote emote) {
-        entity.level.addParticle(ChangedParticles.emote(entity, emote), entity.getX(), entity.getY() + entity.getDimensions(entity.getPose()).height + 0.65, entity.getZ(),
+        entity.level().addParticle(ChangedParticles.emote(entity, emote), entity.getX(), entity.getY() + entity.getDimensions(entity.getPose()).height + 0.65, entity.getZ(),
                 0, 0, 0);
     }
 
     public static void playerEmote(Player player, Emote emote) {
-        if (!player.level.isClientSide) {
+        if (!player.level().isClientSide) {
             Changed.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), new EmotePacket(player.getUUID(), emote));
         } else {
             ProcessTransfur.ifPlayerTransfurred(player, variant -> {

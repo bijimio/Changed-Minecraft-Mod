@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.world.features.structures.facility;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -36,7 +37,7 @@ public abstract class FacilityPieceInstance extends StructurePiece {
 
     public abstract void addSteps(FacilityGenerationStack stack, List<GenStep> steps);
 
-    public abstract boolean setupBoundingBox(StructurePiecesBuilder builder, StructureTemplate.StructureBlockInfo exitGlu, Random random, BoundingBox allowedRegion);
+    public abstract boolean setupBoundingBox(StructurePiecesBuilder builder, StructureTemplate.StructureBlockInfo exitGlu, RandomSource random, BoundingBox allowedRegion);
     public abstract void setupBoundingBox(BlockPos minimum);
 
     public void setupBoundingBoxOnBottomCenter(BlockPos center) {
@@ -70,5 +71,5 @@ public abstract class FacilityPieceInstance extends StructurePiece {
         }
     }
 
-    public abstract BlockPos getRandomStart(Random random);
+    public abstract BlockPos getRandomStart(RandomSource random);
 }

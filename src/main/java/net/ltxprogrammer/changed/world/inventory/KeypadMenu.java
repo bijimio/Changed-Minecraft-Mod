@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,8 +27,8 @@ public class KeypadMenu extends AbstractContainerMenu implements UpdateableMenu 
     private final Player player;
 
     public KeypadMenu(int id, Inventory inventory, BlockPos pos, BlockState state, KeypadBlockEntity blockEntity) {
-        super(ChangedMenus.KEYPAD, id);
-        this.level = inventory.player.level;
+        super(ChangedMenus.KEYPAD.get(), id);
+        this.level = inventory.player.level();
         this.player = inventory.player;
         this.blockPos = pos;
         this.blockState = state;
@@ -35,12 +36,17 @@ public class KeypadMenu extends AbstractContainerMenu implements UpdateableMenu 
     }
 
     public KeypadMenu(int id, Inventory inventory, FriendlyByteBuf extraData) {
-        super(ChangedMenus.KEYPAD, id);
-        this.level = inventory.player.level;
+        super(ChangedMenus.KEYPAD.get(), id);
+        this.level = inventory.player.level();
         this.player = inventory.player;
         this.blockPos = null;
         this.blockState = Blocks.AIR.defaultBlockState();
         this.blockEntity = null;
+    }
+
+    @Override
+    public ItemStack quickMoveStack(Player p_38941_, int p_38942_) {
+        return ItemStack.EMPTY;
     }
 
     @Override

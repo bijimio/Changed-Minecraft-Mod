@@ -26,21 +26,16 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class LatexSyringe extends ItemNameBlockItem implements SpecializedAnimations, VariantHoldingBase {
     public LatexSyringe(Properties properties) {
-        super(ChangedBlocks.DROPPED_SYRINGE.get(), properties.tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(ChangedBlocks.DROPPED_SYRINGE.get(), properties);
     }
 
     @Override
@@ -48,53 +43,19 @@ public class LatexSyringe extends ItemNameBlockItem implements SpecializedAnimat
         return ChangedItems.BLOOD_SYRINGE.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientInitializer {
-        @SubscribeEvent
-        public static void onItemColorsInit(ColorHandlerEvent.Item event) {
-            event.getItemColors().register((stack, layer) ->
-                            switch (layer) {
-                                case 0 -> Syringe.getVariant(stack) != null ? ChangedEntities.getEntityColorBack(Syringe.getVariant(stack).getEntityType().getRegistryName())
-                                        : 0xF0F0F0;
-                                case 1 -> Syringe.getVariant(stack) != null ? ChangedEntities.getEntityColorFront(Syringe.getVariant(stack).getEntityType().getRegistryName())
-                                        : 0xF0F0F0;
-                                default -> -1;
-                            },
-                    ChangedItems.LATEX_SYRINGE.get());
-
-            event.getItemColors().register((stack, layer) ->
-                            switch (layer) {
-                                case 0 -> Syringe.getVariant(stack) != null ? ChangedEntities.getEntityColorBack(Syringe.getVariant(stack).getEntityType().getRegistryName())
-                                        : 0xF0F0F0;
-                                case 1 -> Syringe.getVariant(stack) != null ? ChangedEntities.getEntityColorFront(Syringe.getVariant(stack).getEntityType().getRegistryName())
-                                        : 0xF0F0F0;
-                                default -> -1;
-                            },
-                    ChangedItems.LATEX_TIPPED_ARROW.get());
-
-            event.getItemColors().register((stack, layer) ->
-                            switch (layer) {
-                                case 0 -> Syringe.getVariant(stack) != null ? ChangedEntities.getEntityColorBack(Syringe.getVariant(stack).getEntityType().getRegistryName())
-                                        : 0xF0F0F0;
-                                case 1 -> Syringe.getVariant(stack) != null ? ChangedEntities.getEntityColorFront(Syringe.getVariant(stack).getEntityType().getRegistryName())
-                                        : 0xF0F0F0;
-                                default -> -1;
-                            },
-                    ChangedItems.LATEX_FLASK.get());
-        }
-    }
-
-    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
-        if (this.allowdedIn(tab)) {
-            TransfurVariant.getPublicTransfurVariants().forEach(variant -> {
-                list.add(Syringe.setOwner(Syringe.setPureVariant(new ItemStack(this), variant.getRegistryName()), UniversalDist.getLocalPlayer()));
-            });
-        }
+    @Override
+    public void fillItemList(Predicate<TransfurVariant<?>> predicate, CreativeModeTab.ItemDisplayParameters parameters, CreativeModeTab.Output output) {
+        TransfurVariant.getPublicTransfurVariants().filter(predicate).forEach(variant -> {
+            output.accept(
+                    Syringe.setOwner(
+                            Syringe.setPureVariant(new ItemStack(this),
+                                    variant.getFormId()),
+                            UniversalDist.getLocalPlayer()));
+        });
     }
 
     public void appendHoverText(ItemStack p_43359_, @Nullable Level p_43360_, List<Component> p_43361_, TooltipFlag p_43362_) {
-        Syringe.addOwnerTooltip(p_43359_, p_43361_);
+        Syringe.addOwnerTooltip(p_43360_, p_43359_, p_43361_);
         Syringe.addVariantTooltip(p_43359_, p_43361_);
     }
 
@@ -123,7 +84,7 @@ public class LatexSyringe extends ItemNameBlockItem implements SpecializedAnimat
             }
 
             else if (tag != null && tag.contains("form")) {
-                ResourceLocation formLocation = new ResourceLocation(tag.getString("form"));
+                ResourceLocation formLocation = ResourceLocation.parse(tag.getString("form"));
                 if (formLocation.equals(TransfurVariant.SPECIAL_LATEX))
                     formLocation = Changed.modResource("special/form_" + entity.getUUID());
                 ProcessTransfur.transfur(entity, level, ChangedRegistry.TRANSFUR_VARIANT.get().getValue(formLocation), false,
@@ -228,11 +189,11 @@ public class LatexSyringe extends ItemNameBlockItem implements SpecializedAnimat
     public InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity livingEntity, InteractionHand hand) {
         return Changed.postModEvent(
                 new UsedOnEntity(livingEntity,
-                        player.level,
+                        player.level(),
                         player,
                         itemStack,
                         Syringe.getVariant(itemStack))) ?
-                InteractionResult.sidedSuccess(player.level.isClientSide) :
+                InteractionResult.sidedSuccess(player.level().isClientSide) :
                 super.interactLivingEntity(itemStack, player, livingEntity, hand);
     }
 

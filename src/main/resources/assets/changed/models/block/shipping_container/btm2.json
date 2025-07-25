@@ -1,0 +1,41 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+	"elements": [
+		{
+			"from": [0, 14, 0],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 14, 0]},
+			"faces": {
+				"south": {"uv": [13.75, 0, 15.75, 0.25], "texture": "#container", "cullface": "south"},
+				"up": {"uv": [8, 2, 6, 0], "texture": "#container", "cullface": "up"},
+				"down": {"uv": [6, 2, 4, 4], "texture": "#container"}
+			}
+		},
+		{
+			"from": [0, 0, 14],
+			"to": [16, 14, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, -2, 14]},
+			"faces": {
+				"north": {"uv": [4, 10, 6, 11.75], "texture": "#container"},
+				"south": {"uv": [11.25, 8, 13.25, 9.75], "texture": "#container", "cullface": "south"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "Middle2",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [
+				{
+					"name": "group",
+					"origin": [8, 8, 8],
+					"color": 0,
+					"children": [0, 1]
+				}
+			]
+		}
+	]
+}

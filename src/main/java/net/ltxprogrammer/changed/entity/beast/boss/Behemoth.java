@@ -1,9 +1,10 @@
 package net.ltxprogrammer.changed.entity.beast.boss;
 
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
@@ -17,7 +18,7 @@ public abstract class Behemoth extends ChangedEntity {
 
     @Override
     public LatexType getLatexType() {
-        return LatexType.WHITE_LATEX;
+        return ChangedLatexTypes.WHITE_LATEX.get();
     }
 
     @Override
@@ -34,7 +35,7 @@ public abstract class Behemoth extends ChangedEntity {
     }
 
     public void checkDespawn() {
-        if (this.level.getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) {
+        if (this.level().getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) {
             this.discard();
         } else {
             this.noActionTime = 0;

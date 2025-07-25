@@ -3,7 +3,7 @@ package net.ltxprogrammer.changed.block;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +16,7 @@ public class LabStairBlock extends StairBlock {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState p_60537_, LootContext.Builder p_60538_) {
+    public List<ItemStack> getDrops(BlockState p_60537_, LootParams.Builder p_60538_) {
         return new ArrayList<>(Collections.singleton(this.asItem().getDefaultInstance()));
     }
 }

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "base": {
+    "item": "minecraft:iron_boots"
+  },
+  "addition": {
+    "item": "minecraft:iron_ingot"
+  },
+  "template": {
+    "item": "changed:abdomen_conversion_smithing_template"
+  },
+  "result": {
+    "item": "changed:iron_lower_abdomen_armor"
+  }
+}

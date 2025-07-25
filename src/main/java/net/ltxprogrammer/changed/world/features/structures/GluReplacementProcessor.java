@@ -8,6 +8,8 @@ import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.init.ChangedFeatures;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,24 +31,25 @@ public class GluReplacementProcessor extends StructureProcessor {
 
     @Nullable
     public StructureTemplate.StructureBlockInfo processBlock(LevelReader p_74127_, BlockPos p_74128_, BlockPos p_74129_, StructureTemplate.StructureBlockInfo p_74130_, StructureTemplate.StructureBlockInfo blockInfo, StructurePlaceSettings p_74132_) {
-        BlockState blockstate = blockInfo.state;
+        BlockState blockstate = blockInfo.state();
         if (blockstate.is(ChangedBlocks.GLU_BLOCK.get())) {
-            String s = blockInfo.nbt.getString(GluBlockEntity.FINAL_STATE);
-            BlockStateParser blockstateparser = new BlockStateParser(new StringReader(s), false);
+            String s = blockInfo.nbt().getString(GluBlockEntity.FINAL_STATE);
 
+            BlockState blockstate1;
             try {
-                blockstateparser.parse(true);
+                BlockStateParser.BlockResult blockstateparser$blockresult = BlockStateParser.parseForBlock(p_74127_.holderLookup(Registries.BLOCK), s, true);
+                blockstate1 = blockstateparser$blockresult.blockState();
             } catch (CommandSyntaxException commandsyntaxexception) {
                 throw new RuntimeException(commandsyntaxexception);
             }
 
-            return blockstateparser.getState().is(Blocks.STRUCTURE_VOID) ? null : new StructureTemplate.StructureBlockInfo(blockInfo.pos, blockstateparser.getState(), null);
+            return blockstate1.is(Blocks.STRUCTURE_VOID) ? null : new StructureTemplate.StructureBlockInfo(blockInfo.pos(), blockstate1, (CompoundTag)null);
         } else {
             return blockInfo;
         }
     }
 
     protected StructureProcessorType<?> getType() {
-        return ChangedFeatures.GLU_REPLACEMENT_PROCESSOR;
+        return ChangedFeatures.GLU_REPLACEMENT_PROCESSOR.get();
     }
 }

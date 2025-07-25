@@ -1,17 +1,17 @@
 package net.ltxprogrammer.changed.entity.beast;
 
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.TamableLatexEntity;
 import net.ltxprogrammer.changed.entity.ai.LatexFollowOwnerGoal;
 import net.ltxprogrammer.changed.entity.ai.LatexOwnerHurtByTargetGoal;
 import net.ltxprogrammer.changed.entity.ai.LatexOwnerHurtTargetGoal;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.init.ChangedCriteriaTriggers;
 import net.ltxprogrammer.changed.init.ChangedItems;
-import net.minecraft.Util;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -29,7 +29,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.scores.Team;
 import org.jetbrains.annotations.Nullable;
@@ -102,7 +101,7 @@ public abstract class AbstractDarkLatexEntity extends AbstractLatexWolf implemen
 
     @Override
     public LatexType getLatexType() {
-        return LatexType.DARK_LATEX;
+        return ChangedLatexTypes.DARK_LATEX.get();
     }
 
     @Override
@@ -150,7 +149,7 @@ public abstract class AbstractDarkLatexEntity extends AbstractLatexWolf implemen
             double d0 = this.random.nextGaussian() * 0.02D;
             double d1 = this.random.nextGaussian() * 0.02D;
             double d2 = this.random.nextGaussian() * 0.02D;
-            this.level.addParticle(particleoptions, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), d0, d1, d2);
+            this.level().addParticle(particleoptions, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), d0, d1, d2);
         }
     }
 
@@ -176,7 +175,7 @@ public abstract class AbstractDarkLatexEntity extends AbstractLatexWolf implemen
     public LivingEntity getOwner() {
         try {
             UUID uuid = this.getOwnerUUID();
-            return uuid == null ? null : this.level.getPlayerByUUID(uuid);
+            return uuid == null ? null : this.level().getPlayerByUUID(uuid);
         } catch (IllegalArgumentException illegalargumentexception) {
             return null;
         }
@@ -200,7 +199,7 @@ public abstract class AbstractDarkLatexEntity extends AbstractLatexWolf implemen
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
         Item item = itemstack.getItem();
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             boolean flag = this.isOwnedBy(player) || this.isTame();
             return flag ? InteractionResult.CONSUME : InteractionResult.PASS;
         } else {
@@ -208,8 +207,7 @@ public abstract class AbstractDarkLatexEntity extends AbstractLatexWolf implemen
                 if (this.isTame() && this.isTameItem(itemstack) && this.getHealth() < this.getMaxHealth()) {
                     itemstack.shrink(1);
                     this.heal(2.0F);
-                    this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
-                    this.level.broadcastEntityEvent(this, (byte)7); // Spawn hearts
+                    this.level().broadcastEntityEvent(this, (byte)7); // Spawn hearts
                     return InteractionResult.SUCCESS;
                 } else {
                     InteractionResult interactionresult = super.mobInteract(player, hand);
@@ -217,7 +215,7 @@ public abstract class AbstractDarkLatexEntity extends AbstractLatexWolf implemen
                         boolean shouldFollow = !this.isFollowingOwner();
                         this.setFollowOwner(shouldFollow);
 
-                        player.displayClientMessage(new TranslatableComponent(shouldFollow ? "text.changed.tamed.follow" : "text.changed.tamed.wander", this.getDisplayName()), true);
+                        player.displayClientMessage(Component.translatable(shouldFollow ? "text.changed.tamed.follow" : "text.changed.tamed.wander", this.getDisplayName()), true);
                         this.jumping = false;
                         this.navigation.stop();
                         this.setTarget((LivingEntity) null);
@@ -322,8 +320,8 @@ public abstract class AbstractDarkLatexEntity extends AbstractLatexWolf implemen
         super.die(source);
 
         if (this.dead)
-            if (!this.level.isClientSide && this.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES) && this.getOwner() instanceof ServerPlayer) {
-                this.getOwner().sendMessage(deathMessage, Util.NIL_UUID);
+            if (!this.level().isClientSide && this.level().getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES) && this.getOwner() instanceof ServerPlayer) {
+                this.getOwner().sendSystemMessage(deathMessage);
             }
     }
 
@@ -339,7 +337,7 @@ public abstract class AbstractDarkLatexEntity extends AbstractLatexWolf implemen
 
         double d0 = this.getAttributeValue(Attributes.FOLLOW_RANGE);
         AABB aabb = AABB.unitCubeFromLowerCorner(this.position()).inflate(d0, 10.0D, d0);
-        this.level.getEntitiesOfClass(AbstractDarkLatexEntity.class, aabb, EntitySelector.NO_SPECTATORS).forEach(nearby -> {
+        this.level().getEntitiesOfClass(AbstractDarkLatexEntity.class, aabb, EntitySelector.NO_SPECTATORS).forEach(nearby -> {
             if (nearby.getTarget() == null && !nearby.isAlliedTo(source))
                 nearby.setTarget(source);
         });

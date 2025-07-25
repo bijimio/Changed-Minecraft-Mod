@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Parrot;
 
 public class LatexParrotOnShoulderLayer<T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> extends RenderLayer<T, M> {
     private final ParrotModel model;
@@ -37,7 +38,8 @@ public class LatexParrotOnShoulderLayer<T extends ChangedEntity, M extends Advan
             }).ifPresent((p_117338_) -> {
                 p_117318_.pushPose();
                 p_117318_.translate(p_117326_ ? (double) 0.4F : (double) -0.4F, player.isCrouching() ? (double) -1.3F : -1.5D, 0.0D);
-                VertexConsumer vertexconsumer = p_117319_.getBuffer(this.model.renderType(ParrotRenderer.PARROT_LOCATIONS[compoundtag.getInt("Variant")]));
+                Parrot.Variant parrot$variant = Parrot.Variant.byId(compoundtag.getInt("Variant"));
+                VertexConsumer vertexconsumer = p_117319_.getBuffer(this.model.renderType(ParrotRenderer.getVariantTexture(parrot$variant)));
                 this.model.renderOnShoulder(p_117318_, vertexconsumer, p_117320_, OverlayTexture.NO_OVERLAY, p_117322_, p_117323_, p_117324_, p_117325_, player.tickCount);
                 p_117318_.popPose();
             });

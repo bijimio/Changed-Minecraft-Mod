@@ -1,9 +1,12 @@
 package net.ltxprogrammer.changed.entity.beast;
 
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.block.AbstractLatexBlock;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.init.ChangedEntities;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.init.ChangedSounds;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
@@ -17,8 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 import java.util.function.Predicate;
-
-import static net.ltxprogrammer.changed.block.AbstractLatexBlock.COVERED;
 
 public abstract class WhiteLatexEntity extends WhiteLatexWolfMale {
     public WhiteLatexEntity(EntityType<? extends WhiteLatexEntity> p_19870_, Level p_19871_) {
@@ -39,7 +40,7 @@ public abstract class WhiteLatexEntity extends WhiteLatexWolfMale {
 
         double d0 = this.getAttributeValue(Attributes.FOLLOW_RANGE);
         AABB aabb = AABB.unitCubeFromLowerCorner(this.position()).inflate(d0, 10.0D, d0);
-        this.level.getEntitiesOfClass(WhiteLatexEntity.class, aabb, EntitySelector.NO_SPECTATORS).forEach(nearby -> {
+        this.level().getEntitiesOfClass(WhiteLatexEntity.class, aabb, EntitySelector.NO_SPECTATORS).forEach(nearby -> {
             if (nearby.getTarget() == null && !nearby.isAlliedTo(source))
                 nearby.setTarget(source);
         });
@@ -47,24 +48,19 @@ public abstract class WhiteLatexEntity extends WhiteLatexWolfMale {
 
     @Override
     public LatexType getLatexType() {
-        return LatexType.WHITE_LATEX;
+        return ChangedLatexTypes.WHITE_LATEX.get();
     }
 
     public static final Predicate<WhiteLatexEntity> IS_STANDING_ON_WHITE_LATEX = whiteLatexEntity -> {
-        if (!whiteLatexEntity.isOnGround())
+        if (!whiteLatexEntity.onGround())
             return false;
-        BlockState standingOn = whiteLatexEntity.level.getBlockState(whiteLatexEntity.blockPosition().below());
-        if (standingOn.is(ChangedBlocks.WHITE_LATEX_BLOCK.get()))
-            return true;
-        if (standingOn.getProperties().contains(COVERED))
-            return standingOn.getValue(COVERED) == LatexType.WHITE_LATEX;
-        return false;
+        return AbstractLatexBlock.isSurfaceOfType(whiteLatexEntity.level(), whiteLatexEntity.blockPosition(), Direction.DOWN, ChangedLatexTypes.WHITE_LATEX.get());
     };
 
     @Override
     public void tick() {
         super.tick();
-        if (this.level.isClientSide)
+        if (this.level().isClientSide)
             return;
         if (this.isDeadOrDying())
             return;
@@ -72,15 +68,15 @@ public abstract class WhiteLatexEntity extends WhiteLatexWolfMale {
         if (this.tickCount % 20 != 0)
             return;
 
-        var entities = this.level.getEntitiesOfClass(WhiteLatexEntity.class, new AABB(blockPosition()).inflate(2.0), IS_STANDING_ON_WHITE_LATEX);
+        var entities = this.level().getEntitiesOfClass(WhiteLatexEntity.class, new AABB(blockPosition()).inflate(2.0), IS_STANDING_ON_WHITE_LATEX);
         if (entities.size() <= 12)
             return;
 
-        var behemoth = ChangedEntities.BEHEMOTH_HEAD.get().create(this.level);
+        var behemoth = ChangedEntities.BEHEMOTH_HEAD.get().create(this.level());
         if (behemoth == null)
             return;
         behemoth.moveTo(position());
-        if (!this.level.addFreshEntity(behemoth))
+        if (!this.level().addFreshEntity(behemoth))
             return;
         entities.forEach(Entity::discard);
         ChangedSounds.broadcastSound(behemoth, ChangedSounds.POISON, 1.0f, 1.0f);

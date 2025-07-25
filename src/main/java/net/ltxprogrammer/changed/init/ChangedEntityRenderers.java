@@ -91,9 +91,11 @@ public class ChangedEntityRenderers {
         registerHumanoid(event, ChangedEntities.BLUE_LATEX_DRAGON.get(), LatexBlueDragonRenderer::new);
         registerHumanoid(event, ChangedEntities.BLUE_LATEX_WOLF.get(), LatexBlueWolfRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_CROCODILE.get(), LatexCrocodileRenderer::new);
+        registerHumanoid(event, ChangedEntities.LATEX_CROW.get(), LatexCrowRenderer::new);
         registerHumanoid(event, ChangedEntities.CRYSTAL_WOLF.get(), LatexCrystalWolfRenderer::new);
         registerHumanoid(event, ChangedEntities.CRYSTAL_WOLF_HORNED.get(), LatexCrystalWolfHornedRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_DEER.get(), LatexDeerRenderer::new);
+        registerHumanoid(event, ChangedEntities.LATEX_EEL.get(), LatexEelRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_FENNEC_FOX.get(), LatexFennecFoxRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_GOLDEN_DRAGON.get(), LatexGoldenDragonRenderer::new);
         registerHumanoid(event, ChangedEntities.GREEN_LIZARD.get(), GreenLizardRenderer::new);
@@ -152,8 +154,6 @@ public class ChangedEntityRenderers {
 
         event.registerEntityRenderer(ChangedEntities.MILK_PUDDING.get(), MilkPuddingRenderer::new);
         event.registerEntityRenderer(ChangedEntities.SHARK.get(), SharkRenderer::new);
-
-        event.registerEntityRenderer(ChangedEntities.SPECIAL_LATEX.get(), SpecialLatexRenderer::new);
 
         event.registerEntityRenderer(ChangedEntities.ROOMBA.get(), RoombaRenderer::new);
         event.registerEntityRenderer(ChangedEntities.EXOSKELETON.get(), ExoskeletonRenderer::new);

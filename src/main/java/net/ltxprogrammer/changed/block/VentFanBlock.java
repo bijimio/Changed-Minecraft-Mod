@@ -14,19 +14,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class VentFanBlock extends DirectionalBlock implements NonLatexCoverableBlock {
+public class VentFanBlock extends DirectionalBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public VentFanBlock() {
-        super(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().sound(SoundType.COPPER).strength(3.0F, 5.0F));
+        super(BlockBehaviour.Properties.of().requiresCorrectToolForDrops().sound(SoundType.COPPER).strength(3.0F, 5.0F));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.SOUTH).setValue(POWERED, Boolean.FALSE));
     }
 
@@ -51,11 +49,11 @@ public class VentFanBlock extends DirectionalBlock implements NonLatexCoverableB
     public void stepOn(Level level, BlockPos blockPos, BlockState state, Entity entity) {
         super.stepOn(level, blockPos, state, entity);
         if (state.getValue(FACING) == Direction.UP && state.getValue(POWERED))
-            entity.hurt(ChangedDamageSources.FAN, 1);
+            entity.hurt(ChangedDamageSources.FAN.source(entity.level().registryAccess()), 1);
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return new ArrayList<>(Collections.singleton(this.asItem().getDefaultInstance()));
     }
 

@@ -16,10 +16,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class AbstractLargePanel extends HorizontalDirectionalBlock implements NonLatexCoverableBlock {
+public class AbstractLargePanel extends HorizontalDirectionalBlock {
     public static final EnumProperty<NineSection> SECTION = EnumProperty.create("section", NineSection.class);
     public static final VoxelShape SHAPE_FRAME = Block.box(-8.0D, 0.0D, 12.0D, 24.0D, 40.0D, 16.0D);
 
@@ -110,7 +108,7 @@ public class AbstractLargePanel extends HorizontalDirectionalBlock implements No
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return state.getValue(SECTION) == NineSection.CENTER ?
                 new ArrayList<>(Collections.singleton(this.asItem().getDefaultInstance())) :
                 List.of();

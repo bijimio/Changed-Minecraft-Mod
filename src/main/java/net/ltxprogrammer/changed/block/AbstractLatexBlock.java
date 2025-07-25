@@ -2,15 +2,21 @@ package net.ltxprogrammer.changed.block;
 
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
+import net.ltxprogrammer.changed.entity.latex.SpreadingLatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
-import net.ltxprogrammer.changed.init.ChangedGameRules;
-import net.ltxprogrammer.changed.init.ChangedItems;
-import net.ltxprogrammer.changed.process.LatexCoveredBlocks;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
+import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.util.Cacheable;
+import net.ltxprogrammer.changed.world.LatexCoverGetter;
+import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -20,49 +26,105 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
-public abstract class AbstractLatexBlock extends Block implements NonLatexCoverableBlock {
-    public static final EnumProperty<LatexType> COVERED = EnumProperty.create("covered_with", LatexType.class, LatexType.values());
-
-    private final LatexType latexType;
+public abstract class AbstractLatexBlock extends Block implements LatexCoveringSource {
+    private final Supplier<? extends SpreadingLatexType> latexType;
     private final Supplier<? extends Item> goo;
+    private final Cacheable<LatexCoverState> simulatedCoverState;
 
-    public static boolean isLatexed(BlockState blockState) {
-        return getLatexed(blockState) != LatexType.NEUTRAL;
+    public static LatexType getSurfaceType(LevelReader level, BlockPos blockPos, Direction face, SupportType supportType) {
+        final LatexCoverState coverState = LatexCoverState.getAt(level, blockPos);
+        final BlockState otherBlockState = level.getBlockState(blockPos.relative(face));
+        if (!otherBlockState.isFaceSturdy(level, blockPos.relative(face), face.getOpposite(), supportType))
+            return ChangedLatexTypes.NONE.get();
+        if (!coverState.isAir())
+            return coverState.getType();
+        if (otherBlockState.getBlock() instanceof AbstractLatexBlock block)
+            return block.latexType.get();
+        return ChangedLatexTypes.NONE.get();
     }
 
-    public static LatexType getLatexed(BlockState blockState) {
-        if (blockState.getProperties().contains(COVERED))
-            return blockState.getValue(COVERED);
-        if (blockState.getBlock() instanceof AbstractLatexBlock block)
-            return block.latexType;
-        return LatexType.NEUTRAL;
+    public static LatexType getSurfaceType(LevelReader level, BlockPos blockPos, Direction face) {
+        return getSurfaceType(level, blockPos, face, SupportType.FULL);
     }
 
-    public AbstractLatexBlock(Properties p_49795_, LatexType latexType, Supplier<? extends Item> goo) {
+    public static LatexType getSurfaceType(LatexCoverGetter level, BlockPos blockPos, Direction face, SupportType supportType) {
+        final LatexCoverState coverState = level.getLatexCover(blockPos);
+        final BlockState otherBlockState = level.getBlockState(blockPos.relative(face));
+        if (!otherBlockState.isFaceSturdy(level, blockPos.relative(face), face.getOpposite(), supportType))
+            return ChangedLatexTypes.NONE.get();
+        if (!coverState.isAir())
+            return coverState.getType();
+        if (otherBlockState.getBlock() instanceof AbstractLatexBlock block)
+            return block.latexType.get();
+        return ChangedLatexTypes.NONE.get();
+    }
+
+    public static LatexType getSurfaceType(LatexCoverGetter level, BlockPos blockPos, Direction face) {
+        return getSurfaceType(level, blockPos, face, SupportType.FULL);
+    }
+
+    public static boolean isSurfaceOfType(LevelReader level, BlockPos blockPos, Direction face, LatexType type) {
+        return getSurfaceType(level, blockPos, face, SupportType.FULL) == type;
+    }
+
+    public static boolean isSurfaceOfType(LevelReader level, BlockPos blockPos, Direction face, SupportType supportType, LatexType type) {
+        return getSurfaceType(level, blockPos, face, supportType) == type;
+    }
+
+    public static boolean isSurfaceOfType(LatexCoverGetter level, BlockPos blockPos, Direction face, LatexType type) {
+        return getSurfaceType(level, blockPos, face, SupportType.FULL) == type;
+    }
+
+    public static boolean isSurfaceOfType(LatexCoverGetter level, BlockPos blockPos, Direction face, SupportType supportType, LatexType type) {
+        return getSurfaceType(level, blockPos, face, supportType) == type;
+    }
+
+    public AbstractLatexBlock(Properties p_49795_, Supplier<? extends SpreadingLatexType> latexType, Supplier<? extends Item> goo) {
         super(p_49795_.randomTicks().dynamicShape());
         this.latexType = latexType;
         this.goo = goo;
+        this.simulatedCoverState = Cacheable.of(() -> latexType.get().sourceCoverState().setValue(SpreadingLatexType.DOWN, true));
     }
 
     public static boolean tryCover(Level level, BlockPos relative, LatexType type) {
-        BlockState old = level.getBlockState(relative);
-        if (!old.getProperties().contains(COVERED))
+        if (!(type instanceof SpreadingLatexType spreadingLatexType))
             return false;
-        level.setBlockAndUpdate(relative, old.setValue(COVERED, type));
+        LatexCoverState originalCover = LatexCoverState.getAt(level, relative);
+        if (!originalCover.isAir())
+            return false;
+        /*if (spreadingLatexType.shouldDecay(type.defaultCoverState(), level, relative))
+            return false;*/
+        BlockState old = level.getBlockState(relative);
+        if (old.is(ChangedTags.Blocks.DENY_LATEX_COVER) || old.isCollisionShapeFullBlock(level, relative))
+            return false;
+
+        var event = new SpreadingLatexType.CoveringBlockEvent(spreadingLatexType, old, old,
+                spreadingLatexType.spreadState(level, relative, spreadingLatexType.sourceCoverState()), relative, level);
+        spreadingLatexType.defaultCoverBehavior(event);
+        if (Changed.postModEvent(event))
+            return false;
+        if (event.originalState == event.getPlannedState() && event.plannedCoverState == originalCover)
+            return false;
+        /*if (!Changed.config.server.canBlockBeCovered(event.plannedState.getBlock()))
+            return InteractionResult.FAIL;*/
+
+        level.setBlockAndUpdate(event.blockPos, event.getPlannedState());
+        LatexCoverState.setAtAndUpdate(level, event.blockPos, event.plannedCoverState);
+
+        event.getPostProcess().accept(level, event.blockPos);
         return true;
     }
 
@@ -71,118 +133,39 @@ public abstract class AbstractLatexBlock extends Block implements NonLatexCovera
         super.createBlockStateDefinition(builder);
     }
 
-    private static final float FACTION_BENEFIT = 1.1F;
-    private static final float FACTION_HINDER = 0.5F;
-    private static final float NEUTRAL_HINDER = 0.75F;
-
     @Override
     public boolean canSustainPlant(BlockState state, BlockGetter world, BlockPos pos, Direction facing, net.minecraftforge.common.IPlantable plantable) {
-        if (latexType != LatexType.DARK_LATEX) return false;
-
-        BlockState plant = plantable.getPlant(world, pos.relative(facing));
-        if (plant.getBlock() instanceof TransfurCrystalBlock)
-            return true;
-        else
-            return false;
+        return false;
     }
 
-    public static void stepOn(Level level, BlockPos blockPos, BlockState blockState, Entity entity, LatexType latexType) {
-        ChangedEntity ChangedEntity = null;
+    @Override
+    public void fallOn(Level level, BlockState blockState, BlockPos blockPos, Entity entity, float p_152430_) {
+        if (latexType.get().stepOn(level, blockPos.above(), simulatedCoverState.getOrThrow(), blockPos, blockState, entity))
+            return;
 
-        if (entity instanceof ChangedEntity) ChangedEntity = (ChangedEntity)entity;
+        super.stepOn(level, blockPos, blockState, entity);
+    }
 
-        if (entity instanceof Player player) {
-            TransfurVariantInstance<?> variant = ProcessTransfur.getPlayerTransfurVariant(player);
-            if (variant != null)
-                ChangedEntity = variant.getChangedEntity();
-        }
+    @Override
+    public void updateEntityAfterFallOn(BlockGetter level, Entity entity) {
+        if (latexType.get().updateEntityAfterFallOn(LatexCoverGetter.extendDefault(level), this, simulatedCoverState.getOrThrow(), entity))
+            return;
 
-        if (ChangedEntity != null) {
-            LatexType type = ChangedEntity.getLatexType();
-            if (type == latexType) {
-                if (!entity.isInWater())
-                    multiplyMotion(entity, FACTION_BENEFIT);
-            }
-
-            else if (type != LatexType.NEUTRAL) {
-                multiplyMotion(entity, FACTION_HINDER);
-            }
-
-            else {
-                multiplyMotion(entity, NEUTRAL_HINDER);
-            }
-        }
-
-        else if (entity instanceof LivingEntity) {
-            multiplyMotion(entity, NEUTRAL_HINDER);
-        }
+        super.updateEntityAfterFallOn(level, entity);
     }
 
     @Override
     public void stepOn(Level level, BlockPos blockPos, BlockState blockState, Entity entity) {
-        stepOn(level, blockPos, blockState, entity, latexType);
-    }
+        if (latexType.get().stepOn(level, blockPos.above(), simulatedCoverState.getOrThrow(), blockPos, blockState, entity))
+            return;
 
-    private static void multiplyMotion(Entity entity, float mul) {
-        entity.setDeltaMovement(entity.getDeltaMovement().multiply(mul, mul, mul));
+        super.stepOn(level, blockPos, blockState, entity);
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState blockState, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState blockState, LootParams.Builder builder) {
         if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, builder.getParameter(LootContextParams.TOOL)) > 0)
-            return List.of(new ItemStack(ChangedItems.getBlockItem(this)));
+            return List.of(new ItemStack(this));
         return List.of(goo.get().getDefaultInstance(), goo.get().getDefaultInstance(), goo.get().getDefaultInstance());
     }
-
-    private static boolean isPassThroughBlock(Level level, BlockState state, BlockPos pos) {
-        return state.isAir() || !state.isCollisionShapeFullBlock(level, pos);
-    }
-
-    private static boolean isValidSurface(Level level, BlockPos toCover, BlockPos neighbor, Direction coverNormal) {
-        BlockState state = level.getBlockState(neighbor);
-        return isPassThroughBlock(level, state, neighbor);
-    }
-
-    // Note: see BlockMixin.java and BlockBehaviourMixin.java for context
-    public static void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull Random random, LatexType latexType) {
-        if (level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE) == 0) return;
-        if (!level.isAreaLoaded(position, 3)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light and spreading
-        if (random.nextInt(10 * level.getGameRules().getInt(ChangedGameRules.RULE_LATEX_GROWTH_RATE)) < 600) return;
-
-        Direction checkDir = Direction.getRandom(random);
-        BlockPos.MutableBlockPos checkPos = position.relative(checkDir).mutable();
-
-        if (checkDir.getAxis() == Direction.Axis.Y && level.getBlockState(checkPos).isAir()) {
-            checkDir = Direction.Plane.HORIZONTAL.getRandomDirection(random);
-            checkPos.set(checkPos.relative(checkDir));
-        }
-
-        BlockState checkState = level.getBlockState(checkPos);
-
-        if (Changed.config.server.canBlockBeCovered(checkState.getBlock()) && checkState.getProperties().contains(COVERED) &&
-                checkState.getValue(COVERED) != latexType) {
-            if (checkPos.subtract(position).getY() > 0 && random.nextInt(3) > 0) // Reduced chance of spreading up
-                return;
-
-            if (Arrays.stream(Direction.values()).noneMatch(direction -> isValidSurface(level, checkPos, checkPos.relative(direction), direction)))
-                return;
-
-            var event = new LatexCoveredBlocks.CoveringBlockEvent(latexType, checkState, checkPos, level);
-            if (Changed.postModEvent(event))
-                return;
-            if (event.originalState == event.plannedState)
-                return;
-            level.setBlockAndUpdate(event.blockPos, event.plannedState);
-        }
-    }
-
-    @Override
-    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull Random random) {
-        super.randomTick(state, level, position, random);
-
-        randomTick(state, level, position, random, latexType);
-        latexTick(state, level, position, random);
-    }
-
-    public void latexTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos position, @NotNull Random random) {}
 }

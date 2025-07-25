@@ -14,7 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 public abstract class GasSFX {
     public static class GasSoundInstance extends SimpleSoundInstance implements TickableSoundInstance {
         public GasSoundInstance(SoundEvent event, SoundSource source, float volume, float pitch, double x, double y, double z) {
-            super(event.getLocation(), source, volume, pitch, true, 0, SoundInstance.Attenuation.LINEAR, x, y, z, false);
+            super(event.getLocation(), source, volume, pitch, SoundInstance.createUnseededRandom(), true, 0, SoundInstance.Attenuation.LINEAR, x, y, z, false);
         }
 
         @Override
@@ -51,7 +51,7 @@ public abstract class GasSFX {
         final var soundManager = Minecraft.getInstance().getSoundManager();
 
         if (sfx == null || !soundManager.isActive(sfx)) {
-            sfx = new GasSoundInstance(ChangedSounds.FIRE, SoundSource.AMBIENT, 0.0f, 1.0f, 0.0, 0.0, 1.0);
+            sfx = new GasSoundInstance(ChangedSounds.FIRE.get(), SoundSource.AMBIENT, 0.0f, 1.0f, 0.0, 0.0, 1.0);
             soundManager.play(sfx);
         }
     }

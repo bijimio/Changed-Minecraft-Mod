@@ -1,0 +1,22 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:portals",
+    "minecraft:torch",
+    "minecraft:wall_torch",
+    "minecraft:magma_block",
+    "minecraft:campfire",
+    "minecraft:fire",
+    "minecraft:smoker",
+    "minecraft:furnace",
+    "minecraft:blast_furnace",
+    "minecraft:beacon",
+    "minecraft:command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:chain_command_block",
+    "minecraft:structure_void",
+    "minecraft:barrier",
+    "minecraft:jigsaw",
+    "changed:glu"
+  ]
+}

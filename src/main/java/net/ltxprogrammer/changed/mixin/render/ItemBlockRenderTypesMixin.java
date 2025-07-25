@@ -1,27 +1,15 @@
 package net.ltxprogrammer.changed.mixin.render;
 
-import net.ltxprogrammer.changed.client.ChangedClient;
-import net.ltxprogrammer.changed.client.ChangedShaders;
-import net.ltxprogrammer.changed.client.WaveVisionRenderer;
-import net.ltxprogrammer.changed.entity.LatexType;
-import net.ltxprogrammer.changed.init.ChangedTags;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import static net.ltxprogrammer.changed.block.AbstractLatexBlock.COVERED;
 
 @Mixin(value = ItemBlockRenderTypes.class, remap = false, priority = 500)
 public abstract class ItemBlockRenderTypesMixin {
     @Unique
     private static boolean recurseFlag = false;
 
-    private static boolean checkLatexCoveredLayers(BlockState state, RenderType type, CallbackInfoReturnable<Boolean> callback) {
+    /*private static boolean checkLatexCoveredLayers(BlockState state, RenderType type, CallbackInfoReturnable<Boolean> callback) {
         if (!state.getProperties().contains(COVERED) || state.getValue(COVERED) == LatexType.NEUTRAL)
             return false;
 
@@ -72,5 +60,5 @@ public abstract class ItemBlockRenderTypesMixin {
             return;
         if (checkResonantBlockLayers(state, type, callback))
             return;
-    }
+    }*/
 }

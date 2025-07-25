@@ -109,7 +109,9 @@ public enum TransfurCause implements StringRepresentable {
     PINK_SHORTS("pink_shorts", WAIST_HAZARD),
     BENIGN_SHORTS("benign_shorts", WAIST_HAZARD),
     WHITE_LATEX("white_latex", GRAB_REPLICATE),
-    STASIS_CHAMBER("stasis_chamber", GRAB_REPLICATE, 30.0f);
+    STASIS_CHAMBER("stasis_chamber", GRAB_REPLICATE, 30.0f),
+    ATE_LATEX("ate_latex", FACE_HAZARD),
+    LATEX_CONTAINER_FELL("latex_container_fell", CEILING_HAZARD);
 
     public static final TransfurCause DEFAULT = ATTACK_REPLICATE_LEFT;
 
@@ -122,7 +124,7 @@ public enum TransfurCause implements StringRepresentable {
 
     public static DataResult<TransfurCause> fromSerial(String name) {
         return Arrays.stream(values()).filter(type -> type.serialName.equals(name))
-                .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(name + " is not a valid cause"));
+                .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(() -> name + " is not a valid cause"));
     }
 
     private static float firstLimb(float totalProgress) {

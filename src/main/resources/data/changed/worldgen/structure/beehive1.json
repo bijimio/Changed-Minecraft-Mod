@@ -1,0 +1,19 @@
+{
+  "type": "changed:beehive",
+  "biomes": "#changed:has_structure/beehives",
+  "step": "surface_structures",
+  "spawn_overrides": {
+    "changed:changed": {
+      "bounding_box": "piece",
+      "spawns": [
+        {
+          "type": "changed:latex_bee",
+          "weight": 1,
+          "minCount": 1,
+          "maxCount": 3
+        }
+      ]
+    }
+  },
+  "piece": "changed:beehive1"
+}

@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "down": "changed:blocks/wall_greenhouse",
-    "up": "changed:blocks/wall_greenhouse",
-    "north": "changed:blocks/wall_greenhouse",
-    "east": "changed:blocks/wall_greenhouse",
-    "south": "changed:blocks/wall_greenhouse",
-    "west": "changed:blocks/wall_greenhouse",
-    "particle": "changed:blocks/wall_greenhouse"
+    "down": "changed:block/wall_greenhouse",
+    "up": "changed:block/wall_greenhouse",
+    "north": "changed:block/wall_greenhouse",
+    "east": "changed:block/wall_greenhouse",
+    "south": "changed:block/wall_greenhouse",
+    "west": "changed:block/wall_greenhouse",
+    "particle": "changed:block/wall_greenhouse"
   }
 }

@@ -29,17 +29,16 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,7 +49,7 @@ import java.util.List;
 
 import static net.ltxprogrammer.changed.init.ChangedSounds.OPEN2;
 
-public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements NonLatexCoverableBlock, PartialEntityBlock, OpenableDoor {
+public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements PartialEntityBlock, OpenableDoor {
     public static final EnumProperty<NineSection> SECTION = EnumProperty.create("section", NineSection.class);
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
@@ -64,13 +63,13 @@ public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements 
     public static final VoxelShape SHAPE_COLLISION_CLOSED = Shapes.or(SHAPE_FRAME, SHAPE_DOOR);
     public static final VoxelShape SHAPE_COLLISION_CLOSED_SLIM = Shapes.or(SHAPE_FRAME, SHAPE_DOOR_SLIM);
 
-    private final SoundEvent open, close;
+    private final RegistryObject<SoundEvent> open, close;
 
     private final VoxelShape shapeFrame;
     private final VoxelShape shapeCollisionClosed;
 
-    public AbstractLargeLabDoor(SoundEvent open, SoundEvent close, boolean slim) {
-        super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F));
+    public AbstractLargeLabDoor(RegistryObject<SoundEvent> open, RegistryObject<SoundEvent> close, boolean slim) {
+        super(Properties.of().sound(SoundType.METAL).requiresCorrectToolForDrops().strength(6.5F, 9.0F));
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(POWERED, Boolean.FALSE)
@@ -85,7 +84,7 @@ public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements 
 
     @Nullable
     @Override
-    public BlockPathTypes getAiPathNodeType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob entity) {
+    public BlockPathTypes getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob entity) {
         if (state.getValue(OPEN))
             return BlockPathTypes.DOOR_OPEN;
         else if (state.getValue(POWERED) && LabDoorOpenerEntity.canOpenDoor(entity))
@@ -181,7 +180,7 @@ public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements 
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return state.getValue(SECTION) == NineSection.BOTTOM_MIDDLE ?
                 new ArrayList<>(Collections.singleton(this.asItem().getDefaultInstance())) :
                 List.of();
@@ -211,8 +210,8 @@ public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements 
             if (!wantOn && state.getValue(OPEN)) {
                 level.setBlockAndUpdate(pos, state.setValue(POWERED, Boolean.FALSE).setValue(OPEN, Boolean.FALSE));
                 if (state.getValue(SECTION) == NineSection.CENTER)
-                    level.playSound(null, pos, close, SoundSource.BLOCKS, 1, 1);
-                level.gameEvent(GameEvent.BLOCK_CLOSE, pos);
+                    level.playSound(null, pos, close.get(), SoundSource.BLOCKS, 1, 1);
+                level.gameEvent(GameEvent.BLOCK_CLOSE, pos, GameEvent.Context.of(state));
             } else
                 level.setBlockAndUpdate(pos, state.setValue(POWERED, wantOn));
         }
@@ -233,7 +232,7 @@ public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements 
 
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (!state.getValue(POWERED)) {
-            level.playSound(null, pos, OPEN2, SoundSource.BLOCKS, 1, 1);
+            level.playSound(null, pos, OPEN2.get(), SoundSource.BLOCKS, 1, 1);
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
         return InteractionResult.FAIL;
@@ -365,9 +364,9 @@ public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements 
             if (nBlock.getBlock() != this)
                 continue;
             level.setBlockAndUpdate(nPos, nBlock.setValue(OPEN, wantState));
-            level.gameEvent(GameEvent.BLOCK_OPEN, pos);
+            level.gameEvent(GameEvent.BLOCK_OPEN, pos, GameEvent.Context.of(state));
         }
-        level.playSound(null, pos, open, SoundSource.BLOCKS, 1, 1);
+        level.playSound(null, pos, open.get(), SoundSource.BLOCKS, 1, 1);
         return true;
     }
 
@@ -384,9 +383,9 @@ public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements 
             if (nBlock.getBlock() != this)
                 continue;
             level.setBlockAndUpdate(nPos, nBlock.setValue(OPEN, wantState));
-            level.gameEvent(GameEvent.BLOCK_CLOSE, pos);
+            level.gameEvent(GameEvent.BLOCK_CLOSE, pos, GameEvent.Context.of(state));
         }
-        level.playSound(null, pos, close, SoundSource.BLOCKS, 1, 1);
+        level.playSound(null, pos, close.get(), SoundSource.BLOCKS, 1, 1);
         return true;
     }
 

@@ -1,8 +1,9 @@
 {
 	"credit": "Made with Blockbench",
+	"render_type": "minecraft:cutout",
 	"textures": {
-		"0": "changed:blocks/dropped_syringe",
-		"particle": "changed:blocks/dropped_syringe"
+		"0": "changed:block/dropped_syringe",
+		"particle": "changed:block/dropped_syringe"
 	},
 	"elements": [
 		{

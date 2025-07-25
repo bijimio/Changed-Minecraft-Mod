@@ -5,10 +5,14 @@ import net.ltxprogrammer.changed.process.ProcessEmote;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class EmotePacket implements ChangedPacket {
@@ -30,14 +34,15 @@ public class EmotePacket implements ChangedPacket {
         buffer.writeInt(emote.ordinal());
     }
 
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isClient()) {
-            ClientLevel level = Minecraft.getInstance().level;
-            Objects.requireNonNull(level);
-
-            ProcessEmote.playerEmote(level.getPlayerByUUID(entity), emote);
+    @Override
+    public CompletableFuture<Void> handle(NetworkEvent.Context context, CompletableFuture<Level> levelFuture, Executor sidedExecutor) {
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
             context.setPacketHandled(true);
+            return levelFuture.thenAccept(level -> {
+                ProcessEmote.playerEmote(level.getPlayerByUUID(entity), emote);
+            });
         }
+
+        return CompletableFuture.failedFuture(makeIllegalSideException(context.getDirection().getReceptionSide(), LogicalSide.CLIENT));
     }
 }

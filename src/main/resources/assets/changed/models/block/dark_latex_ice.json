@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "down": "changed:blocks/dark_latex_ice",
-    "up": "changed:blocks/dark_latex_ice",
-    "north": "changed:blocks/dark_latex_ice",
-    "east": "changed:blocks/dark_latex_ice",
-    "south": "changed:blocks/dark_latex_ice",
-    "west": "changed:blocks/dark_latex_ice",
-    "particle": "changed:blocks/dark_latex_ice"
+    "down": "changed:block/dark_latex_ice",
+    "up": "changed:block/dark_latex_ice",
+    "north": "changed:block/dark_latex_ice",
+    "east": "changed:block/dark_latex_ice",
+    "south": "changed:block/dark_latex_ice",
+    "west": "changed:block/dark_latex_ice",
+    "particle": "changed:block/dark_latex_ice"
   }
 }

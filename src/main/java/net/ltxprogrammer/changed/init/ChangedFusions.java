@@ -96,9 +96,9 @@ public class ChangedFusions extends SimplePreparableReloadListener<List<ChangedF
     private FusionDefinition processJSONFile(ResourceLocation name, JsonObject root) throws ClassNotFoundException {
         FusionDefinition.Builder builder = new FusionDefinition.Builder();
 
-        if (root.has("fusion")) builder.withFusion(new ResourceLocation(root.get("fusion").getAsString()));
-        if (root.has("variant")) builder.withVariant(new ResourceLocation(root.get("variant").getAsString()));
-        if (root.has("otherVariant")) builder.withVariant(new ResourceLocation(root.get("otherVariant").getAsString()));
+        if (root.has("fusion")) builder.withFusion(ResourceLocation.parse(root.get("fusion").getAsString()));
+        if (root.has("variant")) builder.withVariant(ResourceLocation.parse(root.get("variant").getAsString()));
+        if (root.has("otherVariant")) builder.withVariant(ResourceLocation.parse(root.get("otherVariant").getAsString()));
         if (root.has("mob")) builder.withMob(root.get("mob").getAsString());
 
         return builder.build(name);

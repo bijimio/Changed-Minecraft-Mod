@@ -47,7 +47,7 @@ public abstract class ServerPlayerMixin extends Player implements PlayerDataExte
     @Inject(method = "restoreFrom", at = @At("HEAD"))
     public void restoreFrom(ServerPlayer player, boolean restore, CallbackInfo callbackInfo) {
         ServerPlayer self = (ServerPlayer)(Object)this;
-        if (player.level.getGameRules().getBoolean(ChangedGameRules.RULE_KEEP_FORM) || restore) {
+        if (player.level().getGameRules().getBoolean(ChangedGameRules.RULE_KEEP_FORM) || restore) {
             ProcessTransfur.ifPlayerTransfurred(player, oldVariant -> {
                 if (!oldVariant.willSurviveTransfur)
                     return;
@@ -69,11 +69,9 @@ public abstract class ServerPlayerMixin extends Player implements PlayerDataExte
     @WrapMethod(method = "hurt")
     private boolean ignoreInvulnForTFKill(DamageSource source, float damage, Operation<Boolean> original) {
         int oldSpawnInvulnerableTime = this.spawnInvulnerableTime;
-        var damageSourceName = source.msgId;
 
         boolean wrapInvuln;
-        if (this.spawnInvulnerableTime > 0 && this.getTransfurVariant() != null && (ChangedDamageSources.TRANSFUR_NAME.equals(damageSourceName)
-                || ChangedDamageSources.ABSORB_NAME.equals(damageSourceName))) {
+        if (this.spawnInvulnerableTime > 0 && this.getTransfurVariant() != null && source.is(ChangedTags.DamageTypes.IS_TRANSFUR)) {
             this.spawnInvulnerableTime = 0;
             wrapInvuln = true;
         }

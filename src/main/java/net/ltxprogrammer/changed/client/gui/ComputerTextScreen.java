@@ -4,13 +4,12 @@ import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.world.inventory.ComputerMenu;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.Nullable;
 
 public class ComputerTextScreen extends TextMenuScreen<ComputerMenu> {
-    public static final TranslatableComponent TITLE = new TranslatableComponent("container.changed.computer_writing");
+    public static final Component TITLE = Component.translatable("container.changed.computer_writing");
 
     public final Screen previous;
     public ComputerTextScreen(Screen previous, ComputerMenu container, Inventory inventory, Component text) {

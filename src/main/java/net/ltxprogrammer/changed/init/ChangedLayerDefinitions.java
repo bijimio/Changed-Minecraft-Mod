@@ -56,9 +56,11 @@ public class ChangedLayerDefinitions {
         event.registerLayerDefinition(LatexBlueDragonModel.LAYER_LOCATION, LatexBlueDragonModel::createBodyLayer);
         event.registerLayerDefinition(LatexBlueWolfModel.LAYER_LOCATION, LatexBlueWolfModel::createBodyLayer);
         event.registerLayerDefinition(LatexCrocodileModel.LAYER_LOCATION, LatexCrocodileModel::createBodyLayer);
+        event.registerLayerDefinition(LatexCrowModel.LAYER_LOCATION, LatexCrowModel::createBodyLayer);
         event.registerLayerDefinition(LatexCrystalWolfModel.LAYER_LOCATION, LatexCrystalWolfModel::createBodyLayer);
         event.registerLayerDefinition(LatexCrystalWolfHornedModel.LAYER_LOCATION, LatexCrystalWolfHornedModel::createBodyLayer);
         event.registerLayerDefinition(LatexDeerModel.LAYER_LOCATION, LatexDeerModel::createBodyLayer);
+        event.registerLayerDefinition(LatexEelModel.LAYER_LOCATION, LatexEelModel::createBodyLayer);
         event.registerLayerDefinition(LatexFennecFoxModel.LAYER_LOCATION, LatexFennecFoxModel::createBodyLayer);
         event.registerLayerDefinition(LatexGoldenDragonModel.LAYER_LOCATION, LatexGoldenDragonModel::createBodyLayer);
         event.registerLayerDefinition(GreenLizardModel.LAYER_LOCATION, GreenLizardModel::createBodyLayer);
@@ -166,6 +168,9 @@ public class ChangedLayerDefinitions {
         ArmorLatexFemaleTaurUpperModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexHeavyTaurUpperModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexCentaurLowerModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+
+        ArmorLatexMaleBirdModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+        ArmorLatexFemaleBirdModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
 
         ArmorHumanModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
 

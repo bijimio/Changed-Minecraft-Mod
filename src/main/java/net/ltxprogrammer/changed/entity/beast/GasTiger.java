@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -22,11 +23,6 @@ public class GasTiger extends ChangedEntity implements PowderSnowWalkable {
 
     @Override
     public int getTicksRequiredToFreeze() { return 360; }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
-    }
 
     @Override
     public TransfurMode getTransfurMode() {

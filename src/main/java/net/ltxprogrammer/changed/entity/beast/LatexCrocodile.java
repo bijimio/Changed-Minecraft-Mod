@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -19,11 +20,6 @@ public class LatexCrocodile extends ChangedEntity {
         attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(0.925);
         attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(1.1);
         attributes.getInstance(Attributes.MAX_HEALTH).setBaseValue(32);
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

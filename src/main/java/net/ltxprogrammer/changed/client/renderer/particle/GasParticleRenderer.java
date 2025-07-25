@@ -25,11 +25,11 @@ public class GasParticleRenderer extends EntityRenderer<GasParticle> {
         float dispersion = (((float)particle.tickCount / (float)GasParticle.DISSIPATE_TIME) * 3.0f) + 0.001f;
 
         EntityDimensions dimensions = particle.getDimensions(particle.getPose());
-        double dh = particle.level.random.nextDouble(dimensions.height * dispersion);
-        double dx = (particle.level.random.nextDouble(dimensions.width * dispersion) - (0.5 * dimensions.width * dispersion));
-        double dz = (particle.level.random.nextDouble(dimensions.width * dispersion) - (0.5 * dimensions.width * dispersion));
+        double dh = particle.level().random.nextDouble() * dimensions.height * dispersion;
+        double dx = (particle.level().random.nextDouble() * dimensions.width * dispersion - (0.5 * dimensions.width * dispersion));
+        double dz = (particle.level().random.nextDouble() * dimensions.width * dispersion - (0.5 * dimensions.width * dispersion));
         Vec3 delta = particle.getDeltaMovement();
-        particle.level.addParticle(ChangedParticles.gas(particle.getColor()),
+        particle.level().addParticle(ChangedParticles.gas(particle.getColor()),
                 particle.xo + dx * 1.2, particle.yo + dh, particle.zo + dz * 1.2,
                 delta.x * 0.75f, delta.y * 0.75f, delta.z * 0.75f);
     }

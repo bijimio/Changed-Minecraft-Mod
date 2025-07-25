@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,7 +30,7 @@ public abstract class LatexStuckInBodyLayer<T extends ChangedEntity, M extends A
 
         try {
             int i = this.numStuck(p_117589_);
-            Random random = new Random((long)p_117589_.getId());
+            var random = RandomSource.create((long)p_117589_.getId());
             if (i > 0) {
                 for(int j = 0; j < i; ++j) {
                     p_117586_.pushPose();

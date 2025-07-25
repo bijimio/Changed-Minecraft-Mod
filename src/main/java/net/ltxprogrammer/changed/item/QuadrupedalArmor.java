@@ -28,13 +28,13 @@ public class QuadrupedalArmor extends ArmorItem implements ExtendedItemPropertie
     public static ArmorMaterial increaseDurability(ArmorMaterial material) {
         return new ArmorMaterial() {
             @Override
-            public int getDurabilityForSlot(EquipmentSlot slot) {
-                return (int)((float)material.getDurabilityForSlot(slot) * 1.5f);
+            public int getDurabilityForType(Type slot) {
+                return (int)((float)material.getDurabilityForType(slot) * 1.5f);
             }
 
             @Override
-            public int getDefenseForSlot(EquipmentSlot slot) {
-                return material.getDefenseForSlot(slot) + 2;
+            public int getDefenseForType(Type slot) {
+                return material.getDefenseForType(slot) + 2;
             }
 
             @Override
@@ -69,17 +69,17 @@ public class QuadrupedalArmor extends ArmorItem implements ExtendedItemPropertie
         };
     }
 
-    public QuadrupedalArmor(ArmorMaterial material, EquipmentSlot slot) {
-        super(increaseDurability(material), slot, new Properties().tab(ChangedTabs.TAB_CHANGED_COMBAT));
+    public QuadrupedalArmor(ArmorMaterial material, ArmorItem.Type slot) {
+        super(increaseDurability(material), slot, new Properties());
     }
 
-    public QuadrupedalArmor(ArmorMaterial material, EquipmentSlot slot, Properties properties) {
+    public QuadrupedalArmor(ArmorMaterial material, ArmorItem.Type slot, Properties properties) {
         super(increaseDurability(material), slot, properties);
     }
 
     @Override
     public boolean canWalkOnPowderedSnow(ItemStack stack, LivingEntity wearer) {
-        return material.getName().equals(ArmorMaterials.LEATHER.getName()) && slot == EquipmentSlot.FEET;
+        return material.getName().equals(ArmorMaterials.LEATHER.getName()) && type.getSlot() == EquipmentSlot.FEET;
     }
 
     @Override

@@ -5,6 +5,7 @@ import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 
 import java.util.List;
 import java.util.Random;
@@ -64,7 +65,7 @@ public class BasicPlayerInfo {
         this.load(tag);
     }
 
-    public static BasicPlayerInfo random(Random random) {
+    public static BasicPlayerInfo random(RandomSource random) {
         BasicPlayerInfo info = new BasicPlayerInfo();
         info.hairColor = Util.getRandom(HAIR_COLORS, random);
         info.irisLeftColor = Util.getRandom(IRIS_COLORS, random);

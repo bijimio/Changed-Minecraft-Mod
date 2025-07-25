@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.gui.AbstractRadialScreen;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.network.chat.Component;
@@ -31,7 +32,7 @@ public abstract class EffectRenderingInventoryScreenMixin<T extends AbstractCont
     }
 
     @Inject(method = "renderBackgrounds", at = @At("HEAD"), cancellable = true)
-    private void renderBackgrounds(PoseStack poseStack, int x, int height, Iterable<MobEffectInstance> effects, boolean wide, CallbackInfo callback) {
+    private void renderBackgrounds(GuiGraphics graphics, int x, int height, Iterable<MobEffectInstance> effects, boolean wide, CallbackInfo callback) {
         if (!Changed.config.client.useGoopyInventory.get())
             return;
         ProcessTransfur.ifPlayerTransfurred(this.minecraft.player, variant -> {
@@ -45,23 +46,23 @@ public abstract class EffectRenderingInventoryScreenMixin<T extends AbstractCont
 
             for(MobEffectInstance effect : effects) {
                 // Background
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
                 if (wide)
-                    blit(poseStack, x, i, 512, 166, 120, 32, 768, 256);
+                    graphics.blit(LATEX_INVENTORY_LOCATION, x, i, 512, 166, 120, 32, 768, 256);
                 else
-                    blit(poseStack, x, i, 512, 198, 32, 32, 768, 256);
+                    graphics.blit(LATEX_INVENTORY_LOCATION, x, i, 512, 198, 32, 32, 768, 256);
 
                 // Foreground
-                RenderSystem.setShaderColor(colorPair.background().red(), colorPair.background().green(), colorPair.background().blue(), 1.0F);
+                graphics.setColor(colorPair.background().red(), colorPair.background().green(), colorPair.background().blue(), 1.0F);
                 if (wide)
-                    blit(poseStack, x, i, 0, 166, 120, 32, 768, 256);
+                    graphics.blit(LATEX_INVENTORY_LOCATION, x, i, 0, 166, 120, 32, 768, 256);
                 else
-                    blit(poseStack, x, i, 0, 198, 32, 32, 768, 256);
+                    graphics.blit(LATEX_INVENTORY_LOCATION, x, i, 0, 198, 32, 32, 768, 256);
 
                 i += height;
             }
 
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             callback.cancel();
         });
     }

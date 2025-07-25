@@ -1,6 +1,6 @@
 package net.ltxprogrammer.changed.block;
 
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.item.AbstractLatexItem;
 import net.minecraft.core.BlockPos;
@@ -23,8 +23,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -33,14 +32,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Beaker extends Block implements SimpleWaterloggedBlock, NonLatexCoverableBlock {
-    public static final EnumProperty<LatexType> FILLED = EnumProperty.create("filled", LatexType.class);
+public class Beaker extends Block implements SimpleWaterloggedBlock {
+    public static final EnumProperty<LatexTypeOld> FILLED = EnumProperty.create("filled", LatexTypeOld.class);
     public static final VoxelShape AABB = Block.box(3.5D, 0.0D, 3.5D, 12.5D, 11.0D, 12.5D);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public Beaker() {
-        super(Properties.of(Material.GLASS).sound(SoundType.GLASS).instabreak().dynamicShape());
-        this.registerDefaultState(this.stateDefinition.any().setValue(FILLED, LatexType.NEUTRAL).setValue(WATERLOGGED, false));
+        super(Properties.of().offsetType(OffsetType.XZ).sound(SoundType.GLASS).instabreak().dynamicShape());
+        this.registerDefaultState(this.stateDefinition.any().setValue(FILLED, LatexTypeOld.NEUTRAL).setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -50,11 +49,11 @@ public class Beaker extends Block implements SimpleWaterloggedBlock, NonLatexCov
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         List<ItemStack> items = new ArrayList<>();
         items.add(new ItemStack(ChangedBlocks.BEAKER.get()));
         var type = state.getValue(FILLED);
-        if (type == LatexType.NEUTRAL)
+        if (type == LatexTypeOld.NEUTRAL)
             return items;
         else {
             items.add(new ItemStack(type.goo.get()));
@@ -65,17 +64,17 @@ public class Beaker extends Block implements SimpleWaterloggedBlock, NonLatexCov
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         var itemInHand = player.getItemInHand(hand);
-        if (state.getValue(FILLED) == LatexType.NEUTRAL && itemInHand.getItem() instanceof AbstractLatexItem goo) {
+        if (state.getValue(FILLED) == LatexTypeOld.NEUTRAL && itemInHand.getItem() instanceof AbstractLatexItem goo) {
             if (!player.isCreative())
                 itemInHand.shrink(1);
-            level.setBlockAndUpdate(pos, state.setValue(FILLED, goo.getLatexType()));
+            level.setBlockAndUpdate(pos, state.setValue(FILLED, LatexTypeOld.NEUTRAL));
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
 
-        else if (state.getValue(FILLED) != LatexType.NEUTRAL) {
+        else if (state.getValue(FILLED) != LatexTypeOld.NEUTRAL) {
             if (!player.isCreative())
                 player.addItem(new ItemStack(state.getValue(FILLED).goo.get()));
-            level.setBlockAndUpdate(pos, state.setValue(FILLED, LatexType.NEUTRAL));
+            level.setBlockAndUpdate(pos, state.setValue(FILLED, LatexTypeOld.NEUTRAL));
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
 
@@ -92,11 +91,6 @@ public class Beaker extends Block implements SimpleWaterloggedBlock, NonLatexCov
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Vec3 vec3 = state.getOffset(level, pos);
         return AABB.move(vec3.x, vec3.y, vec3.z);
-    }
-
-    @Override
-    public OffsetType getOffsetType() {
-        return OffsetType.XZ;
     }
 
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {

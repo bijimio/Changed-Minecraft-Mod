@@ -2,13 +2,12 @@ package net.ltxprogrammer.changed.client.latexparticles;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.ModelPartStem;
 import net.ltxprogrammer.changed.client.PoseStackExtender;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModelInterface;
+import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.init.ChangedSounds;
@@ -18,6 +17,7 @@ import net.ltxprogrammer.changed.util.Color3;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -33,6 +33,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 
@@ -74,8 +76,8 @@ public class LatexDripParticle extends LatexParticle {
 
     public LatexDripParticle(SpriteSet spriteSet,
                              ChangedEntity attachedEntity, AdvancedHumanoidModel<?> attachedModel, ModelPartStem attachedPart, SurfacePoint surface, Color3 color, float alpha, int lifespan) {
-        super(attachedEntity.level, lifespan);
-        this.maxTicksAttached = attachedEntity.level.random.nextInt(80, 2400);
+        super(attachedEntity.level(), lifespan);
+        this.maxTicksAttached = attachedEntity.level().random.nextInt(80, 2400);
 
         this.spriteSet = spriteSet;
         this.attachedEntity = attachedEntity;
@@ -203,7 +205,33 @@ public class LatexDripParticle extends LatexParticle {
         if (!shouldRender())
             return; // No sound
         Player localPlayer = UniversalDist.getLocalPlayer();
-        level.playLocalSound(x, y, z, ChangedSounds.LATEX_DRIP, ProcessTransfur.isPlayerTransfurred(localPlayer) ? SoundSource.NEUTRAL : SoundSource.HOSTILE, 0.025f, 1.0f, true);
+        level.playLocalSound(x, y, z, ChangedSounds.LATEX_DRIP.get(), ProcessTransfur.isPlayerTransfurred(localPlayer) ? SoundSource.NEUTRAL : SoundSource.HOSTILE, 0.025f, 1.0f, true);
+    }
+
+    @Override
+    public boolean wantsPartInfo(ModelPart part) {
+        return attached && attachedPart.getLeaf() == part;
+    }
+
+    @Override
+    public void handlePartPosition(ModelPart part, PoseStack.Pose modelPose) {
+        if (!attached)
+            return;
+        if (this.preppedForRender)
+            return;
+
+        Vector4f translationVector = new Vector4f(surface.position().x(), surface.position().y(), surface.position().z(), 1.0f);
+        //translationVector.mul(modelPose.pose()); // Coordinates now in screenspace
+
+        Vector4f worldSpace = CameraUtil.toWorldSpace(translationVector, modelPose);
+        x = worldSpace.x();
+        y = worldSpace.y();
+        z = worldSpace.z();
+
+        surfaceNormalRelativeCamera.set(surface.normal());
+        surfaceNormalRelativeCamera.mul(modelPose.normal());
+
+        this.preppedForTick = true;
     }
 
     @Override
@@ -214,34 +242,8 @@ public class LatexDripParticle extends LatexParticle {
         if (!attachedPart.stem.stream().allMatch(part -> part.visible))
             return;
 
-        poseStack.pushPose();
-        if (this.attachedModel instanceof AdvancedHumanoidModelInterface<?,?> modelInterface) {
-            if (this.attachedPart.getRoot() == attachedModel.getHead())
-                modelInterface.scaleForHead(poseStack);
-            else
-                modelInterface.scaleForBody(poseStack);
-        }
-
-        attachedPart.translateAndRotate(poseStack);
-        // in C = A * B, this is C
-        var modelSpaceToScreenSpace = poseStack.last().pose();
-        var modelSpaceToScreenSpaceN = poseStack.last().normal();
-        poseStack.popPose();
-
-        Vector4f translationVector = new Vector4f(surface.position().x(), surface.position().y(), surface.position().z(), 1.0f);
-        translationVector.transform(modelSpaceToScreenSpace); // Coordinates now in screenspace
-
-        Vector4f worldSpace = CameraUtil.toWorldSpace(translationVector);
-        x = worldSpace.x();
-        y = worldSpace.y();
-        z = worldSpace.z();
-
-        surfaceNormalRelativeCamera.load(surface.normal());
-        surfaceNormalRelativeCamera.transform(modelSpaceToScreenSpaceN);
-
         this.setupContext = setupContext;
         this.preppedForRender = true;
-        this.preppedForTick = true;
     }
 
     @Override
@@ -250,7 +252,7 @@ public class LatexDripParticle extends LatexParticle {
     }
 
     protected int getLightColor(float partialTicks) {
-        BlockPos blockpos = new BlockPos(this.x, this.y, this.z);
+        BlockPos blockpos = new BlockPos(Mth.floor(this.x), Mth.floor(this.y), Mth.floor(this.z));
         return this.level.hasChunkAt(blockpos) ? LevelRenderer.getLightColor(this.level, blockpos) : 0;
     }
 
@@ -310,7 +312,7 @@ public class LatexDripParticle extends LatexParticle {
             lerpZ = (float) (Mth.lerp(partialTicks, this.zo, this.z) - vec3.z());
         }
         Vector3f vector3f1 = new Vector3f(-1.0F, -1.0F, 0.0F);
-        vector3f1.transform(camera.rotation());
+        camera.rotation().transform(vector3f1);
         float quadSize = this.getSpriteSize(partialTicks);
 
         float u0 = this.sprite.getU0();
@@ -321,7 +323,7 @@ public class LatexDripParticle extends LatexParticle {
         Vector3f[] genVec = new Vector3f[]{new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F), new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)};
         for(int i = 0; i < 4; ++i) {
             Vector3f vector3f = genVec[i];
-            vector3f.transform(camera.rotation());
+            camera.rotation().transform(vector3f);
             vector3f.mul(quadSize);
             vector3f.add(lerpX, lerpY, lerpZ);
         }

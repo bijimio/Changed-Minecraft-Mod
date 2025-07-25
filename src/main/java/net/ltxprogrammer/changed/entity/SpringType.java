@@ -44,7 +44,7 @@ public enum SpringType {
 
     public enum Direction implements Function<LivingEntity, Float> {
         VERTICAL(entity -> {
-            float vertVelocity = entity.isOnGround() ? 0.0f : (float) entity.getDeltaMovement().y;
+            float vertVelocity = entity.onGround() ? 0.0f : (float) entity.getDeltaMovement().y;
             if (entity instanceof ChangedEntity changedEntity)
                 vertVelocity += changedEntity.getVerticalSpringOffset();
             return vertVelocity;

@@ -2,6 +2,7 @@ package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedEntities;
@@ -426,11 +427,6 @@ public class CustomLatexEntity extends ChangedEntity implements LatexTaur<Custom
     }
 
     @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
-    }
-
-    @Override
     public TransfurMode getTransfurMode() {
         return TransfurMode.ABSORPTION;
     }
@@ -505,7 +501,7 @@ public class CustomLatexEntity extends ChangedEntity implements LatexTaur<Custom
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (isSaddled()) {
             this.doPlayerRide(player);
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
 
         return InteractionResult.PASS;

@@ -2,16 +2,15 @@ package net.ltxprogrammer.changed.entity;
 
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.block.DuctBlock;
-import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
+import net.ltxprogrammer.changed.entity.latex.LatexSwimMover;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.util.InputWrapper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.RegistryObject;
 
-public abstract class PlayerMover<T extends PlayerMoverInstance<?>> extends ForgeRegistryEntry<PlayerMover<?>> {
+public abstract class PlayerMover<T extends PlayerMoverInstance<?>> {
     public abstract T createInstance();
 
     private static class DefaultMover extends PlayerMover<DefaultMover.DefaultInstance> {
@@ -46,5 +45,5 @@ public abstract class PlayerMover<T extends PlayerMoverInstance<?>> extends Forg
 
     public static RegistryObject<DefaultMover> DEFAULT_MOVER = REGISTRY.register("default", DefaultMover::new);
     public static RegistryObject<DuctBlock.DuctMover> DUCT_MOVER = REGISTRY.register("duct", DuctBlock.DuctMover::new);
-    public static RegistryObject<WhiteLatexTransportInterface.LatexMover> WHITE_LATEX_MOVER = REGISTRY.register("white_latex", WhiteLatexTransportInterface.LatexMover::new);
+    public static RegistryObject<LatexSwimMover> LATEX_SWIM = REGISTRY.register("latex_swim", LatexSwimMover::new);
 }

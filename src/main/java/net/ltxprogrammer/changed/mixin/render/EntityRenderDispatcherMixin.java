@@ -1,7 +1,7 @@
 package net.ltxprogrammer.changed.mixin.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.client.ChangedClient;
 import net.ltxprogrammer.changed.client.ClientLivingEntityExtender;
@@ -86,7 +86,7 @@ public abstract class EntityRenderDispatcherMixin {
                             Mth.lerp(transition, dz, 0.0)
                     );
 
-                    poseStack.mulPose(Vector3f.YP.rotationDegrees(-dYBodyRot));
+                    poseStack.mulPose(Axis.YP.rotationDegrees(-dYBodyRot));
                 });
     }
 

@@ -2,6 +2,7 @@ package net.ltxprogrammer.changed.world.features.structures;
 
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.block.GluBlock;
+import net.ltxprogrammer.changed.util.CollectionUtil;
 import net.ltxprogrammer.changed.world.features.structures.facility.*;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -11,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
@@ -178,7 +180,7 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
                 boundingBox.maxX() > region.maxX() || boundingBox.maxY() > region.maxY() || boundingBox.maxZ() > region.maxZ();
     }
 
-    private static void treeGenerate(StructurePiecesBuilder builder, PieceGenerator.Context<NoneFeatureConfiguration> context,
+    private static void treeGenerate(StructurePiecesBuilder builder, Structure.GenerationContext context,
                                      Stack<FacilityPiece> stack, StructurePiece parentStructure,
                                      GenStep start, int genDepth, int span, BoundingBox allowedRegion) {
         var parent = stack.peek();
@@ -202,11 +204,11 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
             }
 
             boolean placed = BY_PIECE_TYPE.get(pieceType).shuffledStream(context.random()).anyMatch(nextPiece -> {
-                var nextStructure = nextPiece.createStructurePiece(context.structureManager(), genDepth);
+                var nextStructure = nextPiece.createStructurePiece(context.structureTemplateManager(), genDepth);
                 if (!nextStructure.setupBoundingBox(builder, start.blockInfo(), context.random(), allowedRegionForPiece))
                     return false;
 
-                var startPos = gluNeighbor(start.blockInfo().pos, start.blockInfo().state);
+                var startPos = gluNeighbor(start.blockInfo().pos(), start.blockInfo().state());
                 builder.addPiece(nextStructure);
 
                 if (span <= 0)
@@ -220,7 +222,7 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
                 nextStructure.addSteps(genStack, starts);
 
                 int piecesBefore = ((StructurePiecesBuilderExtender)builder).pieceCount();
-                starts.stream().filter(next -> !next.blockInfo().pos.equals(startPos)).forEach(next -> {
+                starts.stream().filter(next -> !next.blockInfo().pos().equals(startPos)).forEach(next -> {
                     treeGenerate(builder, context, stack, nextStructure, next, genDepth, nextSpan, allowedRegion);
                 });
                 int piecesAfter = ((StructurePiecesBuilderExtender)builder).pieceCount();
@@ -238,7 +240,7 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
                 ((StructurePiecesBuilderExtender)builder).removePiece(nextStructure);
 
                 StructurePiece pieceToPut = BY_PIECE_TYPE.get(PieceType.ROOM).shuffledStream(context.random()).map(nextRoom -> {
-                    var nextRoomStructure = nextRoom.createStructurePiece(context.structureManager(), genDepth);
+                    var nextRoomStructure = nextRoom.createStructurePiece(context.structureTemplateManager(), genDepth);
                     if (!nextRoomStructure.setupBoundingBox(builder, start.blockInfo(), context.random(), allowedRegion))
                         return null;
 
@@ -248,7 +250,7 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
 
                 if (pieceToPut == nextStructure) {
                     pieceToPut = BY_PIECE_TYPE.get(PieceType.SEAL).stream().map(nextSeal -> {
-                        var nextRoomStructure = nextSeal.createStructurePiece(context.structureManager(), genDepth);
+                        var nextRoomStructure = nextSeal.createStructurePiece(context.structureTemplateManager(), genDepth);
                         if (!nextRoomStructure.setupBoundingBox(builder, start.blockInfo(), context.random(), allowedRegion))
                             return null;
 
@@ -275,30 +277,30 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
         return;
     }
 
-    public static void generateFacility(StructurePiecesBuilder builder, PieceGenerator.Context<NoneFeatureConfiguration> context, int genDepth, int span, BoundingBox allowedRegion) {
+    public static void generateFacility(StructurePiecesBuilder builder, Structure.GenerationContext context, int genDepth, int span, BoundingBox allowedRegion) {
         BlockPos blockPos = new BlockPos(
                 context.chunkPos().getBlockX(8), 0,
                 context.chunkPos().getBlockZ(8));
         blockPos = blockPos.atY(context.chunkGenerator().getBaseHeight(blockPos.getX(), blockPos.getZ(),
-                Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor()));
+                Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState()));
 
         Stack<FacilityPiece> stack = new Stack<>();
         List<GenStep> starts = new ArrayList<>();
         FacilityPiece entranceNew = BY_PIECE_TYPE.get(PieceType.ENTRANCE).findNextPiece(context.random()).orElseThrow();
-        FacilityPieceInstance entrancePiece = entranceNew.createStructurePiece(context.structureManager(), genDepth);
+        FacilityPieceInstance entrancePiece = entranceNew.createStructurePiece(context.structureTemplateManager(), genDepth);
 
         var directions = new ArrayList<>(Direction.Plane.HORIZONTAL.stream().toList());
-        Collections.shuffle(directions, context.random());
+        CollectionUtil.shuffle(directions, context.random());
 
         for (Direction dir : directions) {
             entrancePiece.setRotation(dir);
             entrancePiece.setupBoundingBoxOnBottomCenter(blockPos);
             BoundingBox entranceBB = entrancePiece.getBoundingBox();
 
-            int minXminZ = context.chunkGenerator().getBaseHeight(entranceBB.minX() + 1, entranceBB.minZ() + 1, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor());
-            int minXmaxZ = context.chunkGenerator().getBaseHeight(entranceBB.minX() + 1, entranceBB.maxZ() - 1, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor());
-            int maxXminZ = context.chunkGenerator().getBaseHeight(entranceBB.maxX() - 1, entranceBB.minZ() + 1, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor());
-            int maxXmaxZ = context.chunkGenerator().getBaseHeight(entranceBB.maxX() - 1, entranceBB.maxZ() - 1, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor());
+            int minXminZ = context.chunkGenerator().getBaseHeight(entranceBB.minX() + 1, entranceBB.minZ() + 1, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState());
+            int minXmaxZ = context.chunkGenerator().getBaseHeight(entranceBB.minX() + 1, entranceBB.maxZ() - 1, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState());
+            int maxXminZ = context.chunkGenerator().getBaseHeight(entranceBB.maxX() - 1, entranceBB.minZ() + 1, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState());
+            int maxXmaxZ = context.chunkGenerator().getBaseHeight(entranceBB.maxX() - 1, entranceBB.maxZ() - 1, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState());
             int min = Math.min(Math.min(minXminZ, minXmaxZ), Math.min(maxXminZ, maxXmaxZ));
             int max = Math.max(Math.max(minXminZ, minXmaxZ), Math.max(maxXminZ, maxXmaxZ));
 

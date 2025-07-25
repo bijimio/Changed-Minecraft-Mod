@@ -1,10 +1,11 @@
 {
 	"credit": "Made with Blockbench",
 	"texture_size": [128, 128],
+	"render_type": "minecraft:cutout",
 	"textures": {
-		"0": "changed:blocks/statis_chamber_frame",
-		"1": "changed:blocks/statis_chamber_door",
-		"particle": "changed:blocks/statis_chamber_frame"
+		"0": "changed:block/statis_chamber_frame",
+		"1": "changed:block/statis_chamber_door",
+		"particle": "changed:block/statis_chamber_frame"
 	},
 	"elements": [
 		{

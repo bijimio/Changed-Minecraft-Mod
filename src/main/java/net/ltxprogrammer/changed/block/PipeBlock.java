@@ -17,9 +17,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -104,7 +102,7 @@ public class PipeBlock extends Block implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public PipeBlock() {
-        super(Properties.of(Material.METAL, MaterialColor.WOOL).sound(SoundType.COPPER).strength(3.0f, 3.0f));
+        super(Properties.of().sound(SoundType.COPPER).strength(3.0f, 3.0f));
         this.registerDefaultState(this.getStateDefinition().any().setValue(WATERLOGGED, false)
                 .setValue(NORTH, ConnectState.AIR).setValue(EAST, ConnectState.AIR)
                 .setValue(SOUTH, ConnectState.AIR).setValue(WEST, ConnectState.AIR));
@@ -250,7 +248,7 @@ public class PipeBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return List.of(new ItemStack(this));
     }
 

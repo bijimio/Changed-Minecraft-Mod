@@ -4,7 +4,6 @@ import net.ltxprogrammer.changed.world.inventory.ComputerMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
@@ -87,11 +86,11 @@ public class Computer extends AbstractCustomShapeBlock {
         return super.updateShape(p_52796_, p_52797_, p_52798_, p_52799_, p_52800_, p_52801_);
     }
 
-    private static final Component CONTAINER_TITLE = new TranslatableComponent("container.changed.computer");
+    private static final Component CONTAINER_TITLE = Component.translatable("container.changed.computer");
 
     public static boolean tryUseDisk(@Nullable Player player, Level level, BlockPos blockPos, BlockState state, ItemStack item) {
         if (player instanceof ServerPlayer serverPlayer) {
-            NetworkHooks.openGui(serverPlayer, getMenuProvider(item), extra -> {
+            NetworkHooks.openScreen(serverPlayer, getMenuProvider(item), extra -> {
                 extra.writeUtf(item.getOrCreateTag().getString("Text"));
                 extra.writeInt(player.getInventory().findSlotMatchingItem(item));
             });

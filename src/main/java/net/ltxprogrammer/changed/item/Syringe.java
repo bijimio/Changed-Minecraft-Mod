@@ -1,7 +1,7 @@
 package net.ltxprogrammer.changed.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.*;
@@ -13,7 +13,6 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
@@ -40,7 +39,7 @@ import java.util.List;
 
 public class Syringe extends Item implements SpecializedAnimations {
     public Syringe(Properties p_41383_) {
-        super(p_41383_.tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(p_41383_);
     }
 
     public static ItemStack setPureVariant(ItemStack itemStack, ResourceLocation variant) {
@@ -70,19 +69,19 @@ public class Syringe extends Item implements SpecializedAnimations {
         return itemStack;
     }
 
-    public static void addOwnerTooltip(ItemStack stack, List<Component> builder) {
+    public static void addOwnerTooltip(@Nullable Level level, ItemStack stack, List<Component> builder) {
         if (stack.getOrCreateTag().contains("owner")) {
-            Player player = UniversalDist.getLevel().getPlayerByUUID(stack.getOrCreateTag().getUUID("owner"));
+            Player player = level != null ? level.getPlayerByUUID(stack.getOrCreateTag().getUUID("owner")) : null;
             if (player != null)
-                builder.add(new TranslatableComponent("text.changed.syringe.owner", player.getName()));
+                builder.add(Component.translatable("text.changed.syringe.owner", player.getName()));
             else
-                builder.add(new TranslatableComponent("text.changed.syringe.no_owner"));
+                builder.add(Component.translatable("text.changed.syringe.no_owner"));
         }
     }
 
     public static void addVariantTooltip(ItemStack stack, List<Component> builder) {
         if (stack.getOrCreateTag().contains("form")) {
-            builder.add(new TranslatableComponent(getVariantDescriptionId(stack)));
+            builder.add(Component.translatable(getVariantDescriptionId(stack)));
         }
     }
 
@@ -115,7 +114,7 @@ public class Syringe extends Item implements SpecializedAnimations {
         if (ProcessTransfur.isPlayerLatex(player) && player != sourcePlayer)
             return stack;
 
-        player.hurt(ChangedDamageSources.BLOODLOSS, 1.0f);
+        player.hurt(ChangedDamageSources.BLOODLOSS.source(player.level().registryAccess()), 1.0f);
         player.awardStat(Stats.ITEM_USED.get(this));
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
@@ -216,16 +215,16 @@ public class Syringe extends Item implements SpecializedAnimations {
     @Override
     public InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity livingEntity, InteractionHand hand) {
         if (livingEntity instanceof Player interactPlayer) {
-            usedOnPlayer(itemStack, interactPlayer.level, interactPlayer, player, false);
-            return InteractionResult.sidedSuccess(player.level.isClientSide);
+            usedOnPlayer(itemStack, interactPlayer.level(), interactPlayer, player, false);
+            return InteractionResult.sidedSuccess(player.level().isClientSide);
         }
 
         return Changed.postModEvent(
                 new UsedOnEntity(livingEntity,
-                        player.level,
+                        player.level(),
                         player,
                         itemStack)) ?
-                InteractionResult.sidedSuccess(player.level.isClientSide) :
+                InteractionResult.sidedSuccess(player.level().isClientSide) :
                 super.interactLivingEntity(itemStack, player, livingEntity, hand);
     }
 
@@ -262,9 +261,9 @@ public class Syringe extends Item implements SpecializedAnimations {
             float f3 = 1.0F - (float)Math.pow(1.0 - progress, 27.0D);
             int i = arm == HumanoidArm.RIGHT ? 1 : -1;
             pose.translate((double)(f3 * 0.3F * (float)i), (double)(f3 * -0.5F), (double)(f3 * 0.0F));
-            pose.mulPose(Vector3f.YP.rotationDegrees((float)i * f3 * 90.0F));
-            pose.mulPose(Vector3f.XP.rotationDegrees(f3 * 10.0F));
-            pose.mulPose(Vector3f.ZP.rotationDegrees((float)i * f3 * 30.0F));
+            pose.mulPose(Axis.YP.rotationDegrees((float)i * f3 * 90.0F));
+            pose.mulPose(Axis.XP.rotationDegrees(f3 * 10.0F));
+            pose.mulPose(Axis.ZP.rotationDegrees((float)i * f3 * 30.0F));
         }
     }
 

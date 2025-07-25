@@ -7,12 +7,9 @@ import net.ltxprogrammer.changed.network.packet.SyncVariantAbilityPacket;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -21,7 +18,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-public abstract class AbstractAbility<Instance extends AbstractAbilityInstance> extends ForgeRegistryEntry<AbstractAbility<?>> {
+public abstract class AbstractAbility<Instance extends AbstractAbilityInstance> {
     public static class Controller {
         private final AbstractAbilityInstance abilityInstance;
         private boolean startedUsing = false;
@@ -235,7 +232,7 @@ public abstract class AbstractAbility<Instance extends AbstractAbilityInstance> 
     }
 
     public Component getAbilityName(IAbstractChangedEntity entity) {
-        return new TranslatableComponent("ability." + getRegistryName().toString().replace(':', '.'));
+        return Component.translatable("ability." + ChangedRegistry.ABILITY.getKey(this).toString().replace(':', '.'));
     }
 
     public Collection<Component> getAbilityDescription(IAbstractChangedEntity entity) {
@@ -267,11 +264,10 @@ public abstract class AbstractAbility<Instance extends AbstractAbilityInstance> 
         CompoundTag data = new CompoundTag();
         saveData(data, entity);
 
-        int id = ChangedRegistry.ABILITY.get().getID(this);
         if (entity.getLevel().isClientSide)
-            Changed.PACKET_HANDLER.sendToServer(new SyncVariantAbilityPacket(id, data));
+            Changed.PACKET_HANDLER.sendToServer(new SyncVariantAbilityPacket(this, data));
         else
-            Changed.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), new SyncVariantAbilityPacket(id, data, entity.getUUID()));
+            Changed.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), new SyncVariantAbilityPacket(this, data, entity.getUUID()));
     }
 
     @Nullable

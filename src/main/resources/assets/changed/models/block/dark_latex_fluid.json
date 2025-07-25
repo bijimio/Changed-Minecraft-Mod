@@ -1,5 +1,5 @@
 {
   "textures": {
-    "particle": "changed:blocks/dark_latex_block"
+    "particle": "changed:block/dark_latex_block"
   }
 }

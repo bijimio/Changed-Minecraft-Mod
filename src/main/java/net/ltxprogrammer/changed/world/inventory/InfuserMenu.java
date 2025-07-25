@@ -27,7 +27,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -55,7 +55,7 @@ public class InfuserMenu extends RecipeBookMenu<SimpleContainer> implements Supp
     @Override
     public boolean recipeMatches(Recipe<? super SimpleContainer> p_40118_) {
         this.syncCopyContainer();
-        return p_40118_.matches(this.copyContainer, this.entity.level);
+        return p_40118_.matches(this.copyContainer, this.entity.level());
     }
 
     @Override
@@ -124,10 +124,10 @@ public class InfuserMenu extends RecipeBookMenu<SimpleContainer> implements Supp
 
     private static final int SLOT_INPUT = 10;
     public InfuserMenu(int id, Inventory inv, FriendlyByteBuf extraData) {
-        super(ChangedMenus.INFUSER, id);
+        super(ChangedMenus.INFUSER.get(), id);
 
         this.entity = inv.player;
-        this.world = inv.player.level;
+        this.world = inv.player.level();
 
         this.internal = new ItemStackHandler(2);
         this.craftingGrid = new ItemStackHandler(9);
@@ -148,7 +148,7 @@ public class InfuserMenu extends RecipeBookMenu<SimpleContainer> implements Supp
                     itemstack = this.entity.getMainHandItem();
                 else
                     itemstack = this.entity.getOffhandItem();
-                itemstack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).ifPresent(capability -> {
+                itemstack.getCapability(ForgeCapabilities.ITEM_HANDLER, null).ifPresent(capability -> {
                     this.internal = capability;
                     this.bound = true;
                 });
@@ -156,14 +156,14 @@ public class InfuserMenu extends RecipeBookMenu<SimpleContainer> implements Supp
                 extraData.readByte(); // drop padding
                 Entity entity = world.getEntity(extraData.readVarInt());
                 if (entity != null)
-                    entity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).ifPresent(capability -> {
+                    entity.getCapability(ForgeCapabilities.ITEM_HANDLER, null).ifPresent(capability -> {
                         this.internal = capability;
                         this.bound = true;
                     });
             } else { // might be bound to block
-                BlockEntity ent = inv.player != null ? inv.player.level.getBlockEntity(pos) : null;
+                BlockEntity ent = inv.player != null ? inv.player.level().getBlockEntity(pos) : null;
                 if (ent != null) {
-                    ent.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).ifPresent(capability -> {
+                    ent.getCapability(ForgeCapabilities.ITEM_HANDLER, null).ifPresent(capability -> {
                         this.internal = capability;
                         this.bound = true;
                     });
@@ -209,7 +209,7 @@ public class InfuserMenu extends RecipeBookMenu<SimpleContainer> implements Supp
         this.customSlots.put(SLOT_INPUT, this.addSlot(new InfuserSlotItemHandler(this, internal, 1, 18, 33) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(ChangedItems.BLOOD_SYRINGE.get()) || stack.is(Items.ARROW) || stack.is(ChangedItems.getBlockItem(ChangedBlocks.ERLENMEYER_FLASK.get()));
+                return stack.is(ChangedItems.BLOOD_SYRINGE.get()) || stack.is(Items.ARROW) || stack.is(ChangedBlocks.ERLENMEYER_FLASK.get().asItem());
             }
         }));
 
@@ -298,8 +298,8 @@ public class InfuserMenu extends RecipeBookMenu<SimpleContainer> implements Supp
             this.syncCopyContainer();
 
             ServerPlayer serverplayer = (ServerPlayer)this.entity;
-            Optional<InfuserRecipe> recipeOptional = serverplayer.getLevel().getServer().getRecipeManager()
-                    .getRecipeFor(ChangedRecipeTypes.INFUSER_RECIPE, copyContainer, serverplayer.level);
+            Optional<InfuserRecipe> recipeOptional = serverplayer.level().getServer().getRecipeManager()
+                    .getRecipeFor(ChangedRecipeTypes.INFUSER_RECIPE.get(), copyContainer, serverplayer.level());
             ItemStack input = this.internal.getStackInSlot(1);
             recipeOptional.ifPresentOrElse(recipe -> {
                 if (input.isEmpty()) {

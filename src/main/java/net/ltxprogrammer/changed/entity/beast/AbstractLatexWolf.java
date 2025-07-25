@@ -2,8 +2,9 @@ package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.AttributePresets;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.LatexTypeOld;
 import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -22,11 +23,6 @@ public abstract class AbstractLatexWolf extends ChangedEntity {
 
     @Override
     public int getTicksRequiredToFreeze() { return 240; }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
-    }
 
     @Override
     public TransfurMode getTransfurMode() { return TransfurMode.REPLICATION; }

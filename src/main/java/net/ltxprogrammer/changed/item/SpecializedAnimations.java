@@ -8,6 +8,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
@@ -197,7 +198,7 @@ public interface SpecializedAnimations {
             return true;
         }
 
-        public final void adjustGrip(ItemStack itemStack, LivingEntity entity, ItemTransforms.TransformType type, PoseStack pose) {
+        public final void adjustGrip(ItemStack itemStack, LivingEntity entity, ItemDisplayContext type, PoseStack pose) {
             this.adjustGrip(itemStack, EntityStateContext.simpleOf(entity), type, pose);
         }
 
@@ -208,7 +209,7 @@ public interface SpecializedAnimations {
          * @param type Selected transform type for rendering
          * @param pose PoseStack matrix to modify
          */
-        public void adjustGrip(ItemStack itemStack, EntityStateContext entity, ItemTransforms.TransformType type, PoseStack pose) {}
+        public void adjustGrip(ItemStack itemStack, EntityStateContext entity, ItemDisplayContext type, PoseStack pose) {}
 
         /**
          * Does the animator only work with an empty offhand?

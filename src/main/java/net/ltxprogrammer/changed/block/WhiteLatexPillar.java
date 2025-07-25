@@ -1,17 +1,16 @@
 package net.ltxprogrammer.changed.block;
 
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
-import net.ltxprogrammer.changed.init.ChangedBlocks;
-import net.ltxprogrammer.changed.init.ChangedDamageSources;
-import net.ltxprogrammer.changed.init.ChangedSounds;
-import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
+import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -34,10 +33,6 @@ import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.Random;
-
-import static net.ltxprogrammer.changed.block.AbstractLatexBlock.COVERED;
-
 public class WhiteLatexPillar extends AbstractCustomShapeTallBlock implements WhiteLatexTransportInterface {
     public static final VoxelShape SHAPE_WHOLE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 30.0D, 14.0D);
     public static final VoxelShape SHAPE_SMALL = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 1.0D, 14.0D);
@@ -51,7 +46,7 @@ public class WhiteLatexPillar extends AbstractCustomShapeTallBlock implements Wh
 
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         TransfurVariantInstance variant = ProcessTransfur.getPlayerTransfurVariant(player);
-        if (variant != null && variant.getLatexType() == LatexType.WHITE_LATEX &&
+        if (variant != null && variant.getLatexType() == ChangedLatexTypes.WHITE_LATEX.get() &&
                 /*player.isShiftKeyDown() && */player.getItemInHand(player.getUsedItemHand()).isEmpty() && !WhiteLatexTransportInterface.isEntityInWhiteLatex(player)) { // Empty-handed RMB
             if (pos.distSqr(new BlockPos(player.getBlockX(), player.getBlockY(), player.getBlockZ())) > 4.0)
                 return super.use(state, level, pos, player, hand, hitResult);
@@ -67,9 +62,7 @@ public class WhiteLatexPillar extends AbstractCustomShapeTallBlock implements Wh
         if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER)
             return super.canSurvive(blockState, level, blockPos);
         else {
-            BlockState belowState = level.getBlockState(blockPos.below());
-            if (belowState.is(ChangedBlocks.WHITE_LATEX_BLOCK.get()) ||
-                    (belowState.getProperties().contains(COVERED) && belowState.getValue(COVERED) == LatexType.WHITE_LATEX))
+            if (AbstractLatexBlock.isSurfaceOfType(level, blockPos, Direction.DOWN, ChangedLatexTypes.WHITE_LATEX.get()))
                 return super.canSurvive(blockState, level, blockPos);
             else
                 return false;
@@ -79,7 +72,7 @@ public class WhiteLatexPillar extends AbstractCustomShapeTallBlock implements Wh
     @Override
     public VoxelShape getCollisionShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext context) {
         if (context instanceof EntityCollisionContext entityCollisionContext && entityCollisionContext.getEntity() != null)
-            if (LatexType.getEntityLatexType(entityCollisionContext.getEntity()) == LatexType.WHITE_LATEX)
+            if (LatexType.getEntityLatexType(entityCollisionContext.getEntity()) == ChangedLatexTypes.WHITE_LATEX.get())
                 return Shapes.empty();
 
         return getInteractionShape(blockState, blockGetter, blockPos);
@@ -120,34 +113,34 @@ public class WhiteLatexPillar extends AbstractCustomShapeTallBlock implements Wh
             if (entity instanceof Player player && ProcessTransfur.isPlayerTransfurred(player)) {
                 var latexType = ProcessTransfur.getPlayerTransfurVariant(player).getLatexType();
 
-                if (latexType == LatexType.WHITE_LATEX) {
+                if (latexType == ChangedLatexTypes.WHITE_LATEX.get()) {
                     WhiteLatexTransportInterface.entityEnterLatex(player, pos);
                     return;
                 }
 
-                else if (latexType.isHostileTo(LatexType.WHITE_LATEX)) {
-                    player.hurt(ChangedDamageSources.WHITE_LATEX, 3.0f);
+                else if (latexType.isHostileTo(ChangedLatexTypes.WHITE_LATEX.get())) {
+                    player.hurt(ChangedDamageSources.WHITE_LATEX.source(player.level().registryAccess()), 3.0f);
                 }
             }
             else {
                 ProcessTransfur.progressTransfur(le, 4.8f, ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), TransfurContext.hazard(TransfurCause.WHITE_LATEX));
             }
-        } else if (entity instanceof ChangedEntity ChangedEntity) {
-            if (ChangedEntity.getLatexType().isHostileTo(LatexType.WHITE_LATEX))
-                ChangedEntity.hurt(ChangedDamageSources.WHITE_LATEX, 3.0f);
+        } else if (entity instanceof ChangedEntity changedEntity) {
+            if (changedEntity.getLatexType().isHostileTo(ChangedLatexTypes.WHITE_LATEX.get()))
+                changedEntity.hurt(ChangedDamageSources.WHITE_LATEX.source(changedEntity.level().registryAccess()), 3.0f);
         }
         entity.makeStuckInBlock(state, new Vec3((double)0.8F, 0.75D, (double)0.8F));
     }
 
     @Override
-    public void randomTick(BlockState blockState, ServerLevel level, BlockPos blockPos, Random random) {
+    public void randomTick(BlockState blockState, ServerLevel level, BlockPos blockPos, RandomSource random) {
         super.randomTick(blockState, level, blockPos, random);
         if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER)
             return;
 
         boolean wantToAppear = WhiteLatexBlock.targetNearby(level, blockPos);
         if (blockState.getValue(EXTENDED) != wantToAppear) {
-            ChangedSounds.broadcastSound(level.getServer(), ChangedSounds.POISON, blockPos, 1, 1);
+            ChangedSounds.broadcastSound(level, ChangedSounds.POISON, blockPos, 1, 1);
             level.setBlockAndUpdate(blockPos, blockState.setValue(EXTENDED, wantToAppear));
             level.setBlockAndUpdate(blockPos.above(), blockState.setValue(HALF, DoubleBlockHalf.UPPER).setValue(EXTENDED, wantToAppear));
         }

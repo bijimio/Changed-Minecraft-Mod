@@ -68,7 +68,7 @@ public abstract class RenderOverride {
     }
 
     public static class DuctPlayerOverride implements Override {
-        public static final Function<Direction, ResourceLocation> TEXTURE = Util.memoize(direction -> Changed.modResource("textures/blocks/duct_player_" + direction.toString().toLowerCase() + ".png"));
+        public static final Function<Direction, ResourceLocation> TEXTURE = Util.memoize(direction -> Changed.modResource("textures/block/duct_player_" + direction.toString().toLowerCase() + ".png"));
         public static final Function<Direction, RenderType> RENDER_TYPE = Util.memoize(direction -> RenderType.entityCutout(TEXTURE.apply(direction)));
         private final DuctPlayerModel playerModel;
 

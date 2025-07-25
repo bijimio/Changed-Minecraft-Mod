@@ -2,7 +2,6 @@ package net.ltxprogrammer.changed.entity;
 
 import net.ltxprogrammer.changed.Changed;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.IExtensibleEnum;
 import org.apache.commons.lang3.NotImplementedException;
@@ -22,12 +21,12 @@ public enum EyeStyle implements IExtensibleEnum {
 
     EyeStyle(ResourceLocation id) {
         this.id = id;
-        this.irisLeft = new ResourceLocation(id.getNamespace(), "textures/eyes/" + id.getPath() + "_iris_left.png");
-        this.irisRight = new ResourceLocation(id.getNamespace(), "textures/eyes/" + id.getPath() + "_iris_right.png");
-        this.sclera = new ResourceLocation(id.getNamespace(), "textures/eyes/" + id.getPath() + "_sclera.png");
-        this.eyeBrows = new ResourceLocation(id.getNamespace(), "textures/eyes/" + id.getPath() + "_eyebrows.png");
-        this.eyeLashes = new ResourceLocation(id.getNamespace(), "textures/eyes/" + id.getPath() + "_eyelashes.png");
-        this.textName = new TranslatableComponent("eyestyle." + id.getNamespace() + "." + id.getPath());
+        this.irisLeft = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "textures/eyes/" + id.getPath() + "_iris_left.png");
+        this.irisRight = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "textures/eyes/" + id.getPath() + "_iris_right.png");
+        this.sclera = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "textures/eyes/" + id.getPath() + "_sclera.png");
+        this.eyeBrows = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "textures/eyes/" + id.getPath() + "_eyebrows.png");
+        this.eyeLashes = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "textures/eyes/" + id.getPath() + "_eyelashes.png");
+        this.textName = Component.translatable("eyestyle." + id.getNamespace() + "." + id.getPath());
     }
 
     public ResourceLocation getLeftIris() {

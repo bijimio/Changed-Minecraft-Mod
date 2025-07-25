@@ -17,12 +17,6 @@ import java.util.Optional;
 
 @Mixin(NbtUtils.class)
 public abstract class NbtUtilsMixin {
-    @Inject(method = "update(Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/util/datafix/DataFixTypes;Lnet/minecraft/nbt/CompoundTag;II)Lnet/minecraft/nbt/CompoundTag;", at = @At("RETURN"))
-    private static void dataFixForChanged(DataFixer dataFixer, DataFixTypes types, CompoundTag tag, int taggedVersion, int loadedVersion, CallbackInfoReturnable<CompoundTag> callback) {
-        if (Changed.dataFixer != null)
-            Changed.dataFixer.updateCompoundTag(types, tag);
-    }
-
     @Redirect(method = "setValueHelper", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/properties/Property;getValue(Ljava/lang/String;)Ljava/util/Optional;"))
     private static <T extends Comparable<T>> Optional<T> getValueAndUpdate(Property<T> instance, String s) {
         if (Changed.dataFixer != null)

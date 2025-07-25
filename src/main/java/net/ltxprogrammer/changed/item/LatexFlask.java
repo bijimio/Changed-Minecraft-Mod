@@ -23,15 +23,27 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class LatexFlask extends PotionItem implements VariantHoldingBase {
     public LatexFlask(Properties properties) {
-        super(properties.tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(properties);
     }
 
     @Override
     public Item getOriginalItem() {
-        return ChangedItems.getBlockItem(ChangedBlocks.ERLENMEYER_FLASK.get());
+        return ChangedBlocks.ERLENMEYER_FLASK.get().asItem();
+    }
+
+    @Override
+    public void fillItemList(Predicate<TransfurVariant<?>> predicate, CreativeModeTab.ItemDisplayParameters parameters, CreativeModeTab.Output output) {
+        TransfurVariant.getPublicTransfurVariants().filter(predicate).forEach(variant -> {
+            output.accept(
+                    Syringe.setOwner(
+                            Syringe.setPureVariant(new ItemStack(this),
+                                    variant.getFormId()),
+                            UniversalDist.getLocalPlayer()));
+        });
     }
 
     @Override
@@ -40,20 +52,12 @@ public class LatexFlask extends PotionItem implements VariantHoldingBase {
     }
 
     public void appendHoverText(ItemStack p_43359_, @Nullable Level p_43360_, List<Component> p_43361_, TooltipFlag p_43362_) {
-        Syringe.addOwnerTooltip(p_43359_, p_43361_);
+        Syringe.addOwnerTooltip(p_43360_, p_43359_, p_43361_);
         Syringe.addVariantTooltip(p_43359_, p_43361_);
     }
 
     public String getDescriptionId(ItemStack p_43364_) {
         return getOrCreateDescriptionId();
-    }
-
-    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
-        if (this.allowdedIn(tab)) {
-            TransfurVariant.getPublicTransfurVariants().forEach(variant -> {
-                list.add(Syringe.setOwner(Syringe.setPureVariant(new ItemStack(this), variant.getRegistryName()), UniversalDist.getLocalPlayer()));
-            });
-        }
     }
 
     public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity entity) {
@@ -71,7 +75,7 @@ public class LatexFlask extends PotionItem implements VariantHoldingBase {
             }
 
             else if (tag != null && tag.contains("form")) {
-                ResourceLocation formLocation = new ResourceLocation(tag.getString("form"));
+                ResourceLocation formLocation = ResourceLocation.parse(tag.getString("form"));
                 if (formLocation.equals(TransfurVariant.SPECIAL_LATEX))
                     formLocation = Changed.modResource("special/form_" + entity.getUUID());
                 ProcessTransfur.transfur(entity, level, ChangedRegistry.TRANSFUR_VARIANT.get().getValue(formLocation), false,

@@ -31,8 +31,6 @@ public class ChangedAbilities {
     public static RegistryObject<ToggleNightVisionAbility> TOGGLE_NIGHT_VISION = REGISTRY.register("toggle_night_vision", ToggleNightVisionAbility::new);
     public static RegistryObject<ToggleWaveVisionAbility> TOGGLE_WAVE_VISION = REGISTRY.register("toggle_wave_vision", ToggleWaveVisionAbility::new);
 
-    public static RegistryObject<SelectSpecialStateAbility> SELECT_SPECIAL_STATE = REGISTRY.register("select_special_state", SelectSpecialStateAbility::new);
-
     public static AbstractAbility<?> getAbility(ResourceLocation location) {
         return ChangedRegistry.ABILITY.get().getValue(location);
     }

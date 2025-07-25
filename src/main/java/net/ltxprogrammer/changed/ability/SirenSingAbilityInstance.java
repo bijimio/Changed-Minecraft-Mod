@@ -39,7 +39,7 @@ public class SirenSingAbilityInstance extends AbstractAbilityInstance {
     @Override
     public void startUsing() {
         final var self = entity.getEntity();
-        self.playSound(ChangedSounds.SIREN, 1, 1);
+        self.playSound(ChangedSounds.SIREN.get(), 1, 1);
         lastSingTick = entity.getEntity().tickCount + (8 * 20) + 10;
     }
 
@@ -55,7 +55,7 @@ public class SirenSingAbilityInstance extends AbstractAbilityInstance {
 
         CameraUtil.tugEntityLookDirection(livingEntity, randomXZdir, 0.125);
 
-        if (!livingEntity.isOnGround())
+        if (!livingEntity.onGround())
             return;
         final double moveScale = livingEntity.getSpeed() * 0.8 * (livingEntity instanceof Player ? 10.0 : 1.0);
         livingEntity.travel(randomXZdir.multiply(moveScale, 0, moveScale));

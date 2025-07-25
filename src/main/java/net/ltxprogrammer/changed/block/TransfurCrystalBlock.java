@@ -1,14 +1,15 @@
 package net.ltxprogrammer.changed.block;
 
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
-import net.ltxprogrammer.changed.init.ChangedItems;
+import net.ltxprogrammer.changed.init.ChangedLatexTypes;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -21,9 +22,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -34,21 +37,20 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static net.ltxprogrammer.changed.block.AbstractDoubleTransfurCrystal.HALF;
-import static net.ltxprogrammer.changed.block.AbstractLatexBlock.getLatexed;
 
-public abstract class TransfurCrystalBlock extends BushBlock implements NonLatexCoverableBlock {
+public abstract class TransfurCrystalBlock extends BushBlock {
     public static final VoxelShape SHAPE_WHOLE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
     private final Supplier<? extends TransfurVariant<?>> variant;
     private final Supplier<? extends Item> crystal;
 
     public TransfurCrystalBlock(Supplier<? extends TransfurVariant<?>> variant, Supplier<? extends Item> crystal, Properties p_53514_) {
-        super(p_53514_);
+        super(p_53514_.pushReaction(PushReaction.DESTROY));
         this.variant = variant;
         this.crystal = crystal;
     }
 
     public TransfurCrystalBlock(Supplier<? extends Item> crystal, Properties properties) {
-        super(properties);
+        super(properties.pushReaction(PushReaction.DESTROY));
         this.variant = null;
         this.crystal = crystal;
     }
@@ -62,15 +64,16 @@ public abstract class TransfurCrystalBlock extends BushBlock implements NonLatex
         return SHAPE_WHOLE;
     }
 
-    protected boolean mayPlaceOn(BlockState p_51042_, BlockGetter p_51043_, BlockPos p_51044_) {
-        return p_51042_.is(ChangedTags.Blocks.GROWS_LATEX_CRYSTALS) || p_51042_.getBlock() instanceof DarkLatexBlock || getLatexed(p_51042_) == LatexType.DARK_LATEX;
+    protected boolean mayPlaceOn(BlockState otherBlock, BlockGetter level, BlockPos blockPos) {
+        return otherBlock.is(ChangedTags.Blocks.GROWS_LATEX_CRYSTALS) ||
+                AbstractLatexBlock.isSurfaceOfType(LatexCoverGetter.extendDefault(level), blockPos, Direction.DOWN, SupportType.RIGID, ChangedLatexTypes.DARK_LATEX.get());
     }
 
     public boolean canSurvive(BlockState blockState, LevelReader level, BlockPos blockPos) {
-        BlockState blockStateOn = level.getBlockState(blockPos.below());
         if (!canSupportRigidBlock(level, blockPos.below()))
             return false;
-        return blockState.is(ChangedTags.Blocks.GROWS_LATEX_CRYSTALS) || blockStateOn.getBlock() instanceof DarkLatexBlock || getLatexed(blockStateOn) == LatexType.DARK_LATEX;
+        return blockState.is(ChangedTags.Blocks.GROWS_LATEX_CRYSTALS) ||
+                AbstractLatexBlock.isSurfaceOfType(level, blockPos, Direction.DOWN, SupportType.RIGID, ChangedLatexTypes.DARK_LATEX.get());
     }
 
     @Override
@@ -98,12 +101,12 @@ public abstract class TransfurCrystalBlock extends BushBlock implements NonLatex
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState blockState, LootContext.Builder lootBuilder) {
+    public List<ItemStack> getDrops(BlockState blockState, LootParams.Builder lootBuilder) {
         if (!shouldDrop(blockState))
             return List.of();
 
         if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, lootBuilder.getParameter(LootContextParams.TOOL)) > 0)
-            return List.of(new ItemStack(ChangedItems.getBlockItem(this)));
+            return List.of(new ItemStack(this));
 
         if (this instanceof AbstractDoubleTransfurCrystal)
             return List.of(new ItemStack(crystal.get(), 2));

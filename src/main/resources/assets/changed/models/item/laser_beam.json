@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "changed:blocks/laser_beam"
+    "layer0": "changed:block/laser_beam"
   }
 }

@@ -8,11 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -31,12 +31,12 @@ public class TscBaton extends TscWeapon implements SpecializedItemRendering {
 
     @Nullable
     @Override
-    public ModelResourceLocation getEmissiveModelLocation(ItemStack itemStack, ItemTransforms.TransformType type) {
+    public ModelResourceLocation getEmissiveModelLocation(ItemStack itemStack, ItemDisplayContext type) {
         return SpecializedItemRendering.isGUI(type) ? null : BATON_IN_HAND_EMISSIVE;
     }
 
     @Override
-    public ModelResourceLocation getModelLocation(ItemStack itemStack, ItemTransforms.TransformType type) {
+    public ModelResourceLocation getModelLocation(ItemStack itemStack, ItemDisplayContext type) {
         return SpecializedItemRendering.isGUI(type) ? BATON_INVENTORY : BATON_IN_HAND;
     }
 
@@ -56,8 +56,7 @@ public class TscBaton extends TscWeapon implements SpecializedItemRendering {
     }
 
     public float getDestroySpeed(ItemStack itemStack, BlockState blockState) {
-        Material material = blockState.getMaterial();
-        return material != Material.PLANT && material != Material.REPLACEABLE_PLANT && !blockState.is(BlockTags.LEAVES) && material != Material.VEGETABLE ? 1.0F : 1.5F;
+        return blockState.is(BlockTags.SWORD_EFFICIENT) ? 1.5F : 1.0F;
     }
 
     public boolean mineBlock(ItemStack itemStack, Level level, BlockState blockState, BlockPos blockPos, LivingEntity entity) {

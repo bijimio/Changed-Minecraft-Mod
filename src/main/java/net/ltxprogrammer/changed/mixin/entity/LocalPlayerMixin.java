@@ -21,6 +21,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.stats.StatsCounter;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeMod;
@@ -89,7 +91,8 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements P
     public void aiStep(CallbackInfo ci) {
         var playerMover = getPlayerMover();
         if (playerMover != null) {
-            this.input.tick(this.isMovingSlowly());
+            float f = Mth.clamp(0.3F + EnchantmentHelper.getSneakingSpeedBonus(this), 0.0F, 1.0F);
+            this.input.tick(this.isMovingSlowly(), f);
             playerMover.aiStep((LocalPlayer)(Object)this, InputWrapper.from(this), LogicalSide.CLIENT);
             super.aiStep();
             ci.cancel();
@@ -97,7 +100,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements P
         }
 
         LocalPlayer player = (LocalPlayer)(Object)this;
-        if (!player.level.isClientSide) return;
+        if (!player.level().isClientSide) return;
 
         ProcessTransfur.ifPlayerTransfurred(player, variant -> {
             if (player.getAttributeBaseValue(ForgeMod.SWIM_SPEED.get()) >= 1.1F && variant.getEntityShape().isLegless() && player.isUnderWater())

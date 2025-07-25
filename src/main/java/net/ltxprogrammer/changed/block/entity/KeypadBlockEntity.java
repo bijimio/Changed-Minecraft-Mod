@@ -8,7 +8,7 @@ import net.ltxprogrammer.changed.world.inventory.KeypadMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,8 +43,8 @@ public class KeypadBlockEntity extends BlockEntity implements MenuProvider {
             code = tag.getByteArray("Code");
     }
 
-    private static final Component SET_PASSWORD = new TranslatableComponent("container.changed.keypad_first");
-    private static final Component ENTER_PASSWORD = new TranslatableComponent("container.changed.keypad");
+    private static final Component SET_PASSWORD = Component.translatable("container.changed.keypad_first");
+    private static final Component ENTER_PASSWORD = Component.translatable("container.changed.keypad");
     @Override
     public Component getDisplayName() {
         if (this.code == null)
@@ -58,9 +59,9 @@ public class KeypadBlockEntity extends BlockEntity implements MenuProvider {
         return new KeypadMenu(id, inv, this.worldPosition, this.getBlockState(), this);
     }
 
-    private void playSound(SoundEvent event, float volume, float pitch) {
-        if (level.getServer() != null)
-            ChangedSounds.broadcastSound(level.getServer(), event, this.worldPosition, volume, pitch);
+    private void playSound(RegistryObject<SoundEvent> event, float volume, float pitch) {
+        if (level instanceof ServerLevel serverLevel)
+            ChangedSounds.broadcastSound(serverLevel, event, this.worldPosition, volume, pitch);
     }
 
     private void playUnlockSuccess() {

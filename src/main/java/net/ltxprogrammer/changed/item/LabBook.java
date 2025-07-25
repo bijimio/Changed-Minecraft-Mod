@@ -6,6 +6,6 @@ import net.minecraft.world.item.ItemNameBlockItem;
 
 public class LabBook extends ItemNameBlockItem {
     public LabBook() {
-        super(ChangedBlocks.BOOK_STACK.get(), new Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS));
+        super(ChangedBlocks.BOOK_STACK.get(), new Properties());
     }
 }

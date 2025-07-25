@@ -22,8 +22,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -34,7 +32,7 @@ public class ClipboardBlock extends AbstractCustomShapeEntityBlock implements Te
     public static final VoxelShape SHAPE_WHOLE = Block.box(2.0D, 0.0D, 0.0D, 14.0D, 1.0D, 15.0D);
 
     public ClipboardBlock() {
-        super(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.CANDLE).strength(0.2F));
+        super(BlockBehaviour.Properties.of().sound(SoundType.CANDLE).strength(0.2F));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 

@@ -8,6 +8,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class ColoredParticleOption implements ParticleOptions {
     public static final ParticleOptions.Deserializer<ColoredParticleOption> DESERIALIZER = new ParticleOptions.Deserializer<>() {
@@ -47,6 +48,6 @@ public class ColoredParticleOption implements ParticleOptions {
 
     @Override
     public String writeToString() {
-        return Registry.PARTICLE_TYPE.getKey(this.getType()) + " " + color.toInt();
+        return ForgeRegistries.PARTICLE_TYPES.getKey(this.getType()) + " " + color.toInt();
     }
 }

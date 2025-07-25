@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "changed:blocks/dropped_orange",
-		"particle": "changed:blocks/dropped_orange"
+		"0": "changed:block/dropped_orange",
+		"particle": "changed:block/dropped_orange"
 	},
 	"elements": [
 		{

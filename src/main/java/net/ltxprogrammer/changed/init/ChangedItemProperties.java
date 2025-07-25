@@ -12,7 +12,7 @@ public class ChangedItemProperties {
     @SubscribeEvent
     public static void registerProperties(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            ItemProperties.register(ChangedItems.TSC_SHIELD.get(), new ResourceLocation("blocking"), (item, level, entity, i) -> {
+            ItemProperties.register(ChangedItems.TSC_SHIELD.get(), ResourceLocation.parse("blocking"), (item, level, entity, i) -> {
                 return entity != null && entity.isUsingItem() && entity.getUseItem() == item ? 1.0F : 0.0F;
             });
         });

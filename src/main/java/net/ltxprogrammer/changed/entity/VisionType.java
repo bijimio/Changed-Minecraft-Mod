@@ -33,7 +33,7 @@ public enum VisionType implements StringRepresentable, Predicate<MobEffect> {
 
     public static DataResult<VisionType> fromSerial(String name) {
         return Arrays.stream(values()).filter(type -> type.serialName.equals(name))
-                .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(name + " is not a valid VisionType"));
+                .findFirst().map(DataResult::success).orElseGet(() -> DataResult.error(() -> name + " is not a valid VisionType"));
     }
 
     @Override

@@ -9,16 +9,18 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import tschipp.carryon.common.config.Configs;
-import tschipp.carryon.common.handler.PickupHandler;
+import tschipp.carryon.Constants;
+import tschipp.carryon.common.carry.PickupHandler;
+
+import java.util.function.Function;
 
 @Mixin(value = PickupHandler.class, remap = false)
 @RequiredMods("carryon")
 public class PickupHandlerMixin {
-    @Inject(method = "canPlayerPickUpEntity", at = @At("HEAD"), cancellable = true)
-    private static void handleChangedEntities(ServerPlayer player, Entity toPickUp, CallbackInfoReturnable<Boolean> cir) {
-        if (!(toPickUp instanceof ChangedEntity changedEntity)) return;
-        if (Configs.Settings.pickupHostileMobs.get()) return;
+    @Inject(method = "tryPickupEntity", at = @At("HEAD"), cancellable = true)
+    private static void handleChangedEntities(ServerPlayer player, Entity entity, Function<Entity, Boolean> pickupCallback, CallbackInfoReturnable<Boolean> cir) {
+        if (!(entity instanceof ChangedEntity changedEntity)) return;
+        if (Constants.COMMON_CONFIG.settings.pickupHostileMobs) return;
 
         ProcessTransfur.ifPlayerTransfurred(player, variant -> {
             if (variant.getLatexType() != changedEntity.getLatexType())

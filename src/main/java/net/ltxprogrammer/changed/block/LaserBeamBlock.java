@@ -24,14 +24,13 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class LaserBeamBlock extends Block implements NonLatexCoverableBlock {
+public class LaserBeamBlock extends Block {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final IntegerProperty DISTANCE = IntegerProperty.create("distance", 0,LaserEmitterBlock.MAX_DISTANCE);
     private static final VoxelShape SHAPE_X = Shapes.box(0, 7, 7, 16, 9, 9);
@@ -39,7 +38,7 @@ public class LaserBeamBlock extends Block implements NonLatexCoverableBlock {
     private static final VoxelShape SHAPE_Z = Shapes.box(7, 7, 0, 9, 9, 16);
 
     public LaserBeamBlock() {
-        super(BlockBehaviour.Properties.of(Material.STRUCTURAL_AIR).strength(-1.0F, 3600000.0F).noDrops()
+        super(BlockBehaviour.Properties.of().strength(-1.0F, 3600000.0F).noLootTable().air().replaceable()
                 .isValidSpawn((p_61031_, p_61032_, p_61033_, p_61034_) -> false)
                 .lightLevel(blockState -> 4).emissiveRendering(ChangedBlocks::always));
     }

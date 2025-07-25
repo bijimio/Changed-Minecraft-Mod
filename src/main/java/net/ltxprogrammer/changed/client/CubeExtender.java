@@ -1,10 +1,10 @@
 package net.ltxprogrammer.changed.client;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.core.Direction;
+import org.joml.Vector3f;
 
 import java.util.Set;
 

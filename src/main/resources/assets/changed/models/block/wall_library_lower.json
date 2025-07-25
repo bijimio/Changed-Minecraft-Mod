@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "down": "changed:blocks/library_brown",
-    "up": "changed:blocks/library_brown",
-    "north": "changed:blocks/library_wall_lower",
-    "east": "changed:blocks/library_wall_lower",
-    "south": "changed:blocks/library_wall_lower",
-    "west": "changed:blocks/library_wall_lower",
-    "particle": "changed:blocks/library_brown"
+    "down": "changed:block/library_brown",
+    "up": "changed:block/library_brown",
+    "north": "changed:block/library_wall_lower",
+    "east": "changed:block/library_wall_lower",
+    "south": "changed:block/library_wall_lower",
+    "west": "changed:block/library_wall_lower",
+    "particle": "changed:block/library_brown"
   }
 }

@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -18,11 +19,6 @@ public class LatexWhiteTiger extends ChangedEntity implements PowderSnowWalkable
         attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(1.15);
         attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(1.1);
         attributes.getInstance(Attributes.MAX_HEALTH).setBaseValue(22.0);
-    }
-
-    @Override
-    public LatexType getLatexType() {
-        return LatexType.NEUTRAL;
     }
 
     @Override

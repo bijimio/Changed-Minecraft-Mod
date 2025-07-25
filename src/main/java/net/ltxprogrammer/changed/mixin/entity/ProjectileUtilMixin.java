@@ -1,13 +1,19 @@
 package net.ltxprogrammer.changed.mixin.entity;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.util.StackUtil;
+import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
@@ -66,5 +72,10 @@ public abstract class ProjectileUtilMixin {
                 .and(ProjectileUtilMixin::targetIsNotSuit)
                 .and(ProjectileUtilMixin::targetIsNotInSuit), p_37293_);
         cir.setReturnValue(result);
+    }
+
+    @WrapOperation(method = "getHitResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
+    private static BlockHitResult extendedPOVHitResult(Level instance, ClipContext clipContext, Operation<BlockHitResult> original) {
+        return LatexCoverGetter.wrap(instance).clip(clipContext, original.call(instance, clipContext));
     }
 }

@@ -1,7 +1,6 @@
 package net.ltxprogrammer.changed.world.features.structures.facility;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.Arrays;
@@ -38,7 +37,7 @@ public enum Zone implements StringRepresentable {
     }
 
     public Component getTranslatedName() {
-        return new TranslatableComponent("facility.zone." + this.name);
+        return Component.translatable("facility.zone." + this.name);
     }
 
     public Zone next() {

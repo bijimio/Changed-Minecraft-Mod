@@ -5,10 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.*;
 import net.ltxprogrammer.changed.block.entity.StasisChamberBlockEntity;
 import net.ltxprogrammer.changed.client.ChangedClient;
-import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -16,11 +14,12 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.ForgeHooksClient;
+import org.joml.*;
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -88,15 +87,15 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
         Matrix4f matrix4f = pose.pose();
         Matrix3f matrix3f = pose.normal();
 
-        var up = Vector3f.YP.copy();
-        up.transform(matrix3f);
+        var up = new Vector3f(0f, 1f, 0f);
+        up.mul(matrix3f);
 
         for (var vertex : TOP_SURFACE_VERTICES) {
             float x = vertex.pos.x() / 16.0F;
             float y = vertex.pos.y() / 16.0F;
             float z = vertex.pos.z() / 16.0F;
             Vector4f vector4f = new Vector4f(x, y, z, 1.0F);
-            vector4f.transform(matrix4f);
+            vector4f.mul(matrix4f);
             buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), r, g, b, a,
                     sprite.getU(vertex.u),
                     sprite.getV(vertex.v),
@@ -113,16 +112,16 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
         Matrix4f matrix4f = pose.pose();
         Matrix3f matrix3f = pose.normal();
 
-        var front = Vector3f.ZP.copy();
-        front.transform(matrix3f);
-        var left = Vector3f.XP.copy();
-        left.add(Vector3f.ZP);
+        var front = new Vector3f(0f, 0f, 1f);
+        front.mul(matrix3f);
+        var left = new Vector3f(1f, 0f, 0f);
+        left.add(new Vector3f(0f, 0f, 1f));
         left.normalize();
-        left.transform(matrix3f);
-        var right = Vector3f.XN.copy();
-        right.add(Vector3f.ZP);
+        left.mul(matrix3f);
+        var right = new Vector3f(-1f, 0f, 0f);
+        right.add(new Vector3f(0f, 0f, 1f));
         right.normalize();
-        right.transform(matrix3f);
+        right.mul(matrix3f);
 
         float thisPos = 0f;
         while (blockSize > 0f) {
@@ -133,7 +132,7 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
                 float y = vertex.pos.y() / 16.0F;
                 float z = vertex.pos.z() / 16.0F;
                 Vector4f vector4f = new Vector4f(x, y, z, 1.0F);
-                vector4f.transform(matrix4f);
+                vector4f.mul(matrix4f);
 
                 buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), r, g, b, a,
                         sprite.getU(vertex.u),
@@ -146,7 +145,7 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
                 float y = vertex.pos.y() / 16.0F;
                 float z = vertex.pos.z() / 16.0F;
                 Vector4f vector4f = new Vector4f(x, y, z, 1.0F);
-                vector4f.transform(matrix4f);
+                vector4f.mul(matrix4f);
 
                 buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), r, g, b, a,
                         sprite.getU(vertex.u),
@@ -159,7 +158,7 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
                 float y = vertex.pos.y() / 16.0F;
                 float z = vertex.pos.z() / 16.0F;
                 Vector4f vector4f = new Vector4f(x, y, z, 1.0F);
-                vector4f.transform(matrix4f);
+                vector4f.mul(matrix4f);
 
                 buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), r, g, b, a,
                         sprite.getU(vertex.u),
@@ -183,17 +182,17 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
             pose.translate(0, -1f, 0f);
             pose.translate(0.5f, 0f, 0.5f);
             pose.mulPose(switch (blockEntity.getBlockState().getValue(HorizontalDirectionalBlock.FACING)) {
-                case EAST -> Vector3f.YP.rotationDegrees(-90.0F);
-                case WEST -> Vector3f.YP.rotationDegrees(90.0F);
-                case SOUTH -> Vector3f.YP.rotationDegrees(180.0F);
-                default -> Quaternion.ONE;
+                case EAST -> Axis.YP.rotationDegrees(-90.0F);
+                case WEST -> Axis.YP.rotationDegrees(90.0F);
+                case SOUTH -> Axis.YP.rotationDegrees(180.0F);
+                default -> new Quaternionf();
             });
             pose.translate(-0.5f, 0f, -0.5f);
 
             var fluidState = fluid.defaultFluidState();
             var sprites = ForgeHooksClient.getFluidSprites(blockEntity.getLevel(), blockEntity.getBlockPos(), fluidState);
 
-            var color = fluid.getAttributes().getColor(blockEntity.getLevel(), blockEntity.getBlockPos());
+            var color = net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions.of(fluid).getTintColor(fluidState, blockEntity.getLevel(), blockEntity.getBlockPos());
             var rgb = Color3.fromInt(color);
             float alpha = ((float)((color >> 24) & 0xFF)) / 255f;
             if (fluid.isSame(Fluids.WATER))
@@ -215,16 +214,14 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
             }
 
             final float renderAlpha = alpha;
-            for (RenderType rendertype : RenderType.chunkBufferLayers()) {
-                if (!fluidState.isEmpty() && ItemBlockRenderTypes.canRenderInLayer(fluidState, rendertype)) {
-                    final PoseStack.Pose renderPose = pose.last();
-                    ChangedClient.recordTranslucentRender(buffers, rendertype, buffer -> {
-                        if (fillPercent < 1f)
-                            renderTopSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), renderAlpha, sprites[0]);
-                        renderFrontSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), renderAlpha, sprites[1], fillYLevel);
-                    });
-                }
-            }
+
+            RenderType rendertype = ItemBlockRenderTypes.getRenderLayer(fluidState);
+            final PoseStack.Pose renderPose = pose.last();
+            ChangedClient.recordTranslucentRender(buffers, rendertype, buffer -> {
+                if (fillPercent < 1f)
+                    renderTopSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), renderAlpha, sprites[0]);
+                renderFrontSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), renderAlpha, sprites[1], fillYLevel);
+            });
 
             pose.popPose();
         });

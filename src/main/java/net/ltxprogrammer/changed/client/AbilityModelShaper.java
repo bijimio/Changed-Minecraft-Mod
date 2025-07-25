@@ -35,11 +35,15 @@ public class AbilityModelShaper {
 
     @Nullable
     public BakedModel getAbilityModel(AbstractAbility<?> ability) {
-        return this.shapesCache.get(ability.delegate.name());
+        return this.shapesCache.get(ChangedRegistry.ABILITY.getKey(ability));
     }
 
     public void register(AbstractAbility<?> ability, ModelResourceLocation modelLocation) {
-        this.shapes.put(ability.delegate.name(), modelLocation);
+        this.shapes.put(ChangedRegistry.ABILITY.getKey(ability), modelLocation);
+    }
+
+    public void register(ResourceLocation ability, ModelResourceLocation modelLocation) {
+        this.shapes.put(ability, modelLocation);
     }
 
     public ModelManager getModelManager() {

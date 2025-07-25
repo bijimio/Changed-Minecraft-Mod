@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/stairs",
   "textures": {
-    "bottom": "changed:blocks/tiles_grayblue_bolted",
-    "top": "changed:blocks/tiles_grayblue_bolted",
-    "side": "changed:blocks/tiles_grayblue_bolted"
+    "bottom": "changed:block/tiles_grayblue_bolted",
+    "top": "changed:block/tiles_grayblue_bolted",
+    "side": "changed:block/tiles_grayblue_bolted"
   }
 }

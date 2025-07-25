@@ -1,6 +1,5 @@
 package net.ltxprogrammer.changed.mixin.render;
 
-import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.client.CubeDefinitionExtender;
 import net.ltxprogrammer.changed.client.CubeListBuilderExtender;
 import net.ltxprogrammer.changed.client.Triangle;
@@ -8,6 +7,7 @@ import net.minecraft.client.model.geom.builders.CubeDefinition;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.core.Direction;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

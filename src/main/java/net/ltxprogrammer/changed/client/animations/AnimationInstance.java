@@ -1,6 +1,5 @@
 package net.ltxprogrammer.changed.client.animations;
 
-import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.client.ClientLivingEntityExtender;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
@@ -17,6 +16,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -150,7 +150,7 @@ public class AnimationInstance {
     public Vector3f getTargetValue(Limb limb, AnimationChannel.Target target, float partialTicks) {
         final var channelList = animation.channels.get(limb);
         if (channelList == null)
-            return Vector3f.ZERO;
+            return new Vector3f(0.0f);
 
         final float time = Mth.lerp(partialTicks, this.timeO, this.time);
         return channelList.stream().filter(channel -> channel.getTarget() == target)

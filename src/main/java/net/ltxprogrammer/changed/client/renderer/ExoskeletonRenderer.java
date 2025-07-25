@@ -1,10 +1,9 @@
 package net.ltxprogrammer.changed.client.renderer;
 
+import com.mojang.math.Axis;
+import org.joml.*;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.renderer.model.ExoskeletonModel;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
@@ -23,8 +22,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.Math;
+
 public class ExoskeletonRenderer extends MobRenderer<Exoskeleton, ExoskeletonModel> {
-    private static final RenderType BEAM_RENDER_TYPE = RenderType.eyes(Changed.modResource("textures/blocks/laser_beam.png"));
+    private static final RenderType BEAM_RENDER_TYPE = RenderType.eyes(Changed.modResource("textures/block/laser_beam.png"));
 
     public ExoskeletonRenderer(EntityRendererProvider.Context context) {
         super(context, new ExoskeletonModel(context.bakeLayer(ExoskeletonModel.LAYER_LOCATION_SUIT)), 0.4f);
@@ -68,7 +69,7 @@ public class ExoskeletonRenderer extends MobRenderer<Exoskeleton, ExoskeletonMod
         }
 
         if (hurtTime > 0.0F) {
-            poseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.sin(hurtTime) * hurtTime * damageTime / 10.0F * (float)exoskeleton.getHurtDir()));
+            poseStack.mulPose(Axis.YP.rotationDegrees(Mth.sin(hurtTime) * hurtTime * damageTime / 10.0F * (float)exoskeleton.getHurtDir()));
         }
 
         super.render(exoskeleton, yRot, partialTicks, poseStack, bufferSource, packedLight);
@@ -89,9 +90,9 @@ public class ExoskeletonRenderer extends MobRenderer<Exoskeleton, ExoskeletonMod
             laserDirection = laserDirection.normalize();
             float pitch = (float)Math.acos(laserDirection.y);
             float yaw = (float)Math.atan2(laserDirection.z, laserDirection.x);
-            poseStack.mulPose(Vector3f.YP.rotationDegrees((((float)Math.PI / 2F) - yaw) * (180F / (float)Math.PI)));
+            poseStack.mulPose(Axis.YP.rotationDegrees((((float)Math.PI / 2F) - yaw) * (180F / (float)Math.PI)));
             poseStack.translate(0.0D, 0.0D, 4.0D / 16.0D);
-            poseStack.mulPose(Vector3f.XP.rotationDegrees(pitch * (180F / (float)Math.PI)));
+            poseStack.mulPose(Axis.XP.rotationDegrees(pitch * (180F / (float) Math.PI)));
             int i = 1;
             float rotate = (worldTicks / 10f) * Mth.TWO_PI;
             float f8 = attackScale * attackScale;
