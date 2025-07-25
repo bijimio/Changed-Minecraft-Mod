@@ -74,6 +74,7 @@ public class ChangedBlocks {
     public static final RegistryObject<CardboardBoxSmall> CARDBOARD_BOX_SMALL = register("cardboard_box_small", CardboardBoxSmall::new);
     public static final RegistryObject<CardboardBoxTall> CARDBOARD_BOX_TALL = register("cardboard_box", CardboardBoxTall::new);
     public static final RegistryObject<CardboardBox> CARDBOARD_BOX = register("cardboard_container", CardboardBox::new);
+    public static final RegistryObject<AlertingPuddle> DARK_LATEX_PUDDLE = register("dark_latex_puddle", () -> new AlertingPuddle(ChangedLatexTypes.DARK_LATEX));
     public static final RegistryObject<DroppedOrange> DROPPED_ORANGE = registerNoItem("dropped_orange", DroppedOrange::new);
     public static final RegistryObject<DroppedSyringe> DROPPED_SYRINGE = registerNoItem("dropped_syringe", DroppedSyringe::new);
     public static final RegistryObject<DuctBlock> DUCT = register("duct", () -> new DuctBlock(BlockBehaviour.Properties.of().sound(SoundType.METAL).strength(3.0F, 3.0F)));

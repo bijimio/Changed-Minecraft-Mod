@@ -1,0 +1,7 @@
+{
+  "parent": "changed:custom/latex_puddle_v1",
+  "textures": {
+    "0": "changed:block/dark_latex_block_top",
+    "particle": "changed:block/dark_latex_block_top"
+  }
+}

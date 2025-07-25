@@ -27,6 +27,7 @@ public class ChangedTags {
         public static final TagKey<EntityType<?>> CAN_OPEN_LAB_DOORS = create("can_open_lab_doors");
         public static final TagKey<EntityType<?>> CAN_WEAR_EXOSKELETON = create("can_wear_exoskeleton");
         public static final TagKey<EntityType<?>> BENIGN_LATEXES = create("benign_latexes");
+        public static final TagKey<EntityType<?>> DARK_LATEXES = create("dark_latexes");
 
         private static TagKey<EntityType<?>> create(String name) {
             return TagKey.create(Registries.ENTITY_TYPE, Changed.modResource(name));

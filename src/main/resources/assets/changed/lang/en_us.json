@@ -78,6 +78,8 @@
   "subtitles.changed.blow1": "Player infected",
   "subtitles.changed.vacuum": "Vacuum spins",
 
+  "subtitles.changed.puddle_alert": "Puddle Alert",
+
   "subtitles.changed.exoskeleton_step": "Exoskeleton steps",
   "subtitles.changed.exoskeleton_chime": "Digital chime",
   "subtitles.changed.exoskeleton_lock": "Exoskeleton equipped",

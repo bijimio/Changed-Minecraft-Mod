@@ -13,6 +13,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
@@ -68,6 +69,8 @@ public class ChangedSounds {
     public static final RegistryObject<SoundEvent> SWITCH2 = register("switch2");
     public static final RegistryObject<SoundEvent> SWORD1 = register("sword1");
     public static final RegistryObject<SoundEvent> VACUUM = register("vacuum");
+
+    public static final RegistryObject<SoundEvent> PUDDLE_ALERT = register("puddle_alert");
 
     public static final RegistryObject<SoundEvent> EXOSKELETON_STEP = register("exoskeleton_step");
     public static final RegistryObject<SoundEvent> EXOSKELETON_CHIME = register("exoskeleton_chime");
@@ -128,5 +131,17 @@ public class ChangedSounds {
         if (player instanceof ServerPlayer serverPlayer)
             serverPlayer.connection.send(new ClientboundSoundPacket(
                     event.getHolder().orElseThrow(), SoundSource.NEUTRAL, player.getX(), player.getY(), player.getZ(), volume, pitch, player.getRandom().nextLong()));
+    }
+
+    public static void sendLocalSound(Player player, BlockPos blockPos, RegistryObject<SoundEvent> event, float volume, float pitch) {
+        if (player instanceof ServerPlayer serverPlayer)
+            serverPlayer.connection.send(new ClientboundSoundPacket(
+                    event.getHolder().orElseThrow(), SoundSource.NEUTRAL, blockPos.getX(), blockPos.getY(), blockPos.getZ(), volume, pitch, player.getRandom().nextLong()));
+    }
+
+    public static void sendLocalSound(Player player, Vec3 pos, RegistryObject<SoundEvent> event, float volume, float pitch) {
+        if (player instanceof ServerPlayer serverPlayer)
+            serverPlayer.connection.send(new ClientboundSoundPacket(
+                    event.getHolder().orElseThrow(), SoundSource.NEUTRAL, pos.x(), pos.y(), pos.z(), volume, pitch, player.getRandom().nextLong()));
     }
 }

@@ -12,6 +12,8 @@
   "changed:cardboard_box_small": "deckwood",
   "changed:cardboard_box": "deckwood",
   "changed:cardboard_container": "deckwood",
+  "changed:dark_latex_puddle": "mudfine,slime",
+  "changed:dark_latex_puddle.foliage": "mudfine,slime",
   "changed:dropped_orange": "organic",
   "changed:duct": "hollowmetal",
   "changed:exoskeleton_charger": "hardmetal, composite",
