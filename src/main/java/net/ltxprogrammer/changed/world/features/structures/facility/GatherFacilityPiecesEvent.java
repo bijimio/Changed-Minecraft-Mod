@@ -22,6 +22,10 @@ public class GatherFacilityPiecesEvent extends Event implements IModBusEvent {
         return this;
     }
 
+    public PieceType getPieceType() {
+        return pieceType;
+    }
+
     public FacilityPieceCollectionBuilder getBuilder() {
         return builder;
     }
