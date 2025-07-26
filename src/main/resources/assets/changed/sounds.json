@@ -330,6 +330,17 @@
     "subtitle": "subtitles.changed.vacuum"
   },
 
+  "puddle_alert": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "changed:down1",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitles.changed.puddle_alert"
+  },
+
   "exoskeleton_step": {
     "category": "entity",
     "sounds": [

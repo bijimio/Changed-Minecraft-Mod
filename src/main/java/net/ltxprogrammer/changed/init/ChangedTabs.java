@@ -47,6 +47,8 @@ public class ChangedTabs {
                         output.accept(ChangedBlocks.STASIS_CHAMBER.get());
 
                         output.accept(ChangedBlocks.AIR_CONDITIONER.get());
+                        output.accept(ChangedBlocks.BAR_STOOL.get());
+                        output.accept(ChangedBlocks.BAR_TOP.get());
                         output.accept(ChangedBlocks.BEAKER.get());
                         output.accept(ChangedBlocks.BEDSIDE_IV_RACK.get());
                         output.accept(ChangedBlocks.BLACK_RAILING.get());
@@ -81,6 +83,7 @@ public class ChangedTabs {
                         output.accept(ChangedBlocks.WOLF_CRYSTAL.get());
                         output.accept(ChangedBlocks.WOLF_CRYSTAL_SMALL.get());
                         output.accept(ChangedBlocks.DARK_LATEX_CRYSTAL_LARGE.get());
+                        output.accept(ChangedBlocks.DARK_LATEX_PUDDLE.get());
                         output.accept(ChangedBlocks.WHITE_LATEX_PUDDLE_MALE.get());
                         output.accept(ChangedBlocks.WHITE_LATEX_PUDDLE_FEMALE.get());
                         output.accept(ChangedBlocks.PIPE.get());

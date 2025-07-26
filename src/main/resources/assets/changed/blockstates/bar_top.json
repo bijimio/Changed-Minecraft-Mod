@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "facing=south,attached=false": { "model": "changed:block/bar_top_unsupported" },
+    "facing=west,attached=false": { "model": "changed:block/bar_top_unsupported", "y": 90 },
+    "facing=north,attached=false": { "model": "changed:block/bar_top_unsupported", "y": 180 },
+    "facing=east,attached=false": { "model": "changed:block/bar_top_unsupported", "y": 270 },
+
+    "facing=south,attached=true": { "model": "changed:block/bar_top_supported" },
+    "facing=west,attached=true": { "model": "changed:block/bar_top_supported", "y": 90 },
+    "facing=north,attached=true": { "model": "changed:block/bar_top_supported", "y": 180 },
+    "facing=east,attached=true": { "model": "changed:block/bar_top_supported", "y": 270 }
+  }
+}

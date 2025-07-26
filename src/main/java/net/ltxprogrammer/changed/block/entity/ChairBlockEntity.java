@@ -8,11 +8,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class OfficeChairBlockEntity extends BlockEntity implements SeatableBlockEntity {
+public class ChairBlockEntity extends BlockEntity implements SeatableBlockEntity {
     public SeatEntity entityHolder;
 
-    public OfficeChairBlockEntity(BlockPos pos, BlockState state) {
-        super(ChangedBlockEntities.OFFICE_CHAIR.get(), pos, state);
+    public ChairBlockEntity(BlockPos pos, BlockState state) {
+        super(ChangedBlockEntities.CHAIR.get(), pos, state);
     }
 
     @Override
@@ -48,5 +48,5 @@ public class OfficeChairBlockEntity extends BlockEntity implements SeatableBlock
         }
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, OfficeChairBlockEntity blockEntity) {}
+    public static void tick(Level level, BlockPos pos, BlockState state, ChairBlockEntity blockEntity) {}
 }
