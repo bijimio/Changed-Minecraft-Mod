@@ -77,6 +77,8 @@
   "subtitles.changed.paralyze3": "Interkom bejelenti",
   "subtitles.changed.blow1": "Játékos latexezik",
   "subtitles.changed.vacuum": "Porszívó pörög",
+
+  "subtitles.changed.puddle_alert": "Pocsolya riasztás",
   
   "subtitles.changed.exoskeleton_step": "Exoskeleton lép",
   "subtitles.changed.exoskeleton_chime": "Digitális csengőhang",
@@ -284,6 +286,8 @@
   "curios.identifier.lower_body": "Alsótest",
 
   "block.changed.air_conditioner": "Légkondicionáló",
+  "block.changed.bar_stool": "Bárszék",
+  "block.changed.bar_top": "Bárpult",
   "block.changed.beaker": "Főzőpohár",
   "block.changed.bedside_iv_rack": "Infúziós állvány",
   "block.changed.beehive_bed": "Méhkas-ágy",
