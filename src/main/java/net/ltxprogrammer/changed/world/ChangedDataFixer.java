@@ -204,6 +204,28 @@ public class ChangedDataFixer {
 
             updateID(VARIANT_ID_REMAP, tag, "TransfurVariant");
         });
+        map.put(DataFixTypes.STRUCTURE, tag -> {
+            if (tag.get("entities") instanceof ListTag listTag) {
+                listTag.forEach(entityTag -> {
+                    if (entityTag instanceof CompoundTag compoundTag && compoundTag.get("nbt") instanceof CompoundTag entityDataTag)
+                        updateEntity(entityDataTag);
+                });
+            }
+
+            if (tag.get("palette") instanceof ListTag listTag) {
+                listTag.forEach(paletteTag -> {
+                    if (paletteTag instanceof CompoundTag compoundTag)
+                        updateBlock(compoundTag);
+                });
+            }
+
+            if (tag.get("blocks") instanceof ListTag listTag) {
+                listTag.forEach(blockTag -> {
+                    if (blockTag instanceof CompoundTag compoundTag && compoundTag.get("nbt") instanceof CompoundTag blockEntityTag)
+                        updateBlockEntity(blockEntityTag);
+                });
+            }
+        });
         map.put(DataFixTypes.CHUNK, tag -> {
             if (tag.get("block_entities") instanceof ListTag listTag) {
                 listTag.forEach(entityTag -> {
