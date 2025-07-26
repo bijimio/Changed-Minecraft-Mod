@@ -37,7 +37,7 @@ public class ChangedBlockEntities {
     public static final RegistryObject<BlockEntityType<CardboardBoxBlockEntity>> CARDBOARD_BOX = REGISTRY.register("cardboard_container", deferredProvider(CardboardBoxBlockEntity::new, ChangedBlocks.CARDBOARD_BOX));
     public static final RegistryObject<BlockEntityType<CardboardBoxSmallEntity>> CARDBOARD_BOX_SMALL = REGISTRY.register("small_cardboard_box", deferredProvider(CardboardBoxSmallEntity::new, ChangedBlocks.CARDBOARD_BOX_SMALL));
     public static final RegistryObject<BlockEntityType<DroppedSyringeBlockEntity>> DROPPED_SYRINGE = REGISTRY.register("dropped_syringe", deferredProvider(DroppedSyringeBlockEntity::new, ChangedBlocks.DROPPED_SYRINGE));
-    public static final RegistryObject<BlockEntityType<OfficeChairBlockEntity>> OFFICE_CHAIR = REGISTRY.register("office_chair", deferredProvider(OfficeChairBlockEntity::new, ChangedBlocks.OFFICE_CHAIR));
+    public static final RegistryObject<BlockEntityType<ChairBlockEntity>> CHAIR = REGISTRY.register("chair", deferredProvider(ChairBlockEntity::new, ChangedBlocks.BAR_STOOL, ChangedBlocks.OFFICE_CHAIR));
     public static final RegistryObject<BlockEntityType<PillowBlockEntity>> PILLOW = REGISTRY.register("pillow", deferredProvider(PillowBlockEntity::new, ChangedBlocks.PILLOWS.values().stream()));
     public static final RegistryObject<BlockEntityType<LabDoorOpenerEntity>> LAB_DOOR_OPENER = REGISTRY.register("lab_door_opener", deferredProvider((pos, state) -> {
         if (state.getBlock() instanceof OpenableDoor door)

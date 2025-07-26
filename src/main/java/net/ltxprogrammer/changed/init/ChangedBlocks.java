@@ -56,6 +56,8 @@ public class ChangedBlocks {
     public static final RegistryObject<FreshAirBlock> FRESH_AIR = registerNoItem("fresh_air", () -> new FreshAirBlock(BlockBehaviour.Properties.of().replaceable().noCollission().noLootTable().air()));
 
     public static final RegistryObject<AirConditionerBlock> AIR_CONDITIONER = register("air_conditioner", () -> new AirConditionerBlock(BlockBehaviour.Properties.of().sound(SoundType.METAL).requiresCorrectToolForDrops().strength(3.0F, 3.0F)));
+    public static final RegistryObject<BarStool> BAR_STOOL = register("bar_stool", BarStool::new);
+    public static final RegistryObject<BarTopBlock> BAR_TOP = register("bar_top", () -> new BarTopBlock(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));
     public static final RegistryObject<Beaker> BEAKER = register("beaker", Beaker::new);
     public static final RegistryObject<BedsideIVRack> BEDSIDE_IV_RACK = register("bedside_iv_rack", BedsideIVRack::new);
     public static final RegistryObject<BeehiveBed> BEEHIVE_BED = register("beehive_bed", BeehiveBed::new);
