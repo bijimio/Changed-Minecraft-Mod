@@ -408,12 +408,12 @@ public abstract class SpreadingLatexType extends LatexType {
         }
 
         @Override
-        public boolean isHostileTo(LatexType otherType) {
+        public boolean isHostileTo(@Nullable LatexType otherType) {
             return super.isHostileTo(otherType) || otherType == ChangedLatexTypes.WHITE_LATEX.get();
         }
 
         @Override
-        public boolean isFriendlyTo(LatexType otherType) {
+        public boolean isFriendlyTo(@Nullable LatexType otherType) {
             return super.isFriendlyTo(otherType) || otherType == this;
         }
 
@@ -541,12 +541,12 @@ public abstract class SpreadingLatexType extends LatexType {
         }
 
         @Override
-        public boolean isHostileTo(LatexType otherType) {
+        public boolean isHostileTo(@Nullable LatexType otherType) {
             return super.isHostileTo(otherType) || otherType == ChangedLatexTypes.DARK_LATEX.get();
         }
 
         @Override
-        public boolean isFriendlyTo(LatexType otherType) {
+        public boolean isFriendlyTo(@Nullable LatexType otherType) {
             return super.isFriendlyTo(otherType) || otherType == this;
         }
 

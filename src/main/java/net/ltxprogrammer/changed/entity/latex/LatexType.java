@@ -266,11 +266,11 @@ public abstract class LatexType {
         return null;
     }
 
-    public boolean isHostileTo(LatexType otherType) {
-        return false;
+    public boolean isHostileTo(@Nullable LatexType otherType) {
+        return otherType == null;
     }
 
-    public boolean isFriendlyTo(LatexType otherType) {
+    public boolean isFriendlyTo(@Nullable LatexType otherType) {
         return false;
     }
 
