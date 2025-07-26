@@ -57,6 +57,8 @@
   "changed:speaker": "hardmetal",
   "changed:microphone": "hardmetal",
   "changed:microscope": "hardmetal",
+  "changed:shipping_container_blue": "hollowmetal",
+  "changed:shipping_container_orange": "hollowmetal",
   "changed:tape_recorder": "hardmetal",
   "changed:tiles_blue": "composite",
   "changed:tiles_blue_small": "composite",
