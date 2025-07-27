@@ -32,7 +32,7 @@ public abstract class OptionsMixin implements ChangedOptions {
 
     @Inject(method = "getEffectiveRenderDistance", at = @At("HEAD"), cancellable = true)
     public void waveVisionRenderDistance(CallbackInfoReturnable<Integer> cir) {
-        if (ChangedClient.shouldRenderingWaveVision())
+        if (ChangedClient.shouldBeRenderingWaveVision())
             cir.setReturnValue(2);
     }
 }

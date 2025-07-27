@@ -38,7 +38,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.NamedRenderTypeManager;
 import net.minecraftforge.client.model.IModelBuilder;
@@ -54,7 +53,6 @@ import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -135,7 +133,7 @@ public class LatexCoveredBlocksRenderer implements PreparableReloadListener {
 
     public RenderType getRenderType(LatexCoverState coverState) {
         // Maybe use a tag
-        if (ChangedClient.shouldRenderingWaveVision() && ChangedLatexTypes.DARK_LATEX.get().isFriendlyTo(coverState.getType()))
+        if (ChangedClient.shouldBeRenderingWaveVision() && ChangedLatexTypes.DARK_LATEX.get().isFriendlyTo(coverState.getType()))
             return ChangedShaders.waveVisionResonantSolid(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL);
         return RenderType.solid();
     }

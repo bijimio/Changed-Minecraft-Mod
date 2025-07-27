@@ -1,19 +1,23 @@
-package net.ltxprogrammer.changed.extension.rubidium;
+package net.ltxprogrammer.changed.extension.sodium;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
-import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadWinding;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
-import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexEncoder;
+import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.Material;
+import me.jellysquid.mods.sodium.client.render.chunk.vertex.builder.ChunkMeshBufferBuilder;
+import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
+import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 
 public class OptimizedVertexBuilder implements VertexConsumer {
     private final ChunkVertexEncoder.Vertex[] vertices;
     private final ChunkModelBuilder wrapped;
+    private final Material material;
     private int index = 0;
 
-    public OptimizedVertexBuilder(ChunkVertexEncoder.Vertex[] vertices, ChunkModelBuilder wrapped) {
+    public OptimizedVertexBuilder(ChunkVertexEncoder.Vertex[] vertices, ChunkModelBuilder wrapped, Material material) {
         this.vertices = vertices;
         this.wrapped = wrapped;
+        this.material = material;
     }
 
     @Override
@@ -60,9 +64,8 @@ public class OptimizedVertexBuilder implements VertexConsumer {
     @Override
     public void endVertex() {
         if (++index >= vertices.length) {
-            final var indexBuffer = wrapped.getIndexBuffer(ModelQuadFacing.UNASSIGNED);
-            final var vertexBuffer = wrapped.getVertexBuffer();
-            indexBuffer.add(vertexBuffer.push(vertices), ModelQuadWinding.CLOCKWISE);
+            final var vertexBuffer = wrapped.getVertexBuffer(ModelQuadFacing.UNASSIGNED);
+            vertexBuffer.push(vertices, material);
             index = 0;
         }
     }

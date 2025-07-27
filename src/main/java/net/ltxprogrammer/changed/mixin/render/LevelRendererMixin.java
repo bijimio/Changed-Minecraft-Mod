@@ -46,7 +46,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3d;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -229,7 +228,7 @@ public abstract class LevelRendererMixin {
     public void ensureChunkIsUpdated(BlockPos blockPos, boolean important, Operation<Void> original) {
         original.call(blockPos, important); // Sodium overwrites this function, so we have to put it back
 
-        if (!ChangedClient.shouldRenderingWaveVision()) return;
+        if (!ChangedClient.shouldBeRenderingWaveVision()) return;
 
         for(int z = blockPos.getZ() - 1; z <= blockPos.getZ() + 1; ++z) {
             for(int x = blockPos.getX() - 1; x <= blockPos.getX() + 1; ++x) {
@@ -242,7 +241,7 @@ public abstract class LevelRendererMixin {
 
     @Inject(method = "allChanged", at = @At("HEAD"), cancellable = true)
     public void overrideAllChangedIfWaveVision(CallbackInfo ci) {
-        if (ChangedClient.shouldRenderingWaveVision()) {
+        if (ChangedClient.shouldBeRenderingWaveVision()) {
             ci.cancel();
             waveVisionAllChanged();
         }
@@ -253,11 +252,11 @@ public abstract class LevelRendererMixin {
         if (this.level != null) {
             this.graphicsChanged();
             this.level.clearTintCaches();
-            if (this.chunkRenderDispatcher == null) {
+            //if (this.chunkRenderDispatcher == null) {
                 this.chunkRenderDispatcher = new ChunkRenderDispatcher(this.level, (LevelRenderer)(Object)this, Util.backgroundExecutor(), this.minecraft.is64Bit(), this.renderBuffers.fixedBufferPack());
-            } else {
+            /*} else {
                 this.chunkRenderDispatcher.setLevel(this.level);
-            }
+            }*/
 
             this.needsFullRenderChunkUpdate = true;
             this.generateClouds = true;
@@ -394,7 +393,7 @@ public abstract class LevelRendererMixin {
 
     @Inject(method = "renderLevel", at = @At("HEAD"), cancellable = true)
     public void orRenderWaveVision(PoseStack poseStack, float partialTicks, long nanoseconds, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
-        if (!ChangedClient.shouldRenderingWaveVision())
+        if (!ChangedClient.shouldBeRenderingWaveVision())
             return;
 
         ci.cancel();

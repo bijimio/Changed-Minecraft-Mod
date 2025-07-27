@@ -14,6 +14,13 @@ public class ChangedMixinPlugin implements IMixinConfigPlugin {
         return FMLLoader.getLoadingModList().getModFileById(modId) != null;
     }
 
+    private static boolean conditionSatisfied(String modIdCondition) {
+        if (modIdCondition.startsWith("!"))
+            return !isModPresent(modIdCondition.substring(1));
+        else
+            return isModPresent(modIdCondition);
+    }
+
     @Override
     public void onLoad(String mixinPackage) {
 
@@ -28,7 +35,7 @@ public class ChangedMixinPlugin implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         // This map is generated at compile-time, and doesn't exist until then
         final Multimap<String, String> dependencies = net.ltxprogrammer.changed.extension.MixinDependencies.MULTIMAP;
-        return dependencies.get(mixinClassName).stream().allMatch(ChangedMixinPlugin::isModPresent);
+        return dependencies.get(mixinClassName).stream().allMatch(ChangedMixinPlugin::conditionSatisfied);
     }
 
     @Override

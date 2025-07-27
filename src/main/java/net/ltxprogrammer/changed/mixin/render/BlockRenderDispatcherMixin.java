@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class BlockRenderDispatcherMixin {
     @WrapMethod(method = "getBlockModel")
     public BakedModel maybeWrapBlockModelForWaveVision(BlockState state, Operation<BakedModel> original) {
-        if (!ChangedClient.shouldRenderingWaveVision())
+        if (!ChangedClient.shouldBeRenderingWaveVision())
             return original.call(state);
         if (state.is(ChangedTags.Blocks.CRYSTALLINE))
             return new WaveVisionRenderer.WrappedModel(original.call(state));
@@ -28,7 +28,7 @@ public abstract class BlockRenderDispatcherMixin {
     @WrapOperation(method = "renderBreakingTexture(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/BlockAndTintGetter;Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraftforge/client/model/data/ModelData;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/BlockModelShaper;getBlockModel(Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/client/resources/model/BakedModel;"))
     public BakedModel maybeWrapBlockModelForWaveVision(BlockModelShaper instance, BlockState state, Operation<BakedModel> original) {
-        if (!ChangedClient.shouldRenderingWaveVision())
+        if (!ChangedClient.shouldBeRenderingWaveVision())
             return original.call(instance, state);
         if (state.is(ChangedTags.Blocks.CRYSTALLINE))
             return new WaveVisionRenderer.WrappedModel(original.call(instance, state));

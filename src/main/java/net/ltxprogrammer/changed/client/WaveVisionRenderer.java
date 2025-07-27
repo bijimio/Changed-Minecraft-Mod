@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.data.MixedTexture;
-import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.init.ChangedTextures;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -18,7 +17,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -37,12 +35,10 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.model.BakedModelWrapper;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -56,7 +52,6 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.stream.StreamSupport;
 
 public class WaveVisionRenderer {
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -100,8 +95,9 @@ public class WaveVisionRenderer {
 
         @Override
         public @NotNull ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
-            return ChunkRenderTypeSet.of(StreamSupport.stream(super.getRenderTypes(state, rand, data).spliterator(), false)
-                    .map(type -> this.convertRenderType(state, rand, data, type)).toList());
+            return ChangedClient.createRenderTypeSetWithOverride(super.getRenderTypes(state, rand, data), renderType -> {
+                return this.convertRenderType(state, rand, data, renderType);
+            });
         }
 
         @Override

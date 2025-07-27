@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -82,8 +83,45 @@ public class ChangedCompatibility {
             }
         }
 
+        public Supplier<T> partialRead(Clazz clazz) {
+            return () -> apply(clazz);
+        }
+
         public static <Clazz, T> ClassField<Clazz, T> of(String className, String fieldName) {
             return new ClassField<>(findField(className, fieldName));
+        }
+    }
+
+    public static class ClassFunction<Clazz, T, R> implements BiFunction<Clazz, T, R> {
+        private final Method method;
+
+        public ClassFunction(Method method) {
+            this.method = method;
+        }
+
+        @Override
+        public R apply(Clazz clazz, T param) {
+            try {
+                return method != null ? (R) method.invoke(clazz, param) : null;
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                return null;
+            }
+        }
+
+        public R applyOr(Clazz clazz, T param, R value) {
+            try {
+                return method != null ? (R) method.invoke(clazz, param) : value;
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                return value;
+            }
+        }
+
+        public Function<T, R> partialInvoke(Clazz clazz) {
+            return param -> apply(clazz, param);
+        }
+
+        public static <Clazz, T, R> ClassFunction<Clazz, T, R> of(String className, String functionName, Class<?>... param) {
+            return new ClassFunction<>(findMethod(className, functionName, param));
         }
     }
 

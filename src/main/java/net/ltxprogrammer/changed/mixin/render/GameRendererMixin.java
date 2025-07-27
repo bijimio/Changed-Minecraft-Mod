@@ -116,6 +116,6 @@ public abstract class GameRendererMixin {
 
     @Inject(method = "renderItemInHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LightTexture;turnOffLightLayer()V"))
     public void hookFirstPersonParticles(PoseStack pose, Camera camera, float partialTicks, CallbackInfo ci) {
-        ChangedClient.particleSystem.render(pose, this.lightTexture(), camera, partialTicks, null, SetupContext.FIRST_PERSON);
+        ChangedClient.particleSystem.getOrThrow().render(pose, this.lightTexture(), camera, partialTicks, null, SetupContext.FIRST_PERSON);
     }
 }

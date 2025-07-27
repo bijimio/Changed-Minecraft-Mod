@@ -213,7 +213,8 @@ public class LatexParticlesLayer<T extends ChangedEntity, M extends AdvancedHuma
         } else
             return;
 
-        ChangedClient.particleSystem.addParticle(LatexDripParticle.of(entity, model, partToAttach, surface, color, alpha, 100));
+        ChangedClient.particleSystem.getOrThrow()
+                .addParticle(LatexDripParticle.of(entity, model, partToAttach, surface, color, alpha, 100));
     }
 
     private static Predicate<ModelPart> capturingPose = null;
@@ -233,7 +234,7 @@ public class LatexParticlesLayer<T extends ChangedEntity, M extends AdvancedHuma
 
     @Override
     public void render(PoseStack pose, MultiBufferSource bufferSource, int packedLight, T entity, float f1, float f2, float partialTicks, float bobAmount, float f3, float f4) {
-        final var particles = ChangedClient.particleSystem.getAllParticlesForEntity(entity);
+        final var particles = ChangedClient.particleSystem.getOrThrow().getAllParticlesForEntity(entity);
         if (particles.isEmpty())
             return;
 

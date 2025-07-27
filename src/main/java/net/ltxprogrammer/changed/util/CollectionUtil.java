@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -100,5 +101,19 @@ public class CollectionUtil {
                 it.set(e);
             }
         }
+    }
+
+    public static <T, R> Iterator<R> mapIterator(Iterator<T> iterator, Function<T, R> mapper) {
+        return new Iterator<R>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public R next() {
+                return mapper.apply(iterator.next());
+            }
+        };
     }
 }

@@ -1,26 +1,27 @@
-package net.ltxprogrammer.changed.mixin.compatibility.Rubidium;
+package net.ltxprogrammer.changed.mixin.compatibility.Sodium;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import me.jellysquid.mods.sodium.client.gl.compile.ChunkBuildContext;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildResult;
-import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderBounds;
-import me.jellysquid.mods.sodium.client.render.chunk.tasks.ChunkRenderRebuildTask;
-import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexEncoder;
-import me.jellysquid.mods.sodium.client.util.task.CancellationSource;
+import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildContext;
+import me.jellysquid.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask;
+import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
+import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.Material;
+import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
+import me.jellysquid.mods.sodium.client.util.task.CancellationToken;
 import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import net.ltxprogrammer.changed.block.LatexCoveringSource;
 import net.ltxprogrammer.changed.client.ChangedClient;
 import net.ltxprogrammer.changed.extension.RequiredMods;
-import net.ltxprogrammer.changed.extension.rubidium.OptimizedVertexBuilder;
-import net.ltxprogrammer.changed.extension.rubidium.WorldSliceExtension;
+import net.ltxprogrammer.changed.extension.sodium.OptimizedVertexBuilder;
+import net.ltxprogrammer.changed.extension.sodium.WorldSliceExtension;
 import net.ltxprogrammer.changed.world.LatexCoverGetter;
 import net.ltxprogrammer.changed.world.LatexCoverState;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,21 +33,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.HashMap;
 import java.util.Map;
 
-@Mixin(value = ChunkRenderRebuildTask.class, remap = false)
+@Mixin(value = ChunkBuilderMeshingTask.class, remap = false)
 @RequiredMods("rubidium")
 public abstract class ChunkRenderRebuildTaskMixin {
-    @Shadow @Final private RenderSection render;
+    @Shadow @Final private RandomSource random;
 
-    @Shadow @Final private XoroshiroRandomSource random;
+    @Shadow @Final private RenderSection render;
 
     @Unique
     public LatexCoverState getLatexCoverState(WorldSlice slice, BlockPos blockPos) {
-        return ((WorldSliceExtension)slice).getLatexCoverState(blockPos);
+        if (!((Object)slice instanceof WorldSliceExtension ext))
+            throw new IllegalStateException("WorldSlice not extended");
+        return ext.getLatexCoverState(blockPos);
     }
 
-    @Inject(method = "performBuild", at = @At(value = "INVOKE", target = "Ljava/util/EnumMap;<init>(Ljava/lang/Class;)V"))
-    public void addChangedSteps(ChunkBuildContext buildContext, CancellationSource cancellationSource, CallbackInfoReturnable<ChunkBuildResult> cir,
-                                @Local ChunkRenderBounds.Builder bounds) {
+    @Inject(method = "execute(Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lme/jellysquid/mods/sodium/client/util/task/CancellationToken;)Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;",
+            at = @At(value = "INVOKE", target = "Lit/unimi/dsi/fastutil/objects/Reference2ReferenceOpenHashMap;<init>()V"))
+    public void addChangedSteps(ChunkBuildContext buildContext, CancellationToken cancellationToken, CallbackInfoReturnable<Object> cir,
+                                @Local VisGraph occluder) {
         ChunkBuildBuffers buffers = buildContext.buffers;
         WorldSlice slice = buildContext.cache.getWorldSlice();
         BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
@@ -63,7 +67,7 @@ public abstract class ChunkRenderRebuildTaskMixin {
         int maxZ = minZ + 16;
 
         for(int y = minY; y < maxY; ++y) {
-            if (cancellationSource.isCancelled()) {
+            if (cancellationToken.isCancelled()) {
                 return;
             }
 
@@ -80,18 +84,24 @@ public abstract class ChunkRenderRebuildTaskMixin {
                         continue;
 
                     RenderType rendertype = ChangedClient.latexCoveredBlocksRenderer.get().getRenderType(latexCoverState);
+                    Material material = DefaultMaterials.forRenderLayer(rendertype);
 
                     boolean rendered = ChangedClient.latexCoveredBlocksRenderer.get().tesselate(
                             slice,
                             LatexCoverGetter.extend(slice, fetchPos -> this.getLatexCoverState(slice, fetchPos)),
                             blockPos,
-                            builderCache.computeIfAbsent(rendertype, type -> new OptimizedVertexBuilder(vertices, buffers.get(rendertype))),
+                            builderCache.computeIfAbsent(rendertype, type -> new OptimizedVertexBuilder(
+                                    vertices,
+                                    buffers.get(material),
+                                    material)),
                             blockState,
                             latexCoverState,
                             this.random);
 
-                    if (rendered)
-                        bounds.addBlock(x & 15, y & 15, z & 15);
+                    if (rendered) {
+                        blockPos.set(x & 15, y & 15, z & 15);
+                        occluder.setOpaque(blockPos);
+                    }
                 }
             }
         }
