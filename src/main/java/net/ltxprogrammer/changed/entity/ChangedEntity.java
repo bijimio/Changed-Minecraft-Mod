@@ -1174,7 +1174,8 @@ public abstract class ChangedEntity extends Monster {
     }
 
     public UseItemMode getItemUseMode() {
-        var instance = IAbstractChangedEntity.forEither(this.maybeGetUnderlying()).getTransfurVariantInstance();
+        var instance = IAbstractChangedEntity.forEitherSafe(this.maybeGetUnderlying())
+                .map(IAbstractChangedEntity::getTransfurVariantInstance).orElse(null);
         if (instance != null)
             return instance.getItemUseMode();
         var grabAbility = getAbilityInstance(ChangedAbilities.GRAB_ENTITY_ABILITY.get());
