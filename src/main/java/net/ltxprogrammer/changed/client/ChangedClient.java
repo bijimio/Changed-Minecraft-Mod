@@ -15,6 +15,7 @@ import net.ltxprogrammer.changed.entity.VisionType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.init.ChangedEntities;
+import net.ltxprogrammer.changed.init.ChangedFluids;
 import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.item.Syringe;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
@@ -37,6 +38,7 @@ import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.joml.Vector3f;
 
@@ -75,7 +77,12 @@ public class ChangedClient {
     public static void registerEventListeners() {
         Changed.addEventListener(ChangedClient::afterRenderStage);
         Changed.addEventListener(ChangedClient::onClientTick);
+        Changed.addLoadingEventListener(ChangedClient::onClientFinishSetup);
         Changed.addLoadingEventListener(AbilityRenderer::onRegisterModels);
+    }
+
+    public static void onClientFinishSetup(FMLLoadCompleteEvent event) {
+        ChangedFluids.APPLY_RENDER_LAYERS.forEach(Runnable::run);
     }
 
     public static void registerReloadListeners(Consumer<PreparableReloadListener> resourceManager) {
