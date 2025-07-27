@@ -165,7 +165,6 @@ dependencies {
     implementation fg.deobf("curse.maven:vivecraft-667903:6208688") // Forge 1.20.1 v1.2.5
     runtimeOnly fg.deobf("curse.maven:ferritecore-429235:4810975") // Forge 1.20.1 v6.0.1
 
-    compileOnly fg.deobf("curse.maven:rubidium-574856:4952685") // Forge 1.20.1 v0.7.1a
     implementation fg.deobf("org.embeddedt:embeddium-1.20.1:0.3.9-git.f603a93+mc1.20.1")
     runtimeOnly fg.deobf("curse.maven:oculus-581495:6020952") // Forge 1.20.1 v1.8.0
 
