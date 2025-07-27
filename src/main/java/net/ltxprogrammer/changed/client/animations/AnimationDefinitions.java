@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.client.animations;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import net.ltxprogrammer.changed.Changed;
@@ -10,9 +11,13 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fml.ModLoader;
+import net.minecraftforge.fml.event.IModBusEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class AnimationDefinitions extends SimplePreparableReloadListener<ImmutableMap<ResourceLocation, AnimationDefinition>> {
+import java.util.HashMap;
+
+public class AnimationDefinitions extends SimplePreparableReloadListener<AnimationDefinitions.GatherAnimationsEvent> {
     public static AnimationDefinitions INSTANCE = new AnimationDefinitions();
 
     private static ImmutableMap<ResourceLocation, AnimationDefinition> definitions;
@@ -21,15 +26,33 @@ public class AnimationDefinitions extends SimplePreparableReloadListener<Immutab
         return definitions.get(id);
     }
 
-    public static class GatherAnimationsEvent extends Event {
-        private final ImmutableMap.Builder<ResourceLocation, AnimationDefinition> builder;
+    public static class GatherAnimationsEvent extends Event implements IModBusEvent {
+        private final ImmutableSet<ResourceLocation> jsonDefined;
+        private final HashMap<ResourceLocation, AnimationDefinition> builder;
 
-        public GatherAnimationsEvent(ImmutableMap.Builder<ResourceLocation, AnimationDefinition> builder) {
+        public enum OverridePolicy {
+            YIELD_TO_JSON,
+            OVERRIDE_JSON
+        }
+
+        public GatherAnimationsEvent(ImmutableSet<ResourceLocation> jsonDefined, HashMap<ResourceLocation, AnimationDefinition> builder) {
+            this.jsonDefined = jsonDefined;
             this.builder = builder;
         }
 
         public void addAnimationDefinition(ResourceLocation id, AnimationDefinition definition) {
-            builder.put(id, definition);
+            this.addAnimationDefinition(id, definition, OverridePolicy.YIELD_TO_JSON);
+        }
+
+        public void addAnimationDefinition(ResourceLocation id, AnimationDefinition definition, OverridePolicy policy) {
+            if (policy == OverridePolicy.YIELD_TO_JSON && jsonDefined.contains(id))
+                Changed.LOGGER.debug("Animation {} from gather event was ignored by prioritizing existing JSON definition", id);
+            else
+                builder.put(id, definition);
+        }
+
+        private ImmutableMap<ResourceLocation, AnimationDefinition> build() {
+            return ImmutableMap.copyOf(this.builder);
         }
     }
 
@@ -40,19 +63,23 @@ public class AnimationDefinitions extends SimplePreparableReloadListener<Immutab
 
     @Override
     @NotNull
-    protected ImmutableMap<ResourceLocation, AnimationDefinition> prepare(@NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
-        final ImmutableMap.Builder<ResourceLocation, AnimationDefinition> builder = ResourceUtil.processJSONResources(new ImmutableMap.Builder<>(),
+    protected AnimationDefinitions.GatherAnimationsEvent prepare(@NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
+        final ImmutableSet.Builder<ResourceLocation> jsonDefined = new ImmutableSet.Builder<>();
+        final HashMap<ResourceLocation, AnimationDefinition> builder = ResourceUtil.processJSONResources(new HashMap<>(),
                 resourceManager, "animation_definitions",
-                (map, filename, id, json) -> map.put(id, processJSONFile(json)),
+                (map, filename, id, json) -> {
+                    map.put(id, processJSONFile(json));
+                    jsonDefined.add(id);
+                },
                 (exception, filename) -> Changed.LOGGER.error("Failed to load animation definition from \"{}\" : {}", filename, exception));
 
-        Changed.postModEvent(new GatherAnimationsEvent(builder));
-
-        return builder.build();
+        return new GatherAnimationsEvent(jsonDefined.build(), builder);
     }
 
     @Override
-    protected void apply(@NotNull ImmutableMap<ResourceLocation, AnimationDefinition> output, @NotNull ResourceManager resources, @NotNull ProfilerFiller profiler) {
-        definitions = output;
+    protected void apply(@NotNull AnimationDefinitions.GatherAnimationsEvent event, @NotNull ResourceManager resources, @NotNull ProfilerFiller profiler) {
+        ModLoader.get().postEvent(event);
+
+        definitions = event.build();
     }
 }
