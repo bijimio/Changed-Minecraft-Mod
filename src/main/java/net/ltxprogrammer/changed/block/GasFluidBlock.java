@@ -7,6 +7,6 @@ import java.util.function.Supplier;
 
 public class GasFluidBlock extends LiquidBlock {
     public GasFluidBlock(Supplier<? extends FlowingFluid> fluid) {
-        super(fluid, Properties.of().strength(100f));
+        super(fluid, Properties.of().replaceable().strength(100f));
     }
 }

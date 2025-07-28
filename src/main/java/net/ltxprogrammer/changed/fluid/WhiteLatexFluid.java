@@ -30,9 +30,7 @@ public abstract class WhiteLatexFluid extends AbstractLatexFluid {
             .block(ChangedBlocks.WHITE_LATEX_FLUID);
 
     public static FluidType createFluidType() {
-        return new FluidType(FluidType.Properties.create().descriptionId("white_latex")
-                .density(6000)
-                .viscosity(6000)) {
+        return new FluidType(AbstractLatexFluid.createProperties().descriptionId("white_latex")) {
             @Override
             public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
                 consumer.accept(new IClientFluidTypeExtensions() {
@@ -54,12 +52,6 @@ public abstract class WhiteLatexFluid extends AbstractLatexFluid {
     public WhiteLatexFluid() {
         super(PROPERTIES, ChangedLatexTypes.WHITE_LATEX, List.of(ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF));
     }
-
-    @Override
-    public Vec3 getFlow(BlockGetter world, BlockPos pos, FluidState fluidstate) {
-        return super.getFlow(world, pos, fluidstate).scale(-1);
-    }
-
 
     public BlockState createLegacyBlock(FluidState p_76466_) {
         return ChangedBlocks.WHITE_LATEX_FLUID.get().defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(p_76466_));

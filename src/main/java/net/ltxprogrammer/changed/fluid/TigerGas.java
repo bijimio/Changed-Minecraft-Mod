@@ -26,9 +26,7 @@ public abstract class TigerGas extends TransfurGas {
             .block(ChangedBlocks.TIGER_GAS);
 
     public static FluidType createFluidType() {
-        return new FluidType(FluidType.Properties.create().descriptionId("wolf_transfur_gas")
-                .density(200)
-                .viscosity(200)) {
+        return new GasFluidType(Gas.createProperties().descriptionId("tiger_transfur_gas")) {
             @Override
             public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
                 consumer.accept(new IClientFluidTypeExtensions() {

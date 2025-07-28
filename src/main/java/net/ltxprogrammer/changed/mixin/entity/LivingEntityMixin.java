@@ -258,6 +258,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
 
     @Unique @Nullable private Gas eyeInGas = null;
 
+    @Unique
     private void checkForGas() {
         eyeInGas = null;
         // Code from Entity.updateFluidOnEyes()

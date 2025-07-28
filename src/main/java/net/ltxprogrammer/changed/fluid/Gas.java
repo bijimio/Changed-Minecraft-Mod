@@ -5,10 +5,10 @@ import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -16,16 +16,43 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
-
-import java.util.Random;
 
 public abstract class Gas extends ForgeFlowingFluid {
     protected Gas(Properties properties) {
         super(properties);
     }
 
+    @NotNull
+    public static FluidType.Properties createProperties() {
+        return FluidType.Properties.create()
+                .density(200)
+                .viscosity(200)
+                .motionScale(0.0D)
+                .fallDistanceModifier(1.0f)
+                .canDrown(false)
+                .canPushEntity(false)
+                .canSwim(false);
+    }
+
+    public static class GasFluidType extends FluidType {
+        public GasFluidType(Properties properties) {
+            super(properties);
+        }
+
+        @Override
+        public boolean isAir() { // Requires accesstransformer to work
+            return true;
+        }
+    }
+
     public abstract Color3 getColor();
+
+    @Override
+    public float getOwnHeight(FluidState state) {
+        return Mth.map(super.getOwnHeight(state), 0.0f, 1.0f, 0.65f, 1.0f);
+    }
 
     @Override
     protected FluidState getNewLiquid(Level level, BlockPos pos, BlockState state) {

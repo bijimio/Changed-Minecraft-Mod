@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DarkLatexFluidBlock extends AbstractLatexFluidBlock {
     public DarkLatexFluidBlock() {
-        super(ChangedFluids.DARK_LATEX, BlockBehaviour.Properties.of().strength(100f));
+        super(ChangedFluids.DARK_LATEX, BlockBehaviour.Properties.of().replaceable().strength(100f));
     }
 
     @Override

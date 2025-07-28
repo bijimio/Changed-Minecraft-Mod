@@ -1,7 +1,5 @@
 package net.ltxprogrammer.changed.fluid;
 
-import net.ltxprogrammer.changed.block.AbstractLatexBlock;
-import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.latex.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
@@ -14,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -40,6 +37,13 @@ public abstract class AbstractLatexFluid extends ForgeFlowingFluid {
         super(properties);
         this.gooType = gooType;
         this.form = form;
+    }
+
+    public static FluidType.Properties createProperties() {
+        return FluidType.Properties.create()
+                .density(6000)
+                .viscosity(6000)
+                .motionScale(-0.014D);
     }
 
     @Override

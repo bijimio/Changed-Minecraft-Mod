@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class WhiteLatexFluidBlock extends AbstractLatexFluidBlock implements WhiteLatexTransportInterface {
     public WhiteLatexFluidBlock() {
-        super(ChangedFluids.WHITE_LATEX, BlockBehaviour.Properties.of().strength(100f));
+        super(ChangedFluids.WHITE_LATEX, BlockBehaviour.Properties.of().replaceable().strength(100f));
     }
 
     @Override

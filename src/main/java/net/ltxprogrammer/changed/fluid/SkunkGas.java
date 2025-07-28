@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.init.ChangedFluids;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -26,9 +27,8 @@ public abstract class SkunkGas extends TransfurGas {
             .block(ChangedBlocks.SKUNK_GAS);
 
     public static FluidType createFluidType() {
-        return new FluidType(FluidType.Properties.create().descriptionId("wolf_transfur_gas")
-                .density(200)
-                .viscosity(200)) {
+        return new GasFluidType(Gas.createProperties().descriptionId("skunk_transfur_gas")
+                .rarity(Rarity.RARE)) {
             @Override
             public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
                 consumer.accept(new IClientFluidTypeExtensions() {
