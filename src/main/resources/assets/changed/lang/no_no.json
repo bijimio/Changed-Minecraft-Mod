@@ -60,7 +60,7 @@
   "subtitles.changed.chime2": "Tastatur gir tilgang",
   "subtitles.changed.buzzer1": "Tastatur nektet tilgang",
   "subtitles.changed.crash": "Beholder blir ødelagt",
-  "subtitles.changed.equip3": "Bukser rasler",
+  "subtitles.changed.equip3": "Klær rasler",
   "subtitles.changed.fire": "Gass hveser",
   "subtitles.changed.bow2": "Eske åpnes",
   "subtitles.changed.ice2": "Krystall forlenges",
@@ -180,6 +180,10 @@
   "item.changed.the_white_tail_chase_part_1_record.desc": "Shizi - The White Tail Chase Part 1",
   "item.changed.the_white_tail_chase_part_2_record.desc": "Shizi - The White Tail Chase Part 2",
   "item.changed.vent_pipe_record.desc": "Shizi - Vent Pipe",
+
+
+
+
 
 
 

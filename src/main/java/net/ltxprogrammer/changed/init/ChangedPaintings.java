@@ -17,8 +17,10 @@ public class ChangedPaintings {
     public static final RegistryObject<PaintingVariant> DR_K = register(32, 32, "dr_k");
     public static final RegistryObject<PaintingVariant> EARTH_AND_MOON = register(48, 32, "earth_and_moon");
     public static final RegistryObject<PaintingVariant> KADE_TAIL = register(32, 32, "kade_tail");
+    public static final RegistryObject<PaintingVariant> PURO_DOODLE = register(32, 32, "puro_doodle");
     public static final RegistryObject<PaintingVariant> PURO_PLACE = register(32, 32, "puro_place");
-    public static final RegistryObject<PaintingVariant> PURO_POINT = register(48, 32, "puropoint");
+    public static final RegistryObject<PaintingVariant> PURO_POINT = register(48, 32, "puro_point");
+    public static final RegistryObject<PaintingVariant> PURO_PORTRAIT = register(32, 48, "puro_portrait");
     public static final RegistryObject<PaintingVariant> SHARKS_GAZE = register(64, 64, "sharks_gaze");
     public static final RegistryObject<PaintingVariant> TSC_BUILDING = register(64, 48, "thunder_science_building");
 }

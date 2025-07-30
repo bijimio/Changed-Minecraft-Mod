@@ -60,7 +60,7 @@
   "subtitles.changed.chime2": "Knappsats ger åtkomst",
   "subtitles.changed.buzzer1": "Knappsats nekar åtkomst",
   "subtitles.changed.crash": "Behållare förstörs",
-  "subtitles.changed.equip3": "Byxorna knarrar",
+  "subtitles.changed.equip3": "Kläder prassla",
   "subtitles.changed.fire": "Gas väser",
   "subtitles.changed.bow2": "Lådan öppnas",
   "subtitles.changed.ice2": "Kristall sträcker sig",
@@ -180,6 +180,10 @@
   "item.changed.the_white_tail_chase_part_1_record.desc": "Shizi - The White Tail Chase Part 1",
   "item.changed.the_white_tail_chase_part_2_record.desc": "Shizi - The White Tail Chase Part 2",
   "item.changed.vent_pipe_record.desc": "Shizi - Vent Pipe",
+
+
+
+
 
 
 

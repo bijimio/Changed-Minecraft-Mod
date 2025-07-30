@@ -95,6 +95,10 @@
 			"rotation": [0, 180, 0],
 			"translation": [0, -2.0, 0],
 			"scale": [0.34, 0.34, 0.34]
+		},
+		"head": {
+			"translation": [0, -2.0, 8.5],
+			"scale": [0.27, 0.27, 0.27]
 		}
 	},
 	"groups": [
